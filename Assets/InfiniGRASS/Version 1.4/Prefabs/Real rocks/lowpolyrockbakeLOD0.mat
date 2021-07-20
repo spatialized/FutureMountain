@@ -1,0 +1,123 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: lowpolyrockbakeLOD0
+  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: _EMISSION _NORMALMAP
+  m_LightmapFlags: 1
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: f3dc3b7ea94c4d04e9db2cf719297abc, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Diffuse:
+        m_Texture: {fileID: 2800000, guid: a658ecdd8ce84bd4186e9d13cf4a5b48, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: a658ecdd8ce84bd4186e9d13cf4a5b48, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal:
+        m_Texture: {fileID: 2800000, guid: f3dc3b7ea94c4d04e9db2cf719297abc, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SnowBump:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SnowTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _BulgeScale: 0.16938776
+    - _BulgeScale_copy: 0
+    - _BulgeShape: 0
+    - _BumpScale: 6.36
+    - _Cutoff: 0.584
+    - _Depth: 0.01
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _FadeThreshold: 510
+    - _GlossMapScale: 1
+    - _Glossiness: 0.862
+    - _GlossyReflections: 1
+    - _LightIntensity: 0.5
+    - _Metallic: 0.022
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _RandYScale: 0
+    - _RippleScale: 0
+    - _Shininess: 0.081
+    - _SmoothMotionFactor: 255
+    - _SmoothnessTextureChannel: 0
+    - _SnowBlend: 0.4
+    - _SnowBumpDepth: 1.03
+    - _SnowCoverage: 0
+    - _SpecularHighlights: 1
+    - _SpecularPower: 0.83469373
+    - _SrcBlend: 1
+    - _StopMotionThreshold: 15
+    - _TintFrequency: 0.01
+    - _TintPower: 1.0102041
+    - _UVSec: 0
+    - _WaveXFactor: 1
+    - _WaveYFactor: 1
+    - _ZWrite: 1
+    m_Colors:
+    - _Color: {r: 0.632653, g: 0.64285713, b: 0.63265306, a: 1}
+    - _Direction: {r: 0, g: 1, b: 0, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _HeightControlPoints: {r: 1, g: 1, b: 1, a: 1}
+    - _InteractPos: {r: 188.2799, g: 262.33957, b: 282.333, a: 0}
+    - _OceanCenter: {r: -0, g: 0, b: 0, a: 0}
+    - _Power: {r: 0.5, g: 0.5, b: 1, a: 1}
+    - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    - _TimeControl1: {r: 2, g: 1, b: 1, a: 0}
+    - _WaveControl1: {r: 0, g: 0, b: 0, a: 0}
