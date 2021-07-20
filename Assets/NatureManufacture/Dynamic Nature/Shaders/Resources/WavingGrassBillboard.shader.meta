@@ -1,0 +1,11 @@
+fileFormatVersion: 2
+guid: 24af149fdf7c6a4449b0fc296d39490b
+timeCreated: 1482223976
+licenseType: Store
+ShaderImporter:
+  defaultTextures:
+  - _MainTex: {instanceID: 0}
+  - _SnowTex: {fileID: 2800000, guid: 2642cc082dbcb644b9e8055ca9427960, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
