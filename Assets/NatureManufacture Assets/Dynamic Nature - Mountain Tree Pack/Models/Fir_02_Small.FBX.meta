@@ -1,0 +1,165 @@
+fileFormatVersion: 2
+guid: 930e3747c79fedb42bfa84b744f57759
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Fir_02_bark_LOD0
+    100002: Fir_02_bark_LOD1
+    100004: Fir_02_leaves_LOD0
+    100006: Fir_02_leaves_LOD1
+    100008: Fir_02_leaves_LOD2
+    100010: Fir_02_leaves_LOD3
+    100012: //RootNode
+    100014: Fir_02_Small_LOD4
+    100016: Fir_02_small_LOD0
+    100018: Fir_02_small_LOD1
+    100020: Fir_02_small_LOD2
+    100022: Fir_02_small_LOD3
+    400000: Fir_02_bark_LOD0
+    400002: Fir_02_bark_LOD1
+    400004: Fir_02_leaves_LOD0
+    400006: Fir_02_leaves_LOD1
+    400008: Fir_02_leaves_LOD2
+    400010: Fir_02_leaves_LOD3
+    400012: //RootNode
+    400014: Fir_02_Small_LOD4
+    400016: Fir_02_small_LOD0
+    400018: Fir_02_small_LOD1
+    400020: Fir_02_small_LOD2
+    400022: Fir_02_small_LOD3
+    2300000: Fir_02_bark_LOD0
+    2300002: Fir_02_bark_LOD1
+    2300004: Fir_02_leaves_LOD0
+    2300006: Fir_02_leaves_LOD1
+    2300008: Fir_02_leaves_LOD2
+    2300010: Fir_02_leaves_LOD3
+    2300012: Fir_02_Small_LOD4
+    2300014: Fir_02_small_LOD0
+    2300016: Fir_02_small_LOD1
+    2300018: Fir_02_small_LOD2
+    2300020: Fir_02_small_LOD3
+    3300000: Fir_02_bark_LOD0
+    3300002: Fir_02_bark_LOD1
+    3300004: Fir_02_leaves_LOD0
+    3300006: Fir_02_leaves_LOD1
+    3300008: Fir_02_leaves_LOD2
+    3300010: Fir_02_leaves_LOD3
+    3300012: Fir_02_Small_LOD4
+    3300014: Fir_02_small_LOD0
+    3300016: Fir_02_small_LOD1
+    3300018: Fir_02_small_LOD2
+    3300020: Fir_02_small_LOD3
+    4300000: Fir_02_Small_LOD4
+    4300002: Fir_02_bark_LOD1
+    4300004: Fir_02_bark_LOD0
+    4300006: Fir_02_leaves_LOD0
+    4300008: Fir_02_leaves_LOD1
+    4300010: Fir_02_leaves_LOD2
+    4300012: Fir_02_leaves_LOD3
+    4300014: Fir_02_small_LOD1
+    4300016: Fir_02_small_LOD0
+    4300018: Fir_02_small_LOD2
+    4300020: Fir_02_small_LOD3
+    7400000: Take 001
+    9500000: //RootNode
+    20500000: //RootNode
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_Bark_Fir_01
+    second: {fileID: 2100000, guid: 1cfdb7943d3947a42b25af13ecd82f6a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: M_leaves_Fir
+    second: {fileID: 2100000, guid: b3e91bf8c72c1ec4b814459f1e1367ac, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages:
+    - 0.25
+    - 0.125
+    - 0.0625
+    - 0.01
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 1
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 0
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 1
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
