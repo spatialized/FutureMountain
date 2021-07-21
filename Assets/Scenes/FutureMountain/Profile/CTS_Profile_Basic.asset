@@ -1,0 +1,375 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fb348b92be0d544c94139d9cd5c3b93, type: 3}
+  m_Name: CTS_Profile_Basic
+  m_EditorClassIdentifier: 
+  m_ctsMajorVersion: 1
+  m_ctsMinorVersion: 5
+  m_persistMaterials: 0
+  m_showGlobalSettings: 1
+  m_showSnowSettings: 0
+  m_showTextureSettings: 0
+  m_showGeoSettings: 0
+  m_showDetailSettings: 0
+  m_showColorMapSettings: 0
+  m_showOptimisationSettings: 0
+  m_ctsDirectory: Assets/CTS/
+  m_shaderType: 1
+  m_globalUvMixPower: 0.5
+  m_globalUvMixStartDistance: 400
+  m_globalNormalPower: 0.239
+  m_globalDetailNormalClosePower: 0.57
+  m_globalDetailNormalCloseTiling: 50
+  m_globalDetailNormalFarPower: 0.63
+  m_globalDetailNormalFarTiling: 342
+  m_globalTerrainSmoothness: 1
+  m_globalTerrainSpecular: 1
+  m_globalTesselationPower: 10.53
+  m_globalTesselationMinDistance: 0
+  m_globalTesselationMaxDistance: 50
+  m_globalTesselationPhongStrength: 1
+  m_globalAOType: 0
+  m_globalAOPower: 1
+  m_globalBasemapDistance: 800
+  m_globalOptimiseAtRuntime: 1
+  m_globalDisconnectAtRuntime: 0
+  m_colorMapClosePower: 0
+  m_colorMapFarPower: 0
+  m_geoMapCloseOffset: 0
+  m_geoMapClosePower: 0.58
+  m_geoMapTilingClose: 48
+  m_geoMapFarOffset: 0.289
+  m_geoMapFarPower: 0.91
+  m_geoMapTilingFar: 606
+  m_snowAmount: 1.99
+  m_snowMaxAngle: 49
+  m_snowMaxAngleHardness: 2.52
+  m_snowMinHeight: 853
+  m_snowMinHeightBlending: 494
+  m_snowNoisePower: 0.651
+  m_snowNoiseTiling: 0.002
+  m_snowNormalScale: 1
+  m_snowDetailPower: 0.345
+  m_snowTilingClose: 15
+  m_snowTilingFar: 3
+  m_snowBrightness: 1
+  m_snowBlendNormal: 0.83
+  m_snowSmoothness: 1
+  m_snowTint:
+    r: 1
+    g: 1
+    b: 1
+    a: 1
+  m_snowSpecular: 1
+  m_snowHeightmapBlendClose: 4.09
+  m_snowHeightmapBlendFar: 4.04
+  m_snowHeightmapDepth: 4.6
+  m_snowHeightmapContrast: 1.82
+  m_snowHeightmapMinValue: 0.18431373
+  m_snowHeightmapMaxValue: 0.5019608
+  m_snowTesselationDepth: 0
+  m_snowAOStrength: 1
+  m_snowAverage: {x: 0.5972019, y: 0.56471163, z: 0.6104956, w: 0.17254902}
+  m_albedoFormat: 4
+  m_albedoAniso: 8
+  m_albedoFilterMode: 1
+  m_albedoTextureSize: 4
+  m_albedoTextureSizePx: 1024
+  m_albedoCompress: 1
+  m_normalFormat: 4
+  m_normalAniso: 8
+  m_normalFilterMode: 1
+  m_normalTextureSize: 4
+  m_normalTextureSizePx: 1024
+  m_normalCompress: 1
+  m_globalDetailNormalMapIdx: 7
+  m_globalDetailNormalMap: {fileID: 2800000, guid: 58f1d16cd0295f746b538f2d9d4f8d72,
+    type: 3}
+  m_snowAlbedoTextureIdx: 6
+  m_snowAlbedoTexture: {fileID: 2800000, guid: e3d23591e079b694dbef7559cff1c714, type: 3}
+  m_snowNormalTextureIdx: 6
+  m_snowNormalTexture: {fileID: 2800000, guid: f60384dc9bf570a4990afa5ced417875, type: 3}
+  m_snowNoiseTextureIdx: 8
+  m_snowNoiseTexture: {fileID: 2800000, guid: 29effafbe0176af44a2be596b3d4ac0e, type: 3}
+  m_snowHeightTextureIdx: 7
+  m_snowHeightTexture: {fileID: 2800000, guid: 3c71b7b7f14f6cc4496ae84fa7177113, type: 3}
+  m_snowAOTextureIdx: 7
+  m_snowAOTexture: {fileID: 2800000, guid: 24fe1b9740d909842b94faaf0f579437, type: 3}
+  m_snowEmissionTextureIdx: -1
+  m_snowEmissionTexture: {fileID: 0}
+  m_geoAlbedoTexture: {fileID: 2800000, guid: a8b026679658e0a458404f9f86468a66, type: 3}
+  m_terrainTextures:
+  - m_isOpenInEditor: 0
+    m_textureIdx: 0
+    m_name: T_Ground_Sand_02_A_Sm
+    m_detailPower: 0.765
+    m_snowReductionPower: 0.887
+    m_geologicalPower: 0.206
+    m_triplanar: 0
+    m_tint:
+      r: 1
+      g: 1
+      b: 1
+      a: 1
+    m_tintBrightness: 1
+    m_smoothness: 1
+    m_substanceRegenOnBake: 0
+    m_substance: {fileID: 0}
+    m_albedoIdx: 0
+    m_albedoTilingClose: 8
+    m_albedoTilingFar: 3.43
+    m_albedoAverage: {x: 0.36130688, y: 0.30946895, z: 0.20863685, w: 0.27450982}
+    m_albedoTexture: {fileID: 2800000, guid: e801b082573ffb046933b909fc597026, type: 3}
+    m_smoothnessTexture: {fileID: 0}
+    m_roughnessTexture: {fileID: 0}
+    m_normalIdx: 0
+    m_normalStrength: 1.24
+    m_normalTexture: {fileID: 2800000, guid: b55624bb5243cb647902fe0085bf3a23, type: 3}
+    m_heightIdx: -1
+    m_heightDepth: 8
+    m_heightContrast: 1
+    m_heightBlendClose: 1
+    m_heightBlendFar: 1
+    m_heightTesselationDepth: 3.13
+    m_heightMin: 0.019607844
+    m_heightMax: 0.19215687
+    m_heightTexture: {fileID: 2800000, guid: 26c0fe9afb82d404093382289b8e3ddf, type: 3}
+    m_aoIdx: -1
+    m_aoPower: 1
+    m_aoTexture: {fileID: 2800000, guid: 0ba8d86bc06f3e4438ec095d586d5883, type: 3}
+    m_emissionIdx: -1
+    m_emissionStrength: 1
+    m_emissionTexture: {fileID: 0}
+  - m_isOpenInEditor: 0
+    m_textureIdx: 1
+    m_name: T_Ground_Sand_01_A_Sm
+    m_detailPower: 0.507
+    m_snowReductionPower: 0.625
+    m_geologicalPower: 0
+    m_triplanar: 0
+    m_tint:
+      r: 1
+      g: 1
+      b: 1
+      a: 1
+    m_tintBrightness: 1
+    m_smoothness: 1
+    m_substanceRegenOnBake: 0
+    m_substance: {fileID: 0}
+    m_albedoIdx: 1
+    m_albedoTilingClose: 7
+    m_albedoTilingFar: 3
+    m_albedoAverage: {x: 0.3467041, y: 0.2874409, z: 0.18782076, w: 0.23137255}
+    m_albedoTexture: {fileID: 2800000, guid: 298022d09fc91234ea2bfe2aee0cc42b, type: 3}
+    m_smoothnessTexture: {fileID: 0}
+    m_roughnessTexture: {fileID: 0}
+    m_normalIdx: 1
+    m_normalStrength: 1.2
+    m_normalTexture: {fileID: 2800000, guid: 3db4890b8f5e56347be71f3dfc8cdbbc, type: 3}
+    m_heightIdx: -1
+    m_heightDepth: 2.71
+    m_heightContrast: 1
+    m_heightBlendClose: 10
+    m_heightBlendFar: 1
+    m_heightTesselationDepth: 2.86
+    m_heightMin: 0.06666667
+    m_heightMax: 0.54901963
+    m_heightTexture: {fileID: 2800000, guid: 5dfcc6d65ec54b0408c99514281d0276, type: 3}
+    m_aoIdx: -1
+    m_aoPower: 1
+    m_aoTexture: {fileID: 2800000, guid: a945aedb17527a844be324bcc1e8b06b, type: 3}
+    m_emissionIdx: -1
+    m_emissionStrength: 1
+    m_emissionTexture: {fileID: 0}
+  - m_isOpenInEditor: 0
+    m_textureIdx: 2
+    m_name: T_Ground_Grass_03_A_Sm
+    m_detailPower: 1
+    m_snowReductionPower: 0
+    m_geologicalPower: 0.059
+    m_triplanar: 0
+    m_tint:
+      r: 0.92525357
+      g: 1
+      b: 0.9191176
+      a: 1
+    m_tintBrightness: 1
+    m_smoothness: 1
+    m_substanceRegenOnBake: 0
+    m_substance: {fileID: 0}
+    m_albedoIdx: 2
+    m_albedoTilingClose: 10
+    m_albedoTilingFar: 3
+    m_albedoAverage: {x: 0.10946172, y: 0.1412633, z: 0.045186203, w: 0.26666668}
+    m_albedoTexture: {fileID: 2800000, guid: 1c407f2b282ac0d43a90ff441b103165, type: 3}
+    m_smoothnessTexture: {fileID: 0}
+    m_roughnessTexture: {fileID: 0}
+    m_normalIdx: 2
+    m_normalStrength: 3.1
+    m_normalTexture: {fileID: 2800000, guid: 0240572a8d4922f40897ed53bb8db93e, type: 3}
+    m_heightIdx: -1
+    m_heightDepth: 10
+    m_heightContrast: 1
+    m_heightBlendClose: 6.94
+    m_heightBlendFar: 1
+    m_heightTesselationDepth: 6.3
+    m_heightMin: 0
+    m_heightMax: 0.050980393
+    m_heightTexture: {fileID: 2800000, guid: 70d5a8dfcf34d4142b43459736c11059, type: 3}
+    m_aoIdx: -1
+    m_aoPower: 1
+    m_aoTexture: {fileID: 2800000, guid: 6b727b9fbbd6dd54ca239b62efd73a19, type: 3}
+    m_emissionIdx: -1
+    m_emissionStrength: 1
+    m_emissionTexture: {fileID: 0}
+  - m_isOpenInEditor: 0
+    m_textureIdx: 3
+    m_name: T_Ground_Grass_dry_03_A_Sm
+    m_detailPower: 1
+    m_snowReductionPower: 0
+    m_geologicalPower: 0.076
+    m_triplanar: 0
+    m_tint:
+      r: 0.8161765
+      g: 0.7350555
+      b: 0.5221129
+      a: 1
+    m_tintBrightness: 1.27
+    m_smoothness: 1.4
+    m_substanceRegenOnBake: 0
+    m_substance: {fileID: 0}
+    m_albedoIdx: 3
+    m_albedoTilingClose: 20
+    m_albedoTilingFar: 3
+    m_albedoAverage: {x: 0.13013649, y: 0.1499598, z: 0.11697067, w: 0.30980393}
+    m_albedoTexture: {fileID: 2800000, guid: 222327075828c2542873ba1473ad196d, type: 3}
+    m_smoothnessTexture: {fileID: 0}
+    m_roughnessTexture: {fileID: 0}
+    m_normalIdx: 3
+    m_normalStrength: 1.25
+    m_normalTexture: {fileID: 2800000, guid: 0240572a8d4922f40897ed53bb8db93e, type: 3}
+    m_heightIdx: -1
+    m_heightDepth: 10
+    m_heightContrast: 1
+    m_heightBlendClose: 2.87
+    m_heightBlendFar: 1
+    m_heightTesselationDepth: 6.3
+    m_heightMin: 0
+    m_heightMax: 0.050980393
+    m_heightTexture: {fileID: 2800000, guid: 70d5a8dfcf34d4142b43459736c11059, type: 3}
+    m_aoIdx: -1
+    m_aoPower: 1
+    m_aoTexture: {fileID: 2800000, guid: 6b727b9fbbd6dd54ca239b62efd73a19, type: 3}
+    m_emissionIdx: -1
+    m_emissionStrength: 1
+    m_emissionTexture: {fileID: 0}
+  - m_isOpenInEditor: 0
+    m_textureIdx: 4
+    m_name: T_Ground_Ground_03_A_Sm
+    m_detailPower: 1
+    m_snowReductionPower: 0
+    m_geologicalPower: 0.155
+    m_triplanar: 0
+    m_tint:
+      r: 1
+      g: 1
+      b: 1
+      a: 1
+    m_tintBrightness: 1
+    m_smoothness: 1
+    m_substanceRegenOnBake: 0
+    m_substance: {fileID: 0}
+    m_albedoIdx: 4
+    m_albedoTilingClose: 15
+    m_albedoTilingFar: 3
+    m_albedoAverage: {x: 0.057805434, y: 0.051269468, z: 0.0409152, w: 0.19215687}
+    m_albedoTexture: {fileID: 2800000, guid: d63821ae7aad5644bb235a246a7752d2, type: 3}
+    m_smoothnessTexture: {fileID: 0}
+    m_roughnessTexture: {fileID: 0}
+    m_normalIdx: 4
+    m_normalStrength: 1
+    m_normalTexture: {fileID: 2800000, guid: c716db1bed6c9e845890ffadc4c12200, type: 3}
+    m_heightIdx: -1
+    m_heightDepth: 10
+    m_heightContrast: 1
+    m_heightBlendClose: 4.96
+    m_heightBlendFar: 3
+    m_heightTesselationDepth: 5.06
+    m_heightMin: 0.003921569
+    m_heightMax: 0.043137256
+    m_heightTexture: {fileID: 2800000, guid: c5fc7e54a5522124ea48256f03413db4, type: 3}
+    m_aoIdx: -1
+    m_aoPower: 1
+    m_aoTexture: {fileID: 2800000, guid: 5d4873675ccc49c44add95663c196ba3, type: 3}
+    m_emissionIdx: -1
+    m_emissionStrength: 1
+    m_emissionTexture: {fileID: 0}
+  - m_isOpenInEditor: 0
+    m_textureIdx: 5
+    m_name: T_Ground_Rock_03_A_Sm
+    m_detailPower: 0.78
+    m_snowReductionPower: 0
+    m_geologicalPower: 0.477
+    m_triplanar: 1
+    m_tint:
+      r: 1
+      g: 1
+      b: 1
+      a: 1
+    m_tintBrightness: 0.912
+    m_smoothness: 1
+    m_substanceRegenOnBake: 0
+    m_substance: {fileID: 0}
+    m_albedoIdx: 5
+    m_albedoTilingClose: 20
+    m_albedoTilingFar: 2
+    m_albedoAverage: {x: 0.21586053, y: 0.19461781, z: 0.18782076, w: 0.3019608}
+    m_albedoTexture: {fileID: 2800000, guid: 6e5bd9fac1997a9438a64addc653afc7, type: 3}
+    m_smoothnessTexture: {fileID: 0}
+    m_roughnessTexture: {fileID: 0}
+    m_normalIdx: 5
+    m_normalStrength: 1
+    m_normalTexture: {fileID: 2800000, guid: 676c1f0fc2c1c534f8bead70eb94709e, type: 3}
+    m_heightIdx: -1
+    m_heightDepth: 9.34
+    m_heightContrast: 1
+    m_heightBlendClose: 4.96
+    m_heightBlendFar: 1
+    m_heightTesselationDepth: 6.93
+    m_heightMin: 0
+    m_heightMax: 0.9764706
+    m_heightTexture: {fileID: 2800000, guid: dc5429dc7418da843bfd99ed87a19d63, type: 3}
+    m_aoIdx: -1
+    m_aoPower: 1
+    m_aoTexture: {fileID: 2800000, guid: 2e6ff52520e66c84ea9f635b0a6e1a2a, type: 3}
+    m_emissionIdx: -1
+    m_emissionStrength: 1
+    m_emissionTexture: {fileID: 0}
+  m_replacementTerrainAlbedos:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  m_replacementTerrainNormals:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  m_albedosTextureArray: {fileID: 18700000, guid: 93d6053aa7397904281ba66fbc6ba32c,
+    type: 2}
+  m_needsAlbedosArrayUpdate: 0
+  m_normalsTextureArray: {fileID: 18700000, guid: 67b828dd24026c34583fdf3c63fd0a04,
+    type: 2}
+  m_needsNormalsArrayUpdate: 0
