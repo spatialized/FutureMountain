@@ -1,0 +1,195 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: Horizon[ON] Terrain (Gamma)
+  m_Shader: {fileID: 4800000, guid: 46a2a7156e150694eaaf7b78c74ff117, type: 3}
+  m_ShaderKeywords: _CLIFFDETAIL_COLOR _DETAIL_ON _DIRECTSPEC_OFF _EMISSIVENESS_OFF
+    _IBLDIFF_UNITYSH _IBLSPEC_OFF _LAYERCOUNT_FOUR _NORMALMAPS_ON _OVERLAYFOG_ON _SNOW_ON
+    _WATER_OFF
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseColormap:
+        m_Texture: {fileID: 2800000, guid: e9f402b8afa50044cb0e78f9f1e80284, type: 3}
+        m_Scale: {x: 30, y: 30}
+        m_Offset: {x: 0, y: 0}
+    - _BaseNormalmap:
+        m_Texture: {fileID: 2800000, guid: 3171300cbbceea444a68685067ae6f7b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BlendColorMap1:
+        m_Texture: {fileID: 2800000, guid: 276c9ff0530ca6f4a95a8df28bd516af, type: 3}
+        m_Scale: {x: 40, y: 40}
+        m_Offset: {x: 0, y: 0}
+    - _BlendColormap2:
+        m_Texture: {fileID: 2800000, guid: 2e8220ae7aa011c4bb30b22cad0d7715, type: 3}
+        m_Scale: {x: 30, y: 30}
+        m_Offset: {x: 0, y: 0}
+    - _BlendColormap3:
+        m_Texture: {fileID: 2800000, guid: 4d105b3f8ace5a1458000223ac56e9d1, type: 3}
+        m_Scale: {x: 30, y: 30}
+        m_Offset: {x: 0, y: 0}
+    - _BlendNormalmap1:
+        m_Texture: {fileID: 2800000, guid: 243729adc5f6fb54b92fe379a7752b0e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BlendNormalmap2:
+        m_Texture: {fileID: 2800000, guid: 4aa07537f44de1f49ae65aa2c6885980, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BlendNormalmap3:
+        m_Texture: {fileID: 2800000, guid: 7df939003ce80bb44b7c52d598c18d0c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: f12a75e1cff6e3543bea97a371ae687b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CliffColormap:
+        m_Texture: {fileID: 2800000, guid: 4aed816497c4db149bd7c09f9520c94f, type: 3}
+        m_Scale: {x: 20, y: 20}
+        m_Offset: {x: 0, y: 0}
+    - _CliffDetailNormalmap:
+        m_Texture: {fileID: 2800000, guid: 936a25a2b83a81343826beba4c17dcda, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _CliffDetailmap:
+        m_Texture: {fileID: 2800000, guid: c99098516ff204644a834e3696fa65ee, type: 3}
+        m_Scale: {x: 200, y: 200}
+        m_Offset: {x: 0, y: 0}
+    - _CliffNormalmap:
+        m_Texture: {fileID: 2800000, guid: 936a25a2b83a81343826beba4c17dcda, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailColormap:
+        m_Texture: {fileID: 2800000, guid: 40faea63c2594724b950d3c859fbfc33, type: 3}
+        m_Scale: {x: 10, y: 10}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalmap:
+        m_Texture: {fileID: 2800000, guid: 041470795dff0f14486e8b32bd55122c, type: 3}
+        m_Scale: {x: 10, y: 10}
+        m_Offset: {x: 0, y: 0}
+    - _DiffuseIBLCubemap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 440eb36db91ca410f800ff3cfe43572f, type: 3}
+        m_Scale: {x: 100, y: 100}
+        m_Offset: {x: 0, y: 0}
+    - _MaskRBlend1GBlend2BBlend3AWater:
+        m_Texture: {fileID: 2800000, guid: 935bb5e9d7778894a880956b338142b4, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _WaterNormalmap:
+        m_Texture: {fileID: 2800000, guid: db106602c484ead42924297aa3f4faef, type: 3}
+        m_Scale: {x: 100, y: 100}
+        m_Offset: {x: 0, y: 0}
+    - unity_SpecCube0:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _AmbientIBL: 1
+    - _BaseDetailIntensity: 0.5
+    - _BaseEmission: 0
+    - _BaseGloss: 0
+    - _BlendDetailIntensity1: 0.2
+    - _BlendDetailIntensity2: 0.8
+    - _BlendDetailIntensity3: 0.5
+    - _BlendEmission1: 0
+    - _BlendEmission2: 0
+    - _BlendEmission3: 0
+    - _BlendGloss1: 0
+    - _BlendGloss2: 0
+    - _BlendGloss3: 0
+    - _CliffDetail: 1
+    - _CliffDetailColorIntensity: 0.5
+    - _CliffDetailNormalIntensity: 1
+    - _CliffEmission: 0
+    - _CliffGloss: 1
+    - _Detail: 1
+    - _DetailColormapIntensity: 1
+    - _DetailNormalmapIntensity: 1
+    - _DiffIBLMulti: 0.5
+    - _DirectSpec: 0
+    - _Emissiveness: 0
+    - _GlobalNormalmapIntensity: 1
+    - _IBLDiff: 3
+    - _IBLMIPDim_Gloss: 1
+    - _IBLMIPDim_Rough: 0.25
+    - _IBLSpec: 0
+    - _IBLSpecGlossMIP: 0
+    - _IBLSpecRoughMIP: 5
+    - _LayerCount: 3
+    - _LocalSpace: 0
+    - _Normalmaps: 1
+    - _OverlayFog: 1
+    - _OverlayFogAmount: 0
+    - _OverlayFogAmountFromReflCubemap: 0
+    - _OverlayFogDistance2Height: 10
+    - _OverlayFogDistanceTransition: 3000
+    - _OverlayFogEmissivePunchThru: 1
+    - _OverlayFogHeightTransition: 600
+    - _OverlayFogStartDistance: 100
+    - _OverlayFogStartHeight: 0
+    - _Shininess: 0.09306367
+    - _Snow: 1
+    - _SnowAmount: 1
+    - _SnowHeight: 800
+    - _SnowHeightTransition: 1000
+    - _SnowOutputColorBrightness2Coverage: 0.8
+    - _SnowSlopeDamp: 3.2
+    - _SpecIBLMulti: 1
+    - _Water: 0
+    - _WaterBlend: 1
+    - _WaterWaveSpeed: 1
+    - _WaterWaves: 0.18
+    - dummy_ambient: 0
+    - dummy_begin: 1
+    - dummy_cliff: 1
+    - dummy_cliff_normal_info: 0
+    - dummy_cliffdetail: 1
+    - dummy_detail: 0
+    - dummy_fog: 0
+    - dummy_layer1: 0
+    - dummy_layer2: 0
+    - dummy_layer3: 0
+    - dummy_layer4: 0
+    - dummy_main: 0
+    - dummy_snow: 0
+    - dummy_specular: 0
+    - dummy_water: 1
+    m_Colors:
+    - _AmbientOverrideAAmount: {r: 0.86167216, g: 0.9352302, b: 0.9764853, a: 0}
+    - _Anchor: {r: 0, g: 0, b: 0, a: 0}
+    - _Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _EmissionColor: {r: 0.99999994, g: 0.99999994, b: 0.99999994, a: 0.05882353}
+    - _MapScaleOffset: {r: 1024, g: 1024, b: 512, a: 512}
+    - _OverlayFogColorAfromAmbient: {r: 0.6009804, g: 0.6215687, b: 0.6431373, a: 0}
+    - _SnowColor: {r: 0.9632353, g: 0.9832655, b: 1, a: 0}
+    - _SnowSpecGloss: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 0.285}
+    - _SpecColor: {r: 0.102941155, g: 0.102941155, b: 0.102941155, a: 1}
+    - _SpecGloss: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 0.101}
+    - _SpecGlossBlend1: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 0}
+    - _SpecGlossBlend2: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 0.414}
+    - _SpecGlossBlend3: {r: 0.11764706, g: 0.11764706, b: 0.11764706, a: 0.239}
+    - _SpecGlossCliff: {r: 0, g: 0, b: 0, a: 0.16470589}
+    - _Tint: {r: 0.6764706, g: 0.6764706, b: 0.6764706, a: 0}
+    - _TintSaturation: {r: 0.421, g: 0.421, b: 0.421, a: 0.571}
+    - _TintSaturationBlend1: {r: 0.399, g: 0.399, b: 0.399, a: 0.734}
+    - _TintSaturationBlend2: {r: 0.416, g: 0.416, b: 0.416, a: 0.5019608}
+    - _TintSaturationBlend3: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0.5019608}
+    - _WaterColorAColorBlend: {r: 0, g: 0.12099999, b: 0.028637012, a: 0.759}
+    - _WaterSpecGloss: {r: 0.534, g: 0.42921078, b: 0.34870198, a: 0.828}

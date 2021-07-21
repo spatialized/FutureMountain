@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &738055188
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1210676605}
+  - component: {fileID: 7433449968401756489}
+  m_Layer: 0
+  m_Name: FireManager
+  m_TagString: Fire
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 4294967295
+  m_IsActive: 1
+--- !u!4 &1210676605
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738055188}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7433449968401756489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738055188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7fd5a16398e214ace8dca0931288a902, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_preAllocatedFireIndexSize: 65
+  m_cellSize: 1
+  m_cellFireSpawnPositions: []
+  m_maxCombustionRate: 5
+  m_maxNodeCombustionRate: 5
+  m_terrainTextures:
+  - m_textureID: 0
+    m_flammable: 0
+    m_isGroundBurnTexture: 0
+    m_fuelLowerValue: 0
+    m_fuelHigherValue: 0
+    m_HPLowerValue: 0
+    m_HPHigherValue: 0
+    m_moisture: 0
+    m_firePropagationSpeed: 0
+  - m_textureID: 0
+    m_flammable: 0
+    m_isGroundBurnTexture: 0
+    m_fuelLowerValue: 0
+    m_fuelHigherValue: 0
+    m_HPLowerValue: 0
+    m_HPHigherValue: 0
+    m_moisture: 0
+    m_firePropagationSpeed: 0
+  - m_textureID: 0
+    m_flammable: 0
+    m_isGroundBurnTexture: 0
+    m_fuelLowerValue: 0
+    m_fuelHigherValue: 0
+    m_HPLowerValue: 0
+    m_HPHigherValue: 0
+    m_moisture: 0
+    m_firePropagationSpeed: 0
+  m_burntGrassTextureIndex: 0
+  m_removeGrassOnceBurnt: 0
+  m_replaceGroundTextureOnceBurnt: 1
+  m_terrainUpdateTime: 1
+  m_maxGrassDetails: 0
+  m_burntGrassDetailIndex: 1
+  m_gridWidth: 20
+  m_gridHeight: 20
+  m_firePrefab: {fileID: 1000014143660356, guid: 7a271c45b2db9426b87fa0a66b211741,
+    type: 3}
+  m_destroyOnCollision: 0

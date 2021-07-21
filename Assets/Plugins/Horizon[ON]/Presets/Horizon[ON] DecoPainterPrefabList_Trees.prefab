@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &191650
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 488782}
+  - component: {fileID: 11476696}
+  m_Layer: 0
+  m_Name: Horizon[ON] DecoPainterPrefabList_Trees
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &488782
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 191650}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &11476696
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 191650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aae4a160de5cdcd4e8a9d76d0b25fac7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefabList:
+  - {fileID: 126724, guid: e6a947878d9329148969baa8ac97a4e8, type: 2}
+  - {fileID: 171990, guid: 3e6c6458280eb7047b8dab98c5ed969f, type: 2}
+  - {fileID: 162800, guid: 424bb7dae68f15249a1c6f69feb42d64, type: 2}
+  - {fileID: 196114, guid: f3f66d977c3ec96438511a1b9c017ee6, type: 2}
+  - {fileID: 134282, guid: 8ab65ea84f3b07c48b5dfeaaab1326be, type: 2}
+  - {fileID: 150972, guid: fae1e3d4299ba074b8ce4c4a23dc6995, type: 2}
+  - {fileID: 115540, guid: 664858024167dda42ae191f81dbf8569, type: 2}
+  - {fileID: 139124, guid: 885b57ccc23a54645835821450ac8ec0, type: 2}
+  - {fileID: 101062, guid: 8a43ec4cb98d30c4dba393a2eff267d0, type: 2}
+  - {fileID: 130552, guid: eb5988d53f5ce5d4ba3bf943b4abb53e, type: 2}
+  - {fileID: 160986, guid: dfe0ec3b46268b54f81bdcfe34dee08b, type: 2}
+  - {fileID: 137256, guid: 645e8c3a632a3b04da344fb83e840e07, type: 2}
+  - {fileID: 191254, guid: bf786f0e4d3841149a787bd38b4f648d, type: 2}
+  - {fileID: 122136, guid: 6abb7b028d777e34a8fc4de14366f09f, type: 2}
+  - {fileID: 102976, guid: df13f35fdb2ae2c4b83ef0c52dd17939, type: 2}
+  - {fileID: 117564, guid: c3f4c24197e8fb04fb3a2a797b464460, type: 2}
+  - {fileID: 137164, guid: 864c02945d812fe40ae452bd2ee58368, type: 2}
+  - {fileID: 145254, guid: 725bad150ba6e464fb41b832ef57b202, type: 2}
+  - {fileID: 161052, guid: 55c81cf8fb24481469c6c361a794e032, type: 2}
+  - {fileID: 120598, guid: 346706b9b32a652418ed6240546cd8ad, type: 2}
+  - {fileID: 147056, guid: 655ea7ba380f80345b659d1d7ca9a29d, type: 2}
+  - {fileID: 141800, guid: 9c7ea07eabb882a47b030c72de80c290, type: 2}
+  - {fileID: 121328, guid: 3cb0f06bc5a85af42aa468c01cf6024a, type: 2}
+  - {fileID: 194562, guid: 11c667976333619478aa02e2f611e0ad, type: 2}
+  objectMode: 0
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 191650}
+  m_IsPrefabParent: 1

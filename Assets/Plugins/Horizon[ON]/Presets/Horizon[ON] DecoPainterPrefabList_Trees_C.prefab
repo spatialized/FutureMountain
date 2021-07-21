@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &114548
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 410618}
+  - component: {fileID: 11498860}
+  m_Layer: 0
+  m_Name: Horizon[ON] DecoPainterPrefabList_Trees_C
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &410618
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 114548}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &11498860
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 114548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aae4a160de5cdcd4e8a9d76d0b25fac7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefabList:
+  - {fileID: 137164, guid: 864c02945d812fe40ae452bd2ee58368, type: 2}
+  - {fileID: 145254, guid: 725bad150ba6e464fb41b832ef57b202, type: 2}
+  - {fileID: 161052, guid: 55c81cf8fb24481469c6c361a794e032, type: 2}
+  - {fileID: 120598, guid: 346706b9b32a652418ed6240546cd8ad, type: 2}
+  - {fileID: 147056, guid: 655ea7ba380f80345b659d1d7ca9a29d, type: 2}
+  - {fileID: 141800, guid: 9c7ea07eabb882a47b030c72de80c290, type: 2}
+  - {fileID: 121328, guid: 3cb0f06bc5a85af42aa468c01cf6024a, type: 2}
+  - {fileID: 194562, guid: 11c667976333619478aa02e2f611e0ad, type: 2}
+  objectMode: 0
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 114548}
+  m_IsPrefabParent: 1

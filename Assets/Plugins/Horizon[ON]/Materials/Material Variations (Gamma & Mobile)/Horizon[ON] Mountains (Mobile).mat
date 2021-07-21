@@ -1,0 +1,143 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: Horizon[ON] Mountains (Mobile)
+  m_Shader: {fileID: 4800000, guid: abe30b2e4cb95d24ebea8ec072d99d1f, type: 3}
+  m_ShaderKeywords: _GLOSSYREFLECTIONS_OFF _NORMALMAP _SPECULARHIGHLIGHTS_OFF
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: 29098998f0d94cd4ab630a3a60aa54c0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DirtDiffuse:
+        m_Texture: {fileID: 2800000, guid: 4d105b3f8ace5a1458000223ac56e9d1, type: 3}
+        m_Scale: {x: 50, y: 50}
+        m_Offset: {x: 0, y: 0}
+    - _DirtNormal:
+        m_Texture: {fileID: 2800000, guid: 7df939003ce80bb44b7c52d598c18d0c, type: 3}
+        m_Scale: {x: 50, y: 50}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GlobalDiffuse:
+        m_Texture: {fileID: 2800000, guid: 3b56b30dc38c1114ab4649f84d1e9b9a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GlobalNormal:
+        m_Texture: {fileID: 2800000, guid: 29098998f0d94cd4ab630a3a60aa54c0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GrassDiffuse:
+        m_Texture: {fileID: 2800000, guid: 9bbe4ad8d405158408f8230a5a3550ef, type: 3}
+        m_Scale: {x: 5, y: 5}
+        m_Offset: {x: 0, y: 0}
+    - _GrassNormal:
+        m_Texture: {fileID: 2800000, guid: 3171300cbbceea444a68685067ae6f7b, type: 3}
+        m_Scale: {x: 5, y: 5}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 3b56b30dc38c1114ab4649f84d1e9b9a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 2800000, guid: 29098998f0d94cd4ab630a3a60aa54c0, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RockDiffuse:
+        m_Texture: {fileID: 2800000, guid: 2e8220ae7aa011c4bb30b22cad0d7715, type: 3}
+        m_Scale: {x: 30, y: 30}
+        m_Offset: {x: 0, y: 0}
+    - _RockNormal:
+        m_Texture: {fileID: 2800000, guid: 4aa07537f44de1f49ae65aa2c6885980, type: 3}
+        m_Scale: {x: 30, y: 30}
+        m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Splat:
+        m_Texture: {fileID: 2800000, guid: 882bec67cb5d4d445a999784be0816e7, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _AmbientMulti: 2
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DiffuseMulti: 0.5
+    - _DiffuseSnow: 1
+    - _DstBlend: 0
+    - _GlossMapScale: 1
+    - _Glossiness: 0
+    - _GlossyReflections: 0
+    - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _OverlayFogAmount: 0
+    - _OverlayFogAmountFromReflCubemap: 0
+    - _OverlayFogDistance2Height: 0
+    - _OverlayFogDistanceTransition: 300
+    - _OverlayFogHeightTransition: 100
+    - _OverlayFogStartDistance: 0
+    - _OverlayFogStartHeight: 0
+    - _Parallax: 0.02
+    - _SmoothnessTextureChannel: 0
+    - _SnowAmount: 0
+    - _SnowHeight: 68
+    - _SnowHeightTransition: 760
+    - _SnowOutputColorBrightness2Coverage: 1
+    - _SnowSlopeDamp: 2.8
+    - _SpecularHighlights: 0
+    - _SrcBlend: 1
+    - _UVSec: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _BuildingTint: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.8235294, g: 0.8235294, b: 0.8235294, a: 1}
+    - _DirtTint: {r: 0.77205884, g: 0.77205884, b: 0.77205884, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
+    - _GlobalTint: {r: 1, g: 1, b: 1, a: 1}
+    - _GrassTint: {r: 0.8978702, g: 1, b: 0.6102941, a: 1}
+    - _OverlayFogColorAfromAmbient: {r: 1, g: 1, b: 1, a: 1}
+    - _RockTint: {r: 0.875975, g: 0.882399, b: 0.925, a: 1}
+    - _SnowColor: {r: 0.8927336, g: 0.9191266, b: 0.9411765, a: 0}
+    - _SpecColor: {r: 0, g: 0, b: 0, a: 0}

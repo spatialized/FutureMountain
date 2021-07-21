@@ -1,0 +1,120 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: Horizon[ON] Buildings (Gamma)
+  m_Shader: {fileID: 4800000, guid: 52977e8e8f2f4494b92e1a2e6ab3d046, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 2000
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DiffuseAlpha:
+        m_Texture: {fileID: 2800000, guid: d6f04dcd0b9f7a442b2fd4c78cf47e07, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DiffuseGloss:
+        m_Texture: {fileID: 2800000, guid: d6f04dcd0b9f7a442b2fd4c78cf47e07, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionA:
+        m_Texture: {fileID: 2800000, guid: 1d5736339f919224e91f5421aa3198cd, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 2800000, guid: 1d5736339f919224e91f5421aa3198cd, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: d6f04dcd0b9f7a442b2fd4c78cf47e07, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 2800000, guid: 9fb4db128a4361d48908a503fd15ba6f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _AmbientMulti: 1
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 1
+    - _DiffuseMulti: 1
+    - _DstBlend: 0
+    - _FogAmount: 0
+    - _FogEndDistance: 2500
+    - _FogEndHeight: 200
+    - _FogHeightOffsetByDistance: 10
+    - _FogStartDistance: 0
+    - _FogStartHeight: 0
+    - _Glossiness: 0
+    - _Metallic: 0
+    - _Mode: 0
+    - _OcclusionStrength: 1
+    - _OverlayFogAmount: 0
+    - _OverlayFogAmountFromReflCubemap: 0
+    - _OverlayFogDistance2Height: 10
+    - _OverlayFogDistanceTransition: 3000
+    - _OverlayFogHeightTransition: 600
+    - _OverlayFogStartDistance: 100
+    - _OverlayFogStartHeight: 0
+    - _Parallax: 0.02
+    - _SnowAmount: 1
+    - _SnowHeight: 800
+    - _SnowHeightTransition: 1000
+    - _SnowOutputColorBrightness2Coverage: 0.8
+    - _SnowSlopeDamp: 3.2
+    - _SrcBlend: 1
+    - _UVSec: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _BuildingTint: {r: 0.64705884, g: 0.64705884, b: 0.64705884, a: 1}
+    - _BuildingsTint: {r: 1, g: 1, b: 1, a: 0}
+    - _Color: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+    - _EmissionColor: {r: 0.99999994, g: 0.8966896, b: 0.46499994, a: 0}
+    - _FogColorAAmbientBlend: {r: 0.3844853, g: 0.45004466, b: 0.5147059, a: 0.5019608}
+    - _OverlayFogColorAfromAmbient: {r: 1, g: 1, b: 1, a: 0.934}
+    - _SnowColor: {r: 0.9705882, g: 0.98661256, b: 1, a: 0}
+    - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
+    - _Tint: {r: 0.452, g: 0.452, b: 0.452, a: 0}
+    - _Tint1: {r: 1, g: 1, b: 1, a: 0}

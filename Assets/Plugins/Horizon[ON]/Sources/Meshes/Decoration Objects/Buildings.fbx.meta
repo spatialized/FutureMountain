@@ -1,0 +1,190 @@
+fileFormatVersion: 2
+guid: e95f16b7729c3db408d2990104454057
+labels:
+- Horizon[ON]
+timeCreated: 1443000287
+licenseType: Store
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: Building_01
+    100002: Building_02
+    100004: Building_03
+    100006: Building_04
+    100008: Building_05
+    100010: Building_06
+    100012: Building_07
+    100014: Building_08
+    100016: Building_09
+    100018: Building_10
+    100020: Building_11
+    100022: Building_12
+    100024: Building_13
+    100026: Building_14
+    100028: Building_15
+    100030: Building_16
+    100032: Building_17
+    100034: Building_18
+    100036: Building_19
+    100038: Building_20
+    100040: //RootNode
+    400000: Building_01
+    400002: Building_02
+    400004: Building_03
+    400006: Building_04
+    400008: Building_05
+    400010: Building_06
+    400012: Building_07
+    400014: Building_08
+    400016: Building_09
+    400018: Building_10
+    400020: Building_11
+    400022: Building_12
+    400024: Building_13
+    400026: Building_14
+    400028: Building_15
+    400030: Building_16
+    400032: Building_17
+    400034: Building_18
+    400036: Building_19
+    400038: Building_20
+    400040: //RootNode
+    2300000: Building_01
+    2300002: Building_02
+    2300004: Building_03
+    2300006: Building_04
+    2300008: Building_05
+    2300010: Building_06
+    2300012: Building_07
+    2300014: Building_08
+    2300016: Building_09
+    2300018: Building_10
+    2300020: Building_11
+    2300022: Building_12
+    2300024: Building_13
+    2300026: Building_14
+    2300028: Building_15
+    2300030: Building_16
+    2300032: Building_17
+    2300034: Building_18
+    2300036: Building_19
+    2300038: Building_20
+    3300000: Building_01
+    3300002: Building_02
+    3300004: Building_03
+    3300006: Building_04
+    3300008: Building_05
+    3300010: Building_06
+    3300012: Building_07
+    3300014: Building_08
+    3300016: Building_09
+    3300018: Building_10
+    3300020: Building_11
+    3300022: Building_12
+    3300024: Building_13
+    3300026: Building_14
+    3300028: Building_15
+    3300030: Building_16
+    3300032: Building_17
+    3300034: Building_18
+    3300036: Building_19
+    3300038: Building_20
+    4300000: Building_01
+    4300002: Building_02
+    4300004: Building_03
+    4300006: Building_04
+    4300008: Building_05
+    4300010: Building_06
+    4300012: Building_07
+    4300014: Building_08
+    4300016: Building_09
+    4300018: Building_10
+    4300020: Building_11
+    4300022: Building_12
+    4300024: Building_13
+    4300026: Building_14
+    4300028: Building_15
+    4300030: Building_16
+    4300032: Building_17
+    4300034: Building_18
+    4300036: Building_19
+    4300038: Building_20
+    9500000: //RootNode
+  externalObjects: {}
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 100
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 0
+    importBlendShapes: 0
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 0
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 4
+    normalCalculationMode: 0
+  importAnimation: 0
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
