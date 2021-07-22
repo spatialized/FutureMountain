@@ -1,0 +1,21 @@
+Using pre-set license
+Built from '2021.1/staging' branch; Version is '2021.1.14f1 (51d2f824827f) revision 5362424'; Using compiler version '192528614'; Build Type 'Release'
+OS: 'Windows 10 Home; OS build 19043.1110; Version 2009; 64bit' Language: 'en' Physical Memory: 16323 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1, IsPro: 0
+
+ COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\2021.1.14f1\Editor\Unity.exe
+-adb2
+-batchMode
+-noUpm
+-name
+AssetImportWorker0
+-projectPath
+D:/Git/FutureMountain
+-logFile
+Logs/AssetImportWorker0.log
+-srvPort
+62631
+Successfully changed project path to: D:/Git/FutureMountain
+D:/Git/FutureMountain
+Using Asset Import Pipeline V2.
