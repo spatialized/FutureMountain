@@ -96,7 +96,7 @@ public class CameraController : MonoBehaviour {
                         Debug.Log("User clicked on Cube1");
                         if (!moving)
                         {
-                            StartZoomIntoCube("ZoomCube1");
+                            StartZoomIntoCube(0, "ZoomCube1");
                             //pauseState = GamePauseState.pause;
                             //moving = true;
                             //animator.SetTrigger("ZoomCube1");
@@ -108,7 +108,7 @@ public class CameraController : MonoBehaviour {
                         Debug.Log("User clicked on Cube2");
                         if (!moving)
                         {
-                            StartZoomIntoCube("ZoomCube2");
+                            StartZoomIntoCube(1, "ZoomCube2");
                             //pauseState = GamePauseState.pause;
                             //moving = true;
                             //animator.SetTrigger("ZoomCube2");
@@ -120,7 +120,7 @@ public class CameraController : MonoBehaviour {
                         Debug.Log("User clicked on Cube3");
                         if (!moving)
                         {
-                            StartZoomIntoCube("ZoomCube3");
+                            StartZoomIntoCube(2, "ZoomCube3");
                             //pauseState = GamePauseState.pause;
                             //moving = true;
                             //animator.SetTrigger("ZoomCube3");
@@ -132,7 +132,7 @@ public class CameraController : MonoBehaviour {
                         Debug.Log("User clicked on Cube4");
                         if (!moving)
                         {
-                            StartZoomIntoCube("ZoomCube4");
+                            StartZoomIntoCube(3, "ZoomCube4");
                             //pauseState = GamePauseState.pause;
                             //moving = true;
                             //animator.SetTrigger("ZoomCube4");
@@ -144,7 +144,7 @@ public class CameraController : MonoBehaviour {
                         Debug.Log("User clicked on Cube5");
                         if (!moving)
                         {
-                            StartZoomIntoCube("ZoomCube5");
+                            StartZoomIntoCube(4, "ZoomCube5");
                             //pauseState = GamePauseState.pause;
                             //moving = true;
                             //animator.SetTrigger("ZoomCube5");
@@ -156,7 +156,7 @@ public class CameraController : MonoBehaviour {
                         Debug.Log("User clicked on AggregateCube");
                         if (!moving)
                         {
-                            StartZoomIntoCube("ZoomAggregateCube");
+                            StartZoomIntoCube(-1, "ZoomAggregateCube");
                             //pauseState = GamePauseState.pause;
                             //moving = true;
                             //animator.SetTrigger("ZoomAggregateCube");
@@ -185,11 +185,11 @@ public class CameraController : MonoBehaviour {
     /// Start zoom into specified cube
     /// </summary>
     /// <param name="animTriggerName">Camera animation trigger name</param>
-    private void StartZoomIntoCube(string cubeName, string animTriggerName)
+    private void StartZoomIntoCube(int cubeIdx, string animTriggerName)
     {
         if (ShouldEnterSideBySideMode())
         {
-            //EnterSideBySideMode(cubeName);
+            GameController.Instance.EnterSideBySideMode(cubeIdx);
             //StartCoroutine(EnterSideBySideMode());
             Debug.Log("EnterSideBySideMode()... animTriggerName: "+animTriggerName);
         }

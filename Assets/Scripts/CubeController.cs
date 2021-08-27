@@ -157,8 +157,10 @@ public class CubeController : MonoBehaviour
     private float animationLength = 3f;
 
     /* General */
-    public GameObject cubeObject { get; set; }                // Cube base containing all cube objects (except glass)
-    public GameObject cubeLabel { get; set; }                 // Cube label
+    public GameObject cubeObject { get; set; }               // Cube base containing all cube parts (except glass)
+    public GameObject cubeLabel { get; set; }                // Cube label
+    public GameObject comparedCubeObject;                    // Compared cube object
+    public CubeController comparedCube;                      // Compared cube controller
 
     /* Landscape */
     private Terrain terrain;                                  // Cube terrain object
@@ -473,6 +475,10 @@ public class CubeController : MonoBehaviour
 
         cubeObject = transform.Find("CubeObject").gameObject;              // Get (cube) base object
         Assert.IsNotNull(cubeObject);
+
+        string terrainName = "Terrain_" + name.Substring(name.Length - 1);
+        //Debug.Log(""+name+".SetupObjects()... Looking for terrainName: " + terrainName);
+
         terrain = cubeObject.transform.Find("Terrain_"+ name.Substring(name.Length - 1)).GetComponent<Terrain>();
         fireManager = terrain.transform.GetComponentInChildren<SERI_FireManager>() as SERI_FireManager;
         Assert.IsNotNull(terrain);
@@ -595,7 +601,6 @@ public class CubeController : MonoBehaviour
         HideData();
 
         firstRun = false;
-
         //Debug.Log(name+".Initialize()... firePrefab == null? " + (firePrefab == null));
     }
 
@@ -847,6 +852,7 @@ public class CubeController : MonoBehaviour
         if (debugCubes)
             Debug.Log("InitializeData()... " + dataFile.name + "  dataLength:" + dataLength + " patchID:" + patchID + " dataArray null?:" + (dataArray == null));
     }
+
     #endregion
 
     #region UpdateMethods

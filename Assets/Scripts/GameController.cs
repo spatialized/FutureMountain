@@ -24,6 +24,10 @@ public class GameController : MonoBehaviour
     private int debugMessageMinLength = 15;         // Debug message min. length in frames
 
     #region Fields
+    /* Game Controller */
+    private static GameController _instance;
+    public static GameController Instance { get { return _instance; } }
+
     /* Data */
     private static bool fireCubes = true;           // Fire Cubes (default)     -- TO DO: Remove
 
@@ -144,9 +148,12 @@ public class GameController : MonoBehaviour
     public GameObject cube5Object;                            // Cube 5 Object 
 
     /* Controllers */
-    public LandscapeController landscapeController;           // Large Landscape Controller
+    public LandscapeController landscapeController;          // Large Landscape Controller
     private CubeController aggregateCubeController;           // Aggregate Cube Controller
     private CubeController[] cubes;                           // Cube Controllers
+    private CubeController[] sideCubes;                       // Side-by-Side Cube Controllers
+    private GameObject comparedCubeObject;                    // Compared Cube (Side-by-Side)
+    private CubeController comparedCube;                      // Compared Cube Controller (Side-by-Side)
 
     /* Layers Settings */
     private bool displayET = true;                            // Display evap./trans. flag
@@ -220,6 +227,18 @@ public class GameController : MonoBehaviour
     #endregion
 
     #region Initialization
+    private void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
+
     /// <summary>
     /// Start this instance. 
     /// </summary>
@@ -339,6 +358,7 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(aggregateCubeObject);
 
         cubes = new CubeController[5];
+        sideCubes = new CubeController[5];
         cubes[0] = cube1Object.GetComponent<CubeController>() as CubeController;
         cubes[1] = cube2Object.GetComponent<CubeController>() as CubeController;
         cubes[2] = cube3Object.GetComponent<CubeController>() as CubeController;
@@ -346,10 +366,27 @@ public class GameController : MonoBehaviour
         cubes[4] = cube5Object.GetComponent<CubeController>() as CubeController;
         aggregateCubeController = aggregateCubeObject.GetComponent<CubeController>() as CubeController;
 
-        foreach (CubeController cube in cubes)
+        /* Initialize Side-by-Side Cubes */
+        for (int i=0; i<cubes.Length; i++)
         {
+            CubeController cube = cubes[i];
+
             Assert.IsNotNull(cube);
             cube.SetupObjects();
+
+            GameObject cubeObject = cube.gameObject;
+            comparedCubeObject = Instantiate(cubeObject);
+
+            comparedCubeObject.name = cubeObject.name;
+
+            comparedCube = comparedCubeObject.GetComponent<CubeController>();
+            comparedCube.SetupObjects();
+
+            comparedCubeObject.name = cubeObject.name + "_Side";
+            comparedCubeObject.transform.parent = cubeObject.transform.parent;
+
+            sideCubes[i] = comparedCube;
+            //comparedCubeObject.SetActive(false);
         }
 
         if (debugMessages)
@@ -358,7 +395,8 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(aggregateCubeController);
         aggregateCubeController.SetupObjects();
 
-        HideCubes(true);
+        HideCubes(true, -1);
+        HideSideCubes();
         SetPaused(true);
 
         PauseButton.pauseEvent += SetPaused;
@@ -454,14 +492,14 @@ public class GameController : MonoBehaviour
             int idx = fireCubes ? 5 : 0;
             int warmingRange = cubeDataList.data[idx].list.Count;           // Find warming range
 
-            warmingIdx = warmingKnobSlider.GetWarmingIndex();                       // Get current warming index from knob
-            warmingDegrees = warmingKnobSlider.GetWarmingDegrees();                 // Get current warming degrees from knob
+            warmingIdx = warmingKnobSlider.GetWarmingIndex();               // Get current warming index from knob
+            warmingDegrees = warmingKnobSlider.GetWarmingDegrees();         // Get current warming degrees from knob
 
             warmingKnobSlider.respondToUser = false;
 
             yield return null;
 
-            int offset = fireCubes ? 5 : 0;
+            int offset = fireCubes ? 5 : 0;                                  // Use fire or non-fire data
             idx = offset;
 
             if (cube1Object != null)
@@ -494,6 +532,25 @@ public class GameController : MonoBehaviour
                 cubeEndYear = int.Parse(lastDateFields[0]);
                 cubeEndMonth = int.Parse(lastDateFields[1]);
                 cubeEndDay = int.Parse(lastDateFields[2]);
+
+                // Setup side-by-side comparison cube
+                sideCubes[0].SetWarmingRange(warmingRange);
+                sideCubes[0].InitializeData(cubeDataList.data[idx].list[0]);
+
+                count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    sideCubes[0].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+
+                sideCubes[0].Initialize(etPrefab, shrubETPrefab, firePrefab);
+                sideCubes[0].SetWarmingIdx(warmingIdx);
+                sideCubes[0].SetWarmingDegrees(warmingDegrees);
+                sideCubes[0].FindParameterRanges();
+                sideCubes[0].SetModelDebugMode(debugModel);
+
+                sideCubes[0].gameObject.SetActive(false);
             }
             else
             {
@@ -519,6 +576,25 @@ public class GameController : MonoBehaviour
                 cubes[1].SetWarmingDegrees(warmingDegrees);
                 cubes[1].FindParameterRanges();
                 cubes[1].SetModelDebugMode(debugModel);
+
+                // Setup side-by-side comparison cube
+                sideCubes[1].SetWarmingRange(warmingRange);
+                sideCubes[1].InitializeData(cubeDataList.data[idx].list[0]);
+
+                count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    sideCubes[1].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+
+                sideCubes[1].Initialize(etPrefab, shrubETPrefab, firePrefab);
+                sideCubes[1].SetWarmingIdx(warmingIdx);
+                sideCubes[1].SetWarmingDegrees(warmingDegrees);
+                sideCubes[1].FindParameterRanges();
+                sideCubes[1].SetModelDebugMode(debugModel);
+
+                sideCubes[1].gameObject.SetActive(false);
             }
             else
             {
@@ -544,6 +620,25 @@ public class GameController : MonoBehaviour
                 cubes[2].SetWarmingDegrees(warmingDegrees);
                 cubes[2].FindParameterRanges();
                 cubes[2].SetModelDebugMode(debugModel);
+
+                // Setup side-by-side comparison cube
+                sideCubes[2].SetWarmingRange(warmingRange);
+                sideCubes[2].InitializeData(cubeDataList.data[idx].list[0]);
+
+                count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    sideCubes[2].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+
+                sideCubes[2].Initialize(etPrefab, shrubETPrefab, firePrefab);
+                sideCubes[2].SetWarmingIdx(warmingIdx);
+                sideCubes[2].SetWarmingDegrees(warmingDegrees);
+                sideCubes[2].FindParameterRanges();
+                sideCubes[2].SetModelDebugMode(debugModel);
+
+                sideCubes[2].gameObject.SetActive(false);
             }
             else
             {
@@ -569,6 +664,25 @@ public class GameController : MonoBehaviour
                 cubes[3].SetWarmingDegrees(warmingDegrees);
                 cubes[3].FindParameterRanges();
                 cubes[3].SetModelDebugMode(debugModel);
+
+                // Setup side-by-side comparison cube
+                sideCubes[3].SetWarmingRange(warmingRange);
+                sideCubes[3].InitializeData(cubeDataList.data[idx].list[0]);
+
+                count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    sideCubes[3].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+
+                sideCubes[3].Initialize(etPrefab, shrubETPrefab, firePrefab);
+                sideCubes[3].SetWarmingIdx(warmingIdx);
+                sideCubes[3].SetWarmingDegrees(warmingDegrees);
+                sideCubes[3].FindParameterRanges();
+                sideCubes[3].SetModelDebugMode(debugModel);
+
+                sideCubes[3].gameObject.SetActive(false);
             }
             else
             {
@@ -594,6 +708,25 @@ public class GameController : MonoBehaviour
                 cubes[4].SetWarmingDegrees(warmingDegrees);
                 cubes[4].FindParameterRanges();
                 cubes[4].SetModelDebugMode(debugModel);
+
+                // Setup side-by-side comparison cube
+                sideCubes[4].SetWarmingRange(warmingRange);
+                sideCubes[4].InitializeData(cubeDataList.data[idx].list[0]);
+
+                count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    sideCubes[4].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+
+                sideCubes[4].Initialize(etPrefab, shrubETPrefab, firePrefab);
+                sideCubes[4].SetWarmingIdx(warmingIdx);
+                sideCubes[4].SetWarmingDegrees(warmingDegrees);
+                sideCubes[4].FindParameterRanges();
+                sideCubes[4].SetModelDebugMode(debugModel);
+
+                sideCubes[4].gameObject.SetActive(false);
             }
             else
             {
@@ -828,6 +961,42 @@ public class GameController : MonoBehaviour
         }
 
         return result;
+    }
+
+    #endregion
+
+    #region GameModes
+
+    public void EnterSideBySideMode(int idx)
+    {
+        if (idx < 0 || idx > 4)
+            return;
+
+        HideCubes(false, idx);
+
+        //GameObject cubeObject = cubes[idx].cubeObject;
+        //comparedCubeObject = Instantiate(cubeObject);
+        //comparedCube = comparedCubeObject.AddComponent<CubeController>();
+
+        //int warmingRange = cubeDataList.data[idx].list.Count;           // Find warming range
+
+        //comparedCube.SetWarmingRange(warmingRange);
+        //comparedCube.InitializeData(cubeDataList.data[idx].list[0]);
+
+        //int count = 0;
+        //foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+        //{
+        //    cubes[1].ProcessDataTextAsset(cubeDataText, count);
+        //    count++;
+        //}
+        ////comparedCube.Initialize(etPrefab, shrubETPrefab, firePrefab);
+        //comparedCube.SetupController();         // -- TO DO
+        //comparedCube.SetWarmingIdx(warmingIdx);
+        //comparedCube.SetWarmingDegrees(warmingDegrees);
+        //comparedCube.FindParameterRanges();
+        //comparedCube.SetModelDebugMode(debugModel);
+
+        Debug.Log("GameController.EnterSideBySideMode()... Cube #" + idx);
     }
 
     #endregion
@@ -1614,7 +1783,7 @@ public class GameController : MonoBehaviour
             if (displayCubes)
                 ShowCubes(false);
             else
-                HideCubes(false);
+                HideCubes(false, -1);
         }
     }
 
@@ -1662,19 +1831,27 @@ public class GameController : MonoBehaviour
     /// <summary>
     /// Hides the cubes.
     /// </summary>
-    private void HideCubes(bool immediate)
+    private void HideCubes(bool immediate, int exceptCube)
     {
         aggregateCubeController.cubeObject.SetActive(false);
-        cubes[0].cubeObject.SetActive(false);
-        cubes[1].cubeObject.SetActive(false);
-        cubes[2].cubeObject.SetActive(false);
-        cubes[3].cubeObject.SetActive(false);
-        cubes[4].cubeObject.SetActive(false);
+
+        for(int i=0; i<5; i++)
+        {
+            if(i != exceptCube)
+            {
+                cubes[i].cubeObject.SetActive(false);
+            }
+        }
 
         if (!immediate && initialized)
         {
-            foreach (CubeController cube in cubes)
+            for (int i = 0; i < 5; i++)
             {
+                if (i == exceptCube)
+                    continue;
+
+                CubeController cube = cubes[i];
+
                 if (landscapeController.LandscapeSimulationIsOn())
                 {
                     if (cube.patchID != -1)
@@ -1691,6 +1868,17 @@ public class GameController : MonoBehaviour
             }
 
             aggregateCubeController.StartAnimation(aggregateCubeController.defaultPosition, aggregateCubeController.defaultPosition, CubeController.CubeAnimationType.shrink);
+        }
+    }
+
+    /// <summary>
+    /// Hides the cubes.
+    /// </summary>
+    private void HideSideCubes()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            sideCubes[i].cubeObject.SetActive(false);
         }
     }
     #endregion
@@ -1750,7 +1938,7 @@ public class GameController : MonoBehaviour
         messageManager.ClearLabels();
 
         ResetCubes();
-        HideCubes(true);                          // -- TO DO: Animate (?)
+        HideCubes(true, -1);                         
         ResetFireManagers();
 
         pauseButtonObject.SetActive(false);
