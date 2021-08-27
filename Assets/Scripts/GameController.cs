@@ -122,6 +122,7 @@ public class GameController : MonoBehaviour
     private string[] dataDates;                     // Dates (taken from Cube 1)
 
     /* Simulation */
+    public bool sideBySideMode = false;                      // Side-by-Side mode flag
     private bool displaySeasons = true;                       // Display seasons flag
     private int simulationStartYear, simulationEndYear;       // Start + end year
     private int simulationStartMonth, simulationEndMonth;     // Start + end month
@@ -135,8 +136,6 @@ public class GameController : MonoBehaviour
     [Header("Objects")]
     public GameObject landscapeObject;                        // Large Landscape Object
     public GameObject aggregateCubeObject;                    // Aggregate Cube
-
-    //private GameObject mainGameObject;                      // Parent object of game hierarchy
 
     public GameObject cube1Object;                            // Cube 1 Object
     public GameObject cube2Object;                            // Cube 2 Object 
@@ -170,19 +169,20 @@ public class GameController : MonoBehaviour
     private Vector3 uiObjectDefaultPosition;
     private bool uiObjectHidden = false;
 
-    //private int selectedYearIdx = -1;                         // Selected Year Index
+    //private int selectedYearIdx = -1;                       // Selected Year Index
 
     /* UI Timeline */
-    public GameObject uiTimelineObject;                       // UI Timeline Object
+    public GameObject uiTimelineObject;                      // UI Timeline Object
     private TimelineControl uiTimeline;                       // UI Timeline
 
     /* UI Messages */
     public UI_MessageManager messageManager;                 // Message manager
 
     /* UI Buttons */
-    private GameObject showControlsToggleObject;                 // Toggle button for showing controls
+    private GameObject showControlsToggleObject;              // Toggle button for showing controls
     private GameObject modelDataToggleObject;                 // Toggle button for model data display
     private GameObject storyModeToggleObject;                 // Story mode toggle button
+    private GameObject sideBySideModeToggleObject;            // Side-by-side mode toggle button
     private GameObject pauseButtonObject;                     // End button object
     private GameObject zoomOutButtonObject;                   // Zoom out button object
     private GameObject endButtonObject;                       // End button object
@@ -273,6 +273,7 @@ public class GameController : MonoBehaviour
         showControlsToggleObject = GameObject.Find("ShowControlsToggle");
         modelDataToggleObject = GameObject.Find("ShowModelDataToggle");
         storyModeToggleObject = GameObject.Find("StoryModeToggle");
+        sideBySideModeToggleObject = GameObject.Find("SideBySideToggle");
         seasonsToggleObject = GameObject.Find("ShowSeasonsToggle");
         flyCameraButtonObject = GameObject.Find("FlyCameraToggle");
         cubesToggleObject = GameObject.Find("ShowCubesToggle");
@@ -283,6 +284,7 @@ public class GameController : MonoBehaviour
         showControlsToggleObject.GetComponent<Toggle>().isOn = showControls;
         modelDataToggleObject.GetComponent<Toggle>().isOn = displayModel;
         storyModeToggleObject.GetComponent<Toggle>().isOn = storyMode;
+        sideBySideModeToggleObject.GetComponent<Toggle>().isOn = sideBySideMode;
 
         flyCameraButtonObject.GetComponent<Toggle>().isOn = false;
         cubesToggleObject.GetComponent<Toggle>().isOn = true;
@@ -291,6 +293,7 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(seasonsToggleObject);
         Assert.IsNotNull(modelDataToggleObject);
         Assert.IsNotNull(showControlsToggleObject);
+        Assert.IsNotNull(sideBySideModeToggleObject);
         Assert.IsNotNull(storyModeToggleObject);
         Assert.IsNotNull(flyCameraButtonObject);
         Assert.IsNotNull(zoomOutButtonObject);
@@ -393,6 +396,9 @@ public class GameController : MonoBehaviour
         landscapeIsSetup = true;
     }
 
+    /// <summary>
+    /// Starts Next Simulation Run
+    /// </summary>
     public void StartSimulationRun()
     {
         starting = true;
@@ -1273,7 +1279,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void ShowControls(bool value)
     {
-        simulationUICanvas.enabled = value;
+        simulationUICanvas.enabled = value;         // TO DO: Not working
     }
 
     /// <summary>
