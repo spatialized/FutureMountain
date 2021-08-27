@@ -202,7 +202,7 @@ public class GameController : MonoBehaviour
 
     /* UI Text */
     private bool showControls = true;                         // Show controls setting
-    private bool displayModel = false;                         // Display model data setting
+    private bool displayModel = false;                        // Display model data setting
     private bool storyMode = true;                            // Show "story" messages
 
     #endregion
@@ -1271,18 +1271,18 @@ public class GameController : MonoBehaviour
     /// <summary>
     /// Shows the UI controls.
     /// </summary>
-    private void ShowControls()
+    public void ShowControls(bool value)
     {
-        simulationUICanvas.enabled = true;
+        simulationUICanvas.enabled = value;
     }
 
     /// <summary>
     /// Hides the UI controls.
     /// </summary>
-    private void HideControls()
-    {
-        simulationUICanvas.enabled = false;
-    }
+    //public void HideControls()
+    //{
+    //    simulationUICanvas.enabled = false;
+    //}
 
     /// <summary>
     /// Shows the data panel.
@@ -1552,10 +1552,10 @@ public class GameController : MonoBehaviour
 
         showControls = state;
 
-        if (showControls)
-            ShowControls();
-        else
-            HideControls();
+        //if (showControls)
+            ShowControls(showControls);
+        //else
+        //    HideControls();
     }
 
     /// <summary>
