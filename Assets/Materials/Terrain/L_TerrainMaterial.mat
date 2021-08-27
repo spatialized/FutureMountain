@@ -140,7 +140,7 @@ Material:
     - _SnowSpecularPower: 0.5
     - _SnowTextureTilling: 0.5
     - _SnowTilling: 174
-    - _Snow_Amount: 1
+    - _Snow_Amount: 0
     - _SpecularHighlights: 0
     - _SpecularPower: 0.54
     - _SrcBlend: 1
