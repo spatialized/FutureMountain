@@ -1025,10 +1025,11 @@ public class GameController : MonoBehaviour
 
         exitSideBySideButtonObject.SetActive(true);
 
+        //cameraController.StartZoomIntoCube(idx);
+
         sideBySideCanvas.enabled = true;
         sideBySideMode = true;
-
-        cameraController.StartZoomIntoCube(idx);
+        sideBySideModeToggleObject.GetComponent<Toggle>().isOn = false;
     }
 
     /// <summary>
@@ -1052,8 +1053,10 @@ public class GameController : MonoBehaviour
         //warmingKnobSlider.enabled = false;
 
         ShowCubes(false);
+        cameraController.StartResetZoom();
 
         exitSideBySideButtonObject.SetActive(false);
+        zoomOutButtonObject.SetActive(false);
 
         sideBySideCanvas.enabled = true;
         sideBySideMode = false;

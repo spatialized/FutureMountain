@@ -96,23 +96,23 @@ public class CameraController : MonoBehaviour {
                         Debug.Log("User clicked on AggregateCube");
                         if (!moving)
                         {
-                            StartZoomIntoCube(-1, "ZoomAggregateCube");
+                            StartZoomIntoCube(-1);
                         }
                     }
-                    else
+                    else if(hit.transform.tag != "Untagged")
                     {
                         string cubeTag = hit.transform.tag;
-                        Debug.Log("Will zoom in... cubeTag: " + cubeTag + " cubeTag.Substring(cubeTag.Length - 1): " + cubeTag.Substring(cubeTag.Length - 1));
+                        Debug.Log("GetMouseInput()... Will zoom in... cubeTag: " + cubeTag + " cubeTag.Substring(cubeTag.Length - 1): " + cubeTag.Substring(cubeTag.Length - 1));
 
                         string strIdx = cubeTag.Substring(cubeTag.Length - 1);
                         string animName = "ZoomCube" + strIdx;
                         int idx = int.Parse(strIdx) - 1;
 
-                        Debug.Log("Zooming in... animName: " + animName + " strIdx: " + strIdx);
+                        Debug.Log("GetMouseInput()... Zooming in... animName: " + animName + " strIdx: " + strIdx);
 
                         if (!moving)
                         {
-                            StartZoomIntoCube(idx, animName);
+                            StartZoomIntoCube(idx);
                         }
                     }
 
@@ -187,31 +187,41 @@ public class CameraController : MonoBehaviour {
     /// Start zoom into specified cube
     /// </summary>
     /// <param name="animTriggerName">Camera animation trigger name</param>
-    public void StartZoomIntoCube(int cubeIdx, string animTriggerName)
+    public void StartZoomIntoCube(int cubeIdx)
     {
+        string animTriggerName;
         if (ShouldEnterSideBySideMode())
         {
+            if (cubeIdx == -1)
+                return;
+            else
+                animTriggerName = "SBS_Cube" + (cubeIdx + 1);
+
+            Debug.Log("Calling EnterSideBySideMode()... cubeIdx: "+cubeIdx);
             GameController.Instance.EnterSideBySideMode(cubeIdx);
-            //StartCoroutine(EnterSideBySideMode());
-            Debug.Log("EnterSideBySideMode()... animTriggerName: "+animTriggerName);
 
             pauseState = GamePauseState.pause;
             moving = true;
-            animator.SetTrigger(animTriggerName);               // CHANGE FOR SIDE BY SIDE
+
+            Debug.Log("StartZoomIntoCube()... In Side-by-Side Mode... animTriggerName: " + animTriggerName);
+
+            animator.SetTrigger(animTriggerName);
             StartCoroutine(ZoomingIn());
         }
         else
         {
+            if(cubeIdx == -1)
+                animTriggerName = "ZoomAggregateCube";
+            else
+                animTriggerName = "ZoomCube" + (cubeIdx + 1);
+
+            Debug.Log("EnterSideBySideMode()... animTriggerName: " + animTriggerName);
+
             pauseState = GamePauseState.pause;
             moving = true;
             animator.SetTrigger(animTriggerName);
             StartCoroutine(ZoomingIn());
         }
-    }
-
-    public void StartZoomIntoCube(int cubeIdx)
-    {
-        StartZoomIntoCube(cubeIdx, "ZoomCube" + (cubeIdx + 1));
     }
 
     /// <summary>
