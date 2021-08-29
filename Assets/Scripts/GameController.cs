@@ -127,6 +127,8 @@ public class GameController : MonoBehaviour
 
     /* Simulation */
     public bool sideBySideMode = false;                      // Side-by-Side mode flag
+    public int sideBySideIdx = -1;                            // Side-by-Side cube index
+
     private bool displaySeasons = true;                       // Display seasons flag
     private int simulationStartYear, simulationEndYear;       // Start + end year
     private int simulationStartMonth, simulationEndMonth;     // Start + end month
@@ -142,18 +144,21 @@ public class GameController : MonoBehaviour
     public GameObject aggregateCubeObject;                    // Aggregate Cube
 
     public GameObject cube1Object;                            // Cube 1 Object
+    public GameObject cube1Object_Side;                       // Cube 1 Object
     public GameObject cube2Object;                            // Cube 2 Object 
+    public GameObject cube2Object_Side;                       // Cube 2 Object 
     public GameObject cube3Object;                            // Cube 3 Object 
+    public GameObject cube3Object_Side;                       // Cube 3 Object 
     public GameObject cube4Object;                            // Cube 4 Object 
+    public GameObject cube4Object_Side;                       // Cube 4 Object 
     public GameObject cube5Object;                            // Cube 5 Object 
+    public GameObject cube5Object_Side;                       // Cube 5 Object 
 
     /* Controllers */
     public LandscapeController landscapeController;          // Large Landscape Controller
     private CubeController aggregateCubeController;           // Aggregate Cube Controller
     private CubeController[] cubes;                           // Cube Controllers
     private CubeController[] sideCubes;                       // Side-by-Side Cube Controllers
-    private GameObject comparedCubeObject;                    // Compared Cube (Side-by-Side)
-    private CubeController comparedCube;                      // Compared Cube Controller (Side-by-Side)
 
     /* Layers Settings */
     private bool displayET = true;                            // Display evap./trans. flag
@@ -166,11 +171,12 @@ public class GameController : MonoBehaviour
     public Canvas setupUICanvas;                              // Setup UI canvas
     public Canvas simulationUICanvas;                         // Simulation UI canvas 
     public Canvas controlsUICanvas;                           // Show Controls Button UI canvas
-    //private GameObject messagePanel;                        // Message Text Panel on right
-    //private Text[] messageTexts;                            // Message Text Panel on right
-    public GameObject introPanel;                             // Intro Text Panel
-    public GameObject loadingTextObject;                      // Loading Text Object
-    public Text loadingTextField;                             // Loading Text 
+    public Canvas sideBySideCanvas;                           // Side-by-Side Mode UI Canvas
+    //private GameObject messagePanel;                         // Message Text Panel on right
+    //private Text[] messageTexts;                             // Message Text Panel on right
+    public GameObject introPanel;                              // Intro Text Panel
+    public GameObject loadingTextObject;                       // Loading Text Object
+    public Text loadingTextField;                              // Loading Text 
 
     private GameObject uiObject;                              // UI Object containing canvases
     private Vector3 uiObjectDefaultPosition;
@@ -189,7 +195,8 @@ public class GameController : MonoBehaviour
     private GameObject showControlsToggleObject;              // Toggle button for showing controls
     private GameObject modelDataToggleObject;                 // Toggle button for model data display
     private GameObject storyModeToggleObject;                 // Story mode toggle button
-    private GameObject sideBySideModeToggleObject;            // Side-by-side mode toggle button
+    private GameObject sideBySideModeToggleObject;            // Side-by-Side Mode toggle button
+    private GameObject exitSideBySideButtonObject;            // Exit Side-by-Side Mode button object
     private GameObject pauseButtonObject;                     // End button object
     private GameObject zoomOutButtonObject;                   // Zoom out button object
     private GameObject endButtonObject;                       // End button object
@@ -200,8 +207,12 @@ public class GameController : MonoBehaviour
 
     /* UI Sliders */
     private GameObject warmingKnobObject;                     // Large warming knob
-    private GameObject timeKnobObject;                        // Time scale knob
     private WarmingKnobSlider warmingKnobSlider;              // Large warming knob slider object
+    private GameObject warmingKnob1Object;                    // Side-by-Side warming knob 1
+    private WarmingKnobSlider warmingKnob1Slider;              // Large warming knob slider object
+    private GameObject warmingKnob2Object;                    // Side-by-Side warming knob 2
+    private WarmingKnobSlider warmingKnob2Slider;              // Large warming knob slider object
+    private GameObject timeKnobObject;                        // Time scale knob
     private TimeKnobSlider timeKnobSlider;                    // Time knob slider object
 
     /* UI Graphics */
@@ -266,6 +277,7 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(setupUICanvas);
         Assert.IsNotNull(simulationUICanvas);
         Assert.IsNotNull(controlsUICanvas);
+        Assert.IsNotNull(sideBySideCanvas);
         controlsUICanvas.enabled = false;
 
         Assert.IsNotNull(introPanel);
@@ -286,6 +298,7 @@ public class GameController : MonoBehaviour
 
         pauseButtonObject = GameObject.Find("PauseButton");
         zoomOutButtonObject = GameObject.Find("ZoomOutButton");
+        exitSideBySideButtonObject = GameObject.Find("ExitSideBySideButton");
         zoomOutButtonObject.SetActive(false);
 
         endButtonObject = GameObject.Find("EndButton");
@@ -317,11 +330,24 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(flyCameraButtonObject);
         Assert.IsNotNull(zoomOutButtonObject);
         Assert.IsNotNull(pauseButtonObject);
+        Assert.IsNotNull(exitSideBySideButtonObject);
+
         pauseButtonObject.SetActive(false);
+        exitSideBySideButtonObject.SetActive(false);
 
         warmingKnobObject = GameObject.Find("WarmingKnob");
         warmingKnobSlider = warmingKnobObject.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
         warmingKnobSlider.respondToUser = true;
+
+        warmingKnob1Object = GameObject.Find("WarmingKnob1");
+        warmingKnob1Slider = warmingKnob1Object.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
+        warmingKnob1Slider.respondToUser = true;
+        warmingKnob1Object.SetActive(false);
+
+        warmingKnob2Object = GameObject.Find("WarmingKnob2");
+        warmingKnob2Slider = warmingKnob2Object.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
+        warmingKnob2Slider.respondToUser = true;
+        warmingKnob2Object.SetActive(false);
 
         timeKnobObject = GameObject.Find("TimeKnob");
         timeKnobObject.SetActive(true);
@@ -355,6 +381,11 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(cube3Object);
         Assert.IsNotNull(cube4Object);
         Assert.IsNotNull(cube5Object);
+        Assert.IsNotNull(cube1Object_Side);
+        Assert.IsNotNull(cube2Object_Side);
+        Assert.IsNotNull(cube3Object_Side);
+        Assert.IsNotNull(cube4Object_Side);
+        Assert.IsNotNull(cube5Object_Side);
         Assert.IsNotNull(aggregateCubeObject);
 
         cubes = new CubeController[5];
@@ -364,29 +395,29 @@ public class GameController : MonoBehaviour
         cubes[2] = cube3Object.GetComponent<CubeController>() as CubeController;
         cubes[3] = cube4Object.GetComponent<CubeController>() as CubeController;
         cubes[4] = cube5Object.GetComponent<CubeController>() as CubeController;
+        sideCubes[0] = cube1Object_Side.GetComponent<CubeController>() as CubeController;
+        sideCubes[1] = cube2Object_Side.GetComponent<CubeController>() as CubeController;
+        sideCubes[2] = cube3Object_Side.GetComponent<CubeController>() as CubeController;
+        sideCubes[3] = cube4Object_Side.GetComponent<CubeController>() as CubeController;
+        sideCubes[4] = cube5Object_Side.GetComponent<CubeController>() as CubeController;
         aggregateCubeController = aggregateCubeObject.GetComponent<CubeController>() as CubeController;
 
         /* Initialize Side-by-Side Cubes */
         for (int i=0; i<cubes.Length; i++)
         {
             CubeController cube = cubes[i];
+            CubeController sideCube = sideCubes[i];
 
             Assert.IsNotNull(cube);
+            Assert.IsNotNull(sideCube);
             cube.SetupObjects();
+            sideCube.SetupObjects();            
 
-            GameObject cubeObject = cube.gameObject;
-            comparedCubeObject = Instantiate(cubeObject);
+            Vector3 newPos = sideCube.transform.position;   // Offset side cube from original
+            newPos.x -= settings.SideBySideModeXOffset;
+            sideCube.transform.position = newPos;
 
-            comparedCubeObject.name = cubeObject.name;
-
-            comparedCube = comparedCubeObject.GetComponent<CubeController>();
-            comparedCube.SetupObjects();
-
-            comparedCubeObject.name = cubeObject.name + "_Side";
-            comparedCubeObject.transform.parent = cubeObject.transform.parent;
-
-            sideCubes[i] = comparedCube;
-            //comparedCubeObject.SetActive(false);
+            sideCube.gameObject.SetActive(false);
         }
 
         if (debugMessages)
@@ -485,7 +516,8 @@ public class GameController : MonoBehaviour
 
             controlsUICanvas.enabled = true;
             setupUICanvas.enabled = false;
-            simulationUICanvas.enabled = true;      // -- OBSOLETE
+            simulationUICanvas.enabled = true;
+            sideBySideCanvas.enabled = false;
 
             introPanel.SetActive(false);
 
@@ -966,37 +998,65 @@ public class GameController : MonoBehaviour
     #endregion
 
     #region GameModes
+    /// <summary>
+    /// Enter Side-by-Side Mode
+    /// </summary>
+    /// <param name="idx">Cube index to show in Side-by-Side Mode</param>
 
     public void EnterSideBySideMode(int idx)
     {
         if (idx < 0 || idx > 4)
             return;
 
+        sideBySideIdx = idx;
+
         HideCubes(false, idx);
 
-        //GameObject cubeObject = cubes[idx].cubeObject;
-        //comparedCubeObject = Instantiate(cubeObject);
-        //comparedCube = comparedCubeObject.AddComponent<CubeController>();
+        CubeController sideCube = sideCubes[idx];
+        sideCube.gameObject.SetActive(true);
+        sideCube.InitializeSideBySide();
 
-        //int warmingRange = cubeDataList.data[idx].list.Count;           // Find warming range
+        warmingKnob1Object.SetActive(true);
+        warmingKnob1Slider.enabled = true;
+        warmingKnob2Object.SetActive(true);
+        warmingKnob2Slider.enabled = true;
+        warmingKnobObject.SetActive(false);
+        //warmingKnobSlider.enabled = false;
 
-        //comparedCube.SetWarmingRange(warmingRange);
-        //comparedCube.InitializeData(cubeDataList.data[idx].list[0]);
+        exitSideBySideButtonObject.SetActive(true);
 
-        //int count = 0;
-        //foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-        //{
-        //    cubes[1].ProcessDataTextAsset(cubeDataText, count);
-        //    count++;
-        //}
-        ////comparedCube.Initialize(etPrefab, shrubETPrefab, firePrefab);
-        //comparedCube.SetupController();         // -- TO DO
-        //comparedCube.SetWarmingIdx(warmingIdx);
-        //comparedCube.SetWarmingDegrees(warmingDegrees);
-        //comparedCube.FindParameterRanges();
-        //comparedCube.SetModelDebugMode(debugModel);
+        sideBySideCanvas.enabled = true;
+        sideBySideMode = true;
 
-        Debug.Log("GameController.EnterSideBySideMode()... Cube #" + idx);
+        cameraController.StartZoomIntoCube(idx);
+    }
+
+    /// <summary>
+    /// Enter Side-by-Side Mode
+    /// </summary>
+    /// <param name="idx">Cube index to show in Side-by-Side Mode</param>
+
+    public void ExitSideBySideMode()
+    {
+        CubeController sideCube = sideCubes[sideBySideIdx];
+        sideCube.gameObject.SetActive(true);
+        sideCube.StopSimulation();
+
+        HideSideCubes();
+
+        warmingKnob1Object.SetActive(false);
+        warmingKnob1Slider.enabled = false;
+        warmingKnob2Object.SetActive(false);
+        warmingKnob2Slider.enabled = false;
+        warmingKnobObject.SetActive(true);
+        //warmingKnobSlider.enabled = false;
+
+        ShowCubes(false);
+
+        exitSideBySideButtonObject.SetActive(false);
+
+        sideBySideCanvas.enabled = true;
+        sideBySideMode = false;
     }
 
     #endregion
@@ -1947,6 +2007,7 @@ public class GameController : MonoBehaviour
         setupUICanvas.enabled = true;
         simulationUICanvas.enabled = true;
         controlsUICanvas.enabled = false;
+        sideBySideCanvas.enabled = false;
 
         introPanel.SetActive(true);
         loadingTextObject.SetActive(false);

@@ -87,6 +87,9 @@ public class SimulationSettings : MonoBehaviour
     public float TreeDeathSpeed = 0.1f;                  // Death speed 
     public float DeadTreeShrinkFactor = 0.045f;          // Percent to shrink dead tree litter by each frame
 
+    /* Side-by-Side Mode Settings*/
+    [Header("Side-by-Side Mode")]
+    public float SideBySideModeXOffset = 80f;            // Spacing between Side-by-Side Cubes
     /* UI */
     [Header("UI")]
     public int MessageFramesLength = 90;                 // Message length (in frames)                       

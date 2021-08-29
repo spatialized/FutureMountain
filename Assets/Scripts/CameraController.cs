@@ -91,78 +91,79 @@ public class CameraController : MonoBehaviour {
                 }
                 else
                 {
-                    if (hit.transform.tag == "Cube1")
-                    {
-                        Debug.Log("User clicked on Cube1");
-                        if (!moving)
-                        {
-                            StartZoomIntoCube(0, "ZoomCube1");
-                            //pauseState = GamePauseState.pause;
-                            //moving = true;
-                            //animator.SetTrigger("ZoomCube1");
-                            //StartCoroutine(ZoomingIn());
-                        }
-                    }
-                    else if (hit.transform.tag == "Cube2")
-                    {
-                        Debug.Log("User clicked on Cube2");
-                        if (!moving)
-                        {
-                            StartZoomIntoCube(1, "ZoomCube2");
-                            //pauseState = GamePauseState.pause;
-                            //moving = true;
-                            //animator.SetTrigger("ZoomCube2");
-                            //StartCoroutine(ZoomingIn());
-                        }
-                    }
-                    else if (hit.transform.tag == "Cube3")
-                    {
-                        Debug.Log("User clicked on Cube3");
-                        if (!moving)
-                        {
-                            StartZoomIntoCube(2, "ZoomCube3");
-                            //pauseState = GamePauseState.pause;
-                            //moving = true;
-                            //animator.SetTrigger("ZoomCube3");
-                            //StartCoroutine(ZoomingIn());
-                        }
-                    }
-                    else if (hit.transform.tag == "Cube4")
-                    {
-                        Debug.Log("User clicked on Cube4");
-                        if (!moving)
-                        {
-                            StartZoomIntoCube(3, "ZoomCube4");
-                            //pauseState = GamePauseState.pause;
-                            //moving = true;
-                            //animator.SetTrigger("ZoomCube4");
-                            //StartCoroutine(ZoomingIn());
-                        }
-                    }
-                    else if (hit.transform.tag == "Cube5")
-                    {
-                        Debug.Log("User clicked on Cube5");
-                        if (!moving)
-                        {
-                            StartZoomIntoCube(4, "ZoomCube5");
-                            //pauseState = GamePauseState.pause;
-                            //moving = true;
-                            //animator.SetTrigger("ZoomCube5");
-                            //StartCoroutine(ZoomingIn());
-                        }
-                    }
-                    else if (hit.transform.tag == "AggregateCube")
+                    if (hit.transform.tag == "AggregateCube")
                     {
                         Debug.Log("User clicked on AggregateCube");
                         if (!moving)
                         {
                             StartZoomIntoCube(-1, "ZoomAggregateCube");
-                            //pauseState = GamePauseState.pause;
-                            //moving = true;
-                            //animator.SetTrigger("ZoomAggregateCube");
-                            //StartCoroutine(ZoomingIn());
                         }
                     }
+                    else
+                    {
+                        string cubeTag = hit.transform.tag;
+                        Debug.Log("Will zoom in... cubeTag: " + cubeTag + " cubeTag.Substring(cubeTag.Length - 1): " + cubeTag.Substring(cubeTag.Length - 1));
+
+                        string strIdx = cubeTag.Substring(cubeTag.Length - 1);
+                        string animName = "ZoomCube" + strIdx;
+                        int idx = int.Parse(strIdx) - 1;
+
+                        Debug.Log("Zooming in... animName: " + animName + " strIdx: " + strIdx);
+
+                        if (!moving)
+                        {
+                            StartZoomIntoCube(idx, animName);
+                        }
+                    }
+
+                    //if (hit.transform.tag == "Cube1")
+                    //{
+                    //    Debug.Log("User clicked on Cube1");
+                    //    if (!moving)
+                    //    {
+                    //        StartZoomIntoCube(0, "ZoomCube1");
+                    //    }
+                    //}
+                    //else if (hit.transform.tag == "Cube2")
+                    //{
+                    //    Debug.Log("User clicked on Cube2");
+                    //    if (!moving)
+                    //    {
+                    //        StartZoomIntoCube(1, "ZoomCube2");
+                    //    }
+                    //}
+                    //else if (hit.transform.tag == "Cube3")
+                    //{
+                    //    Debug.Log("User clicked on Cube3");
+                    //    if (!moving)
+                    //    {
+                    //        StartZoomIntoCube(2, "ZoomCube3");
+                    //    }
+                    //}
+                    //else if (hit.transform.tag == "Cube4")
+                    //{
+                    //    Debug.Log("User clicked on Cube4");
+                    //    if (!moving)
+                    //    {
+                    //        StartZoomIntoCube(3, "ZoomCube4");
+                    //    }
+                    //}
+                    //else if (hit.transform.tag == "Cube5")
+                    //{
+                    //    Debug.Log("User clicked on Cube5");
+                    //    if (!moving)
+                    //    {
+                    //        StartZoomIntoCube(4, "ZoomCube5");
+                    //    }
+                    //}
+                    //else if (hit.transform.tag == "AggregateCube")
+                    //{
+                    //    Debug.Log("User clicked on AggregateCube");
+                    //    if (!moving)
+                    //    {
+                    //        StartZoomIntoCube(-1, "ZoomAggregateCube");
+                    //    }
+                    //}
                 }
             }
 
@@ -174,24 +175,30 @@ public class CameraController : MonoBehaviour {
     {
         if (sideBySideModeToggleObject.GetComponent<Toggle>().isOn)
         {
-            return true;
+            return !GameController.Instance.sideBySideMode;
         }
         else
         {
             return false;
         }
     }
+
     /// <summary>
     /// Start zoom into specified cube
     /// </summary>
     /// <param name="animTriggerName">Camera animation trigger name</param>
-    private void StartZoomIntoCube(int cubeIdx, string animTriggerName)
+    public void StartZoomIntoCube(int cubeIdx, string animTriggerName)
     {
         if (ShouldEnterSideBySideMode())
         {
             GameController.Instance.EnterSideBySideMode(cubeIdx);
             //StartCoroutine(EnterSideBySideMode());
             Debug.Log("EnterSideBySideMode()... animTriggerName: "+animTriggerName);
+
+            pauseState = GamePauseState.pause;
+            moving = true;
+            animator.SetTrigger(animTriggerName);               // CHANGE FOR SIDE BY SIDE
+            StartCoroutine(ZoomingIn());
         }
         else
         {
@@ -200,6 +207,11 @@ public class CameraController : MonoBehaviour {
             animator.SetTrigger(animTriggerName);
             StartCoroutine(ZoomingIn());
         }
+    }
+
+    public void StartZoomIntoCube(int cubeIdx)
+    {
+        StartZoomIntoCube(cubeIdx, "ZoomCube" + (cubeIdx + 1));
     }
 
     /// <summary>

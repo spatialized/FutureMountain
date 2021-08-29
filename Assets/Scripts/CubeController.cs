@@ -35,7 +35,8 @@ public class CubeController : MonoBehaviour
     private bool firstRun = true;               // First simulation run flag
     [Header("General")]
     public bool isAggregate = false;            // Flag for aggregate cube
-    public int patchID = -1;
+    public int patchID = -1;                    // Patch ID
+    public bool isSideCube = false;             // Flag for side cube
 
     /* Vegetation Prefabs */
     [Header("Vegetation Prefabs")]
@@ -391,6 +392,11 @@ public class CubeController : MonoBehaviour
             UpdateStream();
     }
 
+    public void StopSimulation()
+    {
+        // TO DO
+    }
+
     /// <summary>
     /// Grows initial vegetation for cube.                          
     /// </summary>
@@ -476,10 +482,10 @@ public class CubeController : MonoBehaviour
         cubeObject = transform.Find("CubeObject").gameObject;              // Get (cube) base object
         Assert.IsNotNull(cubeObject);
 
-        string terrainName = "Terrain_" + name.Substring(name.Length - 1);
-        //Debug.Log(""+name+".SetupObjects()... Looking for terrainName: " + terrainName);
+        string terrainName = "Terrain_" + name.Substring(name.Length == 5 ? name.Length - 1 : name.Length - 6);
+        //Debug.Log("" + name + ".SetupObjects()... Looking for terrainName: " + terrainName+" name: "+name);
 
-        terrain = cubeObject.transform.Find("Terrain_"+ name.Substring(name.Length - 1)).GetComponent<Terrain>();
+        terrain = cubeObject.transform.Find(terrainName).GetComponent<Terrain>();
         fireManager = terrain.transform.GetComponentInChildren<SERI_FireManager>() as SERI_FireManager;
         Assert.IsNotNull(terrain);
         Assert.IsNotNull(fireManager);
@@ -500,7 +506,7 @@ public class CubeController : MonoBehaviour
         Assert.IsNotNull(displayPanel);
         HideData();
 
-        GameObject snowManagerObject = GameObject.Find("SnowManager_" + transform.name);
+        GameObject snowManagerObject = GameObject.Find("SnowManager_" + name);
         Assert.IsNotNull(snowManagerObject);
         snowManager = snowManagerObject.GetComponent<SnowManager>() as SnowManager;
         Assert.IsNotNull(snowManager);
@@ -602,6 +608,13 @@ public class CubeController : MonoBehaviour
 
         firstRun = false;
         //Debug.Log(name+".Initialize()... firePrefab == null? " + (firePrefab == null));
+    }
+
+    public void InitializeSideBySide()
+    {
+        Debug.Log("CubeController.InitializeSideBySide()... Cube Name: " + name);
+
+        cubeObject.SetActive(true);
     }
 
     /// <summary>
