@@ -33,10 +33,12 @@ public class CubeController : MonoBehaviour
     #region Fields
     /* General */
     private bool firstRun = true;               // First simulation run flag
+
     [Header("General")]
-    public bool isAggregate = false;            // Flag for aggregate cube
-    public int patchID = -1;                    // Patch ID
-    public bool isSideCube = false;             // Flag for side cube
+    public bool simulationOn = false;          // Is this cube active in the simulation?
+    public bool isAggregate = false;                         // Flag for aggregate cube
+    public int patchID = -1;                                 // Patch ID
+    public bool isSideCube = false;                          // Flag for side cube
 
     /* Vegetation Prefabs */
     [Header("Vegetation Prefabs")]
@@ -99,6 +101,10 @@ public class CubeController : MonoBehaviour
     private float maxShrubFullSize = 2.5f;        // Max. shrub grown size (m.)
     private float shrubGrowthIncrement = 0.01f;   // Shrub growth increment per frame
 
+    /* Objects */
+    public GameObject cubeObject { get; set; }               // Cube base containing all cube parts (except glass)
+    public GameObject cubeLabel { get; set; }                // Cube label
+
     /* Timing */
     private int timeIdx = 0;                    // Current index of simulation in data time series
     private int firGrowthWaitTime = 30;         // Frames to wait between tree instantiations (avoid spawning too many all at once)
@@ -148,7 +154,6 @@ public class CubeController : MonoBehaviour
     private Slider snowAmountSliderDebug;
     private Slider plantCarbonSliderDebug;
     private Slider waterAccessSliderDebug;
-
     /* Animation */
     public bool animating { get; set; } = false;
     private Vector3 targetPosition, startPosition;
@@ -156,12 +161,6 @@ public class CubeController : MonoBehaviour
     private float animationStartTime = -1;
     private float animationEndTime = -1;
     private float animationLength = 3f;
-
-    /* General */
-    public GameObject cubeObject { get; set; }               // Cube base containing all cube parts (except glass)
-    public GameObject cubeLabel { get; set; }                // Cube label
-    public GameObject comparedCubeObject;                    // Compared cube object
-    public CubeController comparedCube;                      // Compared cube controller
 
     /* Landscape */
     private Terrain terrain;                                  // Cube terrain object
@@ -875,6 +874,9 @@ public class CubeController : MonoBehaviour
     /// <param name="timeStep"></param>
     public void UpdateET(int timeStep)
     {
+        if (!simulationOn)
+            return;
+
         if (firs == null)
             return;
         if (shrubs == null)
@@ -897,6 +899,9 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void UpdateVegetationFromData()
     {
+        if (!simulationOn)
+            return;
+
         ResetCube();
         GrowInitialVegetation();
     }
@@ -943,8 +948,11 @@ public class CubeController : MonoBehaviour
     /// </summary>
     /// <param name="newTimeIdx">Time index.</param>
     /// <param name="curTimeStep">Current time step.</param>
-    public void UpdateVegetation(int newTimeIdx, int curTimeStep)//, bool paused)  // Update cube simulation
+    public void UpdateVegetationBehavior(int newTimeIdx, int curTimeStep)
     {
+        if (!simulationOn)
+            return;
+
         timeIdx = newTimeIdx;
 
         timeStep = curTimeStep;
@@ -1127,6 +1135,9 @@ public class CubeController : MonoBehaviour
     /// <param name="timeStep"></param>
     public void UpdateFire(int timeStep)
     {
+        if (!simulationOn)
+            return;
+
         if (terrainBurning)
         {
             if (!StillBurning())
@@ -1148,6 +1159,9 @@ public class CubeController : MonoBehaviour
     /// </summary>
     private void UpdateStream()
     {
+        if (!simulationOn)
+            return;
+
         float streamPos = Mathf.Clamp(MapValue(Mathf.Log(StreamHeight) * 20f, StreamHeightMin, StreamHeightMax, 0f, 1f), 0f, 1f);  // -- TESTING
         float streamSplineHeight = Mathf.Clamp(MapValue(streamPos, 0f, 1f, streamZeroHeight, streamFullHeight), streamZeroHeight, streamFullHeight);
         float streamFaceScale = Mathf.Clamp(MapValue(streamPos, 0f, 1f, streamFaceZeroScale, streamFaceFullScale), streamFaceZeroScale, streamFaceFullScale);
@@ -1169,6 +1183,9 @@ public class CubeController : MonoBehaviour
     /// </summary>
     private void UpdateVegetation()
     {
+        if (!simulationOn)
+            return;
+
         if (firsToKill > 0)
         {
             bool killed = KillAFir(false);
@@ -1289,6 +1306,9 @@ public class CubeController : MonoBehaviour
     /// </summary>
     private void UpdateLitter()
     {
+        if (!simulationOn)
+            return;
+
         CollectLitter();        /* Collect Litter from Dead Trees */
 
         float litterAmount = GetLitterAmountVisualized();
@@ -1329,6 +1349,9 @@ public class CubeController : MonoBehaviour
     /// <param name="newTimeIdx">Current time.</param>
     private void UpdateCurrentData(int newTimeIdx)
     {
+        if (!simulationOn)
+            return;
+
         timeIdx = newTimeIdx;
 
         if (dataType == CubeDataType.Veg1)

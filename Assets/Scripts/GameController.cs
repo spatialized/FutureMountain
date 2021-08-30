@@ -410,6 +410,9 @@ public class GameController : MonoBehaviour
 
             Assert.IsNotNull(cube);
             Assert.IsNotNull(sideCube);
+
+            cube.simulationOn = true;
+
             cube.SetupObjects();
             sideCube.SetupObjects();            
 
@@ -425,6 +428,7 @@ public class GameController : MonoBehaviour
 
         Assert.IsNotNull(aggregateCubeController);
         aggregateCubeController.SetupObjects();
+        aggregateCubeController.simulationOn = true;
 
         HideCubes(true, -1);
         HideSideCubes();
@@ -1094,6 +1098,14 @@ public class GameController : MonoBehaviour
                     animating = true;
                 }
             }
+            foreach (CubeController cube in sideCubes)                                  /* Update side cube animation */
+            {
+                if (cube.animating)
+                {
+                    cube.UpdateAnimation();
+                    animating = true;
+                }
+            }
 
             if (aggregateCubeController.animating)
             {
@@ -1276,12 +1288,26 @@ public class GameController : MonoBehaviour
         }
 
         /* Update Cubes */
-        foreach (CubeController cube in cubes)
+        foreach (CubeController cube in cubes)                                      /* Update cube simulation */
         {
-            if (!paused && !pausedAuto)
-                cube.UpdateVegetation(timeIdx, timeStep);
-            if (burning)
-                cube.UpdateFire(timeStep);
+            if (cube.simulationOn)
+            {
+                if (!paused && !pausedAuto)
+                    cube.UpdateVegetationBehavior(timeIdx, timeStep);
+                if (burning)
+                    cube.UpdateFire(timeStep);
+            }
+        }
+
+        foreach (CubeController cube in sideCubes)                                  /* Update side cube simulation */
+        {
+            if (cube.simulationOn)
+            {
+                if (!paused && !pausedAuto)
+                    cube.UpdateVegetationBehavior(timeIdx, timeStep);
+                if (burning)
+                    cube.UpdateFire(timeStep);
+            }
         }
 
         bool fireBurning = FireBurning();
@@ -1294,7 +1320,7 @@ public class GameController : MonoBehaviour
 
         /* Update Aggregate Cube */
         if (!paused && !pausedAuto)
-            aggregateCubeController.UpdateVegetation(timeIdx, timeStep);
+            aggregateCubeController.UpdateVegetationBehavior(timeIdx, timeStep);
         if (fireBurning)
             aggregateCubeController.UpdateFire(timeStep);
 
@@ -1346,28 +1372,31 @@ public class GameController : MonoBehaviour
             {
                 foreach (CubeController cube in cubes)
                 {
-                    if (usePatchIDsForFire)                                  // Currently OFF since using unsynced simulation data
+                    if (cube.simulationOn)
                     {
-                        List<int> patchIDsToBurn = landscapeController.GetPatchesToBurnForDate(date);
-                        if (patchIDsToBurn.Contains(cube.patchID))
+                        if (usePatchIDsForFire)                                  // Currently OFF since using unsynced simulation data
                         {
-                            if (debugFire)
-                                Debug.Log(name + ".Igniting fire at patchID:" + cube.patchID + " name:" + cube.name + " patchIDsToBurn.Count:" + patchIDsToBurn.Count);
+                            List<int> patchIDsToBurn = landscapeController.GetPatchesToBurnForDate(date);
+                            if (patchIDsToBurn.Contains(cube.patchID))
+                            {
+                                if (debugFire)
+                                    Debug.Log(name + ".Igniting fire at patchID:" + cube.patchID + " name:" + cube.name + " patchIDsToBurn.Count:" + patchIDsToBurn.Count);
 
-                            cube.IgniteTerrain(fireTimeIdx, false);
+                                cube.IgniteTerrain(fireTimeIdx, false);
+                            }
+                            else
+                            {
+                                if (debugFire)
+                                    Debug.Log("Won't ignite fire at patchID:" + cube.patchID + " name:" + cube.name + " patchIDsToBurn.Count:" + patchIDsToBurn.Count);
+                            }
                         }
                         else
                         {
                             if (debugFire)
-                                Debug.Log("Won't ignite fire at patchID:" + cube.patchID + " name:" + cube.name + " patchIDsToBurn.Count:" + patchIDsToBurn.Count);
+                                Debug.Log(cube.name + ".ShouldBurnFireAtDate()? " + cube.ShouldBurnFireOnDate(date) + " date:" + date);
+                            if (cube.ShouldBurnFireOnDate(date))                // Only burn cube if in (manual) list of cubes to burn for fire
+                                cube.IgniteTerrain(fireTimeIdx, false);
                         }
-                    }
-                    else
-                    {
-                        if (debugFire)
-                            Debug.Log(cube.name + ".ShouldBurnFireAtDate()? " + cube.ShouldBurnFireOnDate(date) + " date:" + date);
-                        if (cube.ShouldBurnFireOnDate(date))                // Only burn cube if in (manual) list of cubes to burn for fire
-                            cube.IgniteTerrain(fireTimeIdx, false);
                     }
                 }
             }
@@ -1375,16 +1404,19 @@ public class GameController : MonoBehaviour
             {
                 foreach (CubeController cube in cubes)
                 {
-                    if (usePatchIDsForFire)
+                    if (cube.simulationOn)
                     {
-                        cube.IgniteTerrain(fireTimeIdx, false);
-                    }
-                    else
-                    {
-                        if (debugGame)
-                            Debug.Log(cube.name + ".ShouldBurnFireAtDate()? " + cube.ShouldBurnFireOnDate(date) + " date:" + date);
-                        if (cube.ShouldBurnFireOnDate(date))
+                        if (usePatchIDsForFire)
+                        {
                             cube.IgniteTerrain(fireTimeIdx, false);
+                        }
+                        else
+                        {
+                            if (debugGame)
+                                Debug.Log(cube.name + ".ShouldBurnFireAtDate()? " + cube.ShouldBurnFireOnDate(date) + " date:" + date);
+                            if (cube.ShouldBurnFireOnDate(date))
+                                cube.IgniteTerrain(fireTimeIdx, false);
+                        }
                     }
                 }
             }
@@ -1397,6 +1429,16 @@ public class GameController : MonoBehaviour
         {
             if (!cube.DataExists())
             {
+                Debug.Log("No data exists for cube: " + cube.name);
+                endSimulation = true;
+            }
+        }
+
+        foreach (CubeController cube in sideCubes)
+        {
+            if (!cube.DataExists())
+            {
+                Debug.Log("No data exists for cube: " + cube.name);
                 endSimulation = true;
             }
         }
@@ -1415,7 +1457,10 @@ public class GameController : MonoBehaviour
 
         foreach (CubeController cube in cubes)
         {
-            cube.UpdateET(timeStep);
+            if (cube.simulationOn)
+            {
+                cube.UpdateET(timeStep);
+            }
         }
 
         if (updateSlider)
@@ -1530,7 +1575,10 @@ public class GameController : MonoBehaviour
         aggregateCubeController.ShowData();
         foreach (CubeController cube in cubes)
         {
-            cube.ShowData();
+            if (cube.simulationOn)
+            {
+                cube.ShowData();
+            }
         }
     }
 
@@ -1586,7 +1634,10 @@ public class GameController : MonoBehaviour
         
         foreach (CubeController cube in cubes)
         {
-            cube.UpdateVegetationFromData();
+            if (cube.simulationOn)
+            {
+                cube.UpdateVegetationFromData();
+            }
         }
         
         aggregateCubeController.UpdateVegetationFromData();
@@ -1755,10 +1806,13 @@ public class GameController : MonoBehaviour
 
         foreach (CubeController cube in cubes)
         {
-            if(paused)
-                cube.UpdateET(0);
-            else
-                cube.UpdateET(timeStep);
+            if (cube.simulationOn)
+            {
+                if (paused)
+                    cube.UpdateET(0);
+                else
+                    cube.UpdateET(timeStep);
+            }
         }
 
         uiTimelineObject.SetActive(!newState);
@@ -1967,7 +2021,11 @@ public class GameController : MonoBehaviour
         {
             cube.GetFireManager().Reset();
         }
-        
+        foreach (CubeController cube in sideCubes)
+        {
+            cube.GetFireManager().Reset();
+        }
+
         landscapeController.GetFireManager().Reset();
     }
 
@@ -2028,6 +2086,10 @@ public class GameController : MonoBehaviour
         {
             cube.ResetCube();
         }
+        foreach (CubeController cube in sideCubes)
+        {
+            cube.ResetCube();
+        }
     }
     #endregion
 
@@ -2080,7 +2142,13 @@ public class GameController : MonoBehaviour
                 return true;
         }
 
-        if(aggregateCubeController.IsBurning())
+        foreach (CubeController cube in sideCubes)
+        {
+            if (cube.IsBurning())
+                return true;
+        }
+
+        if (aggregateCubeController.IsBurning())
             return true;
 
         if(landscapeController.IsBurning())
@@ -2104,6 +2172,14 @@ public class GameController : MonoBehaviour
                 return true;
             }
         }
+        foreach (CubeController cube in sideCubes)
+        {
+            if (cube.animating)
+            {
+                return true;
+            }
+        }
+
         if (aggregateCubeController.animating)
             return true;
         else
