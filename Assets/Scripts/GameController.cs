@@ -1018,7 +1018,11 @@ public class GameController : MonoBehaviour
 
         CubeController sideCube = sideCubes[idx];
         sideCube.gameObject.SetActive(true);
-        sideCube.InitializeSideBySide();
+
+        sideCube.StartSimulation(timeIdx, timeStep);
+        sideCube.messageManager = messageManager;
+
+        sideCube.EnterSideBySide();
 
         warmingKnob1Object.SetActive(true);
         warmingKnob1Slider.enabled = true;

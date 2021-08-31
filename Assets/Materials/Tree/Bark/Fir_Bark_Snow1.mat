@@ -138,7 +138,7 @@ Material:
     - _SnowSmothnessPower: 1
     - _SnowSpecularPower: 0
     - _SnowUseUV3: 0
-    - _Snow_Amount: 0
+    - _Snow_Amount: 1.1293851
     - _SpecularHighlights: 1
     - _SpecularPower: 0
     - _SrcBlend: 1

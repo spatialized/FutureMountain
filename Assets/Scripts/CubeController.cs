@@ -375,8 +375,10 @@ public class CubeController : MonoBehaviour
     /// <param name="curTimeStep">Current time step.</param>
     public void StartSimulation(int startTimeIdx, int curTimeStep)
     {
-        if (debugDetailed)
-            Debug.Log(transform.name + ".StartSimulation()...  startTimeIdx:" + startTimeIdx);
+        if (isSideCube || debugDetailed)
+            Debug.Log(transform.name + ".StartSimulation()...  startTimeIdx:" + startTimeIdx +" simulationOn: "+simulationOn);
+
+        simulationOn = true;
 
         timeIdx = startTimeIdx;
         timeStep = curTimeStep;
@@ -424,7 +426,7 @@ public class CubeController : MonoBehaviour
 
             int treesToGrow = (int)Mathf.Round(combinedCarbonOver / treeAverageCarbonAmount);           // Use Overstory Data for Trees
             if (debugTrees)
-                Debug.Log(transform.parent.name + ".InitializeVegetation()... treeAverageCarbonAmount:" + treeAverageCarbonAmount + " combinedStemLeafCarbon:" + combinedCarbonOver + " treesToGrow:" + treesToGrow);
+                Debug.Log(transform.name + ".GrowInitialVegetation()... treeAverageCarbonAmount:" + treeAverageCarbonAmount + " combinedStemLeafCarbon:" + combinedCarbonOver + " treesToGrow:" + treesToGrow);
 
             for (int i = 0; i < treesToGrow; i++)            /* Grow Initial Trees */
             {
@@ -432,7 +434,7 @@ public class CubeController : MonoBehaviour
                 if (!spawned)
                 {
                     if (debugTrees)
-                        Debug.Log(transform.parent.name + ".InitializeVegetation()... Couldn't grow tree!");
+                        Debug.Log(transform.name + ".GrowInitialVegetation()... Couldn't grow tree!");
                     break;
                 }
             }
@@ -609,7 +611,7 @@ public class CubeController : MonoBehaviour
         //Debug.Log(name+".Initialize()... firePrefab == null? " + (firePrefab == null));
     }
 
-    public void InitializeSideBySide()
+    public void EnterSideBySide()
     {
         Debug.Log("CubeController.InitializeSideBySide()... Cube Name: " + name);
 
