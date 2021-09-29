@@ -505,7 +505,7 @@ public class CubeController : MonoBehaviour
         Assert.IsNotNull(displayObject);
         displayPanel = displayObject.transform.Find("Canvas").gameObject;
         Assert.IsNotNull(displayPanel);
-        HideData();
+        HideStatistics();
 
         GameObject snowManagerObject = GameObject.Find("SnowManager_" + name);
         Assert.IsNotNull(snowManagerObject);
@@ -605,17 +605,24 @@ public class CubeController : MonoBehaviour
 
         fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true);
 
-        HideData();
+        HideStatistics();
 
         firstRun = false;
         //Debug.Log(name+".Initialize()... firePrefab == null? " + (firePrefab == null));
     }
 
-    public void EnterSideBySide()
+    /// <summary>
+    /// Enter Side-by-Side Mode
+    /// </summary>
+    /// <param name="sideBySideStatsPanel">Statistics panel to use for cube</param>
+    public void EnterSideBySide(GameObject sideBySideStatsPanel)
     {
-        Debug.Log("CubeController.InitializeSideBySide()... Cube Name: " + name);
+        Debug.Log(transform.name+".EnterSideBySide()... Cube Name: " + name);
 
-        cubeObject.SetActive(true);
+        SetupStatisticsPanel(sideBySideStatsPanel);
+
+        if(isSideCube)
+            cubeObject.SetActive(true);
     }
 
     /// <summary>
@@ -627,21 +634,36 @@ public class CubeController : MonoBehaviour
         shrubList = new List<List<GameObject>>();
         shrubPrefabs = new List<GameObject>();
 
-        netTransSlider = displayPanel.transform.Find("NetTransSlider").GetComponent<Slider>() as Slider;
-        plantCarbonSlider = displayPanel.transform.Find("PlantCarbonSlider").GetComponent<Slider>() as Slider;
-        snowAmountSlider = displayPanel.transform.Find("SnowAmountSlider").GetComponent<Slider>() as Slider;
-        psnSlider = displayPanel.transform.Find("PSNSlider").GetComponent<Slider>() as Slider;
-        waterAccessSlider = displayPanel.transform.Find("WaterAccessSlider").GetComponent<Slider>() as Slider;
+        SetupStatisticsPanel(displayPanel);
 
-        netTransSliderDebug = displayPanel.transform.Find("NetTransSliderDebug").GetComponent<Slider>() as Slider;
+        neCorner = transform.TransformPoint(terrain.transform.position);
+        swCorner = transform.TransformPoint(new Vector3(neCorner.x + cubeWidth, neCorner.y, neCorner.z - cubeWidth));
+    }
+
+    public void ResetStatsPanel()
+    {
+        SetupStatisticsPanel(displayPanel);
+    }
+
+    private void SetupStatisticsPanel(GameObject statsPanel)
+    {
+        Debug.Log(transform.name + ".SetupStatisticsPanel()");
+
+        netTransSlider = statsPanel.transform.Find("NetTransSlider").GetComponent<Slider>() as Slider;
+        plantCarbonSlider = statsPanel.transform.Find("PlantCarbonSlider").GetComponent<Slider>() as Slider;
+        snowAmountSlider = statsPanel.transform.Find("SnowAmountSlider").GetComponent<Slider>() as Slider;
+        psnSlider = statsPanel.transform.Find("PSNSlider").GetComponent<Slider>() as Slider;
+        waterAccessSlider = statsPanel.transform.Find("WaterAccessSlider").GetComponent<Slider>() as Slider;
+
+        netTransSliderDebug = statsPanel.transform.Find("NetTransSliderDebug").GetComponent<Slider>() as Slider;
         netTransSliderDebug.gameObject.SetActive(false);
-        plantCarbonSliderDebug = displayPanel.transform.Find("PlantCarbonSliderDebug").GetComponent<Slider>() as Slider;
+        plantCarbonSliderDebug = statsPanel.transform.Find("PlantCarbonSliderDebug").GetComponent<Slider>() as Slider;
         plantCarbonSliderDebug.gameObject.SetActive(false);
-        snowAmountSliderDebug = displayPanel.transform.Find("SnowAmountSliderDebug").GetComponent<Slider>() as Slider;
+        snowAmountSliderDebug = statsPanel.transform.Find("SnowAmountSliderDebug").GetComponent<Slider>() as Slider;
         snowAmountSliderDebug.gameObject.SetActive(false);
-        psnSliderDebug = displayPanel.transform.Find("PSNSliderDebug").GetComponent<Slider>() as Slider;
+        psnSliderDebug = statsPanel.transform.Find("PSNSliderDebug").GetComponent<Slider>() as Slider;
         psnSliderDebug.gameObject.SetActive(false);
-        waterAccessSliderDebug = displayPanel.transform.Find("WaterAccessSliderDebug").GetComponent<Slider>() as Slider;
+        waterAccessSliderDebug = statsPanel.transform.Find("WaterAccessSliderDebug").GetComponent<Slider>() as Slider;
         waterAccessSliderDebug.gameObject.SetActive(false);
 
         Assert.IsNotNull(netTransSlider);
@@ -649,9 +671,6 @@ public class CubeController : MonoBehaviour
         Assert.IsNotNull(snowAmountSlider);
         Assert.IsNotNull(psnSlider);
         Assert.IsNotNull(waterAccessSlider);
-
-        neCorner = transform.TransformPoint(terrain.transform.position);
-        swCorner = transform.TransformPoint(new Vector3(neCorner.x + cubeWidth, neCorner.y, neCorner.z - cubeWidth));
     }
 
     /// <summary>
@@ -1916,37 +1935,6 @@ public class CubeController : MonoBehaviour
         }
         return rend;
     }
-
-    /// <summary>
-    /// Removes a tree.
-    /// </summary>
-    /// <returns><c>true</c>, if tree was removed, <c>false</c> otherwise.</returns>
-    //private bool RemoveTree()
-    //{
-    //    int rand = (int)Random.Range(settings.MinFrontTrees, firs.Count - 1);
-    //    int count = 0;
-
-    //    while (!firs[rand].IsAlive())
-    //    {
-    //        rand = (int)Random.Range(0f, firs.Count - 1);
-    //        if (++count > whileLoopMaxCount)
-    //        {
-    //            if (debugTrees)
-    //                Debug.Log(transform.name + " CubeController.RemoveTree()... Couldn't remove tree... searched and none were alive!");
-    //            if (debugTrees)
-    //                Debug.Log(transform.name + " CubeController.RemoveTree()... Attempting to remove front tree " + rand + " since no others were found alive...");
-    //            return false;
-    //        }
-    //    }
-
-    //    if (debugTrees)
-    //        Debug.Log(transform.name + " CubeController.RemoveTree()...  Tree to remove:" + rand);
-
-    //    firs[rand].ClearTree();
-    //    DestroyFir(firs[rand]);
-
-    //    return true;
-    //}
 
     ///// <summary>
     ///// Creates the shrubs.
@@ -3461,7 +3449,7 @@ public class CubeController : MonoBehaviour
     /// <summary>
     /// Shows model data display for cube.
     /// </summary>
-    public void ShowData()
+    public void ShowStatistics()
     {
         displayObject.SetActive(true);
     }
@@ -3469,7 +3457,7 @@ public class CubeController : MonoBehaviour
     /// <summary>
     /// Shows model data display for cube.
     /// </summary>
-    public void HideData()
+    public void HideStatistics()
     {
         displayObject.SetActive(false);
     }
@@ -3552,7 +3540,7 @@ public class CubeController : MonoBehaviour
     /// <summary>
     /// Updates the data display.
     /// </summary>
-    public void UpdateModelDisplay()
+    public void UpdateStatistics()
     {
         float netTrans = GetNetTranspiration();
         float leafCarbon = GetLeafCarbon();

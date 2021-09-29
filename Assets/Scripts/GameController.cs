@@ -154,6 +154,10 @@ public class GameController : MonoBehaviour
     public GameObject cube5Object;                            // Cube 5 Object 
     public GameObject cube5Object_Side;                       // Cube 5 Object 
 
+    public GameObject cube1Stats;                             // Side-by-Side Mode Cube #1 statistics
+    public GameObject cube2Stats;                             // Side-by-Side Mode Cube #2 statistics
+    public GameObject warmingLevelText;                       // Side-by-Side Mode Warming Level Text
+
     /* Controllers */
     public LandscapeController landscapeController;          // Large Landscape Controller
     private CubeController aggregateCubeController;           // Aggregate Cube Controller
@@ -193,7 +197,7 @@ public class GameController : MonoBehaviour
 
     /* UI Buttons */
     private GameObject showControlsToggleObject;              // Toggle button for showing controls
-    private GameObject modelDataToggleObject;                 // Toggle button for model data display
+    private GameObject showModelDataToggleObject;                 // Toggle button for model data display
     private GameObject storyModeToggleObject;                 // Story mode toggle button
     private GameObject sideBySideModeToggleObject;            // Side-by-Side Mode toggle button
     private GameObject exitSideBySideButtonObject;            // Exit Side-by-Side Mode button object
@@ -303,7 +307,7 @@ public class GameController : MonoBehaviour
 
         endButtonObject = GameObject.Find("EndButton");
         showControlsToggleObject = GameObject.Find("ShowControlsToggle");
-        modelDataToggleObject = GameObject.Find("ShowModelDataToggle");
+        showModelDataToggleObject = GameObject.Find("ShowModelDataToggle");
         storyModeToggleObject = GameObject.Find("StoryModeToggle");
         sideBySideModeToggleObject = GameObject.Find("SideBySideToggle");
         seasonsToggleObject = GameObject.Find("ShowSeasonsToggle");
@@ -314,7 +318,7 @@ public class GameController : MonoBehaviour
 
         seasonsToggleObject.GetComponent<Toggle>().isOn = displaySeasons;
         showControlsToggleObject.GetComponent<Toggle>().isOn = showControls;
-        modelDataToggleObject.GetComponent<Toggle>().isOn = displayModel;
+        showModelDataToggleObject.GetComponent<Toggle>().isOn = displayModel;
         storyModeToggleObject.GetComponent<Toggle>().isOn = storyMode;
         sideBySideModeToggleObject.GetComponent<Toggle>().isOn = sideBySideMode;
 
@@ -323,7 +327,7 @@ public class GameController : MonoBehaviour
 
         Assert.IsNotNull(endButtonObject);
         Assert.IsNotNull(seasonsToggleObject);
-        Assert.IsNotNull(modelDataToggleObject);
+        Assert.IsNotNull(showModelDataToggleObject);
         Assert.IsNotNull(showControlsToggleObject);
         Assert.IsNotNull(sideBySideModeToggleObject);
         Assert.IsNotNull(storyModeToggleObject);
@@ -387,6 +391,14 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(cube4Object_Side);
         Assert.IsNotNull(cube5Object_Side);
         Assert.IsNotNull(aggregateCubeObject);
+
+        Assert.IsNotNull(cube1Stats);
+        Assert.IsNotNull(cube2Stats);
+        Assert.IsNotNull(warmingLevelText);
+        
+        cube1Stats.SetActive(false);
+        cube2Stats.SetActive(false);
+        warmingLevelText.SetActive(false);
 
         cubes = new CubeController[5];
         sideCubes = new CubeController[5];
@@ -918,7 +930,7 @@ public class GameController : MonoBehaviour
 
             /* Show / Hide Data Display */
             if (displayModel)
-                ShowData();
+                ShowStatistics();
             else
                 HideData();
 
@@ -1016,13 +1028,17 @@ public class GameController : MonoBehaviour
 
         HideCubes(false, idx);
 
+        CubeController cube = cubes[idx];
         CubeController sideCube = sideCubes[idx];
+
+        cube.EnterSideBySide(cube1Stats);
+
         sideCube.gameObject.SetActive(true);
 
         sideCube.StartSimulation(timeIdx, timeStep);
         sideCube.messageManager = messageManager;
 
-        sideCube.EnterSideBySide();
+        sideCube.EnterSideBySide(cube2Stats);
 
         warmingKnob1Object.SetActive(true);
         warmingKnob1Slider.enabled = true;
@@ -1032,6 +1048,9 @@ public class GameController : MonoBehaviour
         //warmingKnobSlider.enabled = false;
 
         exitSideBySideButtonObject.SetActive(true);
+
+        cube1Stats.SetActive(true);
+        cube2Stats.SetActive(true);
 
         //cameraController.StartZoomIntoCube(idx);
 
@@ -1059,6 +1078,15 @@ public class GameController : MonoBehaviour
         warmingKnob2Slider.enabled = false;
         warmingKnobObject.SetActive(true);
         //warmingKnobSlider.enabled = false;
+
+        cube1Stats.SetActive(false);
+        cube2Stats.SetActive(false);
+        warmingLevelText.SetActive(false);
+
+        foreach (CubeController cube in cubes)
+        {
+            cube.ResetStatsPanel();
+        }
 
         ShowCubes(false);
         cameraController.StartResetZoom();
@@ -1147,14 +1175,21 @@ public class GameController : MonoBehaviour
                         {
                             UpdateLighting();
 
-                            if (displayModel)
+                            if (displayModel || sideBySideMode)
                             {
-                                aggregateCubeController.UpdateModelDisplay();
-                                cubes[0].UpdateModelDisplay();
-                                cubes[1].UpdateModelDisplay();
-                                cubes[2].UpdateModelDisplay();
-                                cubes[3].UpdateModelDisplay();
-                                cubes[4].UpdateModelDisplay();
+                                aggregateCubeController.UpdateStatistics();
+                                foreach (CubeController cube in cubes)
+                                {
+                                    cube.UpdateStatistics();
+                                }
+
+                                if (sideBySideMode)
+                                {
+                                    foreach (CubeController cube in sideCubes)
+                                    {
+                                        cube.UpdateStatistics();
+                                    }
+                                }
                             }
 
                             UpdateUIText();
@@ -1574,14 +1609,25 @@ public class GameController : MonoBehaviour
     /// <summary>
     /// Shows the data panel.
     /// </summary>
-    private void ShowData()
+    private void ShowStatistics()
     {
-        aggregateCubeController.ShowData();
+        if (sideBySideMode)
+            return;
+
+        aggregateCubeController.ShowStatistics();
         foreach (CubeController cube in cubes)
         {
             if (cube.simulationOn)
             {
-                cube.ShowData();
+                cube.ShowStatistics();
+            }
+        }
+
+        foreach (CubeController cube in sideCubes)
+        {
+            if (cube.simulationOn)
+            {
+                cube.ShowStatistics();
             }
         }
     }
@@ -1591,15 +1637,18 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void HideData()
     {
-        aggregateCubeController.HideData();
+        if (sideBySideMode)
+            return;
+
+        aggregateCubeController.HideStatistics();
         foreach (CubeController cube in cubes)
         {
-            cube.HideData();
+            cube.HideStatistics();
         }
     }
 
     /// <summary>
-    /// Shows the data panel.
+    /// Shows the messages panel.
     /// </summary>
     private void ShowMessages()
     {
@@ -1865,7 +1914,7 @@ public class GameController : MonoBehaviour
         displayModel = state;
 
         if (displayModel)
-            ShowData();
+            ShowStatistics();
         else
             HideData();
     }
@@ -2051,12 +2100,12 @@ public class GameController : MonoBehaviour
         zoomOutButtonObject.SetActive(false);
 
         showControlsToggleObject.GetComponent<Toggle>().isOn = true;
-        modelDataToggleObject.GetComponent<Toggle>().isOn = false;
+        showModelDataToggleObject.GetComponent<Toggle>().isOn = false;
         flyCameraButtonObject.GetComponent<Toggle>().isOn = false;
         cubesToggleObject.GetComponent<Toggle>().isOn = true;
         camControl.SetCameraFlyMode(false);
 
-        ToggleModelDisplay(modelDataToggleObject);
+        ToggleModelDisplay(showModelDataToggleObject);
 
         uiTimeline.ClearTimeline();
         messageManager.ClearMessages();
