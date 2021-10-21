@@ -3440,6 +3440,11 @@ public class CubeController : MonoBehaviour
         return dataLength;
     }
 
+    public int GetWarmingIdx()
+    {
+        return warmingIdx;
+    }
+
     /// <summary>
     /// Gets the data dates.
     /// </summary>

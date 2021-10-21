@@ -2152,16 +2152,26 @@ public class GameController : MonoBehaviour
 
         if (isComparedCube)
         {
+            if (newIdx == sideCubes[4].GetWarmingIdx())
+                return;
+
+            sideCubes[4].ResetCube();
             sideCubes[4].SetWarmingIdx(newIdx);
             sideCubes[4].SetWarmingDegrees(newDegrees);
             sideCubes[4].FindParameterRanges();
+            sideCubes[4].StartSimulation(timeIdx, timeStep);
 
         }
         else
         {
+            if (newIdx == cubes[4].GetWarmingIdx())
+                return;
+
+            cubes[4].ResetCube();
             cubes[4].SetWarmingIdx(newIdx);
             cubes[4].SetWarmingDegrees(newDegrees);
             cubes[4].FindParameterRanges();
+            cubes[4].StartSimulation(timeIdx, timeStep);
         }
     }
 
