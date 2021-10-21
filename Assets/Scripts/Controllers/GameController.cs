@@ -2144,6 +2144,27 @@ public class GameController : MonoBehaviour
             cube.ResetCube();
         }
     }
+
+    // -- TO DO: Generalize this
+    public void SetSBSWarmingLevel(int newIdx, int newDegrees, bool isComparedCube)
+    {
+        //Debug.Log("SetSBSWarmingLevel()... newIdx: " + newIdx+" newDegrees:"+newDegrees);
+
+        if (isComparedCube)
+        {
+            sideCubes[4].SetWarmingIdx(newIdx);
+            sideCubes[4].SetWarmingDegrees(newDegrees);
+            sideCubes[4].FindParameterRanges();
+
+        }
+        else
+        {
+            cubes[4].SetWarmingIdx(newIdx);
+            cubes[4].SetWarmingDegrees(newDegrees);
+            cubes[4].FindParameterRanges();
+        }
+    }
+
     #endregion
 
     #region Data

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 /// <summary>
 /// Soil controller.
@@ -73,14 +74,19 @@ public class SoilController : MonoBehaviour {
 
 		GameObject front = transform.Find("FrontPlane").gameObject;		// Front side soil
 		frontSoilRend = front.GetComponent<Renderer>();
-		frontSoilMaterial = frontSoilRend.materials[0];         
+        Assert.IsNotNull(frontSoilRend);
+
+        frontSoilMaterial = frontSoilRend.materials[0];         
 //		frontSoilMaterial.SetFloat("_Metallic", metallicAmount);    	// -- ADDED
 //		GameObject sideL = transform.Find("SidePlaneL").gameObject;		// Left side soil (X)
 //		sideLSoilRend = front.GetComponent<Renderer>();
 //		sideLSoilMaterial = sideRSoilRend.materials[0];
 		GameObject sideR = transform.Find("SidePlaneR").gameObject;		// Right side soil
 		sideRSoilRend = front.GetComponent<Renderer>();
-		sideRSoilMaterial = sideRSoilRend.materials[0];
+        Assert.IsNotNull(sideRSoilRend);
+
+        sideRSoilMaterial = sideRSoilRend.materials[0];
+
 //		GameObject back = transform.Find("BackPlane").gameObject;		// Back side soil (X)
 //		backSoilRend = front.GetComponent<Renderer>();
 //		backSoilMaterial = sideRSoilRend.materials[0];

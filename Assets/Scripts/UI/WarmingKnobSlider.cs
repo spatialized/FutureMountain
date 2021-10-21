@@ -30,6 +30,9 @@ public class WarmingKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler,
     public float angle_Z = 0f;
     private float angleAdjustAmt = 0f;
 
+    public bool isSideBySideKnob = false;
+    public bool isComparedCubeKnob = false;
+
     /// <summary>
     /// Start
     /// </summary>
@@ -165,7 +168,8 @@ public class WarmingKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler,
         else if (valueTest < fourPos) result = fourPos;
         else if (valueTest <= sixPos) result = sixPos;
         else if (valueTest > sixPos) result = zeroPos;
-        Debug.Log("result:" + result);
+
+        //Debug.Log("result:" + result);
         return result;
     }
 
@@ -271,10 +275,6 @@ public class WarmingKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler,
         if (check < 0f || check > 1f)
             return;
 
-        //if (check >= 0f && check <= 1f)
-        //    value = check;
-        //else return;
-
         //Debug.Log("direction.x:" + direction.x + " angle_Z :" + angle_Z);
         angle_Z = (direction.x > 0) ? angle_Z : -angle_Z;
 
@@ -284,6 +284,20 @@ public class WarmingKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler,
         angle_Z *= -1f;
 
         SetAngle(angle_Z);
+
+        Debug.Log("RespondToInput()... warmingValue: " + warmingValue + " isSideBySideKnob:"+isSideBySideKnob);
+
+        if (isSideBySideKnob)               // TO DO: Generalize for cubes besides Cube B
+        {
+            if (isComparedCubeKnob)
+            {
+                GameController.Instance.SetSBSWarmingLevel(GetWarmingIndex(), GetWarmingDegrees(), true);
+            }
+            else
+            {
+                GameController.Instance.SetSBSWarmingLevel(GetWarmingIndex(), GetWarmingDegrees(), false);
+            }
+        }
     }
 
     /// <summary>

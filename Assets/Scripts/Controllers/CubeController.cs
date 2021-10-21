@@ -134,7 +134,7 @@ public class CubeController : MonoBehaviour
     private string[] dataDates;                 // Dates by time index
 
     private int warmingIdx;                     // Current warming index
-    private int warmingDegrees;                     // Current warming index
+    private int warmingDegrees;                 // Current warming degrees
     private int warmingRange;                   // Warming range (warming idx values)
 
     /* Display + UI */
@@ -3142,6 +3142,9 @@ public class CubeController : MonoBehaviour
     /// <param name="timeIndex">Time index.</param>
     public float ReadData(int col, int timeIndex)
     {
+        Debug.Log(name + ".ReadData()... timeIndex:" + timeIndex + "warmingIdx: " + warmingIdx);
+
+
         if (dataArray != null)
             return dataArray[warmingIdx][timeIndex, col];
         else
