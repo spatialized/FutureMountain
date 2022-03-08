@@ -1,10 +1,10 @@
 Using pre-set license
-Built from '2021.1/staging' branch; Version is '2021.1.14f1 (51d2f824827f) revision 5362424'; Using compiler version '192528614'; Build Type 'Release'
-OS: 'Windows 10 Home; OS build 19043.1110; Version 2009; 64bit' Language: 'en' Physical Memory: 16323 MB
+Built from '2020.3/staging' branch; Version is '2020.3.30f1 (1fb1bf06830e) revision 2077119'; Using compiler version '192528614'; Build Type 'Release'
+OS: 'Windows 11  (10.0.22000) 64bit Core' Language: 'en' Physical Memory: 32675 MB
 BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1, IsPro: 0
 
- COMMAND LINE ARGUMENTS:
-C:\Program Files\Unity\Hub\Editor\2021.1.14f1\Editor\Unity.exe
+COMMAND LINE ARGUMENTS:
+C:\Program Files\Unity\Hub\Editor\2020.3.30f1\Editor\Unity.exe
 -adb2
 -batchMode
 -noUpm
@@ -15,101 +15,98 @@ D:/Git/FutureMountain
 -logFile
 Logs/AssetImportWorker0.log
 -srvPort
-55924
+57654
 Successfully changed project path to: D:/Git/FutureMountain
 D:/Git/FutureMountain
 Using Asset Import Pipeline V2.
-Refreshing native plugins compatible for Editor in 164.82 ms, found 5 plugins.
+Refreshing native plugins compatible for Editor in 190.59 ms, found 5 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
-Initialize engine version: 2021.1.14f1 (51d2f824827f)
-[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/2021.1.14f1/Editor/Data/Resources/UnitySubsystems
+Initialize engine version: 2020.3.30f1 (1fb1bf06830e)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/2020.3.30f1/Editor/Data/Resources/UnitySubsystems
 [Subsystems] Discovering subsystems at path D:/Git/FutureMountain/Assets
-GfxDevice: creating device client; threaded=0; jobified=0
+GfxDevice: creating device client; threaded=0
 Direct3D:
     Version:  Direct3D 11.0 [level 11.1]
-    Renderer: NVIDIA GeForce GTX 1070 (ID=0x1b81)
-    Vendor:   NVIDIA
-    VRAM:     8088 MB
-    Driver:   30.0.14.7141
+    Renderer: NVIDIA GeForce RTX 3090 (ID=0x2204)
+    Vendor:   
+    VRAM:     24348 MB
+    Driver:   30.0.15.1165
 Initialize mono
-Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/2021.1.14f1/Editor/Data/Managed'
-Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/2021.1.14f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit'
-Mono config path = 'C:/Program Files/Unity/Hub/Editor/2021.1.14f1/Editor/Data/MonoBleedingEdge/etc'
-Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56408
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/2020.3.30f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/2020.3.30f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/2020.3.30f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56216
 Begin MonoManager ReloadAssembly
 Registering precompiled unity dll's ...
-Register platform support module: C:/Program Files/Unity/Hub/Editor/2021.1.14f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
-Register platform support module: C:/Program Files/Unity/Hub/Editor/2021.1.14f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
-Registered in 0.002605 seconds.
+Register platform support module: C:/Program Files/Unity/Hub/Editor/2020.3.30f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.001635 seconds.
 Native extension for WindowsStandalone target not found
-Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 143.75 ms, found 5 plugins.
+Refreshing native plugins compatible for Editor in 149.30 ms, found 5 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Mono: successfully reloaded assembly
-- Completed reload, in  1.454 seconds
+- Completed reload, in  0.723 seconds
 Domain Reload Profiling:
-	ReloadAssembly (1455ms)
-		BeginReloadAssembly (51ms)
+	ReloadAssembly (723ms)
+		BeginReloadAssembly (65ms)
 			ExecutionOrderSort (0ms)
 			DisableScriptedObjects (0ms)
 			BackupInstance (0ms)
 			ReleaseScriptingObjects (0ms)
 			CreateAndSetChildDomain (1ms)
-		EndReloadAssembly (524ms)
-			LoadAssemblies (48ms)
+		EndReloadAssembly (579ms)
+			LoadAssemblies (63ms)
 			RebuildTransferFunctionScriptingTraits (0ms)
-			SetupTypeCache (167ms)
+			SetupTypeCache (156ms)
 			ReleaseScriptCaches (0ms)
-			RebuildScriptCaches (28ms)
-			SetupLoadedEditorAssemblies (279ms)
+			RebuildScriptCaches (33ms)
+			SetupLoadedEditorAssemblies (271ms)
 				LogAssemblyErrors (0ms)
-				InitializePlatformSupportModulesInManaged (7ms)
+				InitializePlatformSupportModulesInManaged (5ms)
 				SetLoadedEditorAssemblies (0ms)
-				RefreshPlugins (144ms)
-				BeforeProcessingInitializeOnLoad (2ms)
-				ProcessInitializeOnLoadAttributes (98ms)
-				ProcessInitializeOnLoadMethodAttributes (28ms)
+				RefreshPlugins (149ms)
+				BeforeProcessingInitializeOnLoad (8ms)
+				ProcessInitializeOnLoadAttributes (87ms)
+				ProcessInitializeOnLoadMethodAttributes (22ms)
 				AfterProcessingInitializeOnLoad (0ms)
 				EditorAssembliesLoaded (0ms)
 			ExecutionOrderSort2 (0ms)
 			AwakeInstancesAfterBackupRestoration (0ms)
 Platform modules already initialized, skipping
 Registering precompiled user dll's ...
-Registered in 0.009180 seconds.
+Registered in 0.009511 seconds.
 Begin MonoManager ReloadAssembly
 Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Assets\Utilities\Serialization\Assets\Dlls\ZeroFormatter.dll
 Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Dependencies\DotNetZip\Unity.VisualScripting.IonicZip.dll
 Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Dependencies\YamlDotNet\Unity.VisualScripting.YamlDotNet.dll
 Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Assets\Utilities\Serialization\Assets\Dlls\ZeroFormatter.Interfaces.dll
 Native extension for WindowsStandalone target not found
-Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 1.67 ms, found 5 plugins.
+Refreshing native plugins compatible for Editor in 3.60 ms, found 5 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Mono: successfully reloaded assembly
-- Completed reload, in  2.017 seconds
+- Completed reload, in  1.714 seconds
 Domain Reload Profiling:
-	ReloadAssembly (2018ms)
-		BeginReloadAssembly (155ms)
+	ReloadAssembly (1715ms)
+		BeginReloadAssembly (152ms)
 			ExecutionOrderSort (0ms)
-			DisableScriptedObjects (5ms)
+			DisableScriptedObjects (4ms)
 			BackupInstance (0ms)
 			ReleaseScriptingObjects (0ms)
-			CreateAndSetChildDomain (22ms)
-		EndReloadAssembly (1790ms)
-			LoadAssemblies (103ms)
+			CreateAndSetChildDomain (28ms)
+		EndReloadAssembly (1509ms)
+			LoadAssemblies (107ms)
 			RebuildTransferFunctionScriptingTraits (0ms)
-			SetupTypeCache (446ms)
+			SetupTypeCache (377ms)
 			ReleaseScriptCaches (1ms)
-			RebuildScriptCaches (81ms)
-			SetupLoadedEditorAssemblies (1030ms)
+			RebuildScriptCaches (63ms)
+			SetupLoadedEditorAssemblies (891ms)
 				LogAssemblyErrors (0ms)
-				InitializePlatformSupportModulesInManaged (7ms)
-				SetLoadedEditorAssemblies (0ms)
-				RefreshPlugins (2ms)
-				BeforeProcessingInitializeOnLoad (102ms)
-				ProcessInitializeOnLoadAttributes (336ms)
-				ProcessInitializeOnLoadMethodAttributes (573ms)
-				AfterProcessingInitializeOnLoad (9ms)
+				InitializePlatformSupportModulesInManaged (5ms)
+				SetLoadedEditorAssemblies (1ms)
+				RefreshPlugins (4ms)
+				BeforeProcessingInitializeOnLoad (92ms)
+				ProcessInitializeOnLoadAttributes (270ms)
+				ProcessInitializeOnLoadMethodAttributes (514ms)
+				AfterProcessingInitializeOnLoad (6ms)
 				EditorAssembliesLoaded (0ms)
 			ExecutionOrderSort2 (0ms)
 			AwakeInstancesAfterBackupRestoration (7ms)
@@ -117,14 +114,14 @@ Platform modules already initialized, skipping
 ========================================================================
 Worker process is ready to serve import requests
 Launched and connected shader compiler UnityShaderCompiler.exe after 0.05 seconds
-Refreshing native plugins compatible for Editor in 1.37 ms, found 5 plugins.
+Refreshing native plugins compatible for Editor in 1.74 ms, found 5 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
-Unloading 4233 Unused Serialized files (Serialized files now loaded: 0)
-System memory in use before: 294.6 MB.
-System memory in use after: 288.6 MB.
+Unloading 4231 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 296.8 MB.
+System memory in use after: 296.7 MB.
 
-Unloading 73 unused Assets to reduce memory usage. Loaded Objects now: 4664.
-Total: 7.117300 ms (FindLiveObjects: 0.343100 ms CreateObjectMapping: 0.177000 ms MarkObjects: 4.862600 ms  DeleteObjects: 1.733600 ms)
+Unloading 63 unused Assets to reduce memory usage. Loaded Objects now: 4654.
+Total: 10.801900 ms (FindLiveObjects: 1.111000 ms CreateObjectMapping: 0.240800 ms MarkObjects: 8.857800 ms  DeleteObjects: 0.591200 ms)
 
 AssetImportParameters requested are different than current active one (requested -> active):
   custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
@@ -133,1135 +130,111 @@ AssetImportParameters requested are different than current active one (requested
   custom:container-demuxer-webm: 4f35f7cbe854078d1ac9338744f61a02 -> 
   custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
   custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
-  custom:video-codec-MediaFoundation-h265: 746d11721c4dcdbdad8f713fa42b33f4 -> 
   custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
   custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
   custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
 ========================================================================
 Received Import Request.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood4_LOD0.fbx
-  artifactKey: Guid(ade4a8b3e187408408c162fc1c78dca6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood4_LOD0.fbx using Guid(ade4a8b3e187408408c162fc1c78dca6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '27285778cfb6c1b4de953ea971639779') in 1.553938 seconds 
+  path: Assets/FR2_Cache.asset
+  artifactKey: Guid(2143a660b854a92469f7a26c064db62f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/FR2_Cache.asset using Guid(2143a660b854a92469f7a26c064db62f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e06f1abe9f86717e457320abcb0ef5e6') in 0.687927 seconds 
 ========================================================================
 Received Import Request.
-  Time since last request: 0.000311 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry_sm1_LOD2.fbx
-  artifactKey: Guid(82702f379ad135f48857dc9ff049c087) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry_sm1_LOD2.fbx using Guid(82702f379ad135f48857dc9ff049c087) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '43e9ede455e6d900ecf300f3c9d33469') in 0.893292 seconds 
+  Time since last request: 36.930194 seconds.
+  path: Assets/Scenes
+  artifactKey: Guid(74213bd0c849d44599089fdd0300c473) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Scenes using Guid(74213bd0c849d44599089fdd0300c473) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '324438a0918afa23e6da11ec4f209d7c') in 0.008024 seconds 
 ========================================================================
 Received Import Request.
-  Time since last request: 0.000313 seconds.
-  path: Assets/GPUInstancer/Demos/CustomComputeShader/PostProcessing/BoidsDemoPPP.asset
-  artifactKey: Guid(c71538ba228546545b1af5f88799b1f8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/CustomComputeShader/PostProcessing/BoidsDemoPPP.asset using Guid(c71538ba228546545b1af5f88799b1f8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '7301d9f37e0e6ef0b39a3ce620745de6') in 0.100686 seconds 
+  Time since last request: 1.347055 seconds.
+  path: Assets/Scenes/SERI_MainScene
+  artifactKey: Guid(843113482fa8a494dae14c77c6c36b96) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Scenes/SERI_MainScene using Guid(843113482fa8a494dae14c77c6c36b96) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'cda625514002a611b8b9aad8cdbd9f32') in 0.009134 seconds 
 ========================================================================
 Received Import Request.
-  Time since last request: 0.000306 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood5_LOD0.fbx
-  artifactKey: Guid(1225dae4d3c0ec14f81079d4921666ea) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood5_LOD0.fbx using Guid(1225dae4d3c0ec14f81079d4921666ea) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '6ae7100a23f40638549c89aa68f298fd') in 0.149728 seconds 
+  Time since last request: 2.154482 seconds.
+  path: Assets/Scenes/FutureMountain
+  artifactKey: Guid(7447ed8443fc0456ea8fba858235abfb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Scenes/FutureMountain using Guid(7447ed8443fc0456ea8fba858235abfb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b82b7d1205f7deab0386dbe617da26ea') in 0.008330 seconds 
 ========================================================================
 Received Import Request.
-  Time since last request: 0.000321 seconds.
-  path: Assets/Materials/Shrubs/AC_Branches_0_LOD0.mat
-  artifactKey: Guid(60e4a05d21c7742abbeda85a8650b21b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/AC_Branches_0_LOD0.mat using Guid(60e4a05d21c7742abbeda85a8650b21b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5127a66f2d7b43fa92fd30d9f8ee4ca0') in 0.733756 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000276 seconds.
-  path: Assets/InfiniGRASS/Version 1.4/Prefabs/BranchA/BigTree_LEAVES.mat
-  artifactKey: Guid(3e84ad2ef28562146bf9459101b63501) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/InfiniGRASS/Version 1.4/Prefabs/BranchA/BigTree_LEAVES.mat using Guid(3e84ad2ef28562146bf9459101b63501) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd72a5df5adaf5cddbcd73dc837390b96') in 0.709927 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000298 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Models/Unused/Manzanita_6/GreenleafManzanita_Low_6.spm
-  artifactKey: Guid(be729788f9a334e528f024c9b74ab7eb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Models/Unused/Manzanita_6/GreenleafManzanita_Low_6.spm using Guid(be729788f9a334e528f024c9b74ab7eb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '71cf128b0c8a6d55922575c921299ec5') in 1.711724 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000334 seconds.
-  path: Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_008.spm
-  artifactKey: Guid(6db076bdd3e854ca89e72aaf590c3a8c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_008.spm using Guid(6db076bdd3e854ca89e72aaf590c3a8c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'fa2c32a27240461e5eae0dfcbe58932e') in 0.456029 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000283 seconds.
-  path: Assets/Coniferous forest/Plants/BlBerry_Branches.prefab
-  artifactKey: Guid(57f92198e3431254eb04f537d0a04555) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/BlBerry_Branches.prefab using Guid(57f92198e3431254eb04f537d0a04555) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'aa7defce3cf27bde70207f4671c6b71c') in 0.481783 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000307 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Full_Materials/Billboard.mat
-  artifactKey: Guid(b3d49c44c73c641aaa6338f6fbcb6473) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Full_Materials/Billboard.mat using Guid(b3d49c44c73c641aaa6338f6fbcb6473) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '1c4a6bde98b5fa7c774200d01003d8b7') in 0.035841 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000290 seconds.
-  path: Assets/Materials/Shrubs/AC_Plants_03.mat
-  artifactKey: Guid(5aaa560f0fca54574a1412fd9e1aaa4d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/AC_Plants_03.mat using Guid(5aaa560f0fca54574a1412fd9e1aaa4d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '49acf7408ca19a03ad05cecb5a58df8e') in 0.660810 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000328 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/Meshes/Asteroid_03.FBX
-  artifactKey: Guid(793e15f36e67648488fb7958effd7e78) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/Meshes/Asteroid_03.FBX using Guid(793e15f36e67648488fb7958effd7e78) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f4a6162677d44922516dd90f94e7cd3c') in 0.042495 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000384 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Lg_Materials/Branches_1_LOD0.mat
-  artifactKey: Guid(c5cc691a1f5024e7abd59ef53a8b906c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Lg_Materials/Branches_1_LOD0.mat using Guid(c5cc691a1f5024e7abd59ef53a8b906c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '613bf058318fbbe2bd5539da196104a5') in 0.040423 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000288 seconds.
-  path: Assets/Coniferous forest/Plants/Textures/BillbBlackberry2_n.tif
-  artifactKey: Guid(2aebc607c70278a47a8c8ebb97ee7d2b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Textures/BillbBlackberry2_n.tif using Guid(2aebc607c70278a47a8c8ebb97ee7d2b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '758b7ba18a40ef71ec5d8ad965e68186') in 0.789450 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000368 seconds.
-  path: Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_007.spm
-  artifactKey: Guid(afc8337f896ed42f3af5db93d6111e61) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_007.spm using Guid(afc8337f896ed42f3af5db93d6111e61) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '161e25621c356e430020dcf1366ea748') in 1.168604 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000310 seconds.
-  path: Assets/Coniferous forest/Props/Branch_Deadwood2.prefab
-  artifactKey: Guid(e70dfedbd1fd4894283909e98b992417) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Branch_Deadwood2.prefab using Guid(e70dfedbd1fd4894283909e98b992417) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e4347548940429b7cd086ddb625566ad') in 2.183393 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000307 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood3_LOD1.fbx
-  artifactKey: Guid(e8f8af497d7784944be0c48b35e7a7e0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood3_LOD1.fbx using Guid(e8f8af497d7784944be0c48b35e7a7e0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b86bc39a38f6d1c6d01b37f28ac46309') in 0.238824 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000276 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry2_LOD2.fbx
-  artifactKey: Guid(17ea8a41a1583224c844a8608356f29b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry2_LOD2.fbx using Guid(17ea8a41a1583224c844a8608356f29b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9220896d3fab9b86d8f0b210c7cc7735') in 0.373397 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.007405 seconds.
-  path: Assets/Coniferous forest/Plants/Blackberry1.prefab
-  artifactKey: Guid(50b0ba66a9a3ff843ad8af8b61218473) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Blackberry1.prefab using Guid(50b0ba66a9a3ff843ad8af8b61218473) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8e4128364d3bfdd0e5c7a669aab829c8') in 1.353981 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000249 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood5_LOD2.fbx
-  artifactKey: Guid(b4f28ccda15cdf146975a1cb9efec2f2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood5_LOD2.fbx using Guid(b4f28ccda15cdf146975a1cb9efec2f2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '4db1d20acbdfc38478a6bef938d3a032') in 0.712312 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000217 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Plant_Materials/Branches_0_LOD2.mat
-  artifactKey: Guid(7e7c0398ae27540ea93676bf917ff44d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Plant_Materials/Branches_0_LOD2.mat using Guid(7e7c0398ae27540ea93676bf917ff44d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd03c485415f10a1e1c2b8019680919a3') in 0.179578 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000195 seconds.
-  path: Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_005.spm
-  artifactKey: Guid(c304ee55b96374f09ae852bacdf2e107) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_005.spm using Guid(c304ee55b96374f09ae852bacdf2e107) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9e7753df0576938f502575f96471bcda') in 1.095772 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000294 seconds.
-  path: Assets/Materials/Terrain/AC_TerrainMaterial.mat
-  artifactKey: Guid(b023328c58a964ce5a8e03f71578a1e9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Terrain/AC_TerrainMaterial.mat using Guid(b023328c58a964ce5a8e03f71578a1e9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9e339e691653d263152208302865686a') in 0.533324 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000247 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry_sm1_LOD1.fbx
-  artifactKey: Guid(ba19f6b74df426749bac6059ec64990f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry_sm1_LOD1.fbx using Guid(ba19f6b74df426749bac6059ec64990f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'afceefb852a63ea1b67055d97b78be1f') in 0.328912 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000216 seconds.
-  path: Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_002.spm
-  artifactKey: Guid(0544135f5b9284ae1a5d19347d966d52) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_002.spm using Guid(0544135f5b9284ae1a5d19347d966d52) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '62078d094daf283464783ecfb696e867') in 0.742079 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000269 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood3_Leafs.fbx
-  artifactKey: Guid(84cba47d98e612c4ab241814f3d7674a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood3_Leafs.fbx using Guid(84cba47d98e612c4ab241814f3d7674a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd4819c4e7ddb784958af73cb414c942f') in 0.216608 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000219 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/Textures/2k_ceres_fictional.jpg
-  artifactKey: Guid(80776e098f78b6d4e95019fa61a0c015) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/Textures/2k_ceres_fictional.jpg using Guid(80776e098f78b6d4e95019fa61a0c015) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '15778a0d1466518650c2d13532be3cb7') in 0.342453 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000221 seconds.
-  path: Assets/Coniferous forest/Plants/Textures/BillbBlackberry2.tif
-  artifactKey: Guid(88b308eadcb169a4eaf07f4c20fa55a7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Textures/BillbBlackberry2.tif using Guid(88b308eadcb169a4eaf07f4c20fa55a7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a45bb6e5b2377c5c489b2d10f77aa396') in 1.416137 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000253 seconds.
-  path: Assets/Materials/Shrubs/AC_Herbs_Atlas.mat
-  artifactKey: Guid(33abad19cca82463eac7e1b576104f20) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/AC_Herbs_Atlas.mat using Guid(33abad19cca82463eac7e1b576104f20) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b5aa327638e1fe96c21ec3e45ce55348') in 2.459948 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000234 seconds.
-  path: Assets/Coniferous forest/Plants/Textures/BillbBlackberry1_n.tif
-  artifactKey: Guid(6964b73a3f378b34e92dea3538a01004) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Textures/BillbBlackberry1_n.tif using Guid(6964b73a3f378b34e92dea3538a01004) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ef87863b87f5de2e003d3df0305d26f1') in 0.413879 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000227 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Sm_Materials/Branches_0_LOD2.mat
-  artifactKey: Guid(9cd0475c71d1349ef9695b9369551979) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Sm_Materials/Branches_0_LOD2.mat using Guid(9cd0475c71d1349ef9695b9369551979) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2400149935287dc588ab517a57b9e89f') in 0.305478 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000258 seconds.
-  path: Assets/InfiniGRASS/Version 1.4/Prefabs/BranchA/BigTree_branches 2.psd
-  artifactKey: Guid(45eaa48daeccdc242aea97c9857d44cb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/InfiniGRASS/Version 1.4/Prefabs/BranchA/BigTree_branches 2.psd using Guid(45eaa48daeccdc242aea97c9857d44cb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c2a037f87284b0ab96b1be32bee24b43') in 0.057530 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000366 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/Meshes/Asteroid_02_LOD.FBX
-  artifactKey: Guid(8a9322e02cd779a4798b887d09bff1fa) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/Meshes/Asteroid_02_LOD.FBX using Guid(8a9322e02cd779a4798b887d09bff1fa) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5eed54ca4c1ae9f57d8afe381471543c') in 0.174634 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000257 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/PrototypeData/Prefab/Asteroid_02_LOD_Prototype_-25760568.asset
-  artifactKey: Guid(d53c351c9c33b6240a30b64516c074f1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/PrototypeData/Prefab/Asteroid_02_LOD_Prototype_-25760568.asset using Guid(d53c351c9c33b6240a30b64516c074f1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '94c03d9e9947511d76b2d1e36db4c2e2') in 0.009983 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000298 seconds.
-  path: Assets/Materials/Terrain/Background_Terrain_Material.mat
-  artifactKey: Guid(791d10defd32c49a7a937493dd6da925) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Terrain/Background_Terrain_Material.mat using Guid(791d10defd32c49a7a937493dd6da925) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '38c84aa5644649563315293618998b09') in 0.205047 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000267 seconds.
-  path: Assets/Materials/Soils/BigTree_bark_normal 3.jpg
-  artifactKey: Guid(f8b14fc1d54466f4991b9b94a82729c9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Soils/BigTree_bark_normal 3.jpg using Guid(f8b14fc1d54466f4991b9b94a82729c9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '082e9bf8560b6ea4213694f734c0c3fb') in 0.344729 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000285 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/Prefabs/Asteroid_03_LOD.prefab
-  artifactKey: Guid(22a5853d8a7e3764f8f982e411e91347) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/Prefabs/Asteroid_03_LOD.prefab using Guid(22a5853d8a7e3764f8f982e411e91347) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8c50552d7f7d9932a0967c078a78b62c') in 0.895681 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000270 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Models/Manzanita_Lg/GreenleafManzanita_Low_5.spm
-  artifactKey: Guid(245402ba0ee774108b124cea52b4bd9a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Models/Manzanita_Lg/GreenleafManzanita_Low_5.spm using Guid(245402ba0ee774108b124cea52b4bd9a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '67226d811ad9290bae31c2a16266af0d') in 2.363162 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000251 seconds.
-  path: Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_004.spm
-  artifactKey: Guid(0c3c4abe2acc04d10af423fafd68c292) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_004.spm using Guid(0c3c4abe2acc04d10af423fafd68c292) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3c59e22cbf63409fa1044716388a1c8f') in 0.769472 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000301 seconds.
-  path: Assets/Coniferous forest/Plants/Models/Materials/BillbBlackberry1.mat
-  artifactKey: Guid(5fecdd1cbb897d843941cc9379757516) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/Materials/BillbBlackberry1.mat using Guid(5fecdd1cbb897d843941cc9379757516) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '63c3f05c1c206219c1c5e2786ac23917') in 1.256766 seconds 
+  Time since last request: 0.026356 seconds.
+  path: Assets/Scenes/FutureMountain/Lightmap-0_comp_dir.png
+  artifactKey: Guid(6f93f7ca945f9493db2201c51d135ded) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Scenes/FutureMountain/Lightmap-0_comp_dir.png using Guid(6f93f7ca945f9493db2201c51d135ded) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '76d22ce1d511690cf9774d1478182482') in 0.120378 seconds 
 ========================================================================
 Received Import Request.
   Time since last request: 0.000226 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/PrototypeData/Prefab/Asteroid_01_LOD_Prototype_14098.asset
-  artifactKey: Guid(7af81190bbd6d3540a19221a13c9a933) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/PrototypeData/Prefab/Asteroid_01_LOD_Prototype_14098.asset using Guid(7af81190bbd6d3540a19221a13c9a933) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e9628dfd2d24641f346ce7fb8acc01dc') in 0.008447 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000215 seconds.
-  path: Assets/Materials/Soils/BigTree_bark_diffuse 3_Duplicate.jpg
-  artifactKey: Guid(6441251d5e3e5294984b35e2cd28ce21) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Soils/BigTree_bark_diffuse 3_Duplicate.jpg using Guid(6441251d5e3e5294984b35e2cd28ce21) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f6c52e7d550a28a25b676860f4517662') in 0.237949 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000280 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry2_LOD3.fbx
-  artifactKey: Guid(4a49428de14f81a4d99d187614d6fe0a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry2_LOD3.fbx using Guid(4a49428de14f81a4d99d187614d6fe0a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'bc0acbd281d7153014dd53666c4558bd') in 0.476740 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000205 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry1_LOD0.fbx
-  artifactKey: Guid(d3c592ec5f853484cb51910fcb732c81) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry1_LOD0.fbx using Guid(d3c592ec5f853484cb51910fcb732c81) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '25fad8e0531c08d83bfc6f5baf4e8568') in 0.817459 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000270 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Sm_Materials/Branches_1_LOD1.mat
-  artifactKey: Guid(db19c708a07324771b8ea22affeb3fde) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Sm_Materials/Branches_1_LOD1.mat using Guid(db19c708a07324771b8ea22affeb3fde) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b876cdc0ba134e43751d3dc4e2307f2a') in 0.134191 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000327 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Models/Manzanita_Full/GreenleafManzanita_Low_7.spm
-  artifactKey: Guid(df396cd7fd97c4a96b25a3aaddbf58ff) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Models/Manzanita_Full/GreenleafManzanita_Low_7.spm using Guid(df396cd7fd97c4a96b25a3aaddbf58ff) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8cad051dd19139778daec3a06b364de9') in 1.404806 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000164 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Lg_Materials/Branches_0_LOD1.mat
-  artifactKey: Guid(32ba924e81fe743e58d8e6c278db22d2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Lg_Materials/Branches_0_LOD1.mat using Guid(32ba924e81fe743e58d8e6c278db22d2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5b20228663a998350d46fee4461c35ff') in 0.426399 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000243 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Lg_Materials/Billboard.mat
-  artifactKey: Guid(a04b7b2230708477aa7b8b1b043d123d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Lg_Materials/Billboard.mat using Guid(a04b7b2230708477aa7b8b1b043d123d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '41782107a83ac2d94b3188fdb2857a29') in 0.069677 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000253 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/Prefabs/Asteroid_02_LOD.prefab
-  artifactKey: Guid(e10bc2139a4821249959ce801b142d13) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/Prefabs/Asteroid_02_LOD.prefab using Guid(e10bc2139a4821249959ce801b142d13) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '05d55a77a2fb12d52ae8ee4c2603172b') in 1.092590 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000242 seconds.
-  path: Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_006.spm
-  artifactKey: Guid(d195f383e200a41629c6ee9cb3d9efd6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_006.spm using Guid(d195f383e200a41629c6ee9cb3d9efd6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '68d79a22f677f8d0f648283928b64886') in 1.448253 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000376 seconds.
-  path: Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_009.spm
-  artifactKey: Guid(4f29eeedc27a848b890fcd46c95cf16a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_009.spm using Guid(4f29eeedc27a848b890fcd46c95cf16a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e35e2274f17982300e1a593007686ac0') in 5.555317 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.491647 seconds.
-  path: Assets/Coniferous forest/Plants/Models/Materials/BBWildrose3_a.mat
-  artifactKey: Guid(be73d088785a8f149a85de3f47613558) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/Materials/BBWildrose3_a.mat using Guid(be73d088785a8f149a85de3f47613558) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd73bb42e1de4ebfcb70ed78c5f71d559') in 5.682785 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 1.204738 seconds.
-  path: Assets/Coniferous forest/Plants/Textures/BBWildrose3_n.tif
-  artifactKey: Guid(f96a2760c91065d4cb9d9883fa98fd19) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Textures/BBWildrose3_n.tif using Guid(f96a2760c91065d4cb9d9883fa98fd19) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '206d444f59dfb9e54c854aa331e3b837') in 1.563596 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.273079 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood3_LOD0.fbx
-  artifactKey: Guid(dac58a0788668f84d9af75ff35f5a638) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood3_LOD0.fbx using Guid(dac58a0788668f84d9af75ff35f5a638) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f313c06aea980c45fca45272946b34bd') in 2.168886 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000265 seconds.
-  path: Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_001.spm
-  artifactKey: Guid(7ab985ab00e91499da30de17ce7041e6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_001.spm using Guid(7ab985ab00e91499da30de17ce7041e6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '03e69d66afe6598b8213a9b9d4af5239') in 2.046264 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 1.663026 seconds.
-  path: Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_010.spm
-  artifactKey: Guid(1e498504f20e44813a6bc9a30dc12432) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_010.spm using Guid(1e498504f20e44813a6bc9a30dc12432) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5362179857e5bd1f119de68e95899ec6') in 6.427300 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.184920 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood1_LOD3.fbx
-  artifactKey: Guid(c99ff57123ed02545b0c18094f0d2935) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood1_LOD3.fbx using Guid(c99ff57123ed02545b0c18094f0d2935) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9b7fc2597ae2b826cdcb07d2d8bffaf1') in 0.180845 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.864016 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Models/Unused/Manzanita_9/GreenleafManzanita_Low_9.spm
-  artifactKey: Guid(3f3ed05cde5bd404abae42aef06283d1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Models/Unused/Manzanita_9/GreenleafManzanita_Low_9.spm using Guid(3f3ed05cde5bd404abae42aef06283d1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f5b6a15ae7eada50f765b295c9269ed2') in 5.716686 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 1.342324 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Med_Materials/Branches_0_LOD1.mat
-  artifactKey: Guid(3384c6c250b194fc48b64bcfe273b9d3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Med_Materials/Branches_0_LOD1.mat using Guid(3384c6c250b194fc48b64bcfe273b9d3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '0c16b5c744cb318a662a9f9751076a16') in 0.024584 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000297 seconds.
-  path: Assets/Materials/Shrubs/AC_Leaves_2_LOD0.mat
-  artifactKey: Guid(ce892e867abc84df7a98cf2183482eff) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/AC_Leaves_2_LOD0.mat using Guid(ce892e867abc84df7a98cf2183482eff) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b5bcd0b429dafd470cf0c6acc5b3f74f') in 3.097353 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000199 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/Meshes/Asteroid_02.FBX
-  artifactKey: Guid(0b6cbab987d18e742b137f6fe10f118c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/Meshes/Asteroid_02.FBX using Guid(0b6cbab987d18e742b137f6fe10f118c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd9b334ddb2edd01f3c14fa28741210e7') in 0.060645 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000244 seconds.
-  path: Assets/GPUInstancer/Demos/_SharedResources/Textures/black.png
-  artifactKey: Guid(c3283ecb9e4f9004d89cb59a8745bb27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/_SharedResources/Textures/black.png using Guid(c3283ecb9e4f9004d89cb59a8745bb27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '1bd15e37fe32bb5e95350aa6ab560bb7') in 0.051734 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.599073 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood2_LOD2.fbx
-  artifactKey: Guid(2a57bfb3141d7c54695b5c145c9fdb73) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood2_LOD2.fbx using Guid(2a57bfb3141d7c54695b5c145c9fdb73) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd68c4a16ad43db06ba28ea346729fd13') in 0.734958 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.813897 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood1_LOD2.fbx
-  artifactKey: Guid(dc1d47b9404ecd14b82a4f401b6db4c0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood1_LOD2.fbx using Guid(dc1d47b9404ecd14b82a4f401b6db4c0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '4f5c3812160e0252ab10634be51f14be') in 0.032553 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000294 seconds.
-  path: Assets/InfiniGRASS/Version 1.4/Materials/BigTree_bark 3DARK 1LOD 2.mat
-  artifactKey: Guid(5970872f77cc5cb4b991a5fcfdd49b81) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/InfiniGRASS/Version 1.4/Materials/BigTree_bark 3DARK 1LOD 2.mat using Guid(5970872f77cc5cb4b991a5fcfdd49b81) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b4cbe9bb4efa35877c06b70c1f7f76fc') in 2.094909 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000289 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry_sm2_LOD2.fbx
-  artifactKey: Guid(2c7e1accadbf93044ab794e0c3f27565) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry_sm2_LOD2.fbx using Guid(2c7e1accadbf93044ab794e0c3f27565) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'fee545ef9d9ef635e63894c6dab5b9c6') in 0.049791 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000352 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Plant_Materials/Branches_0_LOD0.mat
-  artifactKey: Guid(7d46ca31ccb884e7e9d7da955f83d1d8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Plant_Materials/Branches_0_LOD0.mat using Guid(7d46ca31ccb884e7e9d7da955f83d1d8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a24c60c999f2051f02ff44626c81f8e3') in 0.043608 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000326 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Med_Materials/Branches_0_LOD2.mat
-  artifactKey: Guid(4fe131e475e424e7bbd3a50c152db1e1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Med_Materials/Branches_0_LOD2.mat using Guid(4fe131e475e424e7bbd3a50c152db1e1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '073e4c5704c4727b52c483f8bfd25c3f') in 0.028907 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000293 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood5_LOD1.fbx
-  artifactKey: Guid(c9dc680f6600b4841ac4bb215fe3d421) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood5_LOD1.fbx using Guid(c9dc680f6600b4841ac4bb215fe3d421) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f634c047857b4ee2a10c67445371753f') in 0.038310 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000259 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/PrototypeData/Prefab/Asteroid_03_LOD_Prototype_15420.asset
-  artifactKey: Guid(40c7b358530ddfb468616adc3ca76135) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/PrototypeData/Prefab/Asteroid_03_LOD_Prototype_15420.asset using Guid(40c7b358530ddfb468616adc3ca76135) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '1e26b29a2cac178753924b5902f5e4d0') in 0.007336 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000358 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Models/Manzanita_Med/GreenleafManzanita_Low_3.spm
-  artifactKey: Guid(4dc3ade6f59624fa2b622723ab5a54d4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Models/Manzanita_Med/GreenleafManzanita_Low_3.spm using Guid(4dc3ade6f59624fa2b622723ab5a54d4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '12fe36640152de3dba5dd21e439e150f') in 1.751577 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000234 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood4_LOD1.fbx
-  artifactKey: Guid(5f7bf762d6463d345b782cb44579a848) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood4_LOD1.fbx using Guid(5f7bf762d6463d345b782cb44579a848) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '721efad9e9379cc1f39704a405b4e10e') in 1.287823 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000195 seconds.
-  path: Assets/GPUInstancer/Demos/DetailInstancing/PrototypeData/Detail/TerrainSettings_DetailInstancingDemoTerrain_12040.asset
-  artifactKey: Guid(ca72f5a416041ee41b76ad06876ab7da) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/DetailInstancing/PrototypeData/Detail/TerrainSettings_DetailInstancingDemoTerrain_12040.asset using Guid(ca72f5a416041ee41b76ad06876ab7da) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f6e6069ecdc95fd3d6c69cc3f087248b') in 5.234706 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000268 seconds.
-  path: Assets/Coniferous forest/Plants/Textures/Billboard_Nettle1_n.tif
-  artifactKey: Guid(45051ca47fd4bd146a5ed15629302a78) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Textures/Billboard_Nettle1_n.tif using Guid(45051ca47fd4bd146a5ed15629302a78) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '4d1b7f09f791225e33746e3dc453b99a') in 0.045576 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000330 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood2_LOD1.fbx
-  artifactKey: Guid(36ae4e750a86fe54595c5895cb6c9ad8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood2_LOD1.fbx using Guid(36ae4e750a86fe54595c5895cb6c9ad8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c2d69002522ebfadd791f8dbac74fbc2') in 0.032270 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000216 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/Meshes/Asteroid_01.FBX
-  artifactKey: Guid(4efd6b0f880cc434c81df5ee49016e7b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/Meshes/Asteroid_01.FBX using Guid(4efd6b0f880cc434c81df5ee49016e7b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8880287b80ed205c505237c00b52ffe7') in 0.405192 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000297 seconds.
-  path: Assets/InfiniGRASS/Version 1.4/Prefabs/BranchA/BranchA_InfiniGRASS.prefab
-  artifactKey: Guid(7a1017d22683c7843a83ea5916e4d9cc) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/InfiniGRASS/Version 1.4/Prefabs/BranchA/BranchA_InfiniGRASS.prefab using Guid(7a1017d22683c7843a83ea5916e4d9cc) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '28ee26b5a1db543195470ed67b31aa39') in 0.702542 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000300 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Models/Manzanita_Sm/GreenleafManzanita_Low_2.spm
-  artifactKey: Guid(59798da682ae8456c96e1519f9ea417f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Models/Manzanita_Sm/GreenleafManzanita_Low_2.spm using Guid(59798da682ae8456c96e1519f9ea417f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '20aee11ae46878245d4b6738bce1fa3c') in 0.456618 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000235 seconds.
-  path: Assets/Coniferous forest/Plants/Models/Blackberry_branches_LOD0.fbx
-  artifactKey: Guid(3b4b364387b829348ba0f15771902680) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/Blackberry_branches_LOD0.fbx using Guid(3b4b364387b829348ba0f15771902680) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2e73813fd6290bfe1f2e18d2406666cc') in 0.040122 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000220 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Med_Materials/Billboard.mat
-  artifactKey: Guid(2a96e421b651f4e22bee256094b544cd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Med_Materials/Billboard.mat using Guid(2a96e421b651f4e22bee256094b544cd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2fcfbbac2395c8b1b078e4f4bfeb0d20') in 0.023737 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000241 seconds.
-  path: Assets/Materials/Shrubs/AC_Plants_01.mat
-  artifactKey: Guid(8e217966ac9b040b2b6f344b55460745) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/AC_Plants_01.mat using Guid(8e217966ac9b040b2b6f344b55460745) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '7d908a9331794b4735c2fbfae2b1fa93') in 0.622830 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000237 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Full_Materials/Branches_1_LOD0.mat
-  artifactKey: Guid(3adaa1493f8c547e2a1a90444fa74b74) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Full_Materials/Branches_1_LOD0.mat using Guid(3adaa1493f8c547e2a1a90444fa74b74) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '28ab08c9f55e20ab5a255ae0b774cbe5') in 0.114404 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000342 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Lg_Materials/Branches_0_LOD2.mat
-  artifactKey: Guid(99751eaa9308341e8bf0a5e63a2cb335) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Lg_Materials/Branches_0_LOD2.mat using Guid(99751eaa9308341e8bf0a5e63a2cb335) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '7b9624c8098c0ef0f8d2acbec83e3867') in 0.020345 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000255 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood4_Leafs.fbx
-  artifactKey: Guid(5f4f6c42d30112142b13b5f75edbce27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood4_Leafs.fbx using Guid(5f4f6c42d30112142b13b5f75edbce27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '4ffc5c5e36819ae2593a1b0724e0d857') in 0.206112 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000345 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Sm_Materials/Branches_0_LOD0.mat
-  artifactKey: Guid(da96d3087a90a4322ae43e9b3a2f03d7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Sm_Materials/Branches_0_LOD0.mat using Guid(da96d3087a90a4322ae43e9b3a2f03d7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '6e9fb0e8d1e05536ff5441a2b4eaca60') in 0.038467 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000405 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood1_Leafs.fbx
-  artifactKey: Guid(d060b7806ecaf14459b33e0b0a0a1c8c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood1_Leafs.fbx using Guid(d060b7806ecaf14459b33e0b0a0a1c8c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '7c74bf62d9828f2203924caa56cad7c3') in 0.058803 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.059497 seconds.
-  path: Assets/Coniferous forest/Plants/Textures/BBWildrose1_a.tif
-  artifactKey: Guid(a6d84d9cecd0758468b32c27b902bb3d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Textures/BBWildrose1_a.tif using Guid(a6d84d9cecd0758468b32c27b902bb3d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2694eb7e2275b672eec08c3d09083c6a') in 0.060297 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000223 seconds.
-  path: Assets/Materials/Soils/BigTree_bark_diffuse 3.jpg
-  artifactKey: Guid(22349c5f950f6724193f157205150169) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Soils/BigTree_bark_diffuse 3.jpg using Guid(22349c5f950f6724193f157205150169) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '52b7430e945e7ace6495c17eccdc46f6') in 0.044712 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000205 seconds.
-  path: Assets/Coniferous forest/Plants/Blackberry2.prefab
-  artifactKey: Guid(b4485b8118f78d64c81b8481fb482afc) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Blackberry2.prefab using Guid(b4485b8118f78d64c81b8481fb482afc) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '0b6ac7e7d6921f301c6c8951175f5713') in 0.259809 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000255 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry1_LOD4.fbx
-  artifactKey: Guid(8f43c22c1415d614daa1053f75b8fc85) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry1_LOD4.fbx using Guid(8f43c22c1415d614daa1053f75b8fc85) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '4a8ba186ac1f9ec1e9df6e575ae7437d') in 0.022331 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000284 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood4_LOD2.fbx
-  artifactKey: Guid(cdcf470c529057a45b12707238cd53b5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood4_LOD2.fbx using Guid(cdcf470c529057a45b12707238cd53b5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a7e87e50503f15c1deda5690008b69dc') in 0.063131 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000175 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Sm_Materials/Branches_1_LOD0.mat
-  artifactKey: Guid(06b6955bc05214c24be59674edd833cb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Sm_Materials/Branches_1_LOD0.mat using Guid(06b6955bc05214c24be59674edd833cb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f7630ba2a512afa0e0c875de654e5f7f') in 0.101107 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000204 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/Meshes/Asteroid_03_LOD.FBX
-  artifactKey: Guid(744dfa7ec1c218f409aec00d7aad8263) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/Meshes/Asteroid_03_LOD.FBX using Guid(744dfa7ec1c218f409aec00d7aad8263) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '12413580e38e4ea1fbca610c5511687a') in 0.028974 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000261 seconds.
-  path: Assets/Coniferous forest/Plants/Models/Materials/BBWildrose2_a.mat
-  artifactKey: Guid(e10ce37585c78d04ebd31b681172c2d5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/Materials/BBWildrose2_a.mat using Guid(e10ce37585c78d04ebd31b681172c2d5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ac8a612fd6e723ac7956a2bfeabe9fc6') in 0.217246 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000309 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry1_LOD3.fbx
-  artifactKey: Guid(34a7054d371cfe34a80c59e852cd3ce7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry1_LOD3.fbx using Guid(34a7054d371cfe34a80c59e852cd3ce7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a7c10581de8c9835ba74c3a06c05b2d5') in 0.034039 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000322 seconds.
-  path: Assets/InfiniGRASS/Version 1.4/Prefabs/BranchA/BigTree_bark_diffuse 2.jpg
-  artifactKey: Guid(dbfd14805b8219e44ab447ad3cc7b30d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/InfiniGRASS/Version 1.4/Prefabs/BranchA/BigTree_bark_diffuse 2.jpg using Guid(dbfd14805b8219e44ab447ad3cc7b30d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '0e3651fb9f7838bace85c54c54de7e98') in 0.012297 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000244 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood2_LOD3.fbx
-  artifactKey: Guid(f0bf28b996cefe548b1ad6f0dc2b77d9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood2_LOD3.fbx using Guid(f0bf28b996cefe548b1ad6f0dc2b77d9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'd2b24fe3779b870ddd9a6896fa61a0a7') in 0.018392 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000236 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry2_LOD4.fbx
-  artifactKey: Guid(517ec1e6646b32f49bd04bd07ed0494f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry2_LOD4.fbx using Guid(517ec1e6646b32f49bd04bd07ed0494f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a23797e70a86d795ddecf1a113ac2416') in 0.039241 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000251 seconds.
-  path: Assets/Coniferous forest/Plants/Models/Blackberry_branches_LOD1.fbx
-  artifactKey: Guid(2ca9d1edcecaef34fa770c70b7a1cd8e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/Blackberry_branches_LOD1.fbx using Guid(2ca9d1edcecaef34fa770c70b7a1cd8e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '0e8c2b01f657689ccf4337823af68a82') in 0.175293 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000282 seconds.
-  path: Assets/Coniferous forest/Plants/Textures/BBWildrose2_n.tif
-  artifactKey: Guid(98882fa45bb50b144a86f38a23d08b49) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Textures/BBWildrose2_n.tif using Guid(98882fa45bb50b144a86f38a23d08b49) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'fe9304b381d485e908a47a8a0d54f115') in 0.030593 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000218 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry2_LOD1.fbx
-  artifactKey: Guid(d74a1d4d4919d8445b01b09f73c87d17) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry2_LOD1.fbx using Guid(d74a1d4d4919d8445b01b09f73c87d17) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '90f681a3a19d021998ffdcf54be398e2') in 0.042473 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000237 seconds.
-  path: Assets/Materials/Shrubs/AC_Leaves_2_LOD1.mat
-  artifactKey: Guid(bdfe8197280254890b8790962a10b80a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/AC_Leaves_2_LOD1.mat using Guid(bdfe8197280254890b8790962a10b80a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8cf629110701892ad6a7294ede38a132') in 0.039258 seconds 
+  path: Assets/Scenes/FutureMountain/ReflectionProbe-0.exr
+  artifactKey: Guid(eb497e0a1fffe4b94bafaed48482348c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Scenes/FutureMountain/ReflectionProbe-0.exr using Guid(eb497e0a1fffe4b94bafaed48482348c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9ebd021a44d93c82ae6df35a60287575') in 0.077990 seconds 
 ========================================================================
 Received Import Request.
   Time since last request: 0.000217 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/Meshes/Asteroid_01_LOD.FBX
-  artifactKey: Guid(c70854998b566ac419ec4098948e6fe9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/Meshes/Asteroid_01_LOD.FBX using Guid(c70854998b566ac419ec4098948e6fe9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e8508ad8d73239639193ba8243b528f9') in 0.037953 seconds 
+  path: Assets/Scenes/FutureMountain/ReflectionProbe-1.png
+  artifactKey: Guid(b92e2fdba8f4f4c128e6284bfd9c7b57) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Scenes/FutureMountain/ReflectionProbe-1.png using Guid(b92e2fdba8f4f4c128e6284bfd9c7b57) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '482fb25083e1675e8b40dc948e03c5a7') in 0.029263 seconds 
 ========================================================================
 Received Import Request.
-  Time since last request: 0.053147 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry1_LOD1.fbx
-  artifactKey: Guid(3b30d83f34d59ae4eaea05037474ebbb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry1_LOD1.fbx using Guid(3b30d83f34d59ae4eaea05037474ebbb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a637376eb06b486d9c1330e0bf97550f') in 0.037067 seconds 
+  Time since last request: 0.000219 seconds.
+  path: Assets/Scenes/FutureMountain/Lightmap-0_comp_light.exr
+  artifactKey: Guid(a4e5a34650e5946a29499aebb9b2336d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Scenes/FutureMountain/Lightmap-0_comp_light.exr using Guid(a4e5a34650e5946a29499aebb9b2336d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '75219d23968408571366db678536ea5c') in 0.035714 seconds 
 ========================================================================
 Received Import Request.
-  Time since last request: 0.000302 seconds.
-  path: Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_003.spm
-  artifactKey: Guid(7054b05dfa84d496d86e828c1adaf425) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Tree/Roots/Tree_Roots/Roots_Incremental/Roots_003.spm using Guid(7054b05dfa84d496d86e828c1adaf425) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'da0ee2a8037d763fb43c3160a57bcf90') in 0.184144 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000295 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry1_LOD2.fbx
-  artifactKey: Guid(b8f05d0a8af1d7f43a1e50f990dee457) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry1_LOD2.fbx using Guid(b8f05d0a8af1d7f43a1e50f990dee457) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '64f308a9f0167de516c1af875ee0dbc5') in 0.069683 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000281 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood2_LOD0.fbx
-  artifactKey: Guid(5394086a8611d6e468583145424909e6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood2_LOD0.fbx using Guid(5394086a8611d6e468583145424909e6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '281bb6af231ca09c6d83098a49f44a11') in 0.080260 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000320 seconds.
-  path: Assets/Coniferous forest/Plants/Models/Materials/BBWildrose1_a.mat
-  artifactKey: Guid(e2e8a7e7f9e8200478b1dc8265b2bb39) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/Materials/BBWildrose1_a.mat using Guid(e2e8a7e7f9e8200478b1dc8265b2bb39) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '97b65fbb2e562aec6efcf613f70c85a6') in 0.131903 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000281 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/PrototypeData/Prefab/AsteroidHazeQuad_Prototype_9532.asset
-  artifactKey: Guid(67fd4e402842b2548b609e534a64679b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/PrototypeData/Prefab/AsteroidHazeQuad_Prototype_9532.asset using Guid(67fd4e402842b2548b609e534a64679b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '19aeae8b063c3ae8b136c91c5911366c') in 0.098500 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000316 seconds.
-  path: Assets/Modular Houses/Materials/Vertex_Blend/Base-Wood-A.mat
-  artifactKey: Guid(258d6f54dbd005e4b9fc6d78a09b3fd1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Modular Houses/Materials/Vertex_Blend/Base-Wood-A.mat using Guid(258d6f54dbd005e4b9fc6d78a09b3fd1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e5bcb3e986de088c64d412b85c967913') in 0.293864 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000309 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry_sm2_LOD1.fbx
-  artifactKey: Guid(382cdc1e9f07dc54f9ba474b8846d560) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry_sm2_LOD1.fbx using Guid(382cdc1e9f07dc54f9ba474b8846d560) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c3f03b4f95700cd4f774b6acdf5f9d33') in 0.047009 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000280 seconds.
-  path: Assets/Coniferous forest/Props/Branch_Deadwood4.prefab
-  artifactKey: Guid(2f4055d955c917e41b688a47674d21e2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Branch_Deadwood4.prefab using Guid(2f4055d955c917e41b688a47674d21e2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '1c3b56a59892f7ad2ec0dc2d8e91d4d2') in 0.055233 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000329 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry_sm1_LOD0.fbx
-  artifactKey: Guid(13cb4589140752a468563e0f07d6d184) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry_sm1_LOD0.fbx using Guid(13cb4589140752a468563e0f07d6d184) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3cdaf17e724bf2efef78910aed45a7da') in 0.119273 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000271 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Models/Unused/Manzanita_4/GreenleafManzanita_Low_4.spm
-  artifactKey: Guid(bbf3e7b9073874fa389f7bb2b1f7cc13) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Models/Unused/Manzanita_4/GreenleafManzanita_Low_4.spm using Guid(bbf3e7b9073874fa389f7bb2b1f7cc13) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ba40e8e005ff581d119d90c9ff605a9e') in 0.533254 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000300 seconds.
-  path: Assets/InfiniGRASS/Version 1.5/Mesh terrain/BARK SNOW 1.mat
-  artifactKey: Guid(7122101e2fc275b49bfb4c5aa824eebd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/InfiniGRASS/Version 1.5/Mesh terrain/BARK SNOW 1.mat using Guid(7122101e2fc275b49bfb4c5aa824eebd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'dfef30b9bac54f04db3d41f571017ced') in 0.048661 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000304 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood3_LOD2.fbx
-  artifactKey: Guid(24b99fc00c1559848810ce1f6f776f89) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood3_LOD2.fbx using Guid(24b99fc00c1559848810ce1f6f776f89) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '071ed948e0c84a7e6c03623ef74d4bf9') in 0.314338 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000359 seconds.
-  path: Assets/GPUInstancer/Demos/DetailInstancing/Textures/Boulder_a.tif
-  artifactKey: Guid(5843fa91915dfce4791bf08f10fb90fe) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/DetailInstancing/Textures/Boulder_a.tif using Guid(5843fa91915dfce4791bf08f10fb90fe) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '718fe6fd82cbd5f698c4a63913bd4b61') in 0.044477 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000282 seconds.
-  path: Assets/GPUInstancer/Demos/DetailInstancing/Prefabs/Boulder.prefab
-  artifactKey: Guid(5affb069d11bd234aacfe93c7e759ec2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/DetailInstancing/Prefabs/Boulder.prefab using Guid(5affb069d11bd234aacfe93c7e759ec2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '62d97a024132be6701a05c6917a149d8') in 0.297393 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.028470 seconds.
-  path: Assets/Materials/Shrubs/AC_Branches_1_LOD0.mat
-  artifactKey: Guid(414285a518436462882e33d8a4eadd2e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/AC_Branches_1_LOD0.mat using Guid(414285a518436462882e33d8a4eadd2e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3ebab4a20c99a39721e345c1290aaf7e') in 0.091677 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000265 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Sm_Materials/Branches_0_LOD1.mat
-  artifactKey: Guid(a3db94836d0ed4361b0a0b21cf4ccb73) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Sm_Materials/Branches_0_LOD1.mat using Guid(a3db94836d0ed4361b0a0b21cf4ccb73) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8d003b20713f12d345f805d7b58da8e1') in 0.049924 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000304 seconds.
-  path: Assets/Materials/Shrubs/AC_grass_type02.mat
-  artifactKey: Guid(8cc232931a1b74d5fad4fae3ec1de105) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/AC_grass_type02.mat using Guid(8cc232931a1b74d5fad4fae3ec1de105) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '07c184b2469290d4cacab57dd8bdf344') in 0.581144 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000294 seconds.
-  path: Assets/InfiniGRASS/Version 1.5/Mesh terrain/BigTree_bark 3DARK 1LOD 3.mat
-  artifactKey: Guid(6ccae50a6db78204f9994003269c90d1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/InfiniGRASS/Version 1.5/Mesh terrain/BigTree_bark 3DARK 1LOD 3.mat using Guid(6ccae50a6db78204f9994003269c90d1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e9d996e9026dde2a5122834e49936186') in 0.027935 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000246 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Plant_Materials/Branches_1_LOD0.mat
-  artifactKey: Guid(ffb3adead27c942c0b122570b23ae5c3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Plant_Materials/Branches_1_LOD0.mat using Guid(ffb3adead27c942c0b122570b23ae5c3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9985235ab0e4cbf112ba2e85196c23b4') in 0.026947 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000241 seconds.
-  path: Assets/GPUInstancer/Demos/DetailInstancing/Meshes/Boulder_01.fbx
-  artifactKey: Guid(b9a2e12277f4a6345a0ddbd16ec2139c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/DetailInstancing/Meshes/Boulder_01.fbx using Guid(b9a2e12277f4a6345a0ddbd16ec2139c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '21661619472ed94724045084e02f08f8') in 0.018413 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000301 seconds.
-  path: Assets/GPUInstancer/Demos/AddRemoveInstances/PrototypeData/Prefab/ARISphere_Prototype_-155622.asset
-  artifactKey: Guid(3bb30398fce21b14eb319aa4fd929407) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/AddRemoveInstances/PrototypeData/Prefab/ARISphere_Prototype_-155622.asset using Guid(3bb30398fce21b14eb319aa4fd929407) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '9b8095a782bdbf3bfd26946f30cfed65') in 0.007278 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000320 seconds.
-  path: Assets/InfiniGRASS/Version 1.4/Materials/BigTree_bark 3DARK 1LOD 1.mat
-  artifactKey: Guid(610c8aa0879572841a2be5623bd5c4c2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/InfiniGRASS/Version 1.4/Materials/BigTree_bark 3DARK 1LOD 1.mat using Guid(610c8aa0879572841a2be5623bd5c4c2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'da298d355e424a8014df72de918c4ece') in 0.060949 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000272 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Models/Manzanita_Plant/GreenleafManzanita_Low_1.spm
-  artifactKey: Guid(ef2472f99538547109d566519d5d82ba) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Models/Manzanita_Plant/GreenleafManzanita_Low_1.spm using Guid(ef2472f99538547109d566519d5d82ba) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5e0cd296ce778d31db16b2d93b68f038') in 0.243415 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000268 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry_sm2_LOD0.fbx
-  artifactKey: Guid(4f1cb236aa5472c498d0e77328bd77b2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry_sm2_LOD0.fbx using Guid(4f1cb236aa5472c498d0e77328bd77b2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5158d06abe2b44a3ec76499c24b30f84') in 0.274009 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000291 seconds.
-  path: Assets/Dynamic Snow System/DEMO SCENE/Mesh/Materials/blinn1.mat
-  artifactKey: Guid(3d4d2dea191894f3da8b70532fc2c347) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Dynamic Snow System/DEMO SCENE/Mesh/Materials/blinn1.mat using Guid(3d4d2dea191894f3da8b70532fc2c347) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b7709ffc02dcad7173eb8d0cdb327f1f') in 0.118271 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000309 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood1_LOD0.fbx
-  artifactKey: Guid(74cfa4e23d595e34b9ff15149b3150df) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood1_LOD0.fbx using Guid(74cfa4e23d595e34b9ff15149b3150df) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '905de40abc52dea4189fd75ac764e4f0') in 0.045825 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000253 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood5_LOD3.fbx
-  artifactKey: Guid(efef2a3d9e36aeb4c845b78888a881db) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood5_LOD3.fbx using Guid(efef2a3d9e36aeb4c845b78888a881db) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '12d208ecb884dde0a271ef88950ff73e') in 0.059385 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000224 seconds.
-  path: Assets/GPUInstancer/Demos/DetailInstancing/Textures/Boulder_n.tif
-  artifactKey: Guid(bc22234c85a03e14e8b8f3137cff3ecf) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/DetailInstancing/Textures/Boulder_n.tif using Guid(bc22234c85a03e14e8b8f3137cff3ecf) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e98d040f29f0061c9693dd9cc6ab7cf1') in 0.011209 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000234 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Full_Materials/Branches_0_LOD0.mat
-  artifactKey: Guid(7e4361b4cb97946e3b5f135136395c85) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Full_Materials/Branches_0_LOD0.mat using Guid(7e4361b4cb97946e3b5f135136395c85) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'e66be4cf09de6e8939bf10fb9d1775a6') in 0.075474 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000294 seconds.
-  path: Assets/Coniferous forest/Plants/BlBerry_sm1.prefab
-  artifactKey: Guid(533b58ed9af5fc94691976213fc492cc) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/BlBerry_sm1.prefab using Guid(533b58ed9af5fc94691976213fc492cc) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '98fff5cab531fde2998c7d6f9db415e4') in 0.079199 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000269 seconds.
-  path: Assets/Coniferous forest/Props/Branch_Deadwood1.prefab
-  artifactKey: Guid(71015d970c14c4d4284d1343de190272) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Branch_Deadwood1.prefab using Guid(71015d970c14c4d4284d1343de190272) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '986dcb519d896c283a650881a6949eb6') in 0.112601 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000273 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/Prefabs/Asteroid_01_LOD.prefab
-  artifactKey: Guid(470f93c7cf2a12247a87e3d0bcae0841) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/Prefabs/Asteroid_01_LOD.prefab using Guid(470f93c7cf2a12247a87e3d0bcae0841) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '528484d3894589d53356f1e7e88a88e8') in 0.142884 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000309 seconds.
-  path: Assets/Coniferous forest/Props/Branch_Deadwood3.prefab
-  artifactKey: Guid(c12882a2ea36221419afd3d45d1f8c67) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Branch_Deadwood3.prefab using Guid(c12882a2ea36221419afd3d45d1f8c67) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '43098169c01c7c789d4cc2c2a3a48686') in 0.099275 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000311 seconds.
-  path: Assets/Coniferous forest/Plants/Textures/BBWildrose3_a.tif
-  artifactKey: Guid(7a0845e99ff41ab4592801ebb9347125) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Textures/BBWildrose3_a.tif using Guid(7a0845e99ff41ab4592801ebb9347125) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'aab962e041d89dff5ae1a97cad113099') in 0.009745 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000293 seconds.
-  path: Assets/GPUInstancer/Demos/AddRemoveInstances/Prefabs/ARISphere.prefab
-  artifactKey: Guid(4d9aafbd662280443ab99e2868c04317) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/AddRemoveInstances/Prefabs/ARISphere.prefab using Guid(4d9aafbd662280443ab99e2868c04317) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '24b87d4f7167c3150f80f5b9758a4d5e') in 0.215755 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000303 seconds.
-  path: Assets/Coniferous forest/Plants/Textures/Billboard_Nettle1.tif
-  artifactKey: Guid(4748a13e0f407e8479dfa46e5aab4676) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Textures/Billboard_Nettle1.tif using Guid(4748a13e0f407e8479dfa46e5aab4676) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '586e57a14012ab2dca5e74a9afd74b5f') in 0.092096 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000330 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/Prefabs/AsteroidHazeQuad.prefab
-  artifactKey: Guid(f75fcc99fdea94e4494c106b3ed3d8bc) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/Prefabs/AsteroidHazeQuad.prefab using Guid(f75fcc99fdea94e4494c106b3ed3d8bc) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f97b1051f47355d2a88ae65c33ed4bfa') in 0.421712 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000256 seconds.
-  path: Assets/Coniferous forest/Plants/Models/BlBerry2_LOD0.fbx
-  artifactKey: Guid(e35c7758c0359614eb3314c6931231e6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/BlBerry2_LOD0.fbx using Guid(e35c7758c0359614eb3314c6931231e6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '51dc1ae3599bb4947b2335ad31576695') in 0.040728 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000294 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Sm_Materials/Billboard.mat
-  artifactKey: Guid(285d555ddc02f4ef4baa8b428e511891) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Sm_Materials/Billboard.mat using Guid(285d555ddc02f4ef4baa8b428e511891) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'f953d71920f1b98087baa90988fb1ac2') in 0.158906 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000254 seconds.
-  path: Assets/Coniferous forest/Plants/Models/Materials/BillbBlackberry2.mat
-  artifactKey: Guid(188c80ab933995647b899c9555488910) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/Materials/BillbBlackberry2.mat using Guid(188c80ab933995647b899c9555488910) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '6eae846c79f4a08da959201ed5cef926') in 0.013012 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000318 seconds.
-  path: Assets/Coniferous forest/Plants/Textures/BillbBlackberry1.tif
-  artifactKey: Guid(e483050b2e8ffb54f9d2c923babd3375) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Textures/BillbBlackberry1.tif using Guid(e483050b2e8ffb54f9d2c923babd3375) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '291358056639d3683d38c1ab1539256d') in 0.020290 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000236 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Med_Materials/Branches_1_LOD1.mat
-  artifactKey: Guid(47e425e2b7f4544a9b277d708a79dcc2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Med_Materials/Branches_1_LOD1.mat using Guid(47e425e2b7f4544a9b277d708a79dcc2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '29c2c6d1a4de00176b4e0a5fdbc0fa9c') in 0.015482 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000376 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Lg_Materials/Branches_0_LOD0.mat
-  artifactKey: Guid(bc3ae69544fcb488ba531f7410858aaf) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Lg_Materials/Branches_0_LOD0.mat using Guid(bc3ae69544fcb488ba531f7410858aaf) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3c303213cb85aafebe5dc44e7e9f3f89') in 0.013396 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000268 seconds.
-  path: Assets/Coniferous forest/Plants/Models/Materials/Billboard_Nettle1.mat
-  artifactKey: Guid(825f294b1d1a47a4eb336f1bd7809dd6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Models/Materials/Billboard_Nettle1.mat using Guid(825f294b1d1a47a4eb336f1bd7809dd6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '76cd7a2401441ff5ae529d9161bd743a') in 0.210099 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000359 seconds.
-  path: Assets/Materials/Shrubs/Chamise_Model/Chamise_1 Original.spm
-  artifactKey: Guid(37a44a141970d49568b74ba8ea8c5938) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Chamise_Model/Chamise_1 Original.spm using Guid(37a44a141970d49568b74ba8ea8c5938) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '092d87b40c1cd8d8a943ce4a51e9c7e9') in 0.480243 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000276 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Plant_Materials/Branches_0_LOD1.mat
-  artifactKey: Guid(5d9aaeada426148c5a286c1fc25b3799) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Plant_Materials/Branches_0_LOD1.mat using Guid(5d9aaeada426148c5a286c1fc25b3799) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ad47e4585f03bcd0a5e634aa01f1ccf1') in 0.032842 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000289 seconds.
-  path: Assets/Coniferous forest/Plants/Textures/BBWildrose1_n.tif
-  artifactKey: Guid(7ef318c1e56b63a4f876694a016f8a23) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Textures/BBWildrose1_n.tif using Guid(7ef318c1e56b63a4f876694a016f8a23) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '7798b78fa7ba716d2391a9526cdc797b') in 0.093293 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000275 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood5_Leafs.fbx
-  artifactKey: Guid(c415786de9b79dc47b1bf1f0c6cb562d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood5_Leafs.fbx using Guid(c415786de9b79dc47b1bf1f0c6cb562d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'af99045fbe920a8cd13ff6370cf9fdda') in 0.043384 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000348 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Models/Unused/Manzanita_8/GreenleafManzanita_Low_8.spm
-  artifactKey: Guid(b397858dcd20a4fcea7d4176ed469478) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Models/Unused/Manzanita_8/GreenleafManzanita_Low_8.spm using Guid(b397858dcd20a4fcea7d4176ed469478) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '05827e49b9c6977f2f5db527ab9be337') in 0.997943 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000237 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Med_Materials/Branches_0_LOD0.mat
-  artifactKey: Guid(1fc0b5868f7af4c639c8d916a9a26068) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Med_Materials/Branches_0_LOD0.mat using Guid(1fc0b5868f7af4c639c8d916a9a26068) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'ff29e89907f4807c49beb3b62c3c5f1b') in 0.239138 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000260 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Med_Materials/Branches_1_LOD0.mat
-  artifactKey: Guid(967f1a3b4e58c4546bfeb0768e677a2f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Med_Materials/Branches_1_LOD0.mat using Guid(967f1a3b4e58c4546bfeb0768e677a2f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '22aa91adc6c700727260e569d6b11d13') in 0.025847 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000316 seconds.
-  path: Assets/InfiniGRASS/Version 1.4/Prefabs/BranchA/BigTree_bark 2.mat
-  artifactKey: Guid(1a294c9c4912c5a4b9b3c6ffc64c3077) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/InfiniGRASS/Version 1.4/Prefabs/BranchA/BigTree_bark 2.mat using Guid(1a294c9c4912c5a4b9b3c6ffc64c3077) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'aef9943f5821e8930662a2df9f1aa979') in 0.023264 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000268 seconds.
-  path: Assets/Materials/Shrubs/AC_Plants_01_trunks.mat
-  artifactKey: Guid(302bf55011f9e4e2ba14650d9377808d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/AC_Plants_01_trunks.mat using Guid(302bf55011f9e4e2ba14650d9377808d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '32c5d08995887c2e9d39f2425723f6ef') in 0.408397 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000291 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood3_LOD3.fbx
-  artifactKey: Guid(7b6e794640c29624b880c2fc84bfa2a4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood3_LOD3.fbx using Guid(7b6e794640c29624b880c2fc84bfa2a4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '60a370ad9757a0fffb9ab19e8b0b9e8b') in 0.017442 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000306 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood2_Leafs.fbx
-  artifactKey: Guid(71f487a63e904b94392e58d26aeba01d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood2_Leafs.fbx using Guid(71f487a63e904b94392e58d26aeba01d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '64d7792315a8e8022d164c73906ead96') in 0.240055 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000231 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood4_LOD3.fbx
-  artifactKey: Guid(6a6c8bfa2b437be4fa29c6fbdf226178) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood4_LOD3.fbx using Guid(6a6c8bfa2b437be4fa29c6fbdf226178) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '0cb3fe1f18015eb93080edb5bc3795df') in 0.022797 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000361 seconds.
-  path: Assets/Coniferous forest/Plants/Textures/BBWildrose2_a.tif
-  artifactKey: Guid(45a7778fb49364849ab525379021787f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/Textures/BBWildrose2_a.tif using Guid(45a7778fb49364849ab525379021787f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'fa7699b896859327bea9fb80c6b93e10') in 0.012666 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000291 seconds.
-  path: Assets/GPUInstancer/Demos/PrefabInstancing/Textures/2k_sun.jpg
-  artifactKey: Guid(6647315641892f24781b4bbf5e2e0d45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/GPUInstancer/Demos/PrefabInstancing/Textures/2k_sun.jpg using Guid(6647315641892f24781b4bbf5e2e0d45) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b12359b477cdfeec1ab647a03ba0a969') in 0.348996 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000414 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Full_Materials/Branches_0_LOD1.mat
-  artifactKey: Guid(fe4586c7dadfa4885ae650e663705c16) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Full_Materials/Branches_0_LOD1.mat using Guid(fe4586c7dadfa4885ae650e663705c16) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '2144dec862ec93f4da2e9209b1fdcd72') in 0.131879 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000251 seconds.
-  path: Assets/InfiniGRASS/Version 1.4/Prefabs/BranchA/BigTree_bark_normal 2.jpg
-  artifactKey: Guid(863f98390ab39f44b9c21da2e5751d8f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/InfiniGRASS/Version 1.4/Prefabs/BranchA/BigTree_bark_normal 2.jpg using Guid(863f98390ab39f44b9c21da2e5751d8f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'b13961cd479a2ffe8a18908ae7f1729a') in 0.288993 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000263 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Full_Materials/Branches_0_LOD2.mat
-  artifactKey: Guid(c2e004000da11479ab18e8cb4694c1e3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Full_Materials/Branches_0_LOD2.mat using Guid(c2e004000da11479ab18e8cb4694c1e3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'bb172d03d2de143792782ea328bb5a3c') in 0.024068 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.154809 seconds.
-  path: Assets/Materials/Shrubs/Manzanita_Unused/Manz_Plant_Materials/Billboard.mat
-  artifactKey: Guid(e49d70442597148d9855c45cba5adefa) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Materials/Shrubs/Manzanita_Unused/Manz_Plant_Materials/Billboard.mat using Guid(e49d70442597148d9855c45cba5adefa) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5843d3e03a27243c3d17158f62fe415b') in 0.028808 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000250 seconds.
-  path: Assets/Coniferous forest/Plants/BlBerry_sm2.prefab
-  artifactKey: Guid(58086b07a7dafad4f866a335137a446f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Plants/BlBerry_sm2.prefab using Guid(58086b07a7dafad4f866a335137a446f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '0e9d0d66c890ffe132c397d13d08634f') in 0.035494 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000234 seconds.
-  path: Assets/Coniferous forest/Props/Models/Branch_deadwood1_LOD1.fbx
-  artifactKey: Guid(567e8c2d5760a6b4ba240100b168cf3a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Models/Branch_deadwood1_LOD1.fbx using Guid(567e8c2d5760a6b4ba240100b168cf3a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '4aaf5116b5c290bc9c21791f9b3c9a61') in 0.038552 seconds 
-========================================================================
-Received Import Request.
-  Time since last request: 0.000284 seconds.
-  path: Assets/Coniferous forest/Props/Branch_Deadwood5.prefab
-  artifactKey: Guid(044fd490566f6894d9523e8a63ebc1ca) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
-Start importing Assets/Coniferous forest/Props/Branch_Deadwood5.prefab using Guid(044fd490566f6894d9523e8a63ebc1ca) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '856bd31a7a47e3976f581f98eeeb0beb') in 0.224973 seconds 
+  Time since last request: 1.257793 seconds.
+  path: Assets/Scenes/FutureMountain/FutureMountain.unity
+  artifactKey: Guid(a2184b444162242f58be7ba20b64b6e4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Scenes/FutureMountain/FutureMountain.unity using Guid(a2184b444162242f58be7ba20b64b6e4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5bc28fa6dc6c5c536707ea28354f5a10') in 0.009202 seconds 
 ========================================================================
 Received Prepare
 Registering precompiled user dll's ...
-Registered in 0.195123 seconds.
+Registered in 0.009655 seconds.
 Begin MonoManager ReloadAssembly
 Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Assets\Utilities\Serialization\Assets\Dlls\ZeroFormatter.dll
 Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Dependencies\DotNetZip\Unity.VisualScripting.IonicZip.dll
 Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Dependencies\YamlDotNet\Unity.VisualScripting.YamlDotNet.dll
 Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Assets\Utilities\Serialization\Assets\Dlls\ZeroFormatter.Interfaces.dll
 Native extension for WindowsStandalone target not found
-Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 1.38 ms, found 5 plugins.
+Refreshing native plugins compatible for Editor in 3.27 ms, found 5 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Mono: successfully reloaded assembly
-- Completed reload, in  2.367 seconds
+- Completed reload, in  1.514 seconds
 Domain Reload Profiling:
-	ReloadAssembly (2367ms)
-		BeginReloadAssembly (121ms)
+	ReloadAssembly (1514ms)
+		BeginReloadAssembly (138ms)
 			ExecutionOrderSort (0ms)
-			DisableScriptedObjects (7ms)
+			DisableScriptedObjects (6ms)
 			BackupInstance (0ms)
 			ReleaseScriptingObjects (0ms)
-			CreateAndSetChildDomain (47ms)
-		EndReloadAssembly (2183ms)
-			LoadAssemblies (94ms)
+			CreateAndSetChildDomain (65ms)
+		EndReloadAssembly (1324ms)
+			LoadAssemblies (107ms)
 			RebuildTransferFunctionScriptingTraits (0ms)
-			SetupTypeCache (396ms)
-			ReleaseScriptCaches (1ms)
-			RebuildScriptCaches (42ms)
-			SetupLoadedEditorAssemblies (857ms)
-				LogAssemblyErrors (0ms)
-				InitializePlatformSupportModulesInManaged (6ms)
-				SetLoadedEditorAssemblies (0ms)
-				RefreshPlugins (1ms)
-				BeforeProcessingInitializeOnLoad (57ms)
-				ProcessInitializeOnLoadAttributes (241ms)
-				ProcessInitializeOnLoadMethodAttributes (540ms)
-				AfterProcessingInitializeOnLoad (10ms)
-				EditorAssembliesLoaded (1ms)
-			ExecutionOrderSort2 (0ms)
-			AwakeInstancesAfterBackupRestoration (20ms)
-Platform modules already initialized, skipping
-Refreshing native plugins compatible for Editor in 3.72 ms, found 5 plugins.
-Preloading 0 native plugins for Editor in 0.00 ms.
-Unloading 3955 Unused Serialized files (Serialized files now loaded: 0)
-System memory in use before: 300.0 MB.
-System memory in use after: 294.5 MB.
-
-Unloading 64 unused Assets to reduce memory usage. Loaded Objects now: 5065.
-Total: 20.982600 ms (FindLiveObjects: 1.312100 ms CreateObjectMapping: 0.283000 ms MarkObjects: 17.166100 ms  DeleteObjects: 2.219100 ms)
-
-AssetImportParameters requested are different than current active one (requested -> active):
-  custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
-  custom:video-decoder-ogg-theora: a1e56fd34408186e4bbccfd4996cb3dc -> 
-  custom:container-muxer-webm: aa71ff27fc2769a1b78a27578f13a17b -> 
-  custom:container-demuxer-webm: 4f35f7cbe854078d1ac9338744f61a02 -> 
-  custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
-  custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
-  custom:video-codec-MediaFoundation-h265: 746d11721c4dcdbdad8f713fa42b33f4 -> 
-  custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
-  custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
-  custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
-========================================================================
-Received Prepare
-Registering precompiled user dll's ...
-Registered in 1.027988 seconds.
-Begin MonoManager ReloadAssembly
-Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Assets\Utilities\Serialization\Assets\Dlls\ZeroFormatter.dll
-Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Dependencies\DotNetZip\Unity.VisualScripting.IonicZip.dll
-Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Dependencies\YamlDotNet\Unity.VisualScripting.YamlDotNet.dll
-Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Assets\Utilities\Serialization\Assets\Dlls\ZeroFormatter.Interfaces.dll
-Native extension for WindowsStandalone target not found
-Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 1.95 ms, found 5 plugins.
-Preloading 0 native plugins for Editor in 0.00 ms.
-Mono: successfully reloaded assembly
-- Completed reload, in  4.489 seconds
-Domain Reload Profiling:
-	ReloadAssembly (4489ms)
-		BeginReloadAssembly (326ms)
-			ExecutionOrderSort (0ms)
-			DisableScriptedObjects (25ms)
-			BackupInstance (0ms)
-			ReleaseScriptingObjects (0ms)
-			CreateAndSetChildDomain (62ms)
-		EndReloadAssembly (4066ms)
-			LoadAssemblies (2272ms)
-			RebuildTransferFunctionScriptingTraits (12ms)
-			SetupTypeCache (482ms)
+			SetupTypeCache (337ms)
 			ReleaseScriptCaches (2ms)
-			RebuildScriptCaches (48ms)
-			SetupLoadedEditorAssemblies (962ms)
+			RebuildScriptCaches (31ms)
+			SetupLoadedEditorAssemblies (769ms)
 				LogAssemblyErrors (0ms)
-				InitializePlatformSupportModulesInManaged (7ms)
+				InitializePlatformSupportModulesInManaged (4ms)
 				SetLoadedEditorAssemblies (1ms)
-				RefreshPlugins (2ms)
-				BeforeProcessingInitializeOnLoad (70ms)
-				ProcessInitializeOnLoadAttributes (295ms)
-				ProcessInitializeOnLoadMethodAttributes (576ms)
-				AfterProcessingInitializeOnLoad (11ms)
+				RefreshPlugins (3ms)
+				BeforeProcessingInitializeOnLoad (63ms)
+				ProcessInitializeOnLoadAttributes (237ms)
+				ProcessInitializeOnLoadMethodAttributes (455ms)
+				AfterProcessingInitializeOnLoad (6ms)
 				EditorAssembliesLoaded (0ms)
 			ExecutionOrderSort2 (0ms)
-			AwakeInstancesAfterBackupRestoration (16ms)
+			AwakeInstancesAfterBackupRestoration (7ms)
 Platform modules already initialized, skipping
-Refreshing native plugins compatible for Editor in 9.64 ms, found 5 plugins.
+Refreshing native plugins compatible for Editor in 1.88 ms, found 5 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
-Unloading 3931 Unused Serialized files (Serialized files now loaded: 0)
-System memory in use before: 299.2 MB.
-System memory in use after: 293.7 MB.
+Unloading 3920 Unused Serialized files (Serialized files now loaded: 0)
+System memory in use before: 269.5 MB.
+System memory in use after: 269.4 MB.
 
-Unloading 63 unused Assets to reduce memory usage. Loaded Objects now: 5068.
-Total: 68.715200 ms (FindLiveObjects: 6.921100 ms CreateObjectMapping: 0.379100 ms MarkObjects: 55.898500 ms  DeleteObjects: 5.496900 ms)
+Unloading 54 unused Assets to reduce memory usage. Loaded Objects now: 4693.
+Total: 10.840300 ms (FindLiveObjects: 0.734200 ms CreateObjectMapping: 0.279300 ms MarkObjects: 9.232500 ms  DeleteObjects: 0.592900 ms)
 
 AssetImportParameters requested are different than current active one (requested -> active):
   custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
@@ -1270,69 +243,7 @@ AssetImportParameters requested are different than current active one (requested
   custom:container-demuxer-webm: 4f35f7cbe854078d1ac9338744f61a02 -> 
   custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
   custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
-  custom:video-codec-MediaFoundation-h265: 746d11721c4dcdbdad8f713fa42b33f4 -> 
   custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
   custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
   custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
-========================================================================
-Received Prepare
-Registering precompiled user dll's ...
-Registered in 1.472937 seconds.
-Begin MonoManager ReloadAssembly
-Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Assets\Utilities\Serialization\Assets\Dlls\ZeroFormatter.dll
-Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Dependencies\DotNetZip\Unity.VisualScripting.IonicZip.dll
-Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Dependencies\YamlDotNet\Unity.VisualScripting.YamlDotNet.dll
-Symbol file LoadedFromMemory doesn't match image D:\Git\FutureMountain\Assets\Utilities\Serialization\Assets\Dlls\ZeroFormatter.Interfaces.dll
-Native extension for WindowsStandalone target not found
-Native extension for WebGL target not found
-Refreshing native plugins compatible for Editor in 2.18 ms, found 5 plugins.
-Preloading 0 native plugins for Editor in 0.00 ms.
-Mono: successfully reloaded assembly
-- Completed reload, in  8.114 seconds
-Domain Reload Profiling:
-	ReloadAssembly (8115ms)
-		BeginReloadAssembly (1622ms)
-			ExecutionOrderSort (0ms)
-			DisableScriptedObjects (318ms)
-			BackupInstance (0ms)
-			ReleaseScriptingObjects (0ms)
-			CreateAndSetChildDomain (978ms)
-		EndReloadAssembly (6334ms)
-			LoadAssemblies (3724ms)
-			RebuildTransferFunctionScriptingTraits (1ms)
-			SetupTypeCache (1026ms)
-			ReleaseScriptCaches (32ms)
-			RebuildScriptCaches (57ms)
-			SetupLoadedEditorAssemblies (1277ms)
-				LogAssemblyErrors (0ms)
-				InitializePlatformSupportModulesInManaged (14ms)
-				SetLoadedEditorAssemblies (2ms)
-				RefreshPlugins (2ms)
-				BeforeProcessingInitializeOnLoad (101ms)
-				ProcessInitializeOnLoadAttributes (430ms)
-				ProcessInitializeOnLoadMethodAttributes (717ms)
-				AfterProcessingInitializeOnLoad (10ms)
-				EditorAssembliesLoaded (1ms)
-			ExecutionOrderSort2 (0ms)
-			AwakeInstancesAfterBackupRestoration (82ms)
-Platform modules already initialized, skipping
-Refreshing native plugins compatible for Editor in 1.56 ms, found 5 plugins.
-Preloading 0 native plugins for Editor in 0.00 ms.
-Unloading 3931 Unused Serialized files (Serialized files now loaded: 0)
-System memory in use before: 299.3 MB.
-System memory in use after: 293.7 MB.
-
-Unloading 63 unused Assets to reduce memory usage. Loaded Objects now: 5071.
-Total: 9.135900 ms (FindLiveObjects: 0.539500 ms CreateObjectMapping: 0.370500 ms MarkObjects: 6.486400 ms  DeleteObjects: 1.737900 ms)
-
-AssetImportParameters requested are different than current active one (requested -> active):
-  custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
-  custom:video-decoder-ogg-theora: a1e56fd34408186e4bbccfd4996cb3dc -> 
-  custom:container-muxer-webm: aa71ff27fc2769a1b78a27578f13a17b -> 
-  custom:container-demuxer-webm: 4f35f7cbe854078d1ac9338744f61a02 -> 
-  custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
-  custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
-  custom:video-codec-MediaFoundation-h265: 746d11721c4dcdbdad8f713fa42b33f4 -> 
-  custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
-  custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
-  custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+AssetImportWorkerClient::OnTransportError - code=2 error=End of file

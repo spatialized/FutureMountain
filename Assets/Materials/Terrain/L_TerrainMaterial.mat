@@ -108,7 +108,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Ints: []
     m_Floats:
     - _Albedo1SnowReduction: 1
     - _Albedo2SnowReduction: -1
@@ -140,7 +139,7 @@ Material:
     - _SnowSpecularPower: 0.5
     - _SnowTextureTilling: 0.5
     - _SnowTilling: 174
-    - _Snow_Amount: 1
+    - _Snow_Amount: 0
     - _SpecularHighlights: 0
     - _SpecularPower: 0.54
     - _SrcBlend: 1
