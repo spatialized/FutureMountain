@@ -179,6 +179,7 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
         {
             SERI_FireVisualManager visualMgr = fireList[i].GetComponent<SERI_FireVisualManager>();
             visualMgr.SetSize(size);
+            visualMgr.RandomizeFire();
 
             float mult = fuelAmount / combustionRate;
             float durationFactor = mult * 0.01f;

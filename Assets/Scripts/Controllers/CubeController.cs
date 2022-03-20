@@ -3142,7 +3142,7 @@ public class CubeController : MonoBehaviour
     /// <param name="timeIndex">Time index.</param>
     public float ReadData(int col, int timeIndex)
     {
-        Debug.Log(name + ".ReadData()... timeIndex:" + timeIndex + "warmingIdx: " + warmingIdx);
+        //Debug.Log(name + ".ReadData()... timeIndex:" + timeIndex + "warmingIdx: " + warmingIdx);
 
 
         if (dataArray != null)

@@ -23983,7 +23983,7 @@ GameObject:
   - component: {fileID: 23000013357888278}
   - component: {fileID: 7386850606185408277}
   m_Layer: 0
-  m_Name: Fire_Unlit
+  m_Name: Fire_Unlit_v2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

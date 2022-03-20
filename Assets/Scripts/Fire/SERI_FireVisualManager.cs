@@ -131,4 +131,46 @@ public class SERI_FireVisualManager : MonoBehaviour
         for (int i = 0; i < particleSystems.Length; i++)
             particleSystems[i].transform.localScale = new Vector3(size, size, size);
     }
+
+    public void RandomizeFire()
+    {
+        if (particleSystems == null)
+        {
+            Debug.Log(name + ".RandomizeFires()... Can't randomize yet... m_particleSystems == null... parent:" + transform.parent + " size:" + size);
+            return;
+        }
+
+        for (int i = 0; i < particleSystems.Length; i++)
+        {
+            //float size = UnityEngine.Random.Range(0.5f, 4.5f);
+            //particleSystems[i].transform.localScale = new Vector3(size, size, size);
+
+            float offset = UnityEngine.Random.Range(-1.5f, 1.5f);
+            particleSystems[i].transform.localPosition = new Vector3(
+                particleSystems[i].transform.localPosition.x + offset,
+                particleSystems[i].transform.localPosition.y + offset,
+                particleSystems[i].transform.localPosition.z);
+
+            ParticleSystem.MainModule main = particleSystems[i].main;
+
+            ParticleSystem.MinMaxCurve maxParticlesCurve = main.maxParticles;
+            maxParticlesCurve.constant = maxParticlesCurve.constant + (int)System.Math.Round(UnityEngine.Random.Range(-5f, 5f));
+
+            ParticleSystem.MinMaxCurve startSpeedCurve = main.startSpeed;
+            startSpeedCurve.constant = startSpeedCurve.constant + UnityEngine.Random.Range(-0.5f, 0.5f);
+
+            ParticleSystem.MinMaxCurve startLifetimeCurve = main.startLifetime;
+            startLifetimeCurve.constantMin = startLifetimeCurve.constantMin + UnityEngine.Random.Range(-0.5f, 1.0f);
+            startLifetimeCurve.constantMax = startLifetimeCurve.constantMax + UnityEngine.Random.Range(-0.5f, 2.5f);
+
+            float rand = (int)System.Math.Round(UnityEngine.Random.Range(0f, 25f));
+            ParticleSystem.MinMaxCurve startSizeCurve = main.startSize;
+            startSizeCurve.constantMin = startSizeCurve.constantMin + rand;
+            startSizeCurve.constantMax = startSizeCurve.constantMax + rand;
+
+            Debug.Log("particleSystems.Length:" + particleSystems.Length);
+            Debug.Log(name + ".RandomizeFires()... startSizeCurve.constantMin:" + startSizeCurve.constantMin);
+            Debug.Log(name + ".RandomizeFires()... startSizeCurve.constantMax:" + startSizeCurve.constantMax);
+        }
+    }
 }
