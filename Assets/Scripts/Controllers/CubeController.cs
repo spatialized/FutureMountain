@@ -133,9 +133,9 @@ public class CubeController : MonoBehaviour
     private string[] dataHeadings;              // Data headings
     private string[] dataDates;                 // Dates by time index
 
-    private int warmingIdx;                     // Current warming index
-    private int warmingDegrees;                 // Current warming degrees
-    private int warmingRange;                   // Warming range (warming idx values)
+    public int warmingIdx;                     // Current warming index
+    public int warmingDegrees;                 // Current warming degrees
+    public int warmingRange;                   // Warming range (warming idx values)
 
     /* Display + UI */
     private GameObject displayObject;           // UI Display game object
@@ -1104,6 +1104,10 @@ public class CubeController : MonoBehaviour
                     float amount = ReadData((int)DataColumnIdx.Snow, idx);
                     float val = Mathf.Clamp(MapValue(amount, SnowAmountMin, SnowAmountMax, snowValueMin, snowValueMax), snowValueMin, snowValueMax);
                     combinedSnow += val;
+
+                    Debug.Log(transform.name + " GetCurrentData... amount:" + amount);
+                    Debug.Log(transform.name + " GetCurrentData... snowValueMin:" + snowValueMin + "  snowValueMax:" + snowValueMax);
+                    Debug.Log(transform.name + " GetCurrentData... SnowAmountMin:" + SnowAmountMin + "  SnowAmountMax:" + SnowAmountMax);
                 }
 
                 if (timeStep <= 7)
@@ -2753,6 +2757,8 @@ public class CubeController : MonoBehaviour
     /// <returns>The data.</returns>
     public float[,] GetCurrentData()
     {
+        //Debug.Log(transform.name + " GetCurrentData... warmingIdx:" + warmingIdx);
+
         return dataArray[warmingIdx];
     }
 
@@ -3144,9 +3150,8 @@ public class CubeController : MonoBehaviour
     {
         //Debug.Log(name + ".ReadData()... timeIndex:" + timeIndex + "warmingIdx: " + warmingIdx);
 
-
         if (dataArray != null)
-            return dataArray[warmingIdx][timeIndex, col];
+            return GetCurrentData()[timeIndex, col];
         else
         {
             if(debugCubes || debugDetailed || debugAggregate)

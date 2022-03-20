@@ -2095,6 +2095,9 @@ public class GameController : MonoBehaviour
         hideUI = false;                    // UI hidden state
         SetPaused(true);
 
+        landscapeController.ResetBackgroundSnow();
+        landscapeController.SetSnowVisibility(false);
+
         CameraController camControl = sceneCamera.GetComponent<CameraController>() as CameraController;
         camControl.ResetPosition();             // Reset camera position immediately
         zoomOutButtonObject.SetActive(false);
@@ -2112,7 +2115,8 @@ public class GameController : MonoBehaviour
         messageManager.ClearLabels();
 
         ResetCubes();
-        HideCubes(true, -1);                         
+        HideCubes(true, -1);
+        HideSideCubes();
         ResetFireManagers();
 
         pauseButtonObject.SetActive(false);
@@ -2160,7 +2164,6 @@ public class GameController : MonoBehaviour
             sideCubes[4].SetWarmingDegrees(newDegrees);
             sideCubes[4].FindParameterRanges();
             sideCubes[4].StartSimulation(timeIdx, timeStep);
-
         }
         else
         {

@@ -30,8 +30,8 @@ public class WarmingKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler,
     public float angle_Z = 0f;
     private float angleAdjustAmt = 0f;
 
-    public bool isSideBySideKnob = false;
-    public bool isComparedCubeKnob = false;
+    public bool isSideBySideKnob = false;                   // Is it a knob for Side-by-Side Mode?
+    public bool isComparedCubeKnob = false;                 // Is it the cube on the right
 
     /// <summary>
     /// Start
