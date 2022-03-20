@@ -202,6 +202,11 @@ public class CubeController : MonoBehaviour
     private float StreamHeightMin = 100000f;     // Min. stream level in current data file
     private float StreamHeightMax = -100000f;    // Max. stream level in current data file
 
+    private float WaterAccessMin = 100000f;    
+    private float WaterAccessMax = -100000f;   
+    private float DepthToGWMin = 100000f;
+    private float DepthToGWMax = -100000f;
+
     public float streamCenter = 25f;             // Stream center position in cube (0f-50f)
     public float streamWidth = 10f;              // Stream width (m.)
 
@@ -1105,21 +1110,29 @@ public class CubeController : MonoBehaviour
                     float val = Mathf.Clamp(MapValue(amount, SnowAmountMin, SnowAmountMax, snowValueMin, snowValueMax), snowValueMin, snowValueMax);
                     combinedSnow += val;
 
-                    Debug.Log(transform.name + " GetCurrentData... amount:" + amount);
-                    Debug.Log(transform.name + " GetCurrentData... snowValueMin:" + snowValueMin + "  snowValueMax:" + snowValueMax);
-                    Debug.Log(transform.name + " GetCurrentData... SnowAmountMin:" + SnowAmountMin + "  SnowAmountMax:" + SnowAmountMax);
+                    if (transform.name.Contains("CubeB"))
+                        Debug.Log(transform.name + " Snow... val:" + val + " combinedSnow:" + combinedSnow);
+                    //Debug.Log(transform.name + " GetCurrentData... amount:" + amount);
+                    //Debug.Log(transform.name + " GetCurrentData... snowValueMin:" + snowValueMin + "  snowValueMax:" + snowValueMax);
+                    //Debug.Log(transform.name + " GetCurrentData... SnowAmountMin:" + SnowAmountMin + "  SnowAmountMax:" + SnowAmountMax);
                 }
 
                 if (timeStep <= 7)
                 {
                     combinedSnow /= step;
                     snowValue += combinedSnow;
+
+                    //if (isSideCube)
+                    //    Debug.Log(transform.name + " added from combined snow... snowValue:" + snowValue);
                 }
                 else
                 {
                     combinedSnow /= step;
                     combinedSnow *= 5f;
                     snowValue = combinedSnow;
+
+                    if (transform.name.Contains("CubeB"))
+                        Debug.Log(transform.name + " >>> calculated new snowValue:" + snowValue);
                 }
             }
 
@@ -2784,18 +2797,31 @@ public class CubeController : MonoBehaviour
     /// <summary>
     /// Updates the minimum and maximum values of data parameters from current data file.
     /// </summary>
-    public void FindParameterRanges()
+    public void FindParameterRangesForCurrentWarmingIdx()
     {
         float[,] cubeData = GetCurrentData();
-        CalculateSoilRanges(cubeData);
-        CalculateParameterRanges(cubeData);
+        CalculateSoilRanges(cubeData, true);
+        CalculateParameterRanges(cubeData, true);
+    }
+
+    /// <summary>
+    /// Updates the minimum and maximum values of data parameters from all warming scenario data files for this cube.
+    /// </summary>
+    public void FindParameterRanges()
+    {
+        for(int w=0; w<warmingRange; w++)
+        {
+            float[,] cubeData = GetDataForWarmingIdx(w);
+            CalculateSoilRanges(cubeData, false);
+            CalculateParameterRanges(cubeData, false);
+        }
     }
 
     /// <summary>
     /// Updates water access min / max values.
     /// </summary>
     /// <param name="cubeData">Cube data.</param>
-    private void CalculateSoilRanges(float[,] cubeData)
+    private void CalculateSoilRanges(float[,] cubeData, bool resetValues)
     {
         int rows = cubeData.GetLength(0);
         int row = 0;                                      // Row
@@ -2803,51 +2829,48 @@ public class CubeController : MonoBehaviour
         int w = (int)DataColumnIdx.WaterAccess;     // Water Access Column
         int d = (int)DataColumnIdx.DepthToGW;       // Depth to G.W. Column
 
-        //if (dataType == CubeDataType.Veg1 || dataType == CubeDataType.Veg2)
-        //{
-        //    w = (int)DataColumnIdx.WaterAccess;     // Water Access Column
-        //    d = (int)DataColumnIdx.DepthToGW;       // Depth to G.W. Column
-        //}
-
         if (dataType == CubeDataType.Agg)
         {
             w = (int)AggregateDataColumnIdx.WaterAccess;     // Water Access Column
             d = (int)AggregateDataColumnIdx.DepthToGW;       // Depth to G.W. Column
         }
 
-        float waterAccessMin = 100000f;
-        float waterAccessMax = -100000f;
-        float depthToGWMin = 100000f;
-        float depthToGWMax = -100000f;
+        if (resetValues)
+        {
+            WaterAccessMin = 100000f;         // Set Min. waterAccess 
+            WaterAccessMax = -100000f;         // Set Max. waterAccess 
+            DepthToGWMin = 100000f;           // Set Min. depthToGW
+            DepthToGWMax = -100000f;           // Set Max. depthToGW 
+        }
 
         while (row < rows - 1)
         {
             float val = cubeData[row, w];
-            if (val < waterAccessMin)
-                waterAccessMin = val;
-            if (val > waterAccessMax)
-                waterAccessMax = val;
+            if (val < WaterAccessMin)
+                WaterAccessMin = val;
+            if (val > WaterAccessMax)
+                WaterAccessMax = val;
 
             float val2 = cubeData[row, d];
-            if (val2 < depthToGWMin)
-                depthToGWMin = val2;
-            if (val2 > depthToGWMax)
-                depthToGWMax = val2;
+            if (val2 < DepthToGWMin)
+                DepthToGWMin = val2;
+            if (val2 > DepthToGWMax)
+                DepthToGWMax = val2;
 
             row++;
         }
 
-        //Debug.Log(" waterAccessMin:" + waterAccessMin + " waterAccessMax:" + waterAccessMax);
-        //Debug.Log(" depthToGWMin:" + depthToGWMin + " depthToGWMax:" + depthToGWMax);
+        //Debug.Log(" WaterAccessMin:" + WaterAccessMin + " WaterAccessMax:" + WaterAccessMax);
+        //Debug.Log(" DepthToGWMin:" + DepthToGWMin + " DepthToGWMax:" + DepthToGWMax);
 
-        soilController.SetMinMaxRanges(waterAccessMin, waterAccessMax, depthToGWMin, depthToGWMax);
+        soilController.SetMinMaxRanges(WaterAccessMin, WaterAccessMax, DepthToGWMin, DepthToGWMax);
     }
 
     /// <summary>
     /// Updates the parameter ranges (min/max values).
     /// </summary>
     /// <param name="cubeData">Cube data.</param>
-    private void CalculateParameterRanges(float[,] cubeData)
+    private void CalculateParameterRanges(float[,] cubeData, bool resetValues)
     {
         if (debugDetailed && debugTrees)
             Debug.Log("CalculateParameterRanges()... Time:" + Time.time);
@@ -2872,33 +2895,36 @@ public class CubeController : MonoBehaviour
             psn = (int)AggregateDataColumnIdx.NetPsn;                 // Litter Column
         }
 
-        StreamHeightMin = 100000f;
-        StreamHeightMax = -100000f;
-        SnowAmountMin = 100000f;
-        SnowAmountMax = -100000f;
-        LitterMin = 100000f;
-        LitterMax = -100000f;
-        NetPhotosynthesisMin = 100000f;
-        NetPhotosynthesisMax = -100000f;
+        if (resetValues)
+        {
+            StreamHeightMin = 100000f;
+            StreamHeightMax = -100000f;
+            SnowAmountMin = 100000f;
+            SnowAmountMax = -100000f;
+            LitterMin = 100000f;
+            LitterMax = -100000f;
+            NetPhotosynthesisMin = 100000f;
+            NetPhotosynthesisMax = -100000f;
 
-        LeafCarbonOverMin = 100000f;
-        LeafCarbonOverMax = -100000f;
-        LeafCarbonUnderMin = 100000f;
-        LeafCarbonUnderMax = -100000f;
+            LeafCarbonOverMin = 100000f;
+            LeafCarbonOverMax = -100000f;
+            LeafCarbonUnderMin = 100000f;
+            LeafCarbonUnderMax = -100000f;
 
-        StemCarbonOverMin = 100000f;
-        StemCarbonOverMax = -100000f;
-        StemCarbonUnderMin = 100000f;
-        StemCarbonUnderMax = -100000f;
-        RootsCarbonOverMin = 100000f;
-        RootsCarbonOverMax = -100000f;
-        RootsCarbonUnderMin = 100000f;
-        RootsCarbonUnderMax = -100000f;
+            StemCarbonOverMin = 100000f;
+            StemCarbonOverMax = -100000f;
+            StemCarbonUnderMin = 100000f;
+            StemCarbonUnderMax = -100000f;
+            RootsCarbonOverMin = 100000f;
+            RootsCarbonOverMax = -100000f;
+            RootsCarbonUnderMin = 100000f;
+            RootsCarbonUnderMax = -100000f;
 
-        TransOverMin = 100000f;
-        TransOverMax = -100000f;
-        TransUnderMin = 100000f;
-        TransUnderMax = -100000f;
+            TransOverMin = 100000f;
+            TransOverMax = -100000f;
+            TransUnderMin = 100000f;
+            TransUnderMax = -100000f;
+        }
 
         while (i < rows - 1)
         {

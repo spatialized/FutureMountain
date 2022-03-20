@@ -2162,7 +2162,7 @@ public class GameController : MonoBehaviour
             sideCubes[4].ResetCube();
             sideCubes[4].SetWarmingIdx(newIdx);
             sideCubes[4].SetWarmingDegrees(newDegrees);
-            sideCubes[4].FindParameterRanges();
+            //sideCubes[4].FindParameterRanges();
             sideCubes[4].StartSimulation(timeIdx, timeStep);
         }
         else
@@ -2173,7 +2173,7 @@ public class GameController : MonoBehaviour
             cubes[4].ResetCube();
             cubes[4].SetWarmingIdx(newIdx);
             cubes[4].SetWarmingDegrees(newDegrees);
-            cubes[4].FindParameterRanges();
+            //cubes[4].FindParameterRanges();
             cubes[4].StartSimulation(timeIdx, timeStep);
         }
     }
