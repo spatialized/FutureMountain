@@ -40,6 +40,10 @@ public class CubeController : MonoBehaviour
     public int patchID = -1;                                 // Patch ID
     public bool isSideCube = false;                          // Flag for side cube
 
+    /* Objects */
+    public GameObject cubeObject { get; set; }               // Cube base containing all cube parts (except glass)
+    public GameObject cubeLabel { get; set; }                // Cube label
+
     /* Vegetation Prefabs */
     [Header("Vegetation Prefabs")]
     public VegetationList vegetation;            // All vegetation game objects in cube
@@ -100,10 +104,6 @@ public class CubeController : MonoBehaviour
     private float minShrubFullSize = 1.5f;        // Min. shrub grown size (m.)
     private float maxShrubFullSize = 2.5f;        // Max. shrub grown size (m.)
     private float shrubGrowthIncrement = 0.01f;   // Shrub growth increment per frame
-
-    /* Objects */
-    public GameObject cubeObject { get; set; }               // Cube base containing all cube parts (except glass)
-    public GameObject cubeLabel { get; set; }                // Cube label
 
     /* Timing */
     private int timeIdx = 0;                    // Current index of simulation in data time series
@@ -489,7 +489,7 @@ public class CubeController : MonoBehaviour
         Assert.IsNotNull(cubeObject);
 
         string terrainName = "Terrain_" + name.Substring(name.Length == 5 ? name.Length - 1 : name.Length - 6);
-        //Debug.Log("" + name + ".SetupObjects()... Looking for terrainName: " + terrainName+" name: "+name);
+        Debug.Log("" + name + ".SetupObjects()... Looking for terrainName: " + terrainName+" name: "+name);
 
         terrain = cubeObject.transform.Find(terrainName).GetComponent<Terrain>();
         fireManager = terrain.transform.GetComponentInChildren<SERI_FireManager>() as SERI_FireManager;

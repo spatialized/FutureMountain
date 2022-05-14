@@ -2,14 +2,16 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: C3_TerrainMaterial
   m_Shader: {fileID: 4800000, guid: 20ca7d7c1e25e7641a3c4b3dad17c4fd, type: 3}
-  m_ShaderKeywords: _SPECULARHIGHLIGHTS_OFF
+  m_ValidKeywords: []
+  m_InvalidKeywords:
+  - _SPECULARHIGHLIGHTS_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -108,6 +110,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _Albedo1SnowReduction: 0
     - _Albedo2SnowReduction: -0.69
@@ -137,7 +140,7 @@ Material:
     - _SnowSmoothness: 0.679
     - _SnowSpecularPower: 0.513
     - _SnowTilling: 168
-    - _Snow_Amount: 2.3036065
+    - _Snow_Amount: 0.016761743
     - _SpecularHighlights: 0
     - _SpecularPower: 0.049
     - _SrcBlend: 1

@@ -2,14 +2,19 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Fir_Cross_Snow5
   m_Shader: {fileID: 4800000, guid: 6fff49e2c6ea6e148a385309c1f1b71d, type: 3}
-  m_ShaderKeywords: _ALPHATEST_ON _INVERTSNOWMASK_ON _KEYWORD0_ON _WINDVERTEXCOLORMAINR_ON
+  m_ValidKeywords:
+  - _INVERTSNOWMASK_ON
+  m_InvalidKeywords:
+  - _ALPHATEST_ON
+  - _KEYWORD0_ON
+  - _WINDVERTEXCOLORMAINR_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -83,6 +88,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AO: 1
     - _AmbientOcclusionPower: 1
@@ -111,7 +117,7 @@ Material:
     - _SnowMaskTreshold: 0.912
     - _SnowNormalPower: 2
     - _SnowNormalTreshold: 5
-    - _Snow_Amount: 0
+    - _Snow_Amount: 0.010057858
     - _Specular: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

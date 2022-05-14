@@ -126,7 +126,7 @@ public class SoilController : MonoBehaviour {
         /* Initialize Groundwater Objects */
         done = false;
         idx = 1;
-        while (!done)
+        while (!done)                                                  // Find all groundwater objects in cube soil
         {
             string gwName = "GroundWater" + idx;
 

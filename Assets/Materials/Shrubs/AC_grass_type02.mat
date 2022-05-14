@@ -2,14 +2,19 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: AC_grass_type02
   m_Shader: {fileID: 4800000, guid: e9099493497b41845aea6aa168aa38fc, type: 3}
-  m_ShaderKeywords: _ALPHAPREMULTIPLY_ON _EMISSION _SNOWREMOVESAO_ON _WIND_VERTEXCOLORR_ON
+  m_ValidKeywords:
+  - _SNOWREMOVESAO_ON
+  - _WIND_VERTEXCOLORR_ON
+  m_InvalidKeywords:
+  - _ALPHAPREMULTIPLY_ON
+  - _EMISSION
   m_LightmapFlags: 1
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -91,6 +96,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AmbientOcclusionPower: 0
     - _BumpScale: 1
@@ -109,7 +115,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
-    - _Snow_Amount: 4.4416714
+    - _Snow_Amount: 0.013805229
     - _SnowremovesAO: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1

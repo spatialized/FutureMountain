@@ -142,25 +142,27 @@ public class GameController : MonoBehaviour
     [Header("Objects")]
     public GameObject landscapeObject;                        // Large Landscape Object
     public GameObject aggregateCubeObject;                    // Aggregate Cube
+    public GameObject aggregateCubeObject_Side;               // Aggregate Side Cube
 
     public GameObject cube1Object;                            // Cube 1 Object
-    public GameObject cube1Object_Side;                       // Cube 1 Object
+    public GameObject cube1Object_Side;                       // Side Cube 1 Object
     public GameObject cube2Object;                            // Cube 2 Object 
-    public GameObject cube2Object_Side;                       // Cube 2 Object 
+    public GameObject cube2Object_Side;                       // Side Cube 2 Object 
     public GameObject cube3Object;                            // Cube 3 Object 
-    public GameObject cube3Object_Side;                       // Cube 3 Object 
+    public GameObject cube3Object_Side;                       // Side Cube 3 Object 
     public GameObject cube4Object;                            // Cube 4 Object 
-    public GameObject cube4Object_Side;                       // Cube 4 Object 
+    public GameObject cube4Object_Side;                       // Side Cube 4 Object 
     public GameObject cube5Object;                            // Cube 5 Object 
-    public GameObject cube5Object_Side;                       // Cube 5 Object 
+    public GameObject cube5Object_Side;                       // Side Cube 5 Object 
 
     public GameObject cube1Stats;                             // Side-by-Side Mode Cube #1 statistics
     public GameObject cube2Stats;                             // Side-by-Side Mode Cube #2 statistics
     public GameObject warmingLevelText;                       // Side-by-Side Mode Warming Level Text
 
     /* Controllers */
-    public LandscapeController landscapeController;          // Large Landscape Controller
+    public LandscapeController landscapeController;           // Large Landscape Controller
     private CubeController aggregateCubeController;           // Aggregate Cube Controller
+    private CubeController aggregateSideCubeController;       // Aggregat Side Cube Controllr
     private CubeController[] cubes;                           // Cube Controllers
     private CubeController[] sideCubes;                       // Side-by-Side Cube Controllers
 
@@ -176,8 +178,6 @@ public class GameController : MonoBehaviour
     public Canvas simulationUICanvas;                         // Simulation UI canvas 
     public Canvas controlsUICanvas;                           // Show Controls Button UI canvas
     public Canvas sideBySideCanvas;                           // Side-by-Side Mode UI Canvas
-    //private GameObject messagePanel;                         // Message Text Panel on right
-    //private Text[] messageTexts;                             // Message Text Panel on right
     public GameObject introPanel;                              // Intro Text Panel
     public GameObject loadingTextObject;                       // Loading Text Object
     public Text loadingTextField;                              // Loading Text 
@@ -185,8 +185,6 @@ public class GameController : MonoBehaviour
     private GameObject uiObject;                              // UI Object containing canvases
     private Vector3 uiObjectDefaultPosition;
     private bool uiObjectHidden = false;
-
-    //private int selectedYearIdx = -1;                       // Selected Year Index
 
     /* UI Timeline */
     public GameObject uiTimelineObject;                      // UI Timeline Object
@@ -391,6 +389,7 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(cube4Object_Side);
         Assert.IsNotNull(cube5Object_Side);
         Assert.IsNotNull(aggregateCubeObject);
+        Assert.IsNotNull(aggregateCubeObject_Side);
 
         Assert.IsNotNull(cube1Stats);
         Assert.IsNotNull(cube2Stats);
@@ -413,6 +412,7 @@ public class GameController : MonoBehaviour
         sideCubes[3] = cube4Object_Side.GetComponent<CubeController>() as CubeController;
         sideCubes[4] = cube5Object_Side.GetComponent<CubeController>() as CubeController;
         aggregateCubeController = aggregateCubeObject.GetComponent<CubeController>() as CubeController;
+        aggregateSideCubeController = aggregateCubeObject_Side.GetComponent<CubeController>() as CubeController;
 
         /* Initialize Side-by-Side Cubes */
         for (int i=0; i<cubes.Length; i++)
@@ -442,6 +442,10 @@ public class GameController : MonoBehaviour
         aggregateCubeController.SetupObjects();
         aggregateCubeController.simulationOn = true;
 
+        Assert.IsNotNull(aggregateSideCubeController);
+        aggregateSideCubeController.SetupObjects();
+        aggregateSideCubeController.simulationOn = true;
+        
         HideCubes(true, -1);
         HideSideCubes();
         SetPaused(true);
@@ -796,11 +800,28 @@ public class GameController : MonoBehaviour
                     aggregateCubeController.ProcessDataTextAsset(cubeDataText, counter);
                     counter++;
                 }
+
                 aggregateCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
                 aggregateCubeController.SetWarmingIdx(warmingIdx);
                 aggregateCubeController.SetWarmingDegrees(warmingDegrees);
                 aggregateCubeController.FindParameterRanges();
                 aggregateCubeController.SetModelDebugMode(debugModel);
+
+                aggregateSideCubeController.SetWarmingRange(warmingRange);
+                aggregateSideCubeController.InitializeData(aggregateCubeDataList.data[idx].list[0]);
+
+                counter = 0;
+                foreach (TextAsset cubeDataText in aggregateCubeDataList.data[idx].list)
+                {
+                    aggregateSideCubeController.ProcessDataTextAsset(cubeDataText, counter);
+                    counter++;
+                }
+
+                aggregateSideCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
+                aggregateSideCubeController.SetWarmingIdx(warmingIdx);
+                aggregateSideCubeController.SetWarmingDegrees(warmingDegrees);
+                aggregateSideCubeController.FindParameterRanges();
+                aggregateSideCubeController.SetModelDebugMode(debugModel);
             }
             else
             {
@@ -2050,6 +2071,8 @@ public class GameController : MonoBehaviour
         {
             sideCubes[i].cubeObject.SetActive(false);
         }
+
+        aggregateSideCubeController.cubeObject.SetActive(false);
     }
     #endregion
 
