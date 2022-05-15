@@ -139,7 +139,7 @@ Material:
     - _Parallax: 0.02
     - _ShadowStrength: 0
     - _SmoothnessTextureChannel: 0
-    - _Snow_Amount: 2.3601322
+    - _Snow_Amount: 1.1062216
     - _SnowremovesAO: 1
     - _Specular: 0
     - _SpecularHighlights: 1

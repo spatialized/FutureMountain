@@ -225,7 +225,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.2569865, g: 0.60121673, b: 0.990566, a: 1}
+      maxColor: {r: 0.2569865, g: 0.60121673, b: 0.990566, a: 0.42745098}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -746,7 +746,7 @@ ParticleSystem:
     m_TextureColorAffectsParticles: 1
     m_TextureAlphaAffectsParticles: 1
     m_TextureBilinearFiltering: 0
-    randomDirectionAmount: 0.1
+    randomDirectionAmount: 0.15
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
@@ -4788,7 +4788,7 @@ ParticleSystemRenderer:
   m_MeshDistribution: 0
   m_SortMode: 0
   m_MinParticleSize: 0
-  m_MaxParticleSize: 0.5
+  m_MaxParticleSize: 0.23
   m_CameraVelocityScale: 0
   m_VelocityScale: 0
   m_LengthScale: 2
@@ -5052,7 +5052,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.66967785, g: 0.840345, b: 0.9528302, a: 1}
+      maxColor: {r: 0.66967785, g: 0.840345, b: 0.9528302, a: 0.6117647}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -5430,14 +5430,14 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 2400
+    maxNumParticles: 2000
     customEmitterVelocity: {x: 0, y: 0, z: 0}
     size3D: 0
     rotation3D: 0
     gravityModifier:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: -0.02
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -5578,7 +5578,7 @@ ParticleSystem:
     randomPositionAmount: 0
     radius:
       value: 2
-      mode: 0
+      mode: 1
       spread: 0
       speed:
         serializedVersion: 2
@@ -7454,7 +7454,7 @@ ParticleSystem:
     inWorldSpace: 0
     multiplyDragByParticleSize: 1
     multiplyDragByParticleVelocity: 1
-    dampen: 0.01
+    dampen: 0.005
     drag:
       serializedVersion: 2
       minMaxState: 0
@@ -8638,7 +8638,7 @@ ParticleSystem:
     - serializedVersion: 3
       emitter: {fileID: 0}
       type: 0
-      properties: 0
+      properties: -1
       emitProbability: 1
   LightsModule:
     enabled: 0
@@ -8758,7 +8758,7 @@ ParticleSystem:
   TrailModule:
     enabled: 1
     mode: 0
-    ratio: 0.88
+    ratio: 0.825
     lifetime:
       serializedVersion: 2
       minMaxState: 0
@@ -8812,8 +8812,8 @@ ParticleSystem:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-    minVertexDistance: 0.2
-    textureMode: 0
+    minVertexDistance: 0.1
+    textureMode: 1
     ribbonCount: 1
     shadowBias: 0.5
     worldSpace: 0
@@ -8890,7 +8890,7 @@ ParticleSystem:
     widthOverTrail:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.33
+      scalar: 0.39
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -8947,9 +8947,9 @@ ParticleSystem:
       maxColor: {r: 0.04004982, g: 0.5611617, b: 0.9433962, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 0.12691349, g: 0.5609339, b: 0.8679245, a: 1}
-        key1: {r: 0.15307939, g: 0.50296724, b: 0.754717, a: 0.22352941}
-        key2: {r: 0, g: 0, b: 0, a: 0}
+        key0: {r: 0.12691349, g: 0.5609339, b: 0.8679245, a: 0.7411765}
+        key1: {r: 0.15307939, g: 0.50296724, b: 0.754717, a: 0.3764706}
+        key2: {r: 0, g: 0, b: 0, a: 0.22352941}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
         key5: {r: 0, g: 0, b: 0, a: 0}
@@ -8964,8 +8964,8 @@ ParticleSystem:
         ctime6: 0
         ctime7: 0
         atime0: 0
-        atime1: 65535
-        atime2: 0
+        atime1: 26600
+        atime2: 65535
         atime3: 0
         atime4: 0
         atime5: 0
@@ -8973,7 +8973,7 @@ ParticleSystem:
         atime7: 0
         m_Mode: 0
         m_NumColorKeys: 2
-        m_NumAlphaKeys: 2
+        m_NumAlphaKeys: 3
       minGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -9617,7 +9617,7 @@ ParticleSystemRenderer:
   m_MeshDistribution: 0
   m_SortMode: 0
   m_MinParticleSize: 0.005
-  m_MaxParticleSize: 0.035
+  m_MaxParticleSize: 0.01
   m_CameraVelocityScale: 0
   m_VelocityScale: 0
   m_LengthScale: 2
@@ -9668,7 +9668,7 @@ PrefabInstance:
     - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
       propertyPath: TrailModule.ratio
-      value: 0.88
+      value: 0.825
       objectReference: {fileID: 0}
     - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
@@ -9677,8 +9677,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
+      propertyPath: TrailModule.shadowBias
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
+        type: 3}
+      propertyPath: ShapeModule.radius.mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
+        type: 3}
+      propertyPath: TrailModule.textureMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
+        type: 3}
       propertyPath: ClampVelocityModule.dampen
-      value: 0.01
+      value: 0.005
       objectReference: {fileID: 0}
     - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
@@ -9692,8 +9707,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
+      propertyPath: TrailModule.sizeAffectsWidth
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
+        type: 3}
       propertyPath: InitialModule.maxNumParticles
-      value: 2400
+      value: 2000
+      objectReference: {fileID: 0}
+    - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
+        type: 3}
+      propertyPath: TrailModule.minVertexDistance
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
@@ -9702,8 +9727,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
+      propertyPath: TrailModule.sizeAffectsLifetime
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
+        type: 3}
+      propertyPath: TrailModule.generateLightingData
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
+        type: 3}
       propertyPath: TrailModule.widthOverTrail.scalar
-      value: 0.33
+      value: 0.39
       objectReference: {fileID: 0}
     - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
@@ -9714,6 +9749,11 @@ PrefabInstance:
         type: 3}
       propertyPath: InitialModule.startLifetime.scalar
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
+        type: 3}
+      propertyPath: InitialModule.startColor.maxColor.a
+      value: 0.6117647
       objectReference: {fileID: 0}
     - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
@@ -9733,7 +9773,7 @@ PrefabInstance:
     - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
       propertyPath: InitialModule.gravityModifier.scalar
-      value: 0
+      value: -0.02
       objectReference: {fileID: 0}
     - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
@@ -9749,6 +9789,21 @@ PrefabInstance:
         type: 3}
       propertyPath: InitialModule.startLifetime.minMaxState
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
+        type: 3}
+      propertyPath: TrailModule.colorOverTrail.maxGradient.atime1
+      value: 26600
+      objectReference: {fileID: 0}
+    - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
+        type: 3}
+      propertyPath: TrailModule.colorOverTrail.maxGradient.atime2
+      value: 65535
+      objectReference: {fileID: 0}
+    - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
+        type: 3}
+      propertyPath: TrailModule.colorOverTrail.maxGradient.key0.a
+      value: 0.7411765
       objectReference: {fileID: 0}
     - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
@@ -9768,7 +9823,7 @@ PrefabInstance:
     - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
       propertyPath: TrailModule.colorOverTrail.maxGradient.key1.a
-      value: 0.22352941
+      value: 0.3764706
       objectReference: {fileID: 0}
     - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
@@ -9785,6 +9840,21 @@ PrefabInstance:
       propertyPath: TrailModule.colorOverTrail.maxGradient.key1.r
       value: 0.15307939
       objectReference: {fileID: 0}
+    - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
+        type: 3}
+      propertyPath: TrailModule.colorOverTrail.maxGradient.key2.a
+      value: 0.22352941
+      objectReference: {fileID: 0}
+    - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
+        type: 3}
+      propertyPath: SubModule.subEmitters.Array.data[0].properties
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 15574640390284430, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
+        type: 3}
+      propertyPath: TrailModule.colorOverTrail.maxGradient.m_NumAlphaKeys
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 444098073717260863, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
       propertyPath: m_Name
@@ -9793,7 +9863,7 @@ PrefabInstance:
     - target: {fileID: 734603506525438445, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}
       propertyPath: m_MaxParticleSize
-      value: 0.035
+      value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 734603506525438445, guid: 7c2c5c75b025dcc48bde2f547baed7f7,
         type: 3}

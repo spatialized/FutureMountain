@@ -57,7 +57,7 @@ public class SoilController : MonoBehaviour {
     public float DepthToGWMin { get; set; }         // Low end of depthToGW data values (set from data)
     public float DepthToGWMax { get; set; }         // High end of depthToGW data values (set from data)
     private float deepSoilTopYPos = 2f;             // Top end of deep soil 
-    private float deepSoilBottomYPos = -15f;        // Bottom end of deep soil 
+    private float deepSoilBottomYPos = -8f;        // Bottom end of deep soil 
     public float maxDeepSoilShininess = 0.7f;      // Max. soil shininess
     public float minDeepSoilShininess = 0.0f;      // Min. soil shininess
  //   public float maxDeepSoilShininess = 0.95f;      // Max. soil shininess
@@ -225,7 +225,7 @@ public class SoilController : MonoBehaviour {
         foreach (Material m in gwMaterials)
         {
             float yPos = gwHeights[count];
-            float gwPos = Mathf.Clamp(MapValue(depthToGW, DepthToGWMin, DepthToGWMax, 0f, 1f), 0f, 1f);      // Normalize groundwater depth level and flip to find g.w. height
+            float gwPos = Mathf.Clamp(MapValue(depthToGW, DepthToGWMin, DepthToGWMax, 0f, 0.75f), 0f, 0.75f);      // Normalize groundwater depth level, leaving room for permannt groundwatr
             float objPos = 1f - Mathf.Clamp(MapValue(yPos, deepSoilBottomYPos, deepSoilTopYPos, 0f, 1f), 0f, 1f);      // Find normalized object y pos
             float diff = gwPos - objPos;        // Calculate difference
             //float diff = objPos - gwPos;        // Calculate difference

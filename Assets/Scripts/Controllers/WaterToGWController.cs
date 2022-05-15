@@ -103,13 +103,12 @@ public class WaterToGWController : MonoBehaviour
             }
             else
             {
-                main.startSpeed = MapValue(timeStep, 1f, 30f, 2f, 10f);
+                main.startSpeed = MapValue(timeStep, 1f, 30f, 2f, 15f);
                 main.startLifetime = 2.2f - MapValue(timeStep, 1f, 30f, 0.2f, 2f);
                 emission.rateOverTime = MapValue(snowValue, 0f, 1f, 1f, maxEmissionRate);
-                spsMain.startSpeed = MapValue(timeStep, 1f, 30f, 2f, 10f);
+                spsMain.startSpeed = MapValue(timeStep, 1f, 30f, 2f, 15f);
                 spsMain.startLifetime = 2.2f - MapValue(timeStep, 1f, 30f, 0.2f, 2f);
                 trails.lifetime = 0.525f - MapValue(timeStep, 1f, 30f, 0.025f, 0.5f);
-                //spsEmission.rateOverTime = MapValue(snowValue, 0f, 1f, 1f, maxEmissionRate);
             }
         }
         else
@@ -140,7 +139,6 @@ public class WaterToGWController : MonoBehaviour
                 spsMain.startSpeed = MapValue(timeStep, 1f, 30f, 2f, 15f);
                 spsMain.startLifetime = 2.2f - MapValue(timeStep, 1f, 30f, 0.2f, 2f);
                 trails.lifetime = 0.525f - MapValue(timeStep, 1f, 30f, 0.025f, 0.5f);
-                //spsEmission.rateOverTime = MapValue(snowValue, 0f, 1f, 1f, maxEmissionRate);
             }
         }
     }

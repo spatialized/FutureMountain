@@ -1379,6 +1379,21 @@ public class GameController : MonoBehaviour
             }
         }
 
+        if(timeStep > 7)
+        {
+            UpdateETSpeed();
+        }
+        else if(timeStep % 2 == 1)
+        {
+            if(timeIdx % 3 == 0)
+                UpdateETSpeed();
+        }
+        else
+        {
+            if (timeIdx % 4 == 0)
+                UpdateETSpeed();
+        }
+
         bool fireBurning = FireBurning();
         if (!fireBurning)
             pausedAuto = false;
@@ -1524,6 +1539,16 @@ public class GameController : MonoBehaviour
     {
         timeStep = newTimeStep;
 
+        UpdateETSpeed();
+
+        if (updateSlider)
+        {
+            timeKnobSlider.SetValue(timeStep);
+        }
+    }
+
+    private void UpdateETSpeed()
+    {
         foreach (CubeController cube in cubes)
         {
             if (cube.simulationOn)
@@ -1544,11 +1569,6 @@ public class GameController : MonoBehaviour
             aggregateCubeController.UpdateETSpeed(timeStep);
         if (aggregateSideCubeController.simulationOn)
             aggregateSideCubeController.UpdateETSpeed(timeStep);
-
-        if (updateSlider)
-        {
-            timeKnobSlider.SetValue(timeStep);
-        }
     }
 
     /// <summary>
@@ -1634,21 +1654,13 @@ public class GameController : MonoBehaviour
     }
 
     /// <summary>
-    /// Shows the UI controls.
+    /// Shows/hides the UI controls.
     /// </summary>
     public void ShowControls(bool value)
     {
         simulationUICanvas.enabled = value;
         simulationUICanvas.gameObject.SetActive(value);
     }
-
-    /// <summary>
-    /// Hides the UI controls.
-    /// </summary>
-    //public void HideControls()
-    //{
-    //    simulationUICanvas.enabled = false;
-    //}
 
     /// <summary>
     /// Shows the data panel.
