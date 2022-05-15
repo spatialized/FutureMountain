@@ -14,21 +14,21 @@ public class SoilController : MonoBehaviour {
 	public bool particlesEnabled = false;   // Particles enabled   
     private ParticleSystem evapParticles;   // Vapor particle system
 
-	/* Graphics */
-	private Renderer frontSoilRend;         // Renderer for front soil plane
-    private Material frontSoilMaterial;     // Soil material for front plane
+    /* Graphics */
+    public Renderer frontSoilRend;         // Renderer for front soil plane
+    public Material frontSoilMaterial;     // Soil material for front plane
     private Renderer sideRSoilRend;         // Renderer for (right) side plane
     private Material sideRSoilMaterial;		// Soil material for (right) side plane
 
-    private List<Renderer> ssRenderers;
-    private List<Material> ssMaterials;
-    private List<Renderer> gwRenderers;
-    private List<Material> gwMaterials;
+    public List<Renderer> ssRenderers;
+    public List<Material> ssMaterials;
+    public List<Renderer> gwRenderers;
+    public List<Material> gwMaterials;
     private List<float> gwHeights;
 
     /* Color */
     private Vector4 gwWet = new Vector4(0.6f, 0.75f, 0.6f, 0.5f);           // H S V A
-    private Vector4 gwDry = new Vector4(1f, 0.404f, 0.426f, 0.583f);
+    private Vector4 gwDry = new Vector4(1f, 0.404f, 0.416f, 1f);
     //private Vector4 gwDry = new Vector4(0.583f, 0.404f, 0.426f, 1f);
 
     private Color gwDryColor;             // Groundwater wet color
@@ -36,7 +36,7 @@ public class SoilController : MonoBehaviour {
 	private float gwHue;
 	private float gwSaturation;
 	private float gwBrightness;
-	private bool gwWetState = true;       // -- OBSOLETE     
+	//private bool gwWetState = true;       // -- OBSOLETE     
 
 	private float gwColorTransitionLength = 1f;
 	private float gwColorTransitionStart;
@@ -58,11 +58,11 @@ public class SoilController : MonoBehaviour {
     public float DepthToGWMax { get; set; }         // High end of depthToGW data values (set from data)
     private float deepSoilTopYPos = 2f;             // Top end of deep soil 
     private float deepSoilBottomYPos = -15f;        // Bottom end of deep soil 
-    public float maxDeepSoilShininess = 0.65f;      // Max. soil shininess
+    public float maxDeepSoilShininess = 0.7f;      // Max. soil shininess
     public float minDeepSoilShininess = 0.0f;      // Min. soil shininess
  //   public float maxDeepSoilShininess = 0.95f;      // Max. soil shininess
  //   public float minDeepSoilShininess = 0.33f;      // Min. soil shininess
-    public float maxShallowSoilShininess = 0.8f;    // Max. soil shininess
+    public float maxShallowSoilShininess = 0.9f;    // Max. soil shininess
     public float minShallowSoilShininess = 0.33f;   // Min. soil shininess
 
     /// <summary>
@@ -77,6 +77,8 @@ public class SoilController : MonoBehaviour {
         Assert.IsNotNull(frontSoilRend);
 
         frontSoilMaterial = frontSoilRend.materials[0];         
+        Assert.IsNotNull(frontSoilMaterial);
+
 //		frontSoilMaterial.SetFloat("_Metallic", metallicAmount);    	// -- ADDED
 //		GameObject sideL = transform.Find("SidePlaneL").gameObject;		// Left side soil (X)
 //		sideLSoilRend = front.GetComponent<Renderer>();
@@ -223,8 +225,8 @@ public class SoilController : MonoBehaviour {
         foreach (Material m in gwMaterials)
         {
             float yPos = gwHeights[count];
-            float gwPos = 1f - Mathf.Clamp(MapValue(depthToGW, DepthToGWMin, DepthToGWMax, 0f, 1f), 0f, 1f);      // Normalize groundwater depth level and flip to find g.w. height
-            float objPos = Mathf.Clamp(MapValue(yPos, deepSoilBottomYPos, deepSoilTopYPos, 0f, 1f), 0f, 1f);      // Find normalized object y pos
+            float gwPos = Mathf.Clamp(MapValue(depthToGW, DepthToGWMin, DepthToGWMax, 0f, 1f), 0f, 1f);      // Normalize groundwater depth level and flip to find g.w. height
+            float objPos = 1f - Mathf.Clamp(MapValue(yPos, deepSoilBottomYPos, deepSoilTopYPos, 0f, 1f), 0f, 1f);      // Find normalized object y pos
             float diff = gwPos - objPos;        // Calculate difference
             //float diff = objPos - gwPos;        // Calculate difference
 
@@ -252,55 +254,55 @@ public class SoilController : MonoBehaviour {
     /// <summary>
     /// Updates the GWC olor transition.
     /// </summary>
-    private void UpdateGWColorTransition()
-    {
-        float t = Time.time - gwColorTransitionStart;
+    //private void UpdateGWColorTransition()
+    //{
+    //    float t = Time.time - gwColorTransitionStart;
 
-        if (debug) 
-            Debug.Log(gameObject.name + " SoilController.UpdateGWColorTransition()..." + " gwColorTransitionLength: " + gwColorTransitionLength + " t: " + t + " waterAccess: " + waterAccess + " depthToGW:" + depthToGW);
+    //    if (debug) 
+    //        Debug.Log(gameObject.name + " SoilController.UpdateGWColorTransition()..." + " gwColorTransitionLength: " + gwColorTransitionLength + " t: " + t + " waterAccess: " + waterAccess + " depthToGW:" + depthToGW);
 
-        if (!gwWetState)
-        {                                     // Moving from wet to dry
-            if (t < gwColorTransitionLength)
-            {
-                foreach (Material m in gwMaterials)
-                {
-                    m.color = Color.Lerp(gwDryColor, gwWetColor, t);
-                }
-            }
-            else
-            {
-                foreach (Material m in gwMaterials)
-                {
-                    m.color = gwWetColor;
-                }
+    //    if (!gwWetState)
+    //    {                                     // Moving from wet to dry
+    //        if (t < gwColorTransitionLength)
+    //        {
+    //            foreach (Material m in gwMaterials)
+    //            {
+    //                m.color = Color.Lerp(gwDryColor, gwWetColor, t);
+    //            }
+    //        }
+    //        else
+    //        {
+    //            foreach (Material m in gwMaterials)
+    //            {
+    //                m.color = gwWetColor;
+    //            }
 
-                gwWetState = true;
-                gwColorTransition = false;
-            }
-        }
-        else
-        {                                           // Moving from dry to wet 
-            if (t < gwColorTransitionLength)
-            {
-                foreach (Material m in gwMaterials)
-                {
-                    m.color = Color.Lerp(gwWetColor, gwDryColor, t);
-                }
-            }
-            else
-            {
-                foreach (Material m in gwMaterials)
-                {
-                    if(debug) Debug.Log(">>   gwColorTransition dry to wet finished... m.color? " + m.color);
+    //            gwWetState = true;
+    //            gwColorTransition = false;
+    //        }
+    //    }
+    //    else
+    //    {                                           // Moving from dry to wet 
+    //        if (t < gwColorTransitionLength)
+    //        {
+    //            foreach (Material m in gwMaterials)
+    //            {
+    //                m.color = Color.Lerp(gwWetColor, gwDryColor, t);
+    //            }
+    //        }
+    //        else
+    //        {
+    //            foreach (Material m in gwMaterials)
+    //            {
+    //                if(debug) Debug.Log(">>   gwColorTransition dry to wet finished... m.color? " + m.color);
 
-                    m.color = gwDryColor;
-                }
-                gwWetState = false;
-                gwColorTransition = false;
-            }
-        }
-    }
+    //                m.color = gwDryColor;
+    //            }
+    //            gwWetState = false;
+    //            gwColorTransition = false;
+    //        }
+    //    }
+    //}
 
     /// <summary>
     /// Set initial simulation values

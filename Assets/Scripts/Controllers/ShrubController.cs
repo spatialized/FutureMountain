@@ -35,6 +35,7 @@ public class ShrubController : MonoBehaviour
             return;
         }
 
-        mainModule.simulationSpeed = newSpeed;
+        ParticleSystem.MainModule main = pSystem.main;
+        main.simulationSpeed = newSpeed;
     }
 }

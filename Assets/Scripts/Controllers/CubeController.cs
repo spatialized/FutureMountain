@@ -56,8 +56,10 @@ public class CubeController : MonoBehaviour
     private GameObject etPrefab;                 // ET emitter prefab
     private GameObject shrubETPrefab;            // Shrub ET emitter
 
-    [Header("Roots")]
+    [Header("Roots + Soil")]
     public List<GameObject> rootsPrefabs;        // Root prefabs (least grown to full-grown) 
+    private GameObject rainToGWPrefab;           // Prefab for particle system of rain seeping into ground
+    private WaterToGWController precipToGWController;
 
     /* Animation */
     [Header("Animation")]
@@ -388,6 +390,8 @@ public class CubeController : MonoBehaviour
         timeIdx = startTimeIdx;
         timeStep = curTimeStep;
 
+        cubeObject.SetActive(true);
+
         UpdateCurrentData(timeIdx);                                         // Initial update of data parameters
         soilController.UpdateParams(timeStep, WaterAccess, DepthToGW);      // Initial update of soil parameters
         snowManager.snowValue = Mathf.Clamp(MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, 0f, snowScalingFactor), 0f, snowScalingFactor);
@@ -501,6 +505,12 @@ public class CubeController : MonoBehaviour
         Assert.IsNotNull(cubeSoil);
         soilController = cubeSoil.GetComponent<SoilController>() as SoilController; // Get soil controller
         Assert.IsNotNull(soilController);
+
+        rainToGWPrefab = soilController.transform.Find("RainToGW_Prefab").gameObject;
+        Assert.IsNotNull(rainToGWPrefab);
+        rainToGWPrefab.SetActive(false);
+        precipToGWController = rainToGWPrefab.GetComponent<WaterToGWController>();
+        Assert.IsNotNull(precipToGWController);
 
         cubeLabel = transform.Find("CubeLabel").gameObject;              // Get (cube) base object
         Assert.IsNotNull(cubeLabel);
@@ -1082,8 +1092,13 @@ public class CubeController : MonoBehaviour
                     firs[i].UpdateSimulation(timeIdx, curTimeStep, NetTranspiration, LeafCarbonOver, StemCarbonOver, RootsCarbonOver);
             }
 
-            if (soilController != null)
+            if (soilController != null && cubeObject.activeInHierarchy)
                 soilController.UpdateSimulation(timeIdx, curTimeStep, WaterAccess, DepthToGW);
+            else
+            {
+                if (gameObject.activeInHierarchy && !cubeObject.activeInHierarchy)
+                    Debug.Log(name + " ERROR... cubeObject is inactive, cannot update simulation...");
+            }
 
             if (snowValue > 0.0001f)                                                         
                 snowValue = Mathf.Clamp(snowValue - snowMeltRate * Mathf.Sqrt(timeStep), 0f, 100000f);      // Melt snow
@@ -1110,8 +1125,8 @@ public class CubeController : MonoBehaviour
                     float val = Mathf.Clamp(MapValue(amount, SnowAmountMin, SnowAmountMax, snowValueMin, snowValueMax), snowValueMin, snowValueMax);
                     combinedSnow += val;
 
-                    if (transform.name.Contains("CubeB"))
-                        Debug.Log(transform.name + " Snow... val:" + val + " combinedSnow:" + combinedSnow);
+                    //if (transform.name.Contains("CubeB"))
+                    //    Debug.Log(transform.name + " Snow... val:" + val + " combinedSnow:" + combinedSnow);
                     //Debug.Log(transform.name + " GetCurrentData... amount:" + amount);
                     //Debug.Log(transform.name + " GetCurrentData... snowValueMin:" + snowValueMin + "  snowValueMax:" + snowValueMax);
                     //Debug.Log(transform.name + " GetCurrentData... SnowAmountMin:" + SnowAmountMin + "  SnowAmountMax:" + SnowAmountMax);
@@ -1165,6 +1180,22 @@ public class CubeController : MonoBehaviour
                 if (debugCubes && debugDetailed)
                     Debug.Log("UpdateSimulation()... Invalid time index!  timeIdx: " + timeIdx);
             }
+
+        if(snowValue > 0)
+            UpdatePrecipToGW(snowValue);
+    }
+
+    /// <summary>
+    /// Update precipitation to groundwater animation
+    /// </summary>
+    public void UpdatePrecipToGW(float snowValue)
+    {
+        if(snowValue > 0)
+        {
+            if (!rainToGWPrefab.activeSelf)
+                rainToGWPrefab.SetActive(true);
+        }
+        precipToGWController.UpdatePrecipitation(snowValue);
     }
 
     /// <summary>

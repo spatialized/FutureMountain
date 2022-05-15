@@ -445,7 +445,8 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(aggregateSideCubeController);
         aggregateSideCubeController.SetupObjects();
         aggregateSideCubeController.simulationOn = true;
-        
+        aggregateSideCubeController.gameObject.SetActive(false);
+
         HideCubes(true, -1);
         HideSideCubes();
         SetPaused(true);
@@ -1718,6 +1719,11 @@ public class GameController : MonoBehaviour
         landscapeController.ResetBurntState();
         landscapeController.UpdateLandscape(timeIdx, GetCurrentYear(), GetCurrentMonth(), GetCurrentDayInMonth(), timeStep, pausedAuto);
     }
+    
+    public int GetTimeIdx()
+    {
+        return timeIdx;
+    }
 
     /// <summary>
     /// Gets time index associated with given day, month and year.
@@ -2294,6 +2300,11 @@ public class GameController : MonoBehaviour
             return true;
         else
             return false;
+    }
+
+    public int GetTimeStep()
+    {
+        return timeStep;
     }
 
     #endregion
