@@ -1617,7 +1617,9 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void ShowControls(bool value)
     {
-        simulationUICanvas.enabled = value;         // TO DO: Not working
+        Debug.Log("ShowControls()... value: " + value);
+        simulationUICanvas.enabled = value;
+        simulationUICanvas.gameObject.SetActive(value);
     }
 
     /// <summary>
