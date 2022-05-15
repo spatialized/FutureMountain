@@ -43,6 +43,7 @@ public class CubeController : MonoBehaviour
     /* Objects */
     public GameObject cubeObject { get; set; }               // Cube base containing all cube parts (except glass)
     public GameObject cubeLabel { get; set; }                // Cube label
+    private List<ParticleSystem.EmissionModule> emissions;                // List of all ET emitting objects in cube
 
     /* Vegetation Prefabs */
     [Header("Vegetation Prefabs")]
@@ -621,6 +622,8 @@ public class CubeController : MonoBehaviour
         fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true);
 
         HideStatistics();
+        emissions = new List<ParticleSystem.EmissionModule>();
+        UpdateETList();
 
         firstRun = false;
         //Debug.Log(name+".Initialize()... firePrefab == null? " + (firePrefab == null));
@@ -632,9 +635,14 @@ public class CubeController : MonoBehaviour
     /// <param name="sideBySideStatsPanel">Statistics panel to use for cube</param>
     public void EnterSideBySide(GameObject sideBySideStatsPanel)
     {
-        Debug.Log(transform.name+".EnterSideBySide()... Cube Name: " + name);
+        if(settings.DebugGame)
+            Debug.Log(transform.name+".EnterSideBySide()... Cube Name: " + name);
 
         SetupStatisticsPanel(sideBySideStatsPanel);
+        //if (GameController.Instance.DisplayModel())
+        //    ShowStatistics();
+        //else
+        //    HideStatistics();
 
         if(isSideCube)
             cubeObject.SetActive(true);
@@ -860,6 +868,40 @@ public class CubeController : MonoBehaviour
     }
 
     /// <summary>
+    /// Update list of ET emitting objects in cube
+    /// </summary>
+    private void UpdateETList()
+    {
+        GameObject[] etList = GameObject.FindGameObjectsWithTag("ET");                  // -- Optimize?
+
+        //Debug.Log("Found "+ etList.Length +" objects tagged 'ET'...");
+
+        foreach (GameObject et in etList)
+        {
+            ParticleSystem ps = et.GetComponent<ParticleSystem>() as ParticleSystem;
+
+            if (ps)
+            {
+                ParticleSystem.EmissionModule em = ps.emission;
+                emissions.Add(em);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Sets whether ET particles are displayed or not
+    /// </summary>
+    /// <param name="newState"></param>
+    public void SetDisplayET(bool newState)
+    {
+        for (int i=0; i<emissions.Count; i++)
+        {
+            ParticleSystem.EmissionModule em = emissions[i];
+            em.enabled = newState;
+        }
+    }
+
+    /// <summary>
     /// Initializes cube data arrays from data file.
     /// </summary>
     /// <param name="dataFile">Data file.</param>
@@ -908,7 +950,7 @@ public class CubeController : MonoBehaviour
     /// Update ET based on time step
     /// </summary>
     /// <param name="timeStep"></param>
-    public void UpdateET(int timeStep)
+    public void UpdateETSpeed(int timeStep)
     {
         if (!simulationOn)
             return;
@@ -1094,11 +1136,11 @@ public class CubeController : MonoBehaviour
 
             if (soilController != null && cubeObject.activeInHierarchy)
                 soilController.UpdateSimulation(timeIdx, curTimeStep, WaterAccess, DepthToGW);
-            else
-            {
-                if (gameObject.activeInHierarchy && !cubeObject.activeInHierarchy)
-                    Debug.Log(name + " ERROR... cubeObject is inactive, cannot update simulation...");
-            }
+            //else if(!GameController.Instance.sideBySideMode)
+            //{
+            //    if (gameObject.activeInHierarchy && !cubeObject.activeInHierarchy)
+            //        Debug.Log(name + " ERROR... cubeObject is inactive, cannot update simulation...");
+            //}
 
             if (snowValue > 0.0001f)                                                         
                 snowValue = Mathf.Clamp(snowValue - snowMeltRate * Mathf.Sqrt(timeStep), 0f, 100000f);      // Melt snow
@@ -1675,6 +1717,8 @@ public class CubeController : MonoBehaviour
 
         lastFirGrownTimeIdx = timeIdx;
 
+        UpdateETList();
+
         return grown;
     }
 
@@ -1803,6 +1847,8 @@ public class CubeController : MonoBehaviour
 
         shrubController.InitializeShrub(GetShrubRenderer(newShrubObj), newShrubObj.GetComponentInChildren<ParticleSystem>());
 
+        UpdateETList();
+
         if (debugDetailed && debugShrubs)
             Debug.Log(transform.parent.name + " Shrub... Instantiated:" + newShrubObj.name + " at localPosition:" + newShrubObj.transform.localPosition);
     }
@@ -1852,6 +1898,8 @@ public class CubeController : MonoBehaviour
 
         firsToKill = 0;
         lastKilledTreeFrame = timeIdx;
+
+        UpdateETList();
     }
 
     /// <summary>
@@ -1885,6 +1933,8 @@ public class CubeController : MonoBehaviour
         }
 
         shrubsToKill = 0;
+
+        UpdateETList();
     }
 
     /// <summary>
@@ -2073,6 +2123,7 @@ public class CubeController : MonoBehaviour
             lastKilledTreeFrame = timeIdx;
             firsToKill--;
 
+            UpdateETList();
             return true;
         }
         else
@@ -2080,6 +2131,7 @@ public class CubeController : MonoBehaviour
             Debug.Log(transform.name + ".KillAFir()...  Can't kill a fir... no firs are alive.");
             return false;
         }
+
     }
 
     /// <summary>

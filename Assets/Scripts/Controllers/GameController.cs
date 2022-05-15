@@ -127,7 +127,7 @@ public class GameController : MonoBehaviour
 
     /* Simulation */
     public bool sideBySideMode = false;                      // Side-by-Side mode flag
-    public int sideBySideIdx = -1;                            // Side-by-Side cube index
+    public int sbsIdx = -1;                            // Side-by-Side cube index
 
     private bool displaySeasons = true;                       // Display seasons flag
     private int simulationStartYear, simulationEndYear;       // Start + end year
@@ -444,7 +444,6 @@ public class GameController : MonoBehaviour
 
         Assert.IsNotNull(aggregateSideCubeController);
         aggregateSideCubeController.SetupObjects();
-        aggregateSideCubeController.simulationOn = true;
         aggregateSideCubeController.gameObject.SetActive(false);
 
         HideCubes(true, -1);
@@ -1043,10 +1042,15 @@ public class GameController : MonoBehaviour
 
     public void EnterSideBySideMode(int idx)
     {
+        if(idx == -1)
+        {
+            // TO DO: Aggregeate Cube
+        }
+
         if (idx < 0 || idx > 4)
             return;
 
-        sideBySideIdx = idx;
+        sbsIdx = idx;
 
         HideCubes(false, idx);
 
@@ -1067,15 +1071,20 @@ public class GameController : MonoBehaviour
         warmingKnob2Object.SetActive(true);
         warmingKnob2Slider.enabled = true;
         warmingKnobObject.SetActive(false);
-        //warmingKnobSlider.enabled = false;
 
         exitSideBySideButtonObject.SetActive(true);
 
-        cube1Stats.SetActive(true);
-        cube2Stats.SetActive(true);
-
-        //cameraController.StartZoomIntoCube(idx);
-
+        if (displayModel)
+        {
+            cube1Stats.SetActive(true);
+            cube2Stats.SetActive(true);
+        }
+        else
+        {
+            cube1Stats.SetActive(false);
+            cube2Stats.SetActive(false);
+        }
+        
         sideBySideCanvas.enabled = true;
         sideBySideMode = true;
         sideBySideModeToggleObject.GetComponent<Toggle>().isOn = false;
@@ -1085,10 +1094,9 @@ public class GameController : MonoBehaviour
     /// Enter Side-by-Side Mode
     /// </summary>
     /// <param name="idx">Cube index to show in Side-by-Side Mode</param>
-
     public void ExitSideBySideMode()
     {
-        CubeController sideCube = sideCubes[sideBySideIdx];
+        CubeController sideCube = sideCubes[sbsIdx];
         sideCube.gameObject.SetActive(true);
         sideCube.StopSimulation();
 
@@ -1520,9 +1528,22 @@ public class GameController : MonoBehaviour
         {
             if (cube.simulationOn)
             {
-                cube.UpdateET(timeStep);
+                cube.UpdateETSpeed(timeStep);
             }
         }
+
+        foreach (CubeController cube in sideCubes)
+        {
+            if (cube.simulationOn)
+            {
+                cube.UpdateETSpeed(timeStep);
+            }
+        }
+
+        if (aggregateCubeController.simulationOn)
+            aggregateCubeController.UpdateETSpeed(timeStep);
+        if (aggregateSideCubeController.simulationOn)
+            aggregateSideCubeController.UpdateETSpeed(timeStep);
 
         if (updateSlider)
         {
@@ -1617,7 +1638,6 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void ShowControls(bool value)
     {
-        Debug.Log("ShowControls()... value: " + value);
         simulationUICanvas.enabled = value;
         simulationUICanvas.gameObject.SetActive(value);
     }
@@ -1891,10 +1911,37 @@ public class GameController : MonoBehaviour
             if (cube.simulationOn)
             {
                 if (paused)
-                    cube.UpdateET(0);
+                    cube.UpdateETSpeed(0);
                 else
-                    cube.UpdateET(timeStep);
+                    cube.UpdateETSpeed(timeStep);
             }
+        }
+
+        if (aggregateCubeController.simulationOn)
+        {
+            if (paused)
+                aggregateCubeController.UpdateETSpeed(0);
+            else
+                aggregateCubeController.UpdateETSpeed(timeStep);
+        }
+
+        foreach (CubeController cube in sideCubes)
+        {
+            if (cube.simulationOn)
+            {
+                if (paused)
+                    cube.UpdateETSpeed(0);
+                else
+                    cube.UpdateETSpeed(timeStep);
+            }
+        }
+
+        if (aggregateSideCubeController.simulationOn)
+        {
+            if (paused)
+                aggregateCubeController.UpdateETSpeed(0);
+            else
+                aggregateCubeController.UpdateETSpeed(timeStep);
         }
 
         uiTimelineObject.SetActive(!newState);
@@ -1907,13 +1954,17 @@ public class GameController : MonoBehaviour
     public void SetDisplayET(bool newState)
     {
         displayET = newState;
-        GameObject[] etList = GameObject.FindGameObjectsWithTag("ET");                  // -- Optimize?
-        foreach (GameObject et in etList)
+        foreach(CubeController cube in cubes)
         {
-            ParticleSystem ps = et.GetComponent<ParticleSystem>() as ParticleSystem;
-            ParticleSystem.EmissionModule em = ps.emission;
-            em.enabled = displayET;
+            cube.SetDisplayET(newState);
         }
+        foreach (CubeController cube in sideCubes)
+        {
+            cube.SetDisplayET(newState);
+        }
+        
+        aggregateCubeController.SetDisplayET(newState);
+        aggregateSideCubeController.SetDisplayET(newState);
     }
 
     /// <summary>
@@ -1923,13 +1974,8 @@ public class GameController : MonoBehaviour
     {
         Toggle toggle = toggleObject.GetComponent<Toggle>();
         bool state = toggle.isOn;
-
         showControls = state;
-
-        //if (showControls)
-            ShowControls(showControls);
-        //else
-        //    HideControls();
+        ShowControls(showControls);
     }
 
     /// <summary>
@@ -1946,6 +1992,15 @@ public class GameController : MonoBehaviour
             ShowStatistics();
         else
             HideData();
+    }
+
+    /// <summary>
+    /// Returns whether model (graphs) is currently displayed
+    /// </summary>
+    /// <returns></returns>
+    public bool DisplayModel()
+    {
+        return displayModel;
     }
 
     /// <summary>
@@ -2170,6 +2225,7 @@ public class GameController : MonoBehaviour
     private void ResetCubes()
     {
         aggregateCubeController.ResetCube();
+        aggregateSideCubeController.ResetCube();
         foreach (CubeController cube in cubes)
         {
             cube.ResetCube();
@@ -2180,32 +2236,36 @@ public class GameController : MonoBehaviour
         }
     }
 
-    // -- TO DO: Generalize this
+    /// <summary>
+    /// Sets Side-By-Side Warming Level for Original (Left) or Compared (Right) Cube
+    /// </summary>
+    /// <param name="newIdx"></param>
+    /// <param name="newDegrees"></param>
+    /// <param name="isComparedCube"></param>
     public void SetSBSWarmingLevel(int newIdx, int newDegrees, bool isComparedCube)
     {
-        //Debug.Log("SetSBSWarmingLevel()... newIdx: " + newIdx+" newDegrees:"+newDegrees);
+        if(settings.DebugGame)
+            Debug.Log("SetSBSWarmingLevel()... newIdx: " + newIdx + " newDegrees:" + newDegrees);
 
         if (isComparedCube)
         {
-            if (newIdx == sideCubes[4].GetWarmingIdx())
+            if (newIdx == sideCubes[sbsIdx].GetWarmingIdx())
                 return;
 
-            sideCubes[4].ResetCube();
-            sideCubes[4].SetWarmingIdx(newIdx);
-            sideCubes[4].SetWarmingDegrees(newDegrees);
-            //sideCubes[4].FindParameterRanges();
-            sideCubes[4].StartSimulation(timeIdx, timeStep);
+            sideCubes[sbsIdx].ResetCube();
+            sideCubes[sbsIdx].SetWarmingIdx(newIdx);
+            sideCubes[sbsIdx].SetWarmingDegrees(newDegrees);
+            sideCubes[sbsIdx].StartSimulation(timeIdx, timeStep);
         }
         else
         {
-            if (newIdx == cubes[4].GetWarmingIdx())
+            if (newIdx == cubes[sbsIdx].GetWarmingIdx())
                 return;
 
-            cubes[4].ResetCube();
-            cubes[4].SetWarmingIdx(newIdx);
-            cubes[4].SetWarmingDegrees(newDegrees);
-            //cubes[4].FindParameterRanges();
-            cubes[4].StartSimulation(timeIdx, timeStep);
+            cubes[sbsIdx].ResetCube();
+            cubes[sbsIdx].SetWarmingIdx(newIdx);
+            cubes[sbsIdx].SetWarmingDegrees(newDegrees);
+            cubes[sbsIdx].StartSimulation(timeIdx, timeStep);
         }
     }
 
@@ -2268,8 +2328,10 @@ public class GameController : MonoBehaviour
 
         if (aggregateCubeController.IsBurning())
             return true;
+        if (aggregateSideCubeController.IsBurning())
+            return true;
 
-        if(landscapeController.IsBurning())
+        if (landscapeController.IsBurning())
             return true;
 
         return false;
@@ -2298,7 +2360,7 @@ public class GameController : MonoBehaviour
             }
         }
 
-        if (aggregateCubeController.animating)
+        if (aggregateCubeController.animating || aggregateSideCubeController.animating)
             return true;
         else
             return false;
