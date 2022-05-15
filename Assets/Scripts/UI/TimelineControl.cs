@@ -30,18 +30,19 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     //EventSystem eventSystem;
 
     private int resolution;
-    private static float widthFactor = 0.55f;                           // Timeline width factor
-    private static float yOffset = 40f;                 // Timeline y offset
-    private float dateYOffset = yOffset * 0.45f;                       // Offset of date text from bottom of screen
+    private static float widthFactor = 0.5f;                        // Timeline width factor
+    private static float xOffset = 430f;                            // Timeline x offset
+    private static float yOffset = 40f;                             // Timeline y offset
+    private float dateYOffset = yOffset * 0.45f;                    // Offset of date text from bottom of screen
     private float fireYOffset = yOffset * 4f;                       // Offset of event icons from bottom of screen
-    private float messageYOffset = yOffset * 2.95f;                       // Offset of event icons from bottom of screen
+    private float messageYOffset = yOffset * 2.95f;                 // Offset of event icons from bottom of screen
 
     /* Text */
-    private GameObject uiTimelineDateTextObject;                     // UI Date Text Object
-    private Text uiTimelineDateTextField;                     // UI Date Text Object
+    private GameObject uiTimelineDateTextObject;                    // UI Date Text Object
+    private Text uiTimelineDateTextField;                           // UI Date Text Object
 
     /* Time */
-    private int simulationYear = -1;                         // Current year in simulation
+    private int simulationYear = -1;                                // Current year in simulation
     private int startYear = -1;
     private GameObject[] points;
 
@@ -353,8 +354,6 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         fireIcons = new List<GameObject>();
         messageIcons = new List<GameObject>();
 
-        float xOffset = 444;
-
         Vector3 scale = new Vector3(1f, 0f, 1f);
         //Vector3 scale = new Vector3(barWidthScale, 0f, 1f);
 
@@ -386,8 +385,8 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             image.color = defaultColor;
 
             position = pt.position;
-            float step = Screen.width * widthFactor / resolution / 1.1f;           // Temp. hack
-            position.x = (i + 0.5f) * step - 1f + xOffset + 75;
+            float step = Screen.width * widthFactor / resolution;       
+            position.x = (i + 0.5f) * step - 1f + xOffset;
 
             position.y = fireYOffset;
 
@@ -444,7 +443,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
         //float xOffset = (Screen.width - Screen.width * widthFactor) / 2f;
         //float xOffset = (1280 - 1280 * widthFactor) / 2f;
-        float xOffset = 444;
+        //float xOffset = 400;
 
         for (int i = 0; i < resolution; i++)
         {
@@ -471,9 +470,8 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
             position = pt.position;
 
-            float step = Screen.width * widthFactor / resolution / 1.1f;           // Temp. hack
-            //float step = Screen.width * widthFactor / resolution / 1.1f;           // Temp. hack
-            position.x = (i + 0.5f) * step - 1f + xOffset + 75;
+            float step = Screen.width * widthFactor / resolution;       
+            position.x = (i + 0.5f) * step - 1f + xOffset;
 
             position.y = fireYOffset;
 

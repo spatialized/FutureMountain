@@ -1454,8 +1454,11 @@ public class GameController : MonoBehaviour
 
             if (landscapeController.LandscapeSimulationIsOn())
             {
-                foreach (CubeController cube in cubes)
+                for (int i=0; i<cubes.Length; i++)
                 {
+                    CubeController cube = cubes[i];
+                    CubeController sideCube = sideCubes[i];
+
                     if (cube.simulationOn)
                     {
                         if (usePatchIDsForFire)                                  // Currently OFF since using unsynced simulation data
@@ -1467,6 +1470,7 @@ public class GameController : MonoBehaviour
                                     Debug.Log(name + ".Igniting fire at patchID:" + cube.patchID + " name:" + cube.name + " patchIDsToBurn.Count:" + patchIDsToBurn.Count);
 
                                 cube.IgniteTerrain(fireTimeIdx, false);
+                                sideCube.IgniteTerrain(fireTimeIdx, false);
                             }
                             else
                             {
@@ -1479,15 +1483,23 @@ public class GameController : MonoBehaviour
                             if (debugFire)
                                 Debug.Log(cube.name + ".ShouldBurnFireAtDate()? " + cube.ShouldBurnFireOnDate(date) + " date:" + date);
                             if (cube.ShouldBurnFireOnDate(date))                // Only burn cube if in (manual) list of cubes to burn for fire
+                            {
                                 cube.IgniteTerrain(fireTimeIdx, false);
+
+                                if (sideCube.simulationOn)
+                                    sideCube.IgniteTerrain(fireTimeIdx, false);
+                            }
                         }
                     }
                 }
             }
             else
             {
-                foreach (CubeController cube in cubes)
+                for (int i = 0; i < cubes.Length; i++)
                 {
+                    CubeController cube = cubes[i];
+                    CubeController sideCube = sideCubes[i];
+
                     if (cube.simulationOn)
                     {
                         if (usePatchIDsForFire)
@@ -1498,15 +1510,24 @@ public class GameController : MonoBehaviour
                         {
                             if (debugGame)
                                 Debug.Log(cube.name + ".ShouldBurnFireAtDate()? " + cube.ShouldBurnFireOnDate(date) + " date:" + date);
-                            if (cube.ShouldBurnFireOnDate(date))
+                            if (cube.ShouldBurnFireOnDate(date))                // Only burn cube if in (manual) list of cubes to burn for fire
+                            {
                                 cube.IgniteTerrain(fireTimeIdx, false);
+
+                                if (sideCube.simulationOn)
+                                    sideCube.IgniteTerrain(fireTimeIdx, false);
+                            }
                         }
                     }
                 }
             }
 
             if (aggregateCubeController.ShouldBurnFireOnDate(date))
+            {
                 aggregateCubeController.IgniteTerrain(fireTimeIdx, false);                         // Start fire in aggregate cube
+                if(aggregateSideCubeController.simulationOn)
+                    aggregateSideCubeController.IgniteTerrain(fireTimeIdx, false);                     // Start fire in aggregate side cube
+            }
         }
 
         foreach (CubeController cube in cubes)          // Check if cube data exists
@@ -1522,7 +1543,7 @@ public class GameController : MonoBehaviour
         {
             if (!cube.DataExists())
             {
-                Debug.Log("No data exists for cube: " + cube.name);
+                Debug.Log("No data exists for side cube: " + cube.name);
                 endSimulation = true;
             }
         }

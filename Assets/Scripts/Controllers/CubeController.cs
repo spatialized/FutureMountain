@@ -106,6 +106,8 @@ public class CubeController : MonoBehaviour
     private int shrubCount;                       // Current number of grown shrubs in cube
     private float minShrubFullSize = 1.5f;        // Min. shrub grown size (m.)
     private float maxShrubFullSize = 2.5f;        // Max. shrub grown size (m.)
+    private float minGrassFullSize = 4f;        // Max. shrub grown size (m.)
+    private float maxGrassFullSize = 12f;        // Max. shrub grown size (m.)
     private float shrubGrowthIncrement = 0.01f;   // Shrub growth increment per frame
 
     /* Timing */
@@ -205,8 +207,8 @@ public class CubeController : MonoBehaviour
     private float StreamHeightMin = 100000f;     // Min. stream level in current data file
     private float StreamHeightMax = -100000f;    // Max. stream level in current data file
 
-    private float WaterAccessMin = 100000f;    
-    private float WaterAccessMax = -100000f;   
+    private float WaterAccessMin = 100000f;
+    private float WaterAccessMax = -100000f;
     private float DepthToGWMin = 100000f;
     private float DepthToGWMax = -100000f;
 
@@ -217,13 +219,14 @@ public class CubeController : MonoBehaviour
     private List<FirController> firs;                // Array of all fir controllers
     private ManzanitaController[] manzanitas;    // Array of all fir controllers
     private List<ShrubController> shrubs;         // List of active (simple) shrub objects
+    private List<GameObject> grasses;         // List of active (simple) shrub objects
 
     private List<GameObject> litter;             // List of active (simple) shrub objects
     private Vector3[] firLocations;              // Tree locations
     private List<int> activeFirLocations;        // Used fir location IDs
     public int firsToKill = 0;                   // Trees to kill
     public int shrubsToKill = 0;                 // Shrubs to kill
-
+    public int grassesToKill = 0;            // Grass patches to kill
     public float LeafCarbonOver;                 // Leaf carbon amount (Used for tree/bush leaf amount and grass height)
     public float LeafCarbonUnder;                // Leaf carbon amount (Used for tree/bush leaf amount and grass height)
     public float StemCarbonOver;                 // Stem carbon amount (Used for tree height)    -- Also tree trunk thickness?
@@ -269,6 +272,7 @@ public class CubeController : MonoBehaviour
     private float treeAverageCarbonAmount;          // Average carbon amount per tree, calculated from TreeCarbonFactor
     private float treeAverageRootCarbonAmount;      // Average root carbon per tree, calculated from RootsCarbonFactor
     private float shrubAverageCarbonAmount;         // Average carbon amount per shrub, calculated from ShrubCarbonFactor
+    private float grassAverageCarbonAmount;         // Average grass patch carbon amount, set to 1/10 of shrubAverageCarbonAmount
     private float litterAverageCarbonAmount;        // Average carbon amount per litter object, from GameController
 
     private float treeCarbonFactor;                 // Scaling of tree height to vegetation amount (to compare with stem+leaf carbon in data)
@@ -384,7 +388,7 @@ public class CubeController : MonoBehaviour
     public void StartSimulation(int startTimeIdx, int curTimeStep)
     {
         if (isSideCube || debugDetailed)
-            Debug.Log(transform.name + ".StartSimulation()...  startTimeIdx:" + startTimeIdx +" simulationOn: "+simulationOn);
+            Debug.Log(transform.name + ".StartSimulation()...  startTimeIdx:" + startTimeIdx + " simulationOn: " + simulationOn);
 
         simulationOn = true;
 
@@ -459,6 +463,8 @@ public class CubeController : MonoBehaviour
             //UpdateShrubParticleSystems();
             //UpdateShrubRenderers();
         }
+
+        GrowInitialGrass(50);
     }
 
     /// <summary>
@@ -494,7 +500,7 @@ public class CubeController : MonoBehaviour
         Assert.IsNotNull(cubeObject);
 
         string terrainName = "Terrain_" + name.Substring(name.Length == 5 ? name.Length - 1 : name.Length - 6);
-        Debug.Log("" + name + ".SetupObjects()... Looking for terrainName: " + terrainName+" name: "+name);
+        Debug.Log("" + name + ".SetupObjects()... Looking for terrainName: " + terrainName + " name: " + name);
 
         terrain = cubeObject.transform.Find(terrainName).GetComponent<Terrain>();
         fireManager = terrain.transform.GetComponentInChildren<SERI_FireManager>() as SERI_FireManager;
@@ -586,13 +592,14 @@ public class CubeController : MonoBehaviour
         treeCarbonFactor = GetTreeCarbonFactor();          // Scaling of tree height to vegetation amount (to compare with stem+leaf carbon in data)
         rootsCarbonFactor = GetRootsCarbonFactor();        // Scaling of root height to roots amount to compare with root carbon in data   -- SHOULD ACCOUNT FOR WIDTH!
         shrubCarbonFactor = GetShrubCarbonFactor();        // Scaling of shrub height to vegetation amount (to compare with stem+leaf carbon in data)
-        
+
         GameObject lodGroup = rootsPrefabs[rootsPrefabs.Count - 1];                              // -- UPDATE TO REFLECT WIDTH AND HEIGHT
         GameObject lod0 = lodGroup.transform.GetChild(0).gameObject as GameObject;
         float fullRootsDepth = lod0.transform.GetComponent<Renderer>().bounds.size.y;            // Get height of prefab (m.)
 
         treeAverageRootCarbonAmount = (settings.MaxRootsFullHeightScale + settings.MinRootsFullHeightScale) / 2f * fullRootsDepth * GetRootsCarbonFactor();
         shrubAverageCarbonAmount = (maxShrubFullSize + minShrubFullSize) / 2f * GetShrubCarbonFactor();
+        grassAverageCarbonAmount = shrubAverageCarbonAmount * 0.1f;
 
         lodGroup = treeList[0][treeList[0].Count - 1];
         lod0 = lodGroup.transform.GetChild(0).gameObject as GameObject;
@@ -617,6 +624,7 @@ public class CubeController : MonoBehaviour
         if (firstRun) CreateTreeLocations();                  // Create trees on first run
 
         shrubs = new List<ShrubController>();
+        grasses = new List<GameObject>();
         litter = new List<GameObject>();
 
         fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true);
@@ -635,8 +643,8 @@ public class CubeController : MonoBehaviour
     /// <param name="sideBySideStatsPanel">Statistics panel to use for cube</param>
     public void EnterSideBySide(GameObject sideBySideStatsPanel)
     {
-        if(settings.DebugGame)
-            Debug.Log(transform.name+".EnterSideBySide()... Cube Name: " + name);
+        if (settings.DebugGame)
+            Debug.Log(transform.name + ".EnterSideBySide()... Cube Name: " + name);
 
         SetupStatisticsPanel(sideBySideStatsPanel);
         //if (GameController.Instance.DisplayModel())
@@ -644,7 +652,7 @@ public class CubeController : MonoBehaviour
         //else
         //    HideStatistics();
 
-        if(isSideCube)
+        if (isSideCube)
             cubeObject.SetActive(true);
     }
 
@@ -894,7 +902,7 @@ public class CubeController : MonoBehaviour
     /// <param name="newState"></param>
     public void SetDisplayET(bool newState)
     {
-        for (int i=0; i<emissions.Count; i++)
+        for (int i = 0; i < emissions.Count; i++)
         {
             ParticleSystem.EmissionModule em = emissions[i];
             em.enabled = newState;
@@ -967,7 +975,7 @@ public class CubeController : MonoBehaviour
 
         foreach (ShrubController shrub in shrubs)
         {
-            if(shrub != null)
+            if (shrub != null)
                 shrub.UpdateETSimulationSpeed(Mathf.Clamp(timeStep, 0f, 16f));
         }
     }
@@ -1007,7 +1015,7 @@ public class CubeController : MonoBehaviour
             if (Vector3.Distance(startPosition, targetPosition) > 0.001f)
                 animated.transform.position = Vector3.Lerp(startPosition, targetPosition, pos);
 
-            if(pos < 0.5f)
+            if (pos < 0.5f)
             {
                 float pos1 = MapValue(pos, 0f, 0.5f, 0f, 1f);
                 animated.transform.localScale = Vector3.Lerp(startScale, halfTargetScale, pos1);
@@ -1054,8 +1062,8 @@ public class CubeController : MonoBehaviour
                     {
                         if (shrubs[i].pSystem == null)
                         {
-                            if(debugShrubs)
-                                Debug.Log(name+" i: " + i + " shrubs[i] is null...");
+                            if (debugShrubs)
+                                Debug.Log(name + " i: " + i + " shrubs[i] is null...");
                             continue;
                         }
 
@@ -1094,7 +1102,7 @@ public class CubeController : MonoBehaviour
                     catch (System.Exception e)
                     {
                         //if(debugCubes)
-                        Debug.Log(name + " shrubs[i] is null? :"+(shrubs[i]==null)+" i:"+i+" ERROR:   " + e);
+                        Debug.Log(name + " shrubs[i] is null? :" + (shrubs[i] == null) + " i:" + i + " ERROR:   " + e);
                     }
                 }
 
@@ -1105,18 +1113,18 @@ public class CubeController : MonoBehaviour
             {
                 for (int i = 0; i < shrubs.Count; i++)
                 {
-                    if(i < 0 || i > shrubs.Count)
+                    if (i < 0 || i > shrubs.Count)
                     {
                         Debug.Log(name + " Shrub index error i:" + i + " shrubs.Count:" + shrubs.Count);
                         //DebugMessage(name + " Shrub index error i:" + i + " shrubs.Count:" + shrubs.Count, 0, 0, 0);
                         continue;
                     }
 
-                    try { 
-                        if(shrubs[i].pSystem == null)
+                    try {
+                        if (shrubs[i].pSystem == null)
                         {
                             if (debugShrubs)
-                                Debug.Log(name+" i: " + i + " shrubsETPSystems[i] is null...");
+                                Debug.Log(name + " i: " + i + " shrubsETPSystems[i] is null...");
                             continue;
                         }
 
@@ -1142,7 +1150,7 @@ public class CubeController : MonoBehaviour
             //        Debug.Log(name + " ERROR... cubeObject is inactive, cannot update simulation...");
             //}
 
-            if (snowValue > 0.0001f)                                                         
+            if (snowValue > 0.0001f)
                 snowValue = Mathf.Clamp(snowValue - snowMeltRate * Mathf.Sqrt(timeStep), 0f, 100000f);      // Melt snow
 
             /* Add snow from current data */
@@ -1216,14 +1224,14 @@ public class CubeController : MonoBehaviour
 
             if (hasStream)
                 UpdateStream();
-            }
-            else
-            {
-                if (debugCubes && debugDetailed)
-                    Debug.Log("UpdateSimulation()... Invalid time index!  timeIdx: " + timeIdx);
-            }
+        }
+        else
+        {
+            if (debugCubes && debugDetailed)
+                Debug.Log("UpdateSimulation()... Invalid time index!  timeIdx: " + timeIdx);
+        }
 
-        if(snowValue > 0)
+        if (snowValue > 0)
             UpdatePrecipToGW(snowValue);
     }
 
@@ -1232,7 +1240,7 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void UpdatePrecipToGW(float snowValue)
     {
-        if(snowValue > 0)
+        if (snowValue > 0)
         {
             if (!rainToGWPrefab.activeSelf)
                 rainToGWPrefab.SetActive(true);
@@ -1277,7 +1285,7 @@ public class CubeController : MonoBehaviour
         float streamSplineHeight = Mathf.Clamp(MapValue(streamPos, 0f, 1f, streamZeroHeight, streamFullHeight), streamZeroHeight, streamFullHeight);
         float streamFaceScale = Mathf.Clamp(MapValue(streamPos, 0f, 1f, streamFaceZeroScale, streamFaceFullScale), streamFaceZeroScale, streamFaceFullScale);
 
-        streamObject.transform.localPosition = new Vector3( streamObject.transform.localPosition.x,
+        streamObject.transform.localPosition = new Vector3(streamObject.transform.localPosition.x,
                                                             streamSplineHeight,
                                                             streamObject.transform.localPosition.z);
 
@@ -1307,6 +1315,11 @@ public class CubeController : MonoBehaviour
             KillAShrub();
         }
 
+        if (grassesToKill > 0)
+        {
+            KillAGrassPatch();
+        }
+
         if (dataType == CubeDataType.Veg1)                       // Grow shrubs for 1-story cubes
         {
             float shrubCarbonInData = StemCarbonOver + LeafCarbonOver;    // Get combined stem + leaf carbon in data
@@ -1316,11 +1329,17 @@ public class CubeController : MonoBehaviour
             {
                 if (timeIdx - lastShrubGrownTimeIdx > shrubGrowthWaitTime)
                     GrowAShrub(false);
+                else if (Random.Range(0f, 15f) <= 1f)
+                    GrowAGrassPatch(false);
             }
             else if (shrubCarbonInViz > shrubCarbonInData + shrubAverageCarbonAmount / 2f)    // Kill a tree or shrub if visualized carbon too high
             {
                 if (!ShrubsAreDead())
-                    shrubsToKill = (int)Mathf.Round((shrubCarbonInViz - shrubCarbonInData) / shrubAverageCarbonAmount);
+                {
+                    float diff = (shrubCarbonInViz - shrubCarbonInData) / shrubAverageCarbonAmount;
+                    shrubsToKill = (int)Mathf.Round(diff);
+                    grassesToKill = (int)Mathf.Round((diff - shrubsToKill) / grassAverageCarbonAmount);
+                }
             }
         }
         else                                                        // Grow shrubs for 2-story cubes
@@ -1334,11 +1353,17 @@ public class CubeController : MonoBehaviour
             {
                 if (timeIdx - lastShrubGrownTimeIdx > shrubGrowthWaitTime)
                     GrowAShrub(false);
+                else if (Random.Range(0f, 15f) <= 1f)
+                    GrowAGrassPatch(false);
             }
             else if (shrubCarbonInViz > combinedCarbonUnderInData + shrubAverageCarbonAmount / 2f)    // Kill a tree or shrub if visualized carbon too high
             {
                 if (!ShrubsAreDead())
-                    shrubsToKill = (int)Mathf.Round((shrubCarbonInViz - combinedCarbonUnderInData) / shrubAverageCarbonAmount);
+                {
+                    float diff = (shrubCarbonInViz - combinedCarbonUnderInData) / shrubAverageCarbonAmount;
+                    shrubsToKill = (int)Mathf.Round(diff);
+                    grassesToKill = (int)Mathf.Round((diff - shrubsToKill) / grassAverageCarbonAmount);
+                }
             }
 
             if (treeCarbonInViz < combinedCarbonOverInData - treeAverageCarbonAmount / 2f)      // Grow a tree if visualized carbon too low
@@ -1350,11 +1375,13 @@ public class CubeController : MonoBehaviour
                     {
                         if (debugTrees)
                         {
-                            Debug.Log( name + ".UpdateVegetation()... Couldn't grow tree!"  + "  treeCarbonAmount:" + treeCarbonInViz + " combinedCarbonOverInData:" + combinedCarbonOverInData 
+                            Debug.Log(name + ".UpdateVegetation()... Couldn't grow tree!" + "  treeCarbonAmount:" + treeCarbonInViz + " combinedCarbonOverInData:" + combinedCarbonOverInData
                                        + "  shrubCarbonAmount:" + shrubCarbonInViz + " combinedCarbonUnderInData:" + combinedCarbonUnderInData + " tree avg:" + treeAverageCarbonAmount + " shrub avg:" + shrubAverageCarbonAmount);
                         }
                     }
                 }
+                else if (Random.Range(0f, 15f) <= 1f)
+                    GrowAGrassPatch(false);
             }
             else if (treeCarbonInViz > combinedCarbonOverInData + treeAverageCarbonAmount / 2f)      // Kill a tree if visualized carbon too high
             {
@@ -1363,7 +1390,7 @@ public class CubeController : MonoBehaviour
                     if (!terrainBurning && !terrainBurnt)
                     {
                         if (debugFire || debugTrees)
-                            Debug.Log(name + ".UpdateVegetation()... Kill all trees... combinedCarbonOverInData:"+ combinedCarbonOverInData+ " treeAverageCarbonAmount:"+ treeAverageCarbonAmount);
+                            Debug.Log(name + ".UpdateVegetation()... Kill all trees... combinedCarbonOverInData:" + combinedCarbonOverInData + " treeAverageCarbonAmount:" + treeAverageCarbonAmount);
 
                         KillAllTrees(true);
                     }
@@ -1410,6 +1437,7 @@ public class CubeController : MonoBehaviour
 
         GrowRoots();
         GrowShrubs();
+        GrowGrass();
     }
 
     /// <summary>
@@ -1696,8 +1724,8 @@ public class CubeController : MonoBehaviour
         float rootsCarbonMin = RootsCarbonOverMin;
         float rootsCarbonMax = RootsCarbonOverMax;
 
-        firController.SetMinMaxRanges( netTransMin, netTransMax, leafCarbonMin, leafCarbonMax,
-                                       stemCarbonMin, stemCarbonMax, rootsCarbonMin, rootsCarbonMax );
+        firController.SetMinMaxRanges(netTransMin, netTransMax, leafCarbonMin, leafCarbonMax,
+                                       stemCarbonMin, stemCarbonMax, rootsCarbonMin, rootsCarbonMax);
 
         bool grown = firController.Grow(immediate);
         if (grown)
@@ -1722,6 +1750,125 @@ public class CubeController : MonoBehaviour
         return grown;
     }
 
+    private void GrowGrass()
+    {
+        List<int> removeList = new List<int>();
+        int count = 0;
+        foreach (GameObject grass in grasses)
+        {
+            float maxSize = maxGrassFullSize * cubeHeightScale;
+
+            Renderer rend = grass.GetComponent<LODGroup>().GetLODs()[0].renderers[0];
+            if (rend == null)
+            {
+                if (debugCubes)
+                    Debug.Log(name + ".GrowShrubs()... Will remove null shrub id:" + count);
+                removeList.Add(count);
+            }
+            else if (rend.bounds.size.y < maxSize)
+            {
+                float x = grass.transform.localScale.x + shrubGrowthIncrement;
+                float y = grass.transform.localScale.y + shrubGrowthIncrement;
+                float z = grass.transform.localScale.z + shrubGrowthIncrement;
+                grass.transform.localScale = new Vector3(x, y, z);
+            }
+
+            count++;
+        }
+
+        var descendingOrder = removeList.OrderByDescending(i => i);
+        removeList = descendingOrder.ToList<int>();
+
+        if (removeList.Count > 0)                        // Remove destroyed shrubs
+        {
+            foreach (int i in removeList)
+            {
+                if (grasses.Count > i)
+                    grasses.RemoveAt(i);
+            }
+        }
+    }
+
+    private void GrowAGrassPatch(bool immediate)
+    {
+        Vector3 grassLocation;
+
+        float offsetX = terrain.GetPosition().x;
+        float offsetZ = terrain.GetPosition().z;
+
+        float cubeXMin = settings.CubeTreePadding;                    // Min. local X coord where shrubs grow
+        float cubeXMax = cubeWidth - settings.CubeTreePadding;        // Max. local X coord where shrubs grow
+        float cubeZMin = settings.CubeTreePadding;                    // Min. local Z coord where shrubs grow
+        float cubeZMax = cubeWidth - settings.CubeTreePadding;        // Max. local Z coord where shrubs grow
+
+        if (hasStream)                                   // Set shrub locations based on stream
+        {
+            float randX = GetRandomExcludingMiddle(cubeXMin, cubeXMax, streamCenter - streamWidth * 0.5f, streamCenter + streamWidth * 0.5f);
+            float randZ = Random.Range(cubeZMin, cubeZMax);
+            randX += offsetX;
+            randZ += offsetZ;
+            grassLocation = new Vector3(randX, 0f, randZ);
+            grassLocation.y = terrain.SampleHeight(grassLocation) + terrain.GetPosition().y;
+            AddGrass(grassLocation, immediate);
+        }
+        else                                              // Set shrub locations without stream
+        {
+            float randX = Random.Range(cubeXMin, cubeXMax);
+            float randZ = Random.Range(cubeZMin, cubeZMax);
+            randX += offsetX;
+            randZ += offsetZ;
+            grassLocation = new Vector3(randX, 0f, randZ);
+            grassLocation.y = terrain.SampleHeight(grassLocation) + terrain.GetPosition().y;
+            AddGrass(grassLocation, immediate);
+        }
+    }
+
+    private void GrowInitialGrass(int maxPatches)
+    {
+        int numGrass = (int)Random.Range(2, maxPatches);
+        for (int i = 0; i < numGrass; i++)
+        {
+            GrowAGrassPatch(true);
+        }
+    }
+
+    /// <summary>
+    /// Adds grass patch.
+    /// </summary>
+    /// <returns>The shrub.</returns>
+    /// <param name="location">Location.</param>
+    /// <param name="immediate">If true, create instantaneously, otherwise grow from zero scale.</param>
+    private void AddGrass(Vector3 location, bool immediate)
+    {
+        Quaternion newRotation = new Quaternion(0f, 0f, 0f, 0f);
+        GameObject newGrassObj = Instantiate(grassPrefab, location, newRotation, cubeObject.transform);     // Instantiate shrub
+        newRotation.eulerAngles.Set(0f, Random.Range(0f, 360f), 0f);                                     // Choose random rotation
+        newGrassObj.transform.localRotation = newRotation;
+
+        newGrassObj.GetComponent<SERI_FireNodeChain>().Initialize(fireManager, false, true);
+
+        float grassSize = Random.Range(minGrassFullSize, maxGrassFullSize);
+        if (immediate)
+        {
+            grassSize = Random.Range(0f, maxGrassFullSize);                                               // Set initial size
+            newGrassObj.transform.localScale = new Vector3(grassSize, grassSize, grassSize);
+        }
+        else
+        {
+            newGrassObj.transform.localScale = Vector3.zero;
+        }
+
+        newGrassObj.name = "Grass";                                   // Set grass name
+        grasses.Add(newGrassObj);                                     // Add grass to list
+
+        float yPos = newGrassObj.transform.position.y;
+        yPos += settings.ShrubHeightOffset;
+        newGrassObj.transform.position = new Vector3(newGrassObj.transform.position.x, yPos, newGrassObj.transform.position.z);
+
+        if (debugDetailed && debugShrubs)
+            Debug.Log(transform.parent.name + " Instantiated " + newGrassObj.name + " at localPosition:" + newGrassObj.transform.localPosition);
+    }
+
     /// <summary>
     /// Handles shrub growth.
     /// </summary>
@@ -1736,8 +1883,8 @@ public class CubeController : MonoBehaviour
             Renderer rend = shrub.rend;
             if (rend == null)
             {
-				if (debugCubes)
-					Debug.Log(name + ".GrowShrubs()... Will remove null shrub id:" + count);
+                if (debugCubes)
+                    Debug.Log(name + ".GrowShrubs()... Will remove null shrub id:" + count);
                 removeList.Add(count);
             }
             else if (rend.bounds.size.y < maxSize)
@@ -1852,6 +1999,7 @@ public class CubeController : MonoBehaviour
         if (debugDetailed && debugShrubs)
             Debug.Log(transform.parent.name + " Shrub... Instantiated:" + newShrubObj.name + " at localPosition:" + newShrubObj.transform.localPosition);
     }
+
     /// <summary>
     /// Kills all trees.
     /// </summary>
@@ -2149,6 +2297,16 @@ public class CubeController : MonoBehaviour
     }
 
     /// <summary>
+    /// Kills a grass patch
+    /// </summary>
+    private void KillAGrassPatch()
+    {
+        int rand = (int)Mathf.Round(Random.Range(0f, grasses.Count - 1));
+        KillGrassIdx(rand);
+        grassesToKill--;
+    }
+
+    /// <summary>
     /// Kills a random shrub.
     /// </summary>
     private void KillAShrub()
@@ -2156,6 +2314,43 @@ public class CubeController : MonoBehaviour
         int rand = (int)Mathf.Round(Random.Range(0f, shrubs.Count - 1));
         KillShrubIdx(rand);
         shrubsToKill--;
+    }
+
+    private void KillGrassIdx(int grassID)
+    {
+        GameObject obj = null;
+
+        if (grassID < 0 || grassID >= grasses.Count)
+        {
+            Debug.Log(name + ".KillGrassIdx()... Tried to kill shrub id:" + grassID + " but grasses.Count: " + grasses.Count);
+            return;
+        }
+
+        if (grasses[grassID] == null)
+        {
+            Debug.Log(name + ".KillGrassIdx()... grasses[grassID] for id:" + grassID + " is null!");
+            return;
+        }
+        if (grasses[grassID].gameObject == null)
+        {
+            Debug.Log(name + ".KillGrassIdx()... grasses[grassID].gameObject for id:" + grassID + " is null!");
+            return;
+        }
+
+        if (grassID >= 0 && grassID < grasses.Count)
+            obj = grasses[grassID].gameObject;
+
+        if (obj != null)
+        {
+            for (int i = obj.transform.childCount - 1; i >= 0; i--)
+                Destroy(obj.transform.GetChild(i).gameObject);
+
+            grasses.RemoveAt(grassID);
+            Destroy(obj.gameObject);
+        }
+
+        if (debugDetailed && debugShrubs)
+            Debug.Log("KillGrassIdx()... id:" + grassID);
     }
 
     /// <summary>
@@ -2780,6 +2975,8 @@ public class CubeController : MonoBehaviour
         KillAllShrubs(true);
         ClearAllLitter();
         SetInitParameterValues();
+
+        snowManager.snowValue = 0f;
     }
     #endregion
 
