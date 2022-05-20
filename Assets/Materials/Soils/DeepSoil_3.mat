@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: DeepSoil_3
   m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+  m_ShaderKeywords: _GLOSSYREFLECTIONS_OFF _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A _SPECULARHIGHLIGHTS_OFF
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -53,7 +53,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
-        m_Scale: {x: 2, y: 2}
+        m_Scale: {x: 3, y: 2}
         m_Offset: {x: 0.15, y: 0.5}
     - _Fresnel:
         m_Texture: {fileID: 0}
@@ -69,7 +69,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _MainTex:
         m_Texture: {fileID: 2800000, guid: 22349c5f950f6724193f157205150169, type: 3}
-        m_Scale: {x: 2, y: 2}
+        m_Scale: {x: 3, y: 2}
         m_Offset: {x: 0.15, y: 0.5}
     - _MetallicGlossMap:
         m_Texture: {fileID: 0}
@@ -164,7 +164,7 @@ Material:
     - _FadeThreshold: 100
     - _GlossMapScale: 0.23
     - _Glossiness: 0.5
-    - _GlossyReflections: 1
+    - _GlossyReflections: 0
     - _LightIntensity: 1
     - _Metallic: 0.54
     - _Metallic0: 0
@@ -189,7 +189,7 @@ Material:
     - _SnowBlend: 0.4
     - _SnowBumpDepth: 1
     - _SnowCoverage: 3
-    - _SpecularHighlights: 1
+    - _SpecularHighlights: 0
     - _SpecularPower: 1
     - _SquashAmount: 1
     - _SrcBlend: 1
@@ -223,6 +223,7 @@ Material:
     - _TreeInstanceScale: {r: 1, g: 1, b: 1, a: 1}
     - _WaveControl1: {r: 1, g: 0.01, b: 0.001, a: 0}
     - _horizonColor: {r: 0.172, g: 0.463, b: 0.435, a: 0}
+  m_BuildTextureStacks: []
 --- !u!1002 &2100001
 EditorExtensionImpl:
   serializedVersion: 6

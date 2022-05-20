@@ -2,14 +2,17 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: C1_Plants_03
   m_Shader: {fileID: 4800000, guid: b75779154f6849b4197db55d006c9b49, type: 3}
-  m_ShaderKeywords: _ALPHATEST_ON _WINDVERTEXCOLORMAINRNOISEB_ON
+  m_ValidKeywords:
+  - _WINDVERTEXCOLORMAINRNOISEB_ON
+  m_InvalidKeywords:
+  - _ALPHATEST_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0

@@ -2,15 +2,22 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: AC_Herbs_Atlas
   m_Shader: {fileID: 4800000, guid: e9099493497b41845aea6aa168aa38fc, type: 3}
-  m_ShaderKeywords: EFFECT_BUMP GEOM_TYPE_LEAF _ALPHATEST_ON _EMISSION _NORMALMAP
-    _SNOWREMOVESAO_ON _WIND_VERTEXCOLORR_ON
+  m_ValidKeywords:
+  - _SNOWREMOVESAO_ON
+  - _WIND_VERTEXCOLORR_ON
+  m_InvalidKeywords:
+  - EFFECT_BUMP
+  - GEOM_TYPE_LEAF
+  - _ALPHATEST_ON
+  - _EMISSION
+  - _NORMALMAP
   m_LightmapFlags: 1
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
