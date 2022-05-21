@@ -36,6 +36,7 @@ public class SERI_FireManager : MonoBehaviour
 
     /* Main Settings */
     public Terrain terrain = null; // terrain should be the parent GameObject of this object
+
     [Tooltip("Size of the index array used to keep track of active fires in a FireGrid, if goes over array will increase.")]
     public int preAllocatedFireIndexSize = 100;
     //public float cellSize = 1.0f;
@@ -99,6 +100,7 @@ public class SERI_FireManager : MonoBehaviour
     private void Awake()
     {
         terrain = GetComponentInParent<Terrain>();
+        Assert.IsNotNull(terrain);
     }
 
     /// <summary>
