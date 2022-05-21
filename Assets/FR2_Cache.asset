@@ -52949,11 +52949,6 @@ MonoBehaviour:
     stamp: 0
     type: 9
     UseGUIDsList: []
-  - guid: db7886b040139f744964628e0f10366a
-    loadInfoTS: 0
-    stamp: 0
-    type: 0
-    UseGUIDsList: []
   priority: 1
   setting:
     alternateColor: 1
