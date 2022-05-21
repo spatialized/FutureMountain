@@ -156,3 +156,12 @@ The following packages were updated:
   com.unity.test-framework from version 1.1.29 to 1.1.31
   com.unity.timeline from version 1.5.6 to 1.6.4
   com.unity.visualscripting from version 1.6.1 to 1.7.6
+
+=== Fri May 20 10:15:27 2022
+
+Packages were changed.
+Update Mode: updateDependencies
+
+The following packages were added:
+  com.unity.ads@3.7.5
+  com.unity.xr.legacyinputhelpers@2.1.9

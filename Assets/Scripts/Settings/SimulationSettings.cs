@@ -6,10 +6,11 @@ using UnityEngine;
 /// </summary>
 public class SimulationSettings : MonoBehaviour
 {
-    /* Data Settings */
+    /* Build Settings */
     [Header("Data")]
     [Tooltip("Load Cube Data Only (for testing)")]
     public bool CubeDataOnly = false;                   // Only load cube data (true) or run landscape simulation (false)
+    public bool BuildForWeb = true;                     // Build for web (TO DO)
 
     /* Fire Settings */
     [Header("Fire")]
