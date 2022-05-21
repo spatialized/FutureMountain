@@ -31,6 +31,8 @@ public class SimulationSettings : MonoBehaviour
     public int MaxTrees = 40;                           // Maximum number of grown trees in cube
     [Tooltip("Maximum number of grown shrubs per cube")]
     public int MaxShrubs = 100;                         // Maximum number of grown shrubs in cube
+    [Tooltip("Multiplier for max. trees and max. shrubs when building for web")]
+    public float WebBuildMaxVegMultiplier = 0.5f;       // Multiplier for max. trees and max. shrubs when building for web
 
     [Header("Distribution")]
     [Tooltip("Minimum tree spacing")]
@@ -53,6 +55,8 @@ public class SimulationSettings : MonoBehaviour
     public float CubeARootsCarbonFactor = 0.005f;        // Aggregate Cube Carbon per m. of root height
     [Tooltip("Aggregate Cube Stem + leaf carbon per m. of shrub height  (lower means more shrubs)")]
     public float CubeAShrubCarbonFactor = 0.005f;        // Aggregate Cube Stem + leaf carbon per m. of shrub height  (lower => more shrubs)
+    [Tooltip("Multiplier for carbon factor variables when building for web")]
+    public float WebBuildCarbonMultiplier = 2f;          // Multiplier for carbon factor variables when building for web
 
     [Header("Emission")]
     [Tooltip("Tree particle emission factor")]
@@ -104,4 +108,28 @@ public class SimulationSettings : MonoBehaviour
 
     ///* Litter */
     //public float DeadTreeShrinkFactor = 0.033f;         // Percent to shrink dead tree litter by each frame
+
+    /// <summary>
+    /// Start this instance. 
+    /// </summary>
+    void Start()
+    {
+        if(BuildForWeb)
+            OptimizeForWeb();
+    }
+
+    public void OptimizeForWeb()
+    {
+        MaxTrees = (int)(MaxTrees * WebBuildMaxVegMultiplier);   
+        MaxShrubs = (int)(MaxShrubs * WebBuildMaxVegMultiplier);
+
+        TreeMinSpacing = 0.65f;            
+
+        TreeCarbonFactor *= WebBuildCarbonMultiplier;          
+        RootsCarbonFactor *= WebBuildCarbonMultiplier;       
+        ShrubCarbonFactor *= WebBuildCarbonMultiplier;       
+        CubeATreeCarbonFactor *= WebBuildCarbonMultiplier;   
+        CubeARootsCarbonFactor *= WebBuildCarbonMultiplier;  
+        CubeAShrubCarbonFactor *= WebBuildCarbonMultiplier;  
+    }
 }

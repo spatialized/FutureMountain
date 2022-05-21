@@ -17218,7 +17218,7 @@ MonoBehaviour:
       ids: 
   - guid: 7ca58c853bba947f4bbb1cf28150d89c
     loadInfoTS: 0
-    stamp: 1653067496
+    stamp: 0
     type: 2
     UseGUIDsList: []
   - guid: 0721fc85830318d448bccd338296bdc1
@@ -52948,11 +52948,6 @@ MonoBehaviour:
     loadInfoTS: 0
     stamp: 0
     type: 9
-    UseGUIDsList: []
-  - guid: db7886b040139f744964628e0f10366a
-    loadInfoTS: 0
-    stamp: 0
-    type: 0
     UseGUIDsList: []
   priority: 1
   setting:
