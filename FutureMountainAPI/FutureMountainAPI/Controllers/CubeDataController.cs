@@ -69,7 +69,7 @@ namespace FutureMountainAPI.Controllers
         }
 
 
-        // GET: api/CubeData/5
+        // GET: api/CubeData/-1/1/1
         [HttpGet("{patchIdx}/{warmingIdx}/{dateIdx}")]
         public async Task<ActionResult<IEnumerable<CubeData>>> GetCubeData(int patchIdx, int warmingIdx, int dateIdx)
         {
@@ -79,6 +79,26 @@ namespace FutureMountainAPI.Controllers
             }
 
             var cubeData = await _context.CubeData.Where(x => x.patchIdx == patchIdx && x.warmingIdx == warmingIdx && x.dateIdx == dateIdx).ToListAsync();
+
+            if (cubeData == null)
+            {
+                return NotFound();
+            }
+
+            return cubeData;
+        }
+
+
+        // GET: api/CubeData/-1/1/1/10
+        [HttpGet("{patchIdx}/{warmingIdx}/{dateIdxStart}/{dateIdxEnd}")]
+        public async Task<ActionResult<IEnumerable<CubeData>>> GetCubeData(int patchIdx, int warmingIdx, int dateIdxStart, int dateIdxEnd)
+        {
+            if (_context.CubeData == null)
+            {
+                return NotFound();
+            }
+
+            var cubeData = await _context.CubeData.Where(x => x.patchIdx == patchIdx && x.warmingIdx == warmingIdx && x.dateIdx > dateIdxStart && x.dateIdx < dateIdxEnd).ToListAsync();
 
             if (cubeData == null)
             {
