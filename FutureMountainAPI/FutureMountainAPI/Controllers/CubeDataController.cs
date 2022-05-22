@@ -49,6 +49,45 @@ namespace FutureMountainAPI.Controllers
             return cubeData;
         }
 
+        // GET: api/CubeData/5
+        [HttpGet("{patchIdx}/{warmingIdx}")]
+        public async Task<ActionResult<IEnumerable<CubeData>>> GetCubeData(int patchIdx, int warmingIdx)
+        {
+            if (_context.CubeData == null)
+            {
+                return NotFound();
+            }
+
+            var cubeData = await _context.CubeData.Where(x => x.patchIdx == patchIdx && x.warmingIdx == warmingIdx).ToListAsync();
+
+            if (cubeData == null)
+            {
+                return NotFound();
+            }
+
+            return cubeData;
+        }
+
+
+        // GET: api/CubeData/5
+        [HttpGet("{patchIdx}/{warmingIdx}/{dateIdx}")]
+        public async Task<ActionResult<IEnumerable<CubeData>>> GetCubeData(int patchIdx, int warmingIdx, int dateIdx)
+        {
+            if (_context.CubeData == null)
+            {
+                return NotFound();
+            }
+
+            var cubeData = await _context.CubeData.Where(x => x.patchIdx == patchIdx && x.warmingIdx == warmingIdx && x.dateIdx == dateIdx).ToListAsync();
+
+            if (cubeData == null)
+            {
+                return NotFound();
+            }
+
+            return cubeData;
+        }
+
         // PUT: api/CubeData/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         //[HttpPut("{id}")]
