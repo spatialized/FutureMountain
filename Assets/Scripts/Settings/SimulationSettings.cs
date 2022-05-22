@@ -120,6 +120,7 @@ public class SimulationSettings : MonoBehaviour
 
     public void OptimizeForWeb()
     {
+        Debug.Log("OptimizeForWeb()");
         MaxTrees = (int)(MaxTrees * WebBuildMaxVegMultiplier);   
         MaxShrubs = (int)(MaxShrubs * WebBuildMaxVegMultiplier);
 

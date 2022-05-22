@@ -391,12 +391,16 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(aggregateCubeObject);
         Assert.IsNotNull(aggregateCubeObject_Side);
 
-        Assert.IsNotNull(cube1Stats);
-        Assert.IsNotNull(cube2Stats);
+        if (!settings.BuildForWeb)
+        {
+            Assert.IsNotNull(cube1Stats);
+            Assert.IsNotNull(cube2Stats);
+            cube1Stats.SetActive(false);
+            cube2Stats.SetActive(false);
+        }
+
         Assert.IsNotNull(warmingLevelText);
         
-        cube1Stats.SetActive(false);
-        cube2Stats.SetActive(false);
         warmingLevelText.SetActive(false);
 
         cubes = new CubeController[5];
@@ -953,7 +957,7 @@ public class GameController : MonoBehaviour
             if (displayModel)
                 ShowStatistics();
             else
-                HideData();
+                HideStatistics();
 
             starting = false;
         }
@@ -1712,7 +1716,7 @@ public class GameController : MonoBehaviour
     /// <summary>
     /// Hides the data panel.
     /// </summary>
-    private void HideData()
+    private void HideStatistics()
     {
         if (sideBySideMode)
             return;
@@ -2024,7 +2028,7 @@ public class GameController : MonoBehaviour
         if (displayModel)
             ShowStatistics();
         else
-            HideData();
+            HideStatistics();
     }
 
     /// <summary>

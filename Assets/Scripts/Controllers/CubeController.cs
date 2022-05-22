@@ -630,6 +630,7 @@ public class CubeController : MonoBehaviour
         fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true);
 
         HideStatistics();
+
         emissions = new List<ParticleSystem.EmissionModule>();
         UpdateETList();
 
@@ -647,10 +648,6 @@ public class CubeController : MonoBehaviour
             Debug.Log(transform.name + ".EnterSideBySide()... Cube Name: " + name);
 
         SetupStatisticsPanel(sideBySideStatsPanel);
-        //if (GameController.Instance.DisplayModel())
-        //    ShowStatistics();
-        //else
-        //    HideStatistics();
 
         if (isSideCube)
             cubeObject.SetActive(true);
@@ -678,6 +675,9 @@ public class CubeController : MonoBehaviour
 
     private void SetupStatisticsPanel(GameObject statsPanel)
     {
+        if (settings.BuildForWeb)
+            return;
+
         Debug.Log(transform.name + ".SetupStatisticsPanel()");
 
         netTransSlider = statsPanel.transform.Find("NetTransSlider").GetComponent<Slider>() as Slider;
@@ -3770,7 +3770,8 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void ShowStatistics()
     {
-        displayObject.SetActive(true);
+        if (!settings.BuildForWeb)
+            displayObject.SetActive(true);
     }
 
     /// <summary>
@@ -3778,7 +3779,8 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void HideStatistics()
     {
-        displayObject.SetActive(false);
+        if (!settings.BuildForWeb)
+            displayObject.SetActive(false);
     }
     #endregion
 
@@ -3861,6 +3863,9 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void UpdateStatistics()
     {
+        if (settings.BuildForWeb)
+            return;
+
         float netTrans = GetNetTranspiration();
         float leafCarbon = GetLeafCarbon();
         float stemCarbon = GetStemCarbon();
