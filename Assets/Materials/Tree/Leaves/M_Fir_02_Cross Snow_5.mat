@@ -117,7 +117,7 @@ Material:
     - _SnowMaskTreshold: 1.177
     - _SnowNormalPower: 1
     - _SnowNormalTreshold: 1
-    - _Snow_Amount: 0.0020961931
+    - _Snow_Amount: 0
     - _Specular: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

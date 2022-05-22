@@ -18,7 +18,7 @@ public class SERI_FireManager : MonoBehaviour
     #region Fields
     /* State */
     public bool burning = false;
-    //private bool initialized = false;
+    public bool webOptimized = false;
 
     /* Ignition */
     [SerializeField]
@@ -57,8 +57,6 @@ public class SERI_FireManager : MonoBehaviour
     public bool replaceGroundTextureOnceBurnt = true;
     [SerializeField][Tooltip("The about of time taken before the next terrain update.")]
     private float terrainUpdateTime = 1.0f;
-    //[SerializeField][Tooltip("Fire Grid's are constructed over several frames, good when using larger sized grids.")]
-    //private bool m_staggeredGridConstruction = true;
     [Tooltip("Use as many terrain grass texture details as possible, this may have an impact on performance!")]
     public bool maxGrassDetails = false;
     [Tooltip("Which index of the grass detail texture is the burnt grass, only used if 'Max Grass Details' is enabled.")]
@@ -78,6 +76,8 @@ public class SERI_FireManager : MonoBehaviour
     private int terrainAlphaWidth;
     private int terrainAlphaHeight;
     public bool dirty = false;
+
+    //private SimulationSettings settings;
 
     public int[,] terrainReplacementMap
     {
@@ -106,8 +106,9 @@ public class SERI_FireManager : MonoBehaviour
     /// <summary>
     /// Initialize this instance.
     /// </summary>
-    public void Initialize(GameObjectPool newPooler, GameObject newFirePrefab, Vector3 ignitionPos, Vector3 offset, List<FireDataFrame> fireDataFrames, LandscapeController newLandscapeController, bool dataControlled, bool immediateFire)
+    public void Initialize(GameObjectPool newPooler, GameObject newFirePrefab, Vector3 ignitionPos, Vector3 offset, List<FireDataFrame> fireDataFrames, LandscapeController newLandscapeController, bool dataControlled, bool immediateFire, bool newWebOptimized)
     {
+        webOptimized = newWebOptimized;
         pooler = newPooler;
         firePrefab = newFirePrefab;
 
@@ -290,8 +291,15 @@ public class SERI_FireManager : MonoBehaviour
     /// <param name="fireIdx">Fire index</param>
     public void IgniteTerrain(Terrain terrain, int timeStep, float fireLengthInSec, int fireIdx)
     {
-        SetFireGrid(fireIdx);
-        CurrentFireGrid().Ignite(new Vector3(0,0,0), timeStep, fireLengthInSec);
+        if (webOptimized)
+        {
+            // TO DO
+        }
+        else
+        {
+            SetFireGrid(fireIdx);
+            CurrentFireGrid().Ignite(new Vector3(0,0,0), timeStep, fireLengthInSec);
+        }
         StartBurning();
     }
 
@@ -303,8 +311,6 @@ public class SERI_FireManager : MonoBehaviour
     public void StopBurning()
     {
         burning = false;
-        //if(gridIdx + 1 < fireGrids.Length)                  // -- TO DO: Modify method
-        //    gridIdx++;
     }
     #endregion
 

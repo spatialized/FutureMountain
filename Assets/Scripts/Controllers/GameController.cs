@@ -391,13 +391,10 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(aggregateCubeObject);
         Assert.IsNotNull(aggregateCubeObject_Side);
 
-        if (!settings.BuildForWeb)
-        {
-            Assert.IsNotNull(cube1Stats);
-            Assert.IsNotNull(cube2Stats);
-            cube1Stats.SetActive(false);
-            cube2Stats.SetActive(false);
-        }
+        Assert.IsNotNull(cube1Stats);
+        Assert.IsNotNull(cube2Stats);
+        cube1Stats.SetActive(false);
+        cube2Stats.SetActive(false);
 
         Assert.IsNotNull(warmingLevelText);
         
@@ -469,7 +466,7 @@ public class GameController : MonoBehaviour
 
         if (landscapeController.LandscapeSimulationIsOn())
         {
-            landscapeInitializer = landscapeController.InitializeData();    // Begin initializing landscape if landscapeSimulationOn
+            landscapeInitializer = landscapeController.InitializeData(settings);    // Begin initializing landscape if landscapeSimulationOn
             StartCoroutine(landscapeInitializer);
         }
         else
@@ -2192,6 +2189,11 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void ResetFireManagers()
     {
+        landscapeController.GetFireManager().Reset();
+
+        if (settings.BuildForWeb)
+            return;
+
         aggregateCubeController.GetFireManager().Reset();
         foreach (CubeController cube in cubes)
         {
@@ -2202,7 +2204,6 @@ public class GameController : MonoBehaviour
             cube.GetFireManager().Reset();
         }
 
-        landscapeController.GetFireManager().Reset();
     }
 
     /// <summary>

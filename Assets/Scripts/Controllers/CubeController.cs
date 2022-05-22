@@ -627,7 +627,7 @@ public class CubeController : MonoBehaviour
         grasses = new List<GameObject>();
         litter = new List<GameObject>();
 
-        fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true);
+        fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true, settings.BuildForWeb);
 
         HideStatistics();
 
@@ -1597,24 +1597,27 @@ public class CubeController : MonoBehaviour
         firController.InitializePrefabs(treeList[0], rootsPrefabs, deadTreePrefab);
         firController.locationID = treeID;
 
-        GameObject treeFireNodeChain = Instantiate(fireNodeChainPrefab, newTree.transform);         // Add fire node chain to tree
+        if (!settings.BuildForWeb)
+        {
+            GameObject treeFireNodeChain = Instantiate(fireNodeChainPrefab, newTree.transform);         // Add fire node chain to tree
 
-        //SERI_FireNodeChain nodeChain = newTree.GetComponent<SERI_FireNodeChain>() as SERI_FireNodeChain;
-        SERI_FireNodeChain nodeChain = treeFireNodeChain.GetComponent<SERI_FireNodeChain>() as SERI_FireNodeChain;
-        firController.InitFireNodeChain(nodeChain);
+            //SERI_FireNodeChain nodeChain = newTree.GetComponent<SERI_FireNodeChain>() as SERI_FireNodeChain;
+            SERI_FireNodeChain nodeChain = treeFireNodeChain.GetComponent<SERI_FireNodeChain>() as SERI_FireNodeChain;
+            firController.InitFireNodeChain(nodeChain);
 
-        nodeChain.fireNodes = new SERI_FireNode[1];
-        nodeChain.fireNodes[0] = treeFireNodeChain.transform.GetChild(0).GetComponent<SERI_FireNode>();
-        nodeChain.Initialize(fireManager, true, true);
+            nodeChain.fireNodes = new SERI_FireNode[1];
+            nodeChain.fireNodes[0] = treeFireNodeChain.transform.GetChild(0).GetComponent<SERI_FireNode>();
+            nodeChain.Initialize(fireManager, true, true);
 
-        newTree.tag = "Fire";
-        newTree.AddComponent<BoxCollider>();
+            newTree.tag = "Fire";
+            newTree.AddComponent<BoxCollider>();
 
-        /* Create Box Collider */
-        BoxCollider bc = newTree.GetComponent<BoxCollider>();
-        //bc.material = treePhysicMaterial;
-        bc.center = new Vector3(0f, 3f, 0f);
-        bc.size = new Vector3(2.5f, 6f, 2.5f);
+            /* Create Box Collider */
+            BoxCollider bc = newTree.GetComponent<BoxCollider>();
+            //bc.material = treePhysicMaterial;
+            bc.center = new Vector3(0f, 3f, 0f);
+            bc.size = new Vector3(2.5f, 6f, 2.5f);
+        }
 
         float etY = etPrefab.transform.position.y;
         Vector3 etLocation = new Vector3(firLocations[treeID].x, firLocations[treeID].y + etY, firLocations[treeID].z);

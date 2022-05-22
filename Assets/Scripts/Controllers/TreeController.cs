@@ -182,8 +182,8 @@ public abstract class TreeController : MonoBehaviour
     /// <param name="destroyAfter">If set to <c>true</c> destroy after.</param>
     private void SetDestroyAfterFire(bool destroyAfter)
     {
-        //SERI_FireNodeChain chain = GetComponent<SERI_FireNodeChain>() as SERI_FireNodeChain;
-        fireNodeChain.SetDestroyAfterFire(destroyAfter);
+        if(fireNodeChain)
+            fireNodeChain.SetDestroyAfterFire(destroyAfter);
     }
 
     /// <summary>
@@ -202,10 +202,13 @@ public abstract class TreeController : MonoBehaviour
     /// <param name="immediate">If set to <c>true</c> immediate.</param>
     public void Ignite(bool immediate, int fireLengthInFrames)
     {
-        fireNodeChain.enabled = true;                   // Make sure node chain is enabled
-        if (debugTree)
-            Debug.Log(transform.parent.transform.parent.transform.name + "... " + name + ".Ignite()... immediate:" + immediate);
-        fireNodeChain.Ignite(transform.position, fireLengthInFrames);
+        if (fireNodeChain)
+        {
+            fireNodeChain.enabled = true;                   // Make sure node chain is enabled
+            if (debugTree)
+                Debug.Log(transform.parent.transform.parent.transform.name + "... " + name + ".Ignite()... immediate:" + immediate);
+            fireNodeChain.Ignite(transform.position, fireLengthInFrames);
+        }
     }
 
     /// <summary>

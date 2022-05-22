@@ -102,7 +102,7 @@ public class FirController : TreeController
     {
         if (!destroyed)
         {
-            if (fireNodeChain.ToBeDestroyed())
+            if (fireNodeChain && fireNodeChain.ToBeDestroyed())
             {
                 if (debugTree)
                     Debug.Log(name + ".UpdateSimulation()... Fire node chain triggered fir to be destroyed at time:" + Time.time);

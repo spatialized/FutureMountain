@@ -20,6 +20,7 @@ public class LandscapeController : MonoBehaviour
     /* Settings */
     private bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
     private int immediateFireTimeThreshold;
+    SimulationSettings settings;
 
     /* States */
     public bool initialized { get; set; } = false;            // Initialized flag
@@ -433,10 +434,12 @@ public class LandscapeController : MonoBehaviour
     /// <summary>
     /// Initialize LandscapeController with data list.
     /// </summary>
-    public IEnumerator InitializeData()
+    public IEnumerator InitializeData(SimulationSettings newSettings)
     {
         if (debug)
             Debug.Log("LandscapeController.Initialize()...");
+
+        settings = newSettings;
 
         if (landscapeSimulationOn)
             LoadData();
@@ -739,7 +742,7 @@ public class LandscapeController : MonoBehaviour
 
         if (!landscapeSimulationOn)
         {
-            fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, terrain.transform.position, null, this, false, true);
+            fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, terrain.transform.position, null, this, false, true, false);
         }
         else
         {
@@ -775,7 +778,7 @@ public class LandscapeController : MonoBehaviour
                 }
             }
 
-            fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, terrain.transform.position, frames, this, true, false);
+            fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, terrain.transform.position, frames, this, true, false, false);
 
             patchesToBurnDict = new Dictionary<Vector3, List<int>>();
         }

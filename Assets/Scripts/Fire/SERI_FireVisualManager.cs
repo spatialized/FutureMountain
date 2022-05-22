@@ -27,14 +27,17 @@ public class SERI_FireVisualManager : MonoBehaviour
     float size = -1f;
 
     void OnEnable() {
-        if (heatUp.Length > particleSystems.Length)
-            Debug.LogError(gameObject.name + " FireVisualManager::heatUp of " + heatUp.Length + " > number of children with Particle Systems at:" + particleSystems.Length);
+        if (particleSystems != null)
+        {
+            if (heatUp.Length > particleSystems.Length)
+                Debug.LogError(gameObject.name + " FireVisualManager::heatUp of " + heatUp.Length + " > number of children with Particle Systems at:" + particleSystems.Length);
 
-        if (ignition.Length > particleSystems.Length)
-            Debug.LogError(gameObject.name + " FireVisualManager::ignition  of " + ignition.Length + " > number of children with Particle Systems at:" + particleSystems.Length);
+            if (ignition.Length > particleSystems.Length)
+                Debug.LogError(gameObject.name + " FireVisualManager::ignition  of " + ignition.Length + " > number of children with Particle Systems at:" + particleSystems.Length);
 
-        if (extinguish.Length > particleSystems.Length)
-            Debug.LogError(gameObject.name + " FireVisualManager::extingush bigger then the number of children with Particle Systems");
+            if (extinguish.Length > particleSystems.Length)
+                Debug.LogError(gameObject.name + " FireVisualManager::extingush bigger then the number of children with Particle Systems");
+        }
 
         Initialize();
     }
@@ -44,8 +47,11 @@ public class SERI_FireVisualManager : MonoBehaviour
     /// </summary>
     public void Initialize()
     {
-        for (int i = 0; i < particleSystems.Length; i++)
-            particleSystems[i].gameObject.SetActive(false);
+        if (particleSystems != null)
+        {
+            for (int i = 0; i < particleSystems.Length; i++)
+                particleSystems[i].gameObject.SetActive(false);
+        }
 
         if (size > 0f)
             SetSize(size);
@@ -62,23 +68,29 @@ public class SERI_FireVisualManager : MonoBehaviour
     {
         if (heatState && heatStateSet == false)
         {
-            for (int i = 0; i < particleSystems.Length; i++)
-                particleSystems[i].gameObject.SetActive(heatUp[i]);
-
+            if (particleSystems != null)
+            {
+                for (int i = 0; i < particleSystems.Length; i++)
+                    particleSystems[i].gameObject.SetActive(heatUp[i]);
+            }
             heatStateSet = true;
         }
         else if (ignitionState && ignitionStateSet == false)
         {
-            for (int i = 0; i < particleSystems.Length; i++)
-                particleSystems[i].gameObject.SetActive(ignition[i]);
-
+            if (particleSystems != null)
+            {
+                for (int i = 0; i < particleSystems.Length; i++)
+                    particleSystems[i].gameObject.SetActive(ignition[i]);
+            }
             ignitionStateSet = true;
         }
         else if (extinguishState && extinguishStateSet == false)
         {
-            for (int i = 0; i < particleSystems.Length; i++)
-                particleSystems[i].gameObject.SetActive(extinguish[i]);
-
+            if (particleSystems != null)
+            {
+                for (int i = 0; i < particleSystems.Length; i++)
+                    particleSystems[i].gameObject.SetActive(extinguish[i]);
+            }
             extinguishStateSet = true;
         }
     }
@@ -109,14 +121,14 @@ public class SERI_FireVisualManager : MonoBehaviour
 
     public void SetParams(float durationFactor, float lifetimeMultiplier)
     {
-//        foreach (ParticleSystem ps in particleSystems)
-//        {
+        if (particleSystems != null)
+        {
             var main = particleSystems[0].main;
             //var main = ps.main;
             //main.startSizeMultiplier *= UnityEngine.Random.Range(1f - fireSizeVariability, 1f + fireSizeVariability);   // Randomize
             main.duration = main.duration * durationFactor;
             main.startLifetimeMultiplier = lifetimeMultiplier;
-//        }
+        }
     }
 
     public void SetSize(float newSize)
@@ -136,7 +148,7 @@ public class SERI_FireVisualManager : MonoBehaviour
     {
         if (particleSystems == null)
         {
-            Debug.Log(name + ".RandomizeFires()... Can't randomize yet... m_particleSystems == null... parent:" + transform.parent + " size:" + size);
+            Debug.Log(name + ".RandomizeFires()... Can't randomize... m_particleSystems == null... parent:" + transform.parent + " size:" + size);
             return;
         }
 
