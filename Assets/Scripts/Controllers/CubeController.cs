@@ -1,4 +1,5 @@
 //using System;
+using Assets.Scripts.Models;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -132,11 +133,17 @@ public class CubeController : MonoBehaviour
     /* Data */
     private CubeDataType dataType;              // Cube data type (1- or 2-story)
     private TextAsset[] dataFiles;              // Data files for different warming scenarios  
-    private float[][,] dataArray;               // Data arrays by [warming idx][row, col]
+    private float[][,] dataArray;               // Data arrays by [warming idx][row, col] in desktop version OR [time idx offset][row, col] in web version
+    private float[][,] nextDataArray;           // Used for pre-loading data in web version
+    private CubeDataRow[] dataRows;             // Data rows for web loaded data
+    private CubeDataRow[] nextDataRows;         // Used for pre-loading data in web version
+    private int currentDataTimeIdx = -1;        
+    private int dataFrontier = -1;
+
     private int dataLength;                     // Data file line count
 
-    private string[] dataHeadings;              // Data headings
-    private string[] dataDates;                 // Dates by time index
+    //private string[] dataHeadings;              // Data headings
+    //private List<DateModel> dataDates;          // Dates by time index
 
     public int warmingIdx;                     // Current warming index
     public int warmingDegrees;                 // Current warming degrees
@@ -397,7 +404,12 @@ public class CubeController : MonoBehaviour
 
         cubeObject.SetActive(true);
 
-        UpdateCurrentData(timeIdx);                                         // Initial update of data parameters
+        // Initial update of data parameters
+        if (settings.BuildForWeb)
+            UpdateDataFromWeb(timeIdx, false);
+        else
+            UpdateCurrentData(timeIdx);
+
         soilController.UpdateParams(timeStep, WaterAccess, DepthToGW);      // Initial update of soil parameters
         snowManager.snowValue = Mathf.Clamp(MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, 0f, snowScalingFactor), 0f, snowScalingFactor);
 
@@ -915,13 +927,19 @@ public class CubeController : MonoBehaviour
     /// <param name="dataFile">Data file.</param>
     public void InitializeData(TextAsset dataFile)
     {
+        if (settings.BuildForWeb)
+            return;
+        
         List<string> rawData = TextAssetToList(dataFile);
 
         dataLength = rawData.Count - 1;                             // Set data length (raw data length - 1 for blank space at end)
-        dataDates = new string[dataLength];
-        dataHeadings = rawData[0].Split(' ');
+        //dataDates = new string[dataLength];
+        //dataHeadings = rawData[0].Split(' ');
         dataFiles = new TextAsset[warmingRange];
         dataArray = new float[warmingRange][,];
+        nextDataArray = new float[warmingRange][,];
+        dataRows = new CubeDataRow[0];
+        nextDataRows = new CubeDataRow[0];
 
         if (isAggregate)
         {
@@ -1042,6 +1060,12 @@ public class CubeController : MonoBehaviour
         timeIdx = newTimeIdx;
 
         timeStep = curTimeStep;
+
+        if (settings.BuildForWeb)
+        {
+            if (timeIdx % 10 * timeStep == 0)
+                UpdateDataFromWeb(timeIdx, false);
+        }
 
         if (timeIdx >= 0 && timeIdx < dataLength)
         {
@@ -1482,6 +1506,57 @@ public class CubeController : MonoBehaviour
         }
     }
 
+    public void UpdateDataFromWeb(int newTimeIdx, bool full) {
+        if (full)
+        {
+            currentDataTimeIdx = 0;
+            dataFrontier = GameController.Instance.GetEndTimeIdx();
+            Debug.Log("UpdateDataFromWeb()... full newTimeIdx: " + newTimeIdx + " set dataFrontier: " + dataFrontier);
+            dataRows = nextDataRows;
+            WebManager.Instance.RequestData(patchID, warmingIdx, this.FindParameterRangesFromWeb);
+        }
+        else
+        {
+            currentDataTimeIdx = newTimeIdx;
+            dataFrontier = timeIdx + 9 * timeStep < GameController.Instance.GetEndTimeIdx() ? timeIdx + 9 * timeStep : GameController.Instance.GetEndTimeIdx();
+            Debug.Log("UpdateDataFromWeb()... newTimeIdx: " + newTimeIdx+ " set dataFrontier: "+ dataFrontier);
+            dataRows = nextDataRows;
+            WebManager.Instance.RequestData(patchID, warmingIdx, timeIdx, dataFrontier, this.UpdateNextDataRowsFromJSON);
+        }
+    }
+
+    private void UpdateNextDataRowsFromJSON(string jsonString)
+    {
+        //CubeDataRow[] rows = JsonUtility.FromJson<CubeDataRow[]>(jsonString);
+        CubeDataRowList rowsObj = JsonUtility.FromJson<CubeDataRowList>("{\"rows\":" + jsonString + "}");
+        CubeDataRow[] rows = rowsObj.rows;
+
+        Debug.Log("UpdateNextDataRowsFromJSON()... rows.Length: " + rows.Length);
+
+        nextDataRows = rows;
+    }
+
+    private void UpdateDataRowsFromJSON(string jsonString)
+    {
+        CubeDataRowList rowsObj = JsonUtility.FromJson<CubeDataRowList>("{\"rows\":" + jsonString + "}");
+        CubeDataRow[] rows = rowsObj.rows;
+
+        //CubeDataRow[] rows = JsonUtility.FromJson<CubeDataRow[]>(jsonString);
+
+        Debug.Log("UpdateDataRowsFromJSON()... rows.Length: " + rows.Length);
+
+        dataRows = rows;
+
+        FindParameterRanges();
+    }
+
+    private void FindParameterRangesFromWeb(string jsonString)
+    {
+        UpdateDataRowsFromJSON(jsonString);
+        FindParameterRanges();
+
+    }
+
     /// <summary>
     /// Update data from model output for current time
     /// </summary>
@@ -1493,51 +1568,105 @@ public class CubeController : MonoBehaviour
 
         timeIdx = newTimeIdx;
 
-        if (dataType == CubeDataType.Veg1)
+        if (settings.BuildForWeb)
         {
-            SnowAmount = ReadData((int)DataColumnIdx.Snow, timeIdx);
-            DepthToGW = ReadData((int)DataColumnIdx.DepthToGW, timeIdx);
-            WaterAccess = ReadData((int)DataColumnIdx.WaterAccess, timeIdx);
-            StreamHeight = ReadData((int)DataColumnIdx.StreamLevel, timeIdx);
-            Litter = ReadData((int)DataColumnIdx.Litter, timeIdx);
-            TransOver = ReadData((int)DataColumnIdx.TransOver, timeIdx);
-            LeafCarbonOver = ReadData((int)DataColumnIdx.LeafCarbonOver, timeIdx);
-            StemCarbonOver = ReadData((int)DataColumnIdx.StemCarbonOver, timeIdx);
-            RootsCarbonOver = ReadData((int)DataColumnIdx.RootCarbonOver, timeIdx);
+            CubeDataRow row = GetDataRow(timeIdx);
+            if (dataType == CubeDataType.Veg1)
+            {
+                SnowAmount = row.Snow;
+                DepthToGW = row.DepthToGW;
+                WaterAccess = row.WaterAccess;
+                StreamHeight = row.StreamLevel;
+                Litter = row.Litter;
+                TransOver = row.TransOver;
+                LeafCarbonOver = row.LeafCarbonOver;
+                StemCarbonOver = row.StemCarbonOver;
+                RootsCarbonOver = row.RootCarbonOver;
+            }
+            else if (dataType == CubeDataType.Veg2)
+            {
+                SnowAmount = row.Snow;
+                DepthToGW = row.DepthToGW;
+                WaterAccess = row.WaterAccess;
+                StreamHeight = row.StreamLevel;
+                Litter = row.Litter;
+                TransOver = row.TransOver;
+                TransUnder = row.TransUnder;
+                LeafCarbonOver = row.LeafCarbonOver;
+                LeafCarbonUnder = row.LeafCarbonUnder;
+                StemCarbonOver = row.StemCarbonOver;
+                StemCarbonUnder = row.StemCarbonUnder;
+                RootsCarbonOver = row.RootCarbonOver;
+                RootsCarbonUnder = row.RootCarbonUnder;
+            }
+            else if (dataType == CubeDataType.Agg)
+            {
+                SnowAmount = row.Snow;
+                DepthToGW = row.DepthToGW;
+                WaterAccess = row.WaterAccess;
+                StreamHeight = row.StreamLevel;
+                Litter = row.Litter;
+                NetTranspiration = row.TransOver;
+                LeafCarbonOver = row.LeafCarbonOver;
+                LeafCarbonUnder = row.LeafCarbonUnder;
+                StemCarbonOver = row.StemCarbonOver;
+                StemCarbonUnder = row.StemCarbonUnder;
+                RootsCarbonOver = row.RootCarbonOver;
+                RootsCarbonUnder = row.RootCarbonUnder;
+            }
         }
-        else if (dataType == CubeDataType.Veg2)
+        else
         {
-            SnowAmount = ReadData((int)DataColumnIdx.Snow, timeIdx);
-            DepthToGW = ReadData((int)DataColumnIdx.DepthToGW, timeIdx);
-            WaterAccess = ReadData((int)DataColumnIdx.WaterAccess, timeIdx);
-            StreamHeight = ReadData((int)DataColumnIdx.StreamLevel, timeIdx);
-            Litter = ReadData((int)DataColumnIdx.Litter, timeIdx);
-            TransOver = ReadData((int)DataColumnIdx.TransOver, timeIdx);
-            TransUnder = ReadData((int)DataColumnIdx.TransUnder, timeIdx);
-            LeafCarbonOver = ReadData((int)DataColumnIdx.LeafCarbonOver, timeIdx);
-            LeafCarbonUnder = ReadData((int)DataColumnIdx.LeafCarbonUnder, timeIdx);
-            StemCarbonOver = ReadData((int)DataColumnIdx.StemCarbonOver, timeIdx);
-            StemCarbonUnder = ReadData((int)DataColumnIdx.StemCarbonUnder, timeIdx);
-            RootsCarbonOver = ReadData((int)DataColumnIdx.RootCarbonOver, timeIdx);
-            RootsCarbonUnder = ReadData((int)DataColumnIdx.RootCarbonUnder, timeIdx);
-        }
-        else if (dataType == CubeDataType.Agg)
-        {
-            SnowAmount = ReadData((int)AggregateDataColumnIdx.Snow, timeIdx);
-            DepthToGW = ReadData((int)AggregateDataColumnIdx.DepthToGW, timeIdx);
-            WaterAccess = ReadData((int)AggregateDataColumnIdx.WaterAccess, timeIdx);
-            StreamHeight = ReadData((int)AggregateDataColumnIdx.StreamLevel, timeIdx);
-            Litter = ReadData((int)AggregateDataColumnIdx.Litter, timeIdx);
-            NetTranspiration = ReadData((int)AggregateDataColumnIdx.Trans, timeIdx);
-            LeafCarbonOver = ReadData((int)AggregateDataColumnIdx.LeafCarbonOver, timeIdx);
-            LeafCarbonUnder = ReadData((int)AggregateDataColumnIdx.LeafCarbonUnder, timeIdx);
-            StemCarbonOver = ReadData((int)AggregateDataColumnIdx.StemCarbonOver, timeIdx);
-            StemCarbonUnder = ReadData((int)AggregateDataColumnIdx.StemCarbonUnder, timeIdx);
-            RootsCarbonOver = ReadData((int)AggregateDataColumnIdx.RootCarbonOver, timeIdx);
-            RootsCarbonUnder = ReadData((int)AggregateDataColumnIdx.RootCarbonUnder, timeIdx);
+            if (dataType == CubeDataType.Veg1)
+            {
+                SnowAmount = ReadData((int)DataColumnIdx.Snow, timeIdx);
+                DepthToGW = ReadData((int)DataColumnIdx.DepthToGW, timeIdx);
+                WaterAccess = ReadData((int)DataColumnIdx.WaterAccess, timeIdx);
+                StreamHeight = ReadData((int)DataColumnIdx.StreamLevel, timeIdx);
+                Litter = ReadData((int)DataColumnIdx.Litter, timeIdx);
+                TransOver = ReadData((int)DataColumnIdx.TransOver, timeIdx);
+                LeafCarbonOver = ReadData((int)DataColumnIdx.LeafCarbonOver, timeIdx);
+                StemCarbonOver = ReadData((int)DataColumnIdx.StemCarbonOver, timeIdx);
+                RootsCarbonOver = ReadData((int)DataColumnIdx.RootCarbonOver, timeIdx);
+            }
+            else if (dataType == CubeDataType.Veg2)
+            {
+                SnowAmount = ReadData((int)DataColumnIdx.Snow, timeIdx);
+                DepthToGW = ReadData((int)DataColumnIdx.DepthToGW, timeIdx);
+                WaterAccess = ReadData((int)DataColumnIdx.WaterAccess, timeIdx);
+                StreamHeight = ReadData((int)DataColumnIdx.StreamLevel, timeIdx);
+                Litter = ReadData((int)DataColumnIdx.Litter, timeIdx);
+                TransOver = ReadData((int)DataColumnIdx.TransOver, timeIdx);
+                TransUnder = ReadData((int)DataColumnIdx.TransUnder, timeIdx);
+                LeafCarbonOver = ReadData((int)DataColumnIdx.LeafCarbonOver, timeIdx);
+                LeafCarbonUnder = ReadData((int)DataColumnIdx.LeafCarbonUnder, timeIdx);
+                StemCarbonOver = ReadData((int)DataColumnIdx.StemCarbonOver, timeIdx);
+                StemCarbonUnder = ReadData((int)DataColumnIdx.StemCarbonUnder, timeIdx);
+                RootsCarbonOver = ReadData((int)DataColumnIdx.RootCarbonOver, timeIdx);
+                RootsCarbonUnder = ReadData((int)DataColumnIdx.RootCarbonUnder, timeIdx);
+            }
+            else if (dataType == CubeDataType.Agg)
+            {
+                SnowAmount = ReadData((int)AggregateDataColumnIdx.Snow, timeIdx);
+                DepthToGW = ReadData((int)AggregateDataColumnIdx.DepthToGW, timeIdx);
+                WaterAccess = ReadData((int)AggregateDataColumnIdx.WaterAccess, timeIdx);
+                StreamHeight = ReadData((int)AggregateDataColumnIdx.StreamLevel, timeIdx);
+                Litter = ReadData((int)AggregateDataColumnIdx.Litter, timeIdx);
+                NetTranspiration = ReadData((int)AggregateDataColumnIdx.Trans, timeIdx);
+                LeafCarbonOver = ReadData((int)AggregateDataColumnIdx.LeafCarbonOver, timeIdx);
+                LeafCarbonUnder = ReadData((int)AggregateDataColumnIdx.LeafCarbonUnder, timeIdx);
+                StemCarbonOver = ReadData((int)AggregateDataColumnIdx.StemCarbonOver, timeIdx);
+                StemCarbonUnder = ReadData((int)AggregateDataColumnIdx.StemCarbonUnder, timeIdx);
+                RootsCarbonOver = ReadData((int)AggregateDataColumnIdx.RootCarbonOver, timeIdx);
+                RootsCarbonUnder = ReadData((int)AggregateDataColumnIdx.RootCarbonUnder, timeIdx);
+            }
         }
     }
 
+    CubeDataRow GetDataRow(int timeIdx)
+    {
+        return dataRows[timeIdx - currentDataTimeIdx];
+    }
     #endregion
 
     #region Vegetation
@@ -2408,9 +2537,9 @@ public class CubeController : MonoBehaviour
     {
         if (!terrainBurning && !terrainBurnt)
         {
-            if (fireTimeIdx + 1 > dataDates.Length - 2)
+            if (fireTimeIdx + 1 > GameController.Instance.GetDates().Count - 2)
             {
-                Debug.Log(name + ".IgniteTerrain()...  cancelling burn... fire time after data length!  fireTimeIdx:" + fireTimeIdx+" dataDates.Length:" + dataDates.Length);
+                Debug.Log(name + ".IgniteTerrain()...  cancelling burn... fire time after data length!  fireTimeIdx:" + fireTimeIdx);
                 return;
             }
 
@@ -3055,8 +3184,12 @@ public class CubeController : MonoBehaviour
     {
         //Debug.Log(transform.name + " GetCurrentData... warmingIdx:" + warmingIdx);
 
-        return dataArray[warmingIdx];
+        if (settings.BuildForWeb)
+            return null;
+        else
+            return dataArray[warmingIdx];
     }
+
 
     /// <summary>
     /// Check whether data exists.
@@ -3064,7 +3197,10 @@ public class CubeController : MonoBehaviour
     /// <returns>Whether data array is null</returns>
     public bool DataExists()
     {
-        return dataArray != null;
+        if (settings.BuildForWeb)
+            return true;                // TO DO: Improve
+        else
+            return dataArray != null;
     }
 
     /// <summary>
@@ -3074,7 +3210,26 @@ public class CubeController : MonoBehaviour
     /// <param name="index">Cube index.</param>
     public float[,] GetDataForWarmingIdx(int index)
     {
-        return dataArray[index];
+        if (settings.BuildForWeb)       // Note: ignores index in build for web mode
+        {
+            float[,] result = new float[dataRows.Length, (int)DataColumnIdx.Day - 1];
+            int count = 0;
+            foreach(CubeDataRow row in dataRows)
+            {
+                //Debug.Log(name + ".GetDataForWarmingIdx()... BuildforWeb... #" + count + " row.GetArray().Length:" + row.GetArray().Length + " vs. (int)DataColumnIdx.Day:" + (int)DataColumnIdx.Day);
+                //Debug.Log(name + ".GetDataForWarmingIdx()... dataRows.Length:" + dataRows.Length +" result.GetLength(0):" + result.GetLength(0) + " result.GetLength(1):" + result.GetLength(1));
+                
+                for (int i = 0; i < (int)DataColumnIdx.Day - 1; i++)
+                {
+                    result[count, i] = row.GetArray()[i];
+                }
+                count++;
+            }
+
+            return result;
+        }
+        else
+            return dataArray[index];
     }
 
     /// <summary>
@@ -3092,11 +3247,20 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void FindParameterRanges()
     {
-        for(int w=0; w<warmingRange; w++)
+        if (settings.BuildForWeb)
         {
-            float[,] cubeData = GetDataForWarmingIdx(w);
+            float[,] cubeData = GetDataForWarmingIdx(0);
             CalculateSoilRanges(cubeData, false);
             CalculateParameterRanges(cubeData, false);
+        }
+        else
+        {
+            for (int w=0; w<warmingRange; w++)
+            {
+                float[,] cubeData = GetDataForWarmingIdx(w);
+                CalculateSoilRanges(cubeData, false);
+                CalculateParameterRanges(cubeData, false);
+            }
         }
     }
 
@@ -3494,11 +3658,24 @@ public class CubeController : MonoBehaviour
 
         //Debug.Log(name+">>> dataLength:" + dataLength + " columns:" + columns+ " tempData.length:"+ tempData.Length+ " isAggregate:"+ isAggregate);
 
+        if (name.Contains("CubeF") && !settings.BuildForWeb)      // Temp. hack
+        {
+            GameController.Instance.dataDates = new List<DateModel>();
+        }
+
         for (int row = 1; row < dataLength; row++)                      // Store data in 'data' 2D array
         {
             tempData = rawData[row].Split(' ');
 
-            dataDates[row - 1] = tempData[0];                           // Store date string
+            if(name.Contains("CubeF") && !settings.BuildForWeb)      // Temp. hack
+            {
+                DateModel newDate = new DateModel();
+                newDate.year = int.Parse(tempData[0].Split('-')[0]);
+                newDate.month = int.Parse(tempData[0].Split('-')[0]);
+                newDate.day = int.Parse(tempData[0].Split('-')[0]);
+                GameController.Instance.dataDates.Add(newDate);
+            }
+            //dataDates[row - 1] = tempData[0];                           // Store date string
             dataArr[row - 1, 0] = row - 1;                              // Store line index as first element in row
 
             for (int col = 1; col < columns; col++)
@@ -3763,10 +3940,19 @@ public class CubeController : MonoBehaviour
     /// Gets the data dates.
     /// </summary>
     /// <returns>The data dates.</returns>
-    public string[] GetDataDates()
-    {
-        return dataDates;
-    }
+    //public List<DateModel> GetDataDates()
+    //{
+    //    return dataDates;
+    //}
+
+    /// <summary>
+    /// Gets the data dates.
+    /// </summary>z
+    /// <returns>The data dates.</returns>
+    //public void SetDataDates(string[] newDataDates)
+    //{
+    //    dataDates = newDataDates;
+    //}
 
     /// <summary>
     /// Shows model data display for cube.
@@ -3792,55 +3978,55 @@ public class CubeController : MonoBehaviour
     /// Gets the first date year.
     /// </summary>
     /// <returns>The first date year.</returns>
-    public int GetFirstDateYear()
-    {
-        return int.Parse(dataDates[0].Split('-')[0]);
-    }
+    //public int GetFirstDateYear()
+    //{
+    //    return int.Parse(dataDates[0].Split('-')[0]);
+    //}
 
     /// <summary>
     /// Gets the last date year.
     /// </summary>
     /// <returns>The last date year.</returns>
-    public int GetLastDateYear()
-    {
-        return int.Parse(dataDates[dataDates.Length - 2].Split('-')[0]);
-    }
+    //public int GetLastDateYear()
+    //{
+    //    return int.Parse(dataDates[dataDates.Length - 2].Split('-')[0]);
+    //}
 
     /// <summary>
     /// Gets the last date year.
     /// </summary>
     /// <returns>The last date year.</returns>
-    public int GetLastDateMonth()
-    {
-        return int.Parse(dataDates[dataDates.Length - 2].Split('-')[1]);
-    }
+    //public int GetLastDateMonth()
+    //{
+    //    return int.Parse(dataDates[dataDates.Length - 2].Split('-')[1]);
+    //}
 
-    /// <summary>
-    /// Gets the last date year.
-    /// </summary>
-    /// <returns>The last date year.</returns>
-    public int GetLastDateDay()
-    {
-        return int.Parse(dataDates[dataDates.Length - 2].Split('-')[1]);
-    }
+    ///// <summary>
+    ///// Gets the last date year.
+    ///// </summary>
+    ///// <returns>The last date year.</returns>
+    //public int GetLastDateDay()
+    //{
+    //    return int.Parse(dataDates[dataDates.Length - 2].Split('-')[1]);
+    //}
 
     /// <summary>
     /// Gets the first date year.
     /// </summary>
     /// <returns>The first date year.</returns>
-    public int GetFirstDateMonth()
-    {
-        return int.Parse(dataDates[0].Split('-')[1]);
-    }
+    //public int GetFirstDateMonth()
+    //{
+    //    return int.Parse(dataDates[0].Split('-')[1]);
+    //}
 
-    /// <summary>
-    /// Gets the first date year.
-    /// </summary>
-    /// <returns>The first date year.</returns>
-    public int GetFirstDateDay()
-    {
-        return int.Parse(dataDates[0].Split('-')[2]);
-    }
+    ///// <summary>
+    ///// Gets the first date year.
+    ///// </summary>
+    ///// <returns>The first date year.</returns>
+    //public int GetFirstDateDay()
+    //{
+    //    return int.Parse(dataDates[0].Split('-')[2]);
+    //}
 
     #endregion
 

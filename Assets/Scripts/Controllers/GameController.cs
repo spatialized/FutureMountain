@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Collections;
 using System.IO;
 using UnityEngine.UI;
+using static CubeController;
+using Assets.Scripts.Models;
 
 /// <summary>
 /// Game controller.
@@ -15,6 +17,7 @@ public class GameController : MonoBehaviour
     private bool debugGame = true;                  // Debug messages on / off
     private bool debugModel = false;                // Debug model (graph) display
     private bool debugFire = true;                  // Debug fire
+    private bool debugWeb = true;
 
     private bool debugDetailed = true;              // Detailed debugging
     private bool debugMessages = false;             // Debug messages on / off
@@ -123,7 +126,8 @@ public class GameController : MonoBehaviour
     public LandscapeData landscapeDataList;         // Data for landscape
     public CubeDataList aggregateCubeDataList;      // Data for aggregate cube
     public CubeDataList cubeDataList;               // Data for cubes
-    private string[] dataDates;                     // Dates (taken from Cube 1)
+    //private string[] dataDates;                     // Dates (taken from Cube 1) -- OBSOLETE
+    public List<DateModel> dataDates;              // List of dates in model data
 
     /* Simulation */
     public bool sideBySideMode = false;                      // Side-by-Side mode flag
@@ -134,7 +138,8 @@ public class GameController : MonoBehaviour
     private int simulationStartMonth, simulationEndMonth;     // Start + end month
     private int simulationStartDay, simulationEndDay;         // Start + end day
 
-    private string curDate = "";                              // Current date as string 
+    //private string curDate = "";                              // Current date as string 
+    private DateModel curDate = new DateModel();              // Current date  
     private int warmingIdx = 0;                               // Current warming index (0-4)
     private int warmingDegrees = 0;                           // Current warming degrees (0, 1, 2, 4, 6)
 
@@ -263,11 +268,21 @@ public class GameController : MonoBehaviour
         InitializeGame();
     }
 
+    void test1(string jsonString)
+    {
+        Debug.Log("jsonString:" + jsonString);
+    }
+
     /// <summary>
     /// Initializes main game objects.
     /// </summary>
     private void InitializeGame()
     {
+        //// TESTING
+        WebManager.Instance.RequestData(-1, 1, 1, 10, this.test1);
+
+        /// END TESTING
+
         /* Set Main Game Objects */
         //mainGameObject = transform.parent.gameObject;
         Assert.IsNotNull(cameraController);
@@ -397,7 +412,7 @@ public class GameController : MonoBehaviour
         cube2Stats.SetActive(false);
 
         Assert.IsNotNull(warmingLevelText);
-        
+
         warmingLevelText.SetActive(false);
 
         cubes = new CubeController[5];
@@ -416,7 +431,7 @@ public class GameController : MonoBehaviour
         aggregateSideCubeController = aggregateCubeObject_Side.GetComponent<CubeController>() as CubeController;
 
         /* Initialize Side-by-Side Cubes */
-        for (int i=0; i<cubes.Length; i++)
+        for (int i = 0; i < cubes.Length; i++)
         {
             CubeController cube = cubes[i];
             CubeController sideCube = sideCubes[i];
@@ -427,7 +442,7 @@ public class GameController : MonoBehaviour
             cube.simulationOn = true;
 
             cube.SetupObjects();
-            sideCube.SetupObjects();            
+            sideCube.SetupObjects();
 
             Vector3 newPos = sideCube.transform.position;   // Offset side cube from original
             newPos.x -= settings.SideBySideModeXOffset;
@@ -543,7 +558,7 @@ public class GameController : MonoBehaviour
             introPanel.SetActive(false);
 
             int idx = fireCubes ? 5 : 0;
-            int warmingRange = cubeDataList.data[idx].list.Count;           // Find warming range
+            //int warmingRange = cubeDataList.data[idx].list.Count;           // Find warming range
 
             warmingIdx = warmingKnobSlider.GetWarmingIndex();               // Get current warming index from knob
             warmingDegrees = warmingKnobSlider.GetWarmingDegrees();         // Get current warming degrees from knob
@@ -552,417 +567,1085 @@ public class GameController : MonoBehaviour
 
             yield return null;
 
-            int offset = fireCubes ? 5 : 0;                                  // Use fire or non-fire data
-            idx = offset;
+            //int offset = fireCubes ? 5 : 0;                                  // Use fire or non-fire data
+            //idx = offset;
 
-            if (cube1Object != null)
+            //if (settings.BuildForWeb)
+            //{
+
+            //}
+
+
+            if (settings.BuildForWeb)
             {
-                cubes[0].SetWarmingRange(warmingRange);
-                cubes[0].InitializeData(cubeDataList.data[idx].list[0]);
-
-                int count = 0;
-                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-                {
-                    cubes[0].ProcessDataTextAsset(cubeDataText, count);
-                    count++;
-                }
-
-                cubes[0].Initialize(etPrefab, shrubETPrefab, firePrefab);
-                cubes[0].SetWarmingIdx(warmingIdx);
-                cubes[0].SetWarmingDegrees(warmingDegrees);
-                cubes[0].FindParameterRanges();
-                cubes[0].SetModelDebugMode(debugModel);
-
-                endTimeIdx = cubes[0].GetDataLength();
-                dataDates = cubes[0].GetDataDates();                 // Dates by time index
-                //Debug.Log("Set dataDates... length: " + dataDates.Length);
-                string[] firstDateFields = dataDates[0].Split('-');  // Save data file headings
-                cubeStartYear = int.Parse(firstDateFields[0]);
-                cubeStartMonth = int.Parse(firstDateFields[1]);
-                cubeStartDay = int.Parse(firstDateFields[2]);
-
-                string[] lastDateFields = dataDates[dataDates.Length - 2].Split('-');
-                cubeEndYear = int.Parse(lastDateFields[0]);
-                cubeEndMonth = int.Parse(lastDateFields[1]);
-                cubeEndDay = int.Parse(lastDateFields[2]);
-
-                // Setup side-by-side comparison cube
-                sideCubes[0].SetWarmingRange(warmingRange);
-                sideCubes[0].InitializeData(cubeDataList.data[idx].list[0]);
-
-                count = 0;
-                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-                {
-                    sideCubes[0].ProcessDataTextAsset(cubeDataText, count);
-                    count++;
-                }
-
-                sideCubes[0].Initialize(etPrefab, shrubETPrefab, firePrefab);
-                sideCubes[0].SetWarmingIdx(warmingIdx);
-                sideCubes[0].SetWarmingDegrees(warmingDegrees);
-                sideCubes[0].FindParameterRanges();
-                sideCubes[0].SetModelDebugMode(debugModel);
-
-                sideCubes[0].gameObject.SetActive(false);
+                WebManager.Instance.GetDataDates(this.SetDataDatesAndFinishStarting);
             }
             else
             {
-                Debug.Log(name + ".StartSimulationRun()... No Cube1!");
+                StartCoroutine(FinishStarting());
             }
 
-            yield return null;
-
-            idx = 1 + offset;
-            if (cube2Object != null)
-            {
-                cubes[1].SetWarmingRange(warmingRange);
-                cubes[1].InitializeData(cubeDataList.data[idx].list[0]);
-
-                int count = 0;
-                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-                {
-                    cubes[1].ProcessDataTextAsset(cubeDataText, count);
-                    count++;
-                }
-                cubes[1].Initialize(etPrefab, shrubETPrefab, firePrefab);
-                cubes[1].SetWarmingIdx(warmingIdx);
-                cubes[1].SetWarmingDegrees(warmingDegrees);
-                cubes[1].FindParameterRanges();
-                cubes[1].SetModelDebugMode(debugModel);
-
-                // Setup side-by-side comparison cube
-                sideCubes[1].SetWarmingRange(warmingRange);
-                sideCubes[1].InitializeData(cubeDataList.data[idx].list[0]);
-
-                count = 0;
-                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-                {
-                    sideCubes[1].ProcessDataTextAsset(cubeDataText, count);
-                    count++;
-                }
-
-                sideCubes[1].Initialize(etPrefab, shrubETPrefab, firePrefab);
-                sideCubes[1].SetWarmingIdx(warmingIdx);
-                sideCubes[1].SetWarmingDegrees(warmingDegrees);
-                sideCubes[1].FindParameterRanges();
-                sideCubes[1].SetModelDebugMode(debugModel);
-
-                sideCubes[1].gameObject.SetActive(false);
-            }
-            else
-            {
-                Debug.Log(name + ".StartSimulationRun()... No Cube2!");
-            }
-
-            yield return null;
-
-            idx = 2 + offset;
-            if (cube3Object != null)
-            {
-                cubes[2].SetWarmingRange(warmingRange);
-                cubes[2].InitializeData(cubeDataList.data[idx].list[0]);
-
-                int count = 0;
-                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-                {
-                    cubes[2].ProcessDataTextAsset(cubeDataText, count);
-                    count++;
-                }
-                cubes[2].Initialize(etPrefab, shrubETPrefab, firePrefab);
-                cubes[2].SetWarmingIdx(warmingIdx);
-                cubes[2].SetWarmingDegrees(warmingDegrees);
-                cubes[2].FindParameterRanges();
-                cubes[2].SetModelDebugMode(debugModel);
-
-                // Setup side-by-side comparison cube
-                sideCubes[2].SetWarmingRange(warmingRange);
-                sideCubes[2].InitializeData(cubeDataList.data[idx].list[0]);
-
-                count = 0;
-                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-                {
-                    sideCubes[2].ProcessDataTextAsset(cubeDataText, count);
-                    count++;
-                }
-
-                sideCubes[2].Initialize(etPrefab, shrubETPrefab, firePrefab);
-                sideCubes[2].SetWarmingIdx(warmingIdx);
-                sideCubes[2].SetWarmingDegrees(warmingDegrees);
-                sideCubes[2].FindParameterRanges();
-                sideCubes[2].SetModelDebugMode(debugModel);
-
-                sideCubes[2].gameObject.SetActive(false);
-            }
-            else
-            {
-                Debug.Log(name + ".StartSimulationRun()... No Cube3!");
-            }
-
-            yield return null;
-
-            idx = 3 + offset;
-            if (cube4Object != null)
-            {
-                cubes[3].SetWarmingRange(warmingRange);
-                cubes[3].InitializeData(cubeDataList.data[idx].list[0]);
-
-                int count = 0;
-                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-                {
-                    cubes[3].ProcessDataTextAsset(cubeDataText, count);
-                    count++;
-                }
-                cubes[3].Initialize(etPrefab, shrubETPrefab, firePrefab);
-                cubes[3].SetWarmingIdx(warmingIdx);
-                cubes[3].SetWarmingDegrees(warmingDegrees);
-                cubes[3].FindParameterRanges();
-                cubes[3].SetModelDebugMode(debugModel);
-
-                // Setup side-by-side comparison cube
-                sideCubes[3].SetWarmingRange(warmingRange);
-                sideCubes[3].InitializeData(cubeDataList.data[idx].list[0]);
-
-                count = 0;
-                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-                {
-                    sideCubes[3].ProcessDataTextAsset(cubeDataText, count);
-                    count++;
-                }
-
-                sideCubes[3].Initialize(etPrefab, shrubETPrefab, firePrefab);
-                sideCubes[3].SetWarmingIdx(warmingIdx);
-                sideCubes[3].SetWarmingDegrees(warmingDegrees);
-                sideCubes[3].FindParameterRanges();
-                sideCubes[3].SetModelDebugMode(debugModel);
-
-                sideCubes[3].gameObject.SetActive(false);
-            }
-            else
-            {
-                Debug.Log(name + ".StartSimulationRun()... No Cube4!");
-            }
-
-            yield return null;
-
-            idx = 4 + offset;
-            if (cube5Object != null)
-            {
-                cubes[4].SetWarmingRange(warmingRange);
-                cubes[4].InitializeData(cubeDataList.data[idx].list[0]);
-
-                int count = 0;
-                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-                {
-                    cubes[4].ProcessDataTextAsset(cubeDataText, count);
-                    count++;
-                }
-                cubes[4].Initialize(etPrefab, shrubETPrefab, firePrefab);
-                cubes[4].SetWarmingIdx(warmingIdx);
-                cubes[4].SetWarmingDegrees(warmingDegrees);
-                cubes[4].FindParameterRanges();
-                cubes[4].SetModelDebugMode(debugModel);
-
-                // Setup side-by-side comparison cube
-                sideCubes[4].SetWarmingRange(warmingRange);
-                sideCubes[4].InitializeData(cubeDataList.data[idx].list[0]);
-
-                count = 0;
-                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-                {
-                    sideCubes[4].ProcessDataTextAsset(cubeDataText, count);
-                    count++;
-                }
-
-                sideCubes[4].Initialize(etPrefab, shrubETPrefab, firePrefab);
-                sideCubes[4].SetWarmingIdx(warmingIdx);
-                sideCubes[4].SetWarmingDegrees(warmingDegrees);
-                sideCubes[4].FindParameterRanges();
-                sideCubes[4].SetModelDebugMode(debugModel);
-
-                sideCubes[4].gameObject.SetActive(false);
-            }
-            else
-            {
-                Debug.Log(name + ".StartSimulationRun()... No Cube5!");
-            }
-
-            yield return null;
-
-            offset = fireCubes ? 1 : 0;
-            idx = offset;
-            if (aggregateCubeObject != null)
-            {
-                aggregateCubeController.SetWarmingRange(warmingRange);
-                aggregateCubeController.InitializeData(aggregateCubeDataList.data[idx].list[0]);
-
-                int counter = 0;
-                foreach (TextAsset cubeDataText in aggregateCubeDataList.data[idx].list)
-                {
-                    aggregateCubeController.ProcessDataTextAsset(cubeDataText, counter);
-                    counter++;
-                }
-
-                aggregateCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
-                aggregateCubeController.SetWarmingIdx(warmingIdx);
-                aggregateCubeController.SetWarmingDegrees(warmingDegrees);
-                aggregateCubeController.FindParameterRanges();
-                aggregateCubeController.SetModelDebugMode(debugModel);
-
-                aggregateSideCubeController.SetWarmingRange(warmingRange);
-                aggregateSideCubeController.InitializeData(aggregateCubeDataList.data[idx].list[0]);
-
-                counter = 0;
-                foreach (TextAsset cubeDataText in aggregateCubeDataList.data[idx].list)
-                {
-                    aggregateSideCubeController.ProcessDataTextAsset(cubeDataText, counter);
-                    counter++;
-                }
-
-                aggregateSideCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
-                aggregateSideCubeController.SetWarmingIdx(warmingIdx);
-                aggregateSideCubeController.SetWarmingDegrees(warmingDegrees);
-                aggregateSideCubeController.FindParameterRanges();
-                aggregateSideCubeController.SetModelDebugMode(debugModel);
-            }
-            else
-            {
-                Debug.Log(name + ".StartSimulationRun()... No Aggregate Cube!");
-            }
-
-            yield return null;
-
-            /* Initialize UI Messages */
-            List<UI_Message> messages = LoadMessagesFile(messagesFile, false);                 // Load messages
-            List<UI_Message> fireMessages = LoadMessagesFile(fireMessagesFile, true);          // Load fire messages 
-            List<UI_Message> currentMessages = new List<UI_Message>();                         // List of messages currently displayed
-
-            GameObject[] cubeLabels = new GameObject[6];
-            cubeLabels[0] = aggregateCubeController.cubeLabel;
-            for (int i = 0; i < 5; i++)
-                cubeLabels[i + 1] = cubes[i].cubeLabel;
-
-            messageManager.Initialize(messages, fireMessages, cubeLabels);                      // Create MessageManager
-            messageManager.ClearMessages();
-            messageManager.messagePanel.SetActive(true);
-
-            Debug.Log(name + ".StartSimulationRun()... Initialized messageManager...");
-
-            yield return null;
-
-            if (landscapeController.updateDate)
-            {
-                int startIdx = 0;
-                startIdx = GetTimeIdxForDay(landscapeController.simulationStartDay, landscapeController.simulationStartMonth, landscapeController.simulationStartYear);
-
-                Debug.Log("Setting start time index from streamflow file: startIdx:" + startIdx + " landscapeController.startYear:" + landscapeController.simulationStartYear + " month:" + landscapeController.simulationStartMonth);
-                if (debugMessages)
-                    DebugMessage("Setting start time index from streamflow file: startIdx:" + startIdx + " landscapeController.startYear:" + landscapeController.simulationStartYear + " month:" + landscapeController.simulationStartMonth, true);
-
-                simulationStartYear = landscapeController.simulationStartYear;
-                simulationEndYear = cubes[0].GetLastDateYear();
-
-                simulationStartMonth = landscapeController.simulationStartMonth;
-                simulationStartDay = landscapeController.simulationStartDay;
-
-                timeIdx = startIdx;                                             // Set timeIdx to beginning frame of streamflow data 
-            }
-            else
-            {
-                simulationStartYear = cubeStartYear;
-                simulationStartMonth = cubeStartMonth;
-                simulationStartDay = cubeStartDay;
-
-                simulationEndYear = cubeEndYear;
-                simulationEndMonth = cubeEndMonth;
-                simulationEndDay = cubeEndDay;
-
-                timeIdx = 0;                                                    // Set timeIdx to beginning frame of extents data 
-            }
-
-            Debug.Log(name + ".StartSimulationRun()... Initialized simulation dates...");
-
-            yield return null;
-
-            /* Set Fire Dates for CAW Installation */
-            fireDates = new Vector3[2];
-            fireDates[0] = new Vector3(7, 15, 1969);
-            fireDates[1] = new Vector3(11, 20, 1988);
-
-            fireFrames = new List<int>();
-            fireYears = new List<int>();
-
-            int ct = 0;
-            foreach (Vector3 date in fireDates)
-            {
-                fireFrames.Add(GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z));
-                fireYears.Add((int)date.z);
-                ct++;
-            }
-
-            yield return null;
-
-            Assert.IsNotNull(landscapeDataList);
-            landscapeController.SetupFires(fireDates, warmingIdx);
-
-            yield return null;
-
-            ShowCubes(false);
-
-            landscapeController.SetSnowVisibility(landscapeController.LandscapeSimulationIsOn());
-            landscapeController.ResetBackgroundSnow();
-
-            /* Set Message Dates for CAW Installation */
-
-            yield return null;
-
-            messageDates = new Vector3[messages.Count];
-            for (int i = 0; i < messages.Count; i++)
-            {
-                UI_Message message = messages[i];
-                if (message.AppliesToWarmingDegrees(warmingDegrees))
-                    messageDates[i] = message.GetDate();
-
-                //Debug.Log("Added message #"+i+" at:" + message.GetDate()+ " :" + message.GetMessage());
-            }
-
-            messageYears = new List<int>();
-
-            foreach (Vector3 date in messageDates)
-            {
-                //messageFrames.Add(GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z));
-                messageYears.Add((int)date.z);
-                ct++;
-            }
-
-            yield return null;
-
-            /* Create Timeline */
-            if (landscapeController.LandscapeSimulationIsOn())
-                uiTimeline.CreateTimeline(landscapeController.GetWaterData(), warmingIdx, warmingDegrees, fireYears, messageYears);
-            else
-                uiTimeline.CreateTestTimeline(simulationStartYear, simulationEndYear, warmingIdx, warmingDegrees, fireYears, messageYears);
-
-            if (debugGame)
-                Debug.Log(name + ".StartSimulationRun()... Created timeline... ");
-
-            yield return null;
-
-            /* Set Initial Sun Position */
-            InitSunTransition();
-
-            /* Show / Hide Data Display */
-            if (displayModel)
-                ShowStatistics();
-            else
-                HideStatistics();
-
-            starting = false;
+            //endTimeIdx = GetLastTimeIdx();
+
+            //ffff
+
+            //if (cube1Object != null)
+            //{
+            //    cubes[0].SetWarmingRange(warmingRange);
+            //    cubes[0].InitializeData(cubeDataList.data[idx].list[0]);
+
+            //    if (settings.BuildForWeb)
+            //    {
+            //        cubes[0].UpdateDataFromWeb(timeIdx, true);
+            //    }
+            //    else
+            //    {
+            //        int count = 0;
+            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+            //        {
+            //            cubes[0].ProcessDataTextAsset(cubeDataText, count);
+            //            count++;
+            //        }
+            //    }
+
+            //    cubes[0].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            //    cubes[0].SetWarmingIdx(warmingIdx);
+            //    cubes[0].SetWarmingDegrees(warmingDegrees);
+
+            //    if (!settings.BuildForWeb)
+            //        cubes[0].FindParameterRanges();
+
+            //    cubes[0].SetModelDebugMode(debugModel);
+
+            //    //else
+            //    //{
+            //        //SetDataDatesFromFile(); // -- TO DO
+            //        //dataDates = cubes[0].GetDataDates();                 // Dates by time index
+            //    //}
+
+            //    //Debug.Log("Set dataDates... length: " + dataDates.Length);
+            //    //string[] firstDateFields = dataDates[0].Split('-');  // Save data file headings
+            //    cubeStartYear = dataDates[0].year;
+            //    cubeStartMonth = dataDates[0].month;
+            //    cubeStartDay = dataDates[0].day;
+
+            //    //string[] lastDateFields = dataDates[dataDates.Length - 2].Split('-');
+            //    cubeEndYear = dataDates[dataDates.Count - 2].year;
+            //    cubeEndMonth = dataDates[dataDates.Count - 2].month;
+            //    cubeEndDay = dataDates[dataDates.Count - 2].day;
+
+            //    // Setup side-by-side comparison cube
+            //    sideCubes[0].SetWarmingRange(warmingRange);
+            //    sideCubes[0].InitializeData(cubeDataList.data[idx].list[0]);
+
+            //    if (settings.BuildForWeb)
+            //    {
+            //        sideCubes[0].UpdateDataFromWeb(timeIdx, true);
+            //    }
+            //    else
+            //    {
+            //        int count = 0;
+            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+            //        {
+            //            sideCubes[0].ProcessDataTextAsset(cubeDataText, count);
+            //            count++;
+            //        }
+            //    }
+
+            //    sideCubes[0].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            //    sideCubes[0].SetWarmingIdx(warmingIdx);
+            //    sideCubes[0].SetWarmingDegrees(warmingDegrees);
+            //    if (!settings.BuildForWeb)
+            //        sideCubes[0].FindParameterRanges();
+            //    sideCubes[0].SetModelDebugMode(debugModel);
+
+            //    sideCubes[0].gameObject.SetActive(false);
+            //}
+            //else
+            //{
+            //    Debug.Log(name + ".StartSimulationRun()... No Cube1!");
+            //}
+
+            //yield return null;
+
+            //idx = 1 + offset;
+            //if (cube2Object != null)
+            //{
+            //    cubes[1].SetWarmingRange(warmingRange);
+            //    cubes[1].InitializeData(cubeDataList.data[idx].list[0]);
+
+            //    int count = 0;
+            //    foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+            //    {
+            //        cubes[1].ProcessDataTextAsset(cubeDataText, count);
+            //        count++;
+            //    }
+            //    cubes[1].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            //    cubes[1].SetWarmingIdx(warmingIdx);
+            //    cubes[1].SetWarmingDegrees(warmingDegrees);
+            //    if (!settings.BuildForWeb)
+            //        cubes[1].FindParameterRanges();
+            //    cubes[1].SetModelDebugMode(debugModel);
+
+            //    // Setup side-by-side comparison cube
+            //    sideCubes[1].SetWarmingRange(warmingRange);
+            //    sideCubes[1].InitializeData(cubeDataList.data[idx].list[0]);
+
+            //    if (settings.BuildForWeb)
+            //    {
+            //        //sideCubes[1].UpdateDataFromWeb(timeIdx);
+            //    }
+            //    else
+            //    {
+            //        count = 0;
+            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+            //        {
+            //            sideCubes[1].ProcessDataTextAsset(cubeDataText, count);
+            //            count++;
+            //        }
+            //    }
+
+            //    sideCubes[1].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            //    sideCubes[1].SetWarmingIdx(warmingIdx);
+            //    sideCubes[1].SetWarmingDegrees(warmingDegrees);
+            //    if (!settings.BuildForWeb)
+            //        sideCubes[1].FindParameterRanges();
+            //    sideCubes[1].SetModelDebugMode(debugModel);
+
+            //    sideCubes[1].gameObject.SetActive(false);
+            //}
+            //else
+            //{
+            //    Debug.Log(name + ".StartSimulationRun()... No Cube2!");
+            //}
+
+            //yield return null;
+
+            //idx = 2 + offset;
+            //if (cube3Object != null)
+            //{
+            //    cubes[2].SetWarmingRange(warmingRange);
+            //    cubes[2].InitializeData(cubeDataList.data[idx].list[0]);
+
+            //    if (settings.BuildForWeb)
+            //    {
+            //        cubes[2].UpdateDataFromWeb(timeIdx, true);
+            //    }
+            //    else
+            //    {
+            //        int count = 0;
+            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+            //        {
+            //            cubes[2].ProcessDataTextAsset(cubeDataText, count);
+            //            count++;
+            //        }
+            //    }
+            //    cubes[2].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            //    cubes[2].SetWarmingIdx(warmingIdx);
+            //    cubes[2].SetWarmingDegrees(warmingDegrees);
+            //    if (!settings.BuildForWeb)
+            //        cubes[2].FindParameterRanges();
+            //    cubes[2].SetModelDebugMode(debugModel);
+
+            //    // Setup side-by-side comparison cube
+            //    sideCubes[2].SetWarmingRange(warmingRange);
+            //    sideCubes[2].InitializeData(cubeDataList.data[idx].list[0]);
+
+            //    if (settings.BuildForWeb)
+            //    {
+            //        //sideCubes[2].UpdateDataFromWeb(timeIdx, true);
+            //    }
+            //    else
+            //    {
+            //        int count = 0;
+            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+            //        {
+            //            sideCubes[2].ProcessDataTextAsset(cubeDataText, count);
+            //            count++;
+            //        }
+            //    }
+
+            //    sideCubes[2].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            //    sideCubes[2].SetWarmingIdx(warmingIdx);
+            //    sideCubes[2].SetWarmingDegrees(warmingDegrees);
+            //    if (!settings.BuildForWeb)
+            //        sideCubes[2].FindParameterRanges();
+            //    sideCubes[2].SetModelDebugMode(debugModel);
+
+            //    sideCubes[2].gameObject.SetActive(false);
+            //}
+            //else
+            //{
+            //    Debug.Log(name + ".StartSimulationRun()... No Cube3!");
+            //}
+
+            //yield return null;
+
+            //idx = 3 + offset;
+            //if (cube4Object != null)
+            //{
+            //    cubes[3].SetWarmingRange(warmingRange);
+            //    cubes[3].InitializeData(cubeDataList.data[idx].list[0]);
+
+            //    if (settings.BuildForWeb)
+            //    {
+            //        cubes[3].UpdateDataFromWeb(timeIdx, true);
+            //    }
+            //    else
+            //    {
+            //        int count = 0;
+            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+            //        {
+            //            cubes[3].ProcessDataTextAsset(cubeDataText, count);
+            //            count++;
+            //        }
+            //    }
+            //    cubes[3].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            //    cubes[3].SetWarmingIdx(warmingIdx);
+            //    cubes[3].SetWarmingDegrees(warmingDegrees);
+            //    if (!settings.BuildForWeb)
+            //        cubes[3].FindParameterRanges();
+            //    cubes[3].SetModelDebugMode(debugModel);
+
+            //    // Setup side-by-side comparison cube
+            //    sideCubes[3].SetWarmingRange(warmingRange);
+            //    sideCubes[3].InitializeData(cubeDataList.data[idx].list[0]);
+
+            //    if (settings.BuildForWeb)
+            //    {
+            //        //sideCubes[3].UpdateDataFromWeb(timeIdx);
+            //    }
+            //    else
+            //    {
+            //        int count = 0;
+            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+            //        {
+            //            sideCubes[3].ProcessDataTextAsset(cubeDataText, count);
+            //            count++;
+            //        }
+            //    }
+
+            //    sideCubes[3].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            //    sideCubes[3].SetWarmingIdx(warmingIdx);
+            //    sideCubes[3].SetWarmingDegrees(warmingDegrees);
+            //    if (!settings.BuildForWeb)
+            //        sideCubes[3].FindParameterRanges();
+            //    sideCubes[3].SetModelDebugMode(debugModel);
+
+            //    sideCubes[3].gameObject.SetActive(false);
+            //}
+            //else
+            //{
+            //    Debug.Log(name + ".StartSimulationRun()... No Cube4!");
+            //}
+
+            //yield return null;
+
+            //idx = 4 + offset;
+            //if (cube5Object != null)
+            //{
+            //    cubes[4].SetWarmingRange(warmingRange);
+            //    cubes[4].InitializeData(cubeDataList.data[idx].list[0]);
+
+            //    if (settings.BuildForWeb)
+            //    {
+            //        cubes[4].UpdateDataFromWeb(timeIdx, true);
+            //    }
+            //    else
+            //    {
+            //        int count = 0;
+            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+            //        {
+            //            sideCubes[4].ProcessDataTextAsset(cubeDataText, count);
+            //            count++;
+            //        }
+            //    }
+            //    cubes[4].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            //    cubes[4].SetWarmingIdx(warmingIdx);
+            //    cubes[4].SetWarmingDegrees(warmingDegrees);
+            //    if (!settings.BuildForWeb)
+            //        cubes[4].FindParameterRanges();
+            //    cubes[4].SetModelDebugMode(debugModel);
+
+            //    // Setup side-by-side comparison cube
+            //    sideCubes[4].SetWarmingRange(warmingRange);
+            //    sideCubes[4].InitializeData(cubeDataList.data[idx].list[0]);
+
+            //    if (settings.BuildForWeb)
+            //    {
+            //        //sideCubes[4].UpdateDataFromWeb(timeIdx, true);
+            //    }
+            //    else
+            //    {
+            //        int count = 0;
+            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+            //        {
+            //            sideCubes[4].ProcessDataTextAsset(cubeDataText, count);
+            //            count++;
+            //        }
+            //    }
+
+            //    sideCubes[4].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            //    sideCubes[4].SetWarmingIdx(warmingIdx);
+            //    sideCubes[4].SetWarmingDegrees(warmingDegrees);
+            //    if (!settings.BuildForWeb)
+            //        sideCubes[4].FindParameterRanges();
+            //    sideCubes[4].SetModelDebugMode(debugModel);
+
+            //    sideCubes[4].gameObject.SetActive(false);
+            //}
+            //else
+            //{
+            //    Debug.Log(name + ".StartSimulationRun()... No Cube5!");
+            //}
+
+            //yield return null;
+
+            //offset = fireCubes ? 1 : 0;
+            //idx = offset;
+            //if (aggregateCubeObject != null)
+            //{
+            //    aggregateCubeController.SetWarmingRange(warmingRange);
+            //    aggregateCubeController.InitializeData(aggregateCubeDataList.data[idx].list[0]);
+
+            //    if (settings.BuildForWeb)
+            //    {
+            //        aggregateCubeController.UpdateDataFromWeb(timeIdx, true);
+            //    }
+            //    else
+            //    {
+            //        int counter = 0;
+            //        foreach (TextAsset cubeDataText in aggregateCubeDataList.data[idx].list)
+            //        {
+            //            aggregateCubeController.ProcessDataTextAsset(cubeDataText, counter);
+            //            counter++;
+            //        }
+            //    }
+
+            //    aggregateCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
+            //    aggregateCubeController.SetWarmingIdx(warmingIdx);
+            //    aggregateCubeController.SetWarmingDegrees(warmingDegrees);
+            //    if (!settings.BuildForWeb)
+            //        aggregateCubeController.FindParameterRanges();
+            //    aggregateCubeController.SetModelDebugMode(debugModel);
+
+            //    aggregateSideCubeController.SetWarmingRange(warmingRange);
+            //    aggregateSideCubeController.InitializeData(aggregateCubeDataList.data[idx].list[0]);
+
+            //    if (settings.BuildForWeb)
+            //    {
+            //        aggregateSideCubeController.UpdateDataFromWeb(timeIdx, true);
+            //    }
+            //    else
+            //    {
+            //        int counter = 0;
+            //        foreach (TextAsset cubeDataText in aggregateCubeDataList.data[idx].list)
+            //        {
+            //            aggregateSideCubeController.ProcessDataTextAsset(cubeDataText, counter);
+            //            counter++;
+            //        }
+            //    }
+
+            //    aggregateSideCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
+            //    aggregateSideCubeController.SetWarmingIdx(warmingIdx);
+            //    aggregateSideCubeController.SetWarmingDegrees(warmingDegrees);
+            //    if (!settings.BuildForWeb)
+            //        aggregateSideCubeController.FindParameterRanges();
+            //    aggregateSideCubeController.SetModelDebugMode(debugModel);
+            //}
+            //else
+            //{
+            //    Debug.Log(name + ".StartSimulationRun()... No Aggregate Cube!");
+            //}
+
+            //yield return null;
+
+            ///* Initialize UI Messages */
+            //List<UI_Message> messages = LoadMessagesFile(messagesFile, false);                 // Load messages
+            //List<UI_Message> fireMessages = LoadMessagesFile(fireMessagesFile, true);          // Load fire messages 
+            //List<UI_Message> currentMessages = new List<UI_Message>();                         // List of messages currently displayed
+
+            //GameObject[] cubeLabels = new GameObject[6];
+            //cubeLabels[0] = aggregateCubeController.cubeLabel;
+            //for (int i = 0; i < 5; i++)
+            //    cubeLabels[i + 1] = cubes[i].cubeLabel;
+
+            //messageManager.Initialize(messages, fireMessages, cubeLabels);                      // Create MessageManager
+            //messageManager.ClearMessages();
+            //messageManager.messagePanel.SetActive(true);
+
+            //Debug.Log(name + ".StartSimulationRun()... Initialized messageManager...");
+
+            //yield return null;
+
+            //if (landscapeController.updateDate)
+            //{
+            //    int startIdx = 0;
+            //    startIdx = GetTimeIdxForDay(landscapeController.simulationStartDay, landscapeController.simulationStartMonth, landscapeController.simulationStartYear);
+
+            //    Debug.Log("Setting start time index from streamflow file: startIdx:" + startIdx + " landscapeController.startYear:" + landscapeController.simulationStartYear + " month:" + landscapeController.simulationStartMonth);
+            //    if (debugMessages)
+            //        DebugMessage("Setting start time index from streamflow file: startIdx:" + startIdx + " landscapeController.startYear:" + landscapeController.simulationStartYear + " month:" + landscapeController.simulationStartMonth, true);
+
+            //    simulationStartYear = landscapeController.simulationStartYear;
+            //    simulationEndYear = GetLastDateYear();
+
+            //    simulationStartMonth = landscapeController.simulationStartMonth;
+            //    simulationStartDay = landscapeController.simulationStartDay;
+
+            //    timeIdx = startIdx;                                             // Set timeIdx to beginning frame of streamflow data 
+            //}
+            //else
+            //{
+            //    simulationStartYear = cubeStartYear;
+            //    simulationStartMonth = cubeStartMonth;
+            //    simulationStartDay = cubeStartDay;
+
+            //    simulationEndYear = cubeEndYear;
+            //    simulationEndMonth = cubeEndMonth;
+            //    simulationEndDay = cubeEndDay;
+
+            //    timeIdx = 0;                                                    // Set timeIdx to beginning frame of extents data 
+            //}
+
+            //Debug.Log(name + ".StartSimulationRun()... Initialized simulation dates...");
+
+            //yield return null;
+
+            ///* Set Fire Dates for CAW Installation */
+            //fireDates = new Vector3[2];
+            //fireDates[0] = new Vector3(7, 15, 1969);
+            //fireDates[1] = new Vector3(11, 20, 1988);
+
+            //fireFrames = new List<int>();
+            //fireYears = new List<int>();
+
+            //int ct = 0;
+            //foreach (Vector3 date in fireDates)
+            //{
+            //    fireFrames.Add(GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z));
+            //    fireYears.Add((int)date.z);
+            //    ct++;
+            //}
+
+            //yield return null;
+
+            //Assert.IsNotNull(landscapeDataList);
+            //landscapeController.SetupFires(fireDates, warmingIdx);
+
+            //yield return null;
+
+            //ShowCubes(false);
+
+            //landscapeController.SetSnowVisibility(landscapeController.LandscapeSimulationIsOn());
+            //landscapeController.ResetBackgroundSnow();
+
+            ///* Set Message Dates for CAW Installation */
+
+            //yield return null;
+
+            //messageDates = new Vector3[messages.Count];
+            //for (int i = 0; i < messages.Count; i++)
+            //{
+            //    UI_Message message = messages[i];
+            //    if (message.AppliesToWarmingDegrees(warmingDegrees))
+            //        messageDates[i] = message.GetDate();
+
+            //    //Debug.Log("Added message #"+i+" at:" + message.GetDate()+ " :" + message.GetMessage());
+            //}
+
+            //messageYears = new List<int>();
+
+            //foreach (Vector3 date in messageDates)
+            //{
+            //    //messageFrames.Add(GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z));
+            //    messageYears.Add((int)date.z);
+            //    ct++;
+            //}
+
+            //yield return null;
+
+            ///* Create Timeline */
+            //if (landscapeController.LandscapeSimulationIsOn())
+            //    uiTimeline.CreateTimeline(landscapeController.GetWaterData(), warmingIdx, warmingDegrees, fireYears, messageYears);
+            //else
+            //    uiTimeline.CreateTestTimeline(simulationStartYear, simulationEndYear, warmingIdx, warmingDegrees, fireYears, messageYears);
+
+            //if (debugGame)
+            //    Debug.Log(name + ".StartSimulationRun()... Created timeline... ");
+
+            //yield return null;
+
+            ///* Set Initial Sun Position */
+            //InitSunTransition();
+
+            ///* Show / Hide Data Display */
+            //if (displayModel)
+            //    ShowStatistics();
+            //else
+            //    HideStatistics();
+
+            //starting = false;
         }
         else
         {
             if (debugGame)
                 Debug.Log("Called StartSimulationRun() while already running!");
         }
+    }
+
+    public IEnumerator FinishStarting()
+    {
+        Debug.Log(name+".FinishStarting()...");
+
+        int offset = fireCubes ? 5 : 0;                                  // Use fire or non-fire data
+        int idx = offset;
+        int warmingRange = cubeDataList.data[idx].list.Count;           // Find warming range
+
+        endTimeIdx = GetLastTimeIdx();
+
+        Debug.Log("FinishStarting()... endTimeIdx: "+ endTimeIdx);
+
+        if (cube1Object != null)
+        {
+            cubes[0].SetWarmingRange(warmingRange);
+            cubes[0].InitializeData(cubeDataList.data[idx].list[0]);
+
+            if (settings.BuildForWeb)
+            {
+                cubes[0].UpdateDataFromWeb(timeIdx, true);
+            }
+            else
+            {
+                int count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    cubes[0].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+            }
+
+            cubes[0].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            cubes[0].SetWarmingIdx(warmingIdx);
+            cubes[0].SetWarmingDegrees(warmingDegrees);
+
+            if (!settings.BuildForWeb)
+                cubes[0].FindParameterRanges();
+
+            cubes[0].SetModelDebugMode(debugModel);
+
+            //else
+            //{
+            //SetDataDatesFromFile(); // -- TO DO
+            //dataDates = cubes[0].GetDataDates();                 // Dates by time index
+            //}
+
+            //Debug.Log("Set dataDates... length: " + dataDates.Length);
+            //string[] firstDateFields = dataDates[0].Split('-');  // Save data file headings
+            cubeStartYear = dataDates[0].year;
+            cubeStartMonth = dataDates[0].month;
+            cubeStartDay = dataDates[0].day;
+
+            //string[] lastDateFields = dataDates[dataDates.Length - 2].Split('-');
+            cubeEndYear = dataDates[dataDates.Count - 2].year;
+            cubeEndMonth = dataDates[dataDates.Count - 2].month;
+            cubeEndDay = dataDates[dataDates.Count - 2].day;
+
+            // Setup side-by-side comparison cube
+            sideCubes[0].SetWarmingRange(warmingRange);
+            sideCubes[0].InitializeData(cubeDataList.data[idx].list[0]);
+
+            if (settings.BuildForWeb)
+            {
+                sideCubes[0].UpdateDataFromWeb(timeIdx, true);
+            }
+            else
+            {
+                int count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    sideCubes[0].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+            }
+
+            sideCubes[0].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            sideCubes[0].SetWarmingIdx(warmingIdx);
+            sideCubes[0].SetWarmingDegrees(warmingDegrees);
+            if (!settings.BuildForWeb)
+                sideCubes[0].FindParameterRanges();
+            sideCubes[0].SetModelDebugMode(debugModel);
+
+            sideCubes[0].gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.Log(name + ".FinishStarting()... No Cube1!");
+        }
+
+        yield return null;
+
+        idx = 1 + offset;
+        if (cube2Object != null)
+        {
+            cubes[1].SetWarmingRange(warmingRange);
+            cubes[1].InitializeData(cubeDataList.data[idx].list[0]);
+
+            if (settings.BuildForWeb)
+            {
+                cubes[1].UpdateDataFromWeb(timeIdx, true);
+            }
+            else
+            {
+                int count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    cubes[1].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+            }
+
+            cubes[1].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            cubes[1].SetWarmingIdx(warmingIdx);
+            cubes[1].SetWarmingDegrees(warmingDegrees);
+            if (!settings.BuildForWeb)
+                cubes[1].FindParameterRanges();
+            cubes[1].SetModelDebugMode(debugModel);
+
+            // Setup side-by-side comparison cube
+            sideCubes[1].SetWarmingRange(warmingRange);
+            sideCubes[1].InitializeData(cubeDataList.data[idx].list[0]);
+
+            if (settings.BuildForWeb)
+            {
+                //sideCubes[1].UpdateDataFromWeb(timeIdx);
+            }
+            else
+            {
+                int count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    sideCubes[1].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+            }
+
+            sideCubes[1].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            sideCubes[1].SetWarmingIdx(warmingIdx);
+            sideCubes[1].SetWarmingDegrees(warmingDegrees);
+            if (!settings.BuildForWeb)
+                sideCubes[1].FindParameterRanges();
+            sideCubes[1].SetModelDebugMode(debugModel);
+
+            sideCubes[1].gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.Log(name + ".FinishStarting()... No Cube2!");
+        }
+
+        yield return null;
+
+        idx = 2 + offset;
+        if (cube3Object != null)
+        {
+            cubes[2].SetWarmingRange(warmingRange);
+            cubes[2].InitializeData(cubeDataList.data[idx].list[0]);
+
+            if (settings.BuildForWeb)
+            {
+                cubes[2].UpdateDataFromWeb(timeIdx, true);
+            }
+            else
+            {
+                int count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    cubes[2].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+            }
+            cubes[2].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            cubes[2].SetWarmingIdx(warmingIdx);
+            cubes[2].SetWarmingDegrees(warmingDegrees);
+            if (!settings.BuildForWeb)
+                cubes[2].FindParameterRanges();
+            cubes[2].SetModelDebugMode(debugModel);
+
+            // Setup side-by-side comparison cube
+            sideCubes[2].SetWarmingRange(warmingRange);
+            sideCubes[2].InitializeData(cubeDataList.data[idx].list[0]);
+
+            if (settings.BuildForWeb)
+            {
+                //sideCubes[2].UpdateDataFromWeb(timeIdx, true);
+            }
+            else
+            {
+                int count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    sideCubes[2].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+            }
+
+            sideCubes[2].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            sideCubes[2].SetWarmingIdx(warmingIdx);
+            sideCubes[2].SetWarmingDegrees(warmingDegrees);
+            if (!settings.BuildForWeb)
+                sideCubes[2].FindParameterRanges();
+            sideCubes[2].SetModelDebugMode(debugModel);
+
+            sideCubes[2].gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.Log(name + ".FinishStarting()... No Cube3!");
+        }
+
+        yield return null;
+
+        idx = 3 + offset;
+        if (cube4Object != null)
+        {
+            cubes[3].SetWarmingRange(warmingRange);
+            cubes[3].InitializeData(cubeDataList.data[idx].list[0]);
+
+            if (settings.BuildForWeb)
+            {
+                cubes[3].UpdateDataFromWeb(timeIdx, true);
+            }
+            else
+            {
+                int count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    cubes[3].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+            }
+            cubes[3].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            cubes[3].SetWarmingIdx(warmingIdx);
+            cubes[3].SetWarmingDegrees(warmingDegrees);
+            if (!settings.BuildForWeb)
+                cubes[3].FindParameterRanges();
+            cubes[3].SetModelDebugMode(debugModel);
+
+            // Setup side-by-side comparison cube
+            sideCubes[3].SetWarmingRange(warmingRange);
+            sideCubes[3].InitializeData(cubeDataList.data[idx].list[0]);
+
+            if (settings.BuildForWeb)
+            {
+                //sideCubes[3].UpdateDataFromWeb(timeIdx);
+            }
+            else
+            {
+                int count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    sideCubes[3].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+            }
+
+            sideCubes[3].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            sideCubes[3].SetWarmingIdx(warmingIdx);
+            sideCubes[3].SetWarmingDegrees(warmingDegrees);
+            if (!settings.BuildForWeb)
+                sideCubes[3].FindParameterRanges();
+            sideCubes[3].SetModelDebugMode(debugModel);
+
+            sideCubes[3].gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.Log(name + ".FinishStarting()... No Cube4!");
+        }
+
+        yield return null;
+
+        idx = 4 + offset;
+        if (cube5Object != null)
+        {
+            cubes[4].SetWarmingRange(warmingRange);
+            cubes[4].InitializeData(cubeDataList.data[idx].list[0]);
+
+            if (settings.BuildForWeb)
+            {
+                cubes[4].UpdateDataFromWeb(timeIdx, true);
+            }
+            else
+            {
+                int count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    sideCubes[4].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+            }
+            cubes[4].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            cubes[4].SetWarmingIdx(warmingIdx);
+            cubes[4].SetWarmingDegrees(warmingDegrees);
+            if (!settings.BuildForWeb)
+                cubes[4].FindParameterRanges();
+            cubes[4].SetModelDebugMode(debugModel);
+
+            // Setup side-by-side comparison cube
+            sideCubes[4].SetWarmingRange(warmingRange);
+            sideCubes[4].InitializeData(cubeDataList.data[idx].list[0]);
+
+            if (settings.BuildForWeb)
+            {
+                //sideCubes[4].UpdateDataFromWeb(timeIdx, true);
+            }
+            else
+            {
+                int count = 0;
+                foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
+                {
+                    sideCubes[4].ProcessDataTextAsset(cubeDataText, count);
+                    count++;
+                }
+            }
+
+            sideCubes[4].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            sideCubes[4].SetWarmingIdx(warmingIdx);
+            sideCubes[4].SetWarmingDegrees(warmingDegrees);
+            if (!settings.BuildForWeb)
+                sideCubes[4].FindParameterRanges();
+            sideCubes[4].SetModelDebugMode(debugModel);
+
+            sideCubes[4].gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.Log(name + ".FinishStarting()... No Cube5!");
+        }
+
+        yield return null;
+
+        offset = fireCubes ? 1 : 0;
+        idx = offset;
+        if (aggregateCubeObject != null)
+        {
+            aggregateCubeController.SetWarmingRange(warmingRange);
+            aggregateCubeController.InitializeData(aggregateCubeDataList.data[idx].list[0]);
+
+            if (settings.BuildForWeb)
+            {
+                aggregateCubeController.UpdateDataFromWeb(timeIdx, true);
+            }
+            else
+            {
+                int counter = 0;
+                foreach (TextAsset cubeDataText in aggregateCubeDataList.data[idx].list)
+                {
+                    aggregateCubeController.ProcessDataTextAsset(cubeDataText, counter);
+                    counter++;
+                }
+            }
+
+            aggregateCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
+            aggregateCubeController.SetWarmingIdx(warmingIdx);
+            aggregateCubeController.SetWarmingDegrees(warmingDegrees);
+            if (!settings.BuildForWeb)
+                aggregateCubeController.FindParameterRanges();
+            aggregateCubeController.SetModelDebugMode(debugModel);
+
+            aggregateSideCubeController.SetWarmingRange(warmingRange);
+            aggregateSideCubeController.InitializeData(aggregateCubeDataList.data[idx].list[0]);
+
+            if (settings.BuildForWeb)
+            {
+                aggregateSideCubeController.UpdateDataFromWeb(timeIdx, true);
+            }
+            else
+            {
+                int counter = 0;
+                foreach (TextAsset cubeDataText in aggregateCubeDataList.data[idx].list)
+                {
+                    aggregateSideCubeController.ProcessDataTextAsset(cubeDataText, counter);
+                    counter++;
+                }
+            }
+
+            aggregateSideCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
+            aggregateSideCubeController.SetWarmingIdx(warmingIdx);
+            aggregateSideCubeController.SetWarmingDegrees(warmingDegrees);
+            if (!settings.BuildForWeb)
+                aggregateSideCubeController.FindParameterRanges();
+            aggregateSideCubeController.SetModelDebugMode(debugModel);
+        }
+        else
+        {
+            Debug.Log(name + ".StartSimulationRun()... No Aggregate Cube!");
+        }
+
+        yield return null;
+
+        /* Initialize UI Messages */
+        List<UI_Message> messages = LoadMessagesFile(messagesFile, false);                 // Load messages
+        List<UI_Message> fireMessages = LoadMessagesFile(fireMessagesFile, true);          // Load fire messages 
+        List<UI_Message> currentMessages = new List<UI_Message>();                         // List of messages currently displayed
+
+        GameObject[] cubeLabels = new GameObject[6];
+        cubeLabels[0] = aggregateCubeController.cubeLabel;
+        for (int i = 0; i < 5; i++)
+            cubeLabels[i + 1] = cubes[i].cubeLabel;
+
+        messageManager.Initialize(messages, fireMessages, cubeLabels);                      // Create MessageManager
+        messageManager.ClearMessages();
+        messageManager.messagePanel.SetActive(true);
+
+        Debug.Log(name + ".FinishStarting()... Initialized messageManager...");
+
+        yield return null;
+
+        if (landscapeController.updateDate)
+        {
+            int startIdx = 0;
+            startIdx = GetTimeIdxForDay(landscapeController.simulationStartDay, landscapeController.simulationStartMonth, landscapeController.simulationStartYear);
+
+            Debug.Log("Setting start time index from streamflow file: startIdx:" + startIdx + " landscapeController.startYear:" + landscapeController.simulationStartYear + " month:" + landscapeController.simulationStartMonth);
+            if (debugMessages)
+                DebugMessage("Setting start time index from streamflow file: startIdx:" + startIdx + " landscapeController.startYear:" + landscapeController.simulationStartYear + " month:" + landscapeController.simulationStartMonth, true);
+
+            simulationStartYear = landscapeController.simulationStartYear;
+            simulationEndYear = GetLastDateYear();
+
+            simulationStartMonth = landscapeController.simulationStartMonth;
+            simulationStartDay = landscapeController.simulationStartDay;
+
+            timeIdx = startIdx;                                             // Set timeIdx to beginning frame of streamflow data 
+        }
+        else
+        {
+            simulationStartYear = cubeStartYear;
+            simulationStartMonth = cubeStartMonth;
+            simulationStartDay = cubeStartDay;
+
+            simulationEndYear = cubeEndYear;
+            simulationEndMonth = cubeEndMonth;
+            simulationEndDay = cubeEndDay;
+
+            timeIdx = 0;                                                    // Set timeIdx to beginning frame of extents data 
+        }
+
+        Debug.Log(name + ".FinishStarting()... Initialized simulation dates...");
+
+        yield return null;
+
+        /* Set Fire Dates for CAW Installation */
+        fireDates = new Vector3[2];
+        fireDates[0] = new Vector3(7, 15, 1969);
+        fireDates[1] = new Vector3(11, 20, 1988);
+
+        fireFrames = new List<int>();
+        fireYears = new List<int>();
+
+        int ct = 0;
+        foreach (Vector3 date in fireDates)
+        {
+            fireFrames.Add(GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z));
+            fireYears.Add((int)date.z);
+            ct++;
+        }
+
+        yield return null;
+
+        Assert.IsNotNull(landscapeDataList);
+        landscapeController.SetupFires(fireDates, warmingIdx);
+
+        yield return null;
+
+        ShowCubes(false);
+
+        landscapeController.SetSnowVisibility(landscapeController.LandscapeSimulationIsOn());
+        landscapeController.ResetBackgroundSnow();
+
+        /* Set Message Dates for CAW Installation */
+
+        yield return null;
+
+        messageDates = new Vector3[messages.Count];
+        for (int i = 0; i < messages.Count; i++)
+        {
+            UI_Message message = messages[i];
+            if (message.AppliesToWarmingDegrees(warmingDegrees))
+                messageDates[i] = message.GetDate();
+
+            //Debug.Log("Added message #"+i+" at:" + message.GetDate()+ " :" + message.GetMessage());
+        }
+
+        messageYears = new List<int>();
+
+        foreach (Vector3 date in messageDates)
+        {
+            //messageFrames.Add(GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z));
+            messageYears.Add((int)date.z);
+            ct++;
+        }
+
+        yield return null;
+
+        /* Create Timeline */
+        if (landscapeController.LandscapeSimulationIsOn())
+            uiTimeline.CreateTimeline(landscapeController.GetWaterData(), warmingIdx, warmingDegrees, fireYears, messageYears);
+        else
+            uiTimeline.CreateTestTimeline(simulationStartYear, simulationEndYear, warmingIdx, warmingDegrees, fireYears, messageYears);
+
+        if (debugGame)
+            Debug.Log(name + ".FinishStarting()... Created timeline... ");
+
+        yield return null;
+
+        /* Set Initial Sun Position */
+        InitSunTransition();
+
+        /* Show / Hide Data Display */
+        if (displayModel)
+            ShowStatistics();
+        else
+            HideStatistics();
+
+        starting = false;
+    }
+
+    //public void SetDataDatesFromFile()        // TO DO
+    //{
+
+    //}
+
+    public void SetDataDatesAndFinishStarting(string jsonString)
+    {
+        if (debugWeb)
+            Debug.Log(name+".SetDataDatesAndFinishStarting()...");
+
+        DateList datesObj = JsonUtility.FromJson<DateList>("{\"dates\":" + jsonString + "}");
+        DateModel[] dates = datesObj.dates;
+        dataDates = new List<DateModel>(dates);
+
+        if (debugWeb)
+            Debug.Log("Set dataDates...");
+
+        //dataDates = JsonUtility.FromJson<List<DateModel>>(jsonString);
+
+        //cubes[0].SetDataDates(dataDates);
+        //sideCubes[0].SetDataDates(dataDates);
+        //cubes[1].SetDataDates(dataDates);
+        //sideCubes[1].SetDataDates(dataDates);
+        //cubes[2].SetDataDates(dataDates);
+        //sideCubes[2].SetDataDates(dataDates);
+        //cubes[3].SetDataDates(dataDates);
+        //sideCubes[3].SetDataDates(dataDates);
+        //cubes[4].SetDataDates(dataDates);
+        //sideCubes[4].SetDataDates(dataDates);
+        //aggregateCubeController.SetDataDates(dataDates);
+        //aggregateSideCubeController.SetDataDates(dataDates);
+
+        StartCoroutine(FinishStarting());
     }
 
     /// <summary>
@@ -1308,24 +1991,24 @@ public class GameController : MonoBehaviour
         if (timeIdx > endTimeIdx || endSimulation)
         {
             if (debugGame)
-                Debug.Log("UpdateSimulation().. Ended... timeIdx:" + timeIdx + " curDate:" + curDate + " endTimeIdx:" + endTimeIdx);
+                Debug.Log("UpdateSimulation().. Ended... timeIdx:" + timeIdx + " curDate:" + curDate.ToString() + " endTimeIdx:" + endTimeIdx);
             if (debugGame && debugMessages)
-                DebugMessage("UpdateSimulation().. Ended... timeIdx:" + timeIdx + " curDate:" + curDate + " endTimeIdx:" + endTimeIdx, true);
+                DebugMessage("UpdateSimulation().. Ended... timeIdx:" + timeIdx + " curDate:" + curDate.ToString() + " endTimeIdx:" + endTimeIdx, true);
 
             EndSimulationRun();
             return;
         }
         else
         {
-            if (timeIdx >= 0 && timeIdx < dataDates.Length)
+            if (timeIdx >= 0 && timeIdx < dataDates.Count)
             {
                 curDate = dataDates[timeIdx];
             }
             else
             {
-                Debug.Log(name + ".UpdateSimulation()... ERROR... curDate: " + curDate + "... timeIdx:" + timeIdx + " out of dataDates range, length:" + dataDates.Length);
+                Debug.Log(name + ".UpdateSimulation()... ERROR... curDate: " + curDate.ToString() + "... timeIdx:" + timeIdx + " out of dataDates range, Count:" + dataDates.Count);
                 if (debugMessages)
-                    DebugMessage(name + ".UpdateSimulation()... ERROR... curDate: " + curDate + "... timeIdx:" + timeIdx + " out of dataDates range, length:" + dataDates.Length, false);
+                    DebugMessage(name + ".UpdateSimulation()... ERROR... curDate: " + curDate.ToString() + "... timeIdx:" + timeIdx + " out of dataDates range, Count:" + dataDates.Count, false);
             }
 
             if (!FireBurning() && !pausedAuto)
@@ -1550,7 +2233,7 @@ public class GameController : MonoBehaviour
         }
 
         if (debugGame && debugDetailed)
-            Debug.Log("UpdateSimulation()... Current Date:" + curDate + " timeIdx:" + timeIdx + " endTimeIdx:" + endTimeIdx);
+            Debug.Log("UpdateSimulation()... Current Date:" + curDate.ToString() + " timeIdx:" + timeIdx + " endTimeIdx:" + endTimeIdx);
     }
 
     /// <summary>
@@ -1632,24 +2315,24 @@ public class GameController : MonoBehaviour
         int date = 0;
         try
         {
-            string strDate = curDate.Split('-')[0];
+            string strDate = curDate.ToString().Split('-')[0];
             if (!strDate.Equals(""))
                 date = int.Parse(strDate);
             else
             {
-                Debug.Log("UpdateUIText()... Incorrect Date... curDate:" + curDate + " timeIdx:" + timeIdx);
+                Debug.Log("UpdateUIText()... Incorrect Date... curDate:" + curDate.ToString() + " timeIdx:" + timeIdx);
             }
         }
         catch (Exception e)
         {
-            Debug.Log("UpdateUIText()... exception:" + e + " >> curDate:" + curDate);
+            Debug.Log("UpdateUIText()... exception:" + e + " >> curDate:" + curDate.ToString());
             if (debugMessages)
             {
                 DebugMessage("UpdateUIText()... exception:" + e, true);
             }
         }
 
-        uiTimeline.SetTimelineText(curDate);
+        uiTimeline.SetTimelineText(curDate.ToString());
     }
 
     /// <summary>
@@ -1788,30 +2471,54 @@ public class GameController : MonoBehaviour
     /// <param name="day">Day.</param>
     /// <param name="month">Month.</param>
     /// <param name="year">Year.</param>
-    private int GetTimeIdxForDay(int day, int month, int year)
+    private int GetTimeIdxForDay(int day, int month, int year)      // TO DO: Use API
     {
         int idx = 0;
 
-        string[] curDateFields = dataDates[idx].Split('-');            // Save data file headings
-        int curYear = int.Parse(curDateFields[0]);
-        int curMonth = int.Parse(curDateFields[1]);
-        int curDay = int.Parse(curDateFields[2]);
+        DateModel check = dataDates[0];
+        int curYear = check.year;
+        int curMonth = check.month;
+        int curDay = check.day;
 
         while (day != curDay || month != curMonth || year != curYear)
         {
             idx++;
 
-            if (idx >= dataDates.Length)
+            if (idx >= dataDates.Count)
             {
                 Debug.Log("GetTimeIdxForDay()... Couldn't find time index for day:" + day + " month:" + month + " year:" + year);
                 break;
             }
 
-            curDateFields = dataDates[idx].Split('-');        // Save data file headings
-            curYear = int.Parse(curDateFields[0]);
-            curMonth = int.Parse(curDateFields[1]);
-            curDay = int.Parse(curDateFields[2]);
+            check = dataDates[idx];
+
+            curYear = check.year;
+            curMonth = check.month;
+            curDay = check.day;
         }
+
+        //string[] curDateFields = dataDates[idx].Split('-');            // Save data file headings
+        //int curYear = int.Parse(curDateFields[0]);
+        //int curMonth = int.Parse(curDateFields[1]);
+        //int curDay = int.Parse(curDateFields[2]);
+
+        //while (day != curDay || month != curMonth || year != curYear)
+        //{
+        //    idx++;
+
+        //    if (idx >= dataDates.Length)
+        //    {
+        //        Debug.Log("GetTimeIdxForDay()... Couldn't find time index for day:" + day + " month:" + month + " year:" + year);
+        //        break;
+        //    }
+
+        //    curDateFields = dataDates[idx].Split('-');        // Save data file headings
+        //    curYear = int.Parse(curDateFields[0]);
+        //    curMonth = int.Parse(curDateFields[1]);
+        //    curDay = int.Parse(curDateFields[2]);
+        //}
+
+
 
         return idx;
     }
@@ -1841,19 +2548,23 @@ public class GameController : MonoBehaviour
     /// <returns>The current day of year.</returns>
     private int GetCurrentDayOfYear()
     {
-        if (timeIdx < dataDates.Length)
+        if (timeIdx < dataDates.Count)
         {
-            string[] curDateFields = dataDates[timeIdx].Split('-');            // Save data file headings
-            int curYear = int.Parse(curDateFields[0]);
-            int curMonth = int.Parse(curDateFields[1]);
-            int curDay = int.Parse(curDateFields[2]);
+            //string[] curDateFields = dataDates[timeIdx].Split('-');            // Save data file headings
+            //int curYear = int.Parse(curDateFields[0]);
+            //int curMonth = int.Parse(curDateFields[1]);
+            //int curDay = int.Parse(curDateFields[2]);
+
+            int curYear = dataDates[timeIdx].year;
+            int curMonth = dataDates[timeIdx].month;
+            int curDay = dataDates[timeIdx].day;
 
             return GetDayOfYear(curMonth, curDay, curYear);
         }
 
-        Debug.Log(name + "GetCurrentDayOfYear()... Failed!  timeIdx: " + timeIdx + " dataDatesCube1.Length:" + dataDates.Length + " endTimeIdx:" + endTimeIdx);
+        Debug.Log(name + "GetCurrentDayOfYear()... Failed!  timeIdx: " + timeIdx + " dataDatesCube1.Length:" + dataDates.Count + " endTimeIdx:" + endTimeIdx);
         if (debugMessages)
-            DebugMessage(name + "GetCurrentDayOfYear()... Failed!  timeIdx: " + timeIdx + " dataDatesCube1.Length:" + dataDates.Length + " endTimeIdx:" + endTimeIdx, true);
+            DebugMessage(name + "GetCurrentDayOfYear()... Failed!  timeIdx: " + timeIdx + " dataDatesCube1.Length:" + dataDates.Count + " endTimeIdx:" + endTimeIdx, true);
 
         return 1;
     }
@@ -1864,20 +2575,24 @@ public class GameController : MonoBehaviour
     /// <returns>The current day in month.</returns>
     private int GetCurrentDayInMonth()
     {
-        string[] curDateFields;
-        if (timeIdx < dataDates.Length - 2)
+        if (timeIdx > dataDates.Count)
         {
-            curDateFields = dataDates[timeIdx].Split('-');            // Save data file headings
-            return int.Parse(curDateFields[2]);
+            Debug.Log("ERROR... timeIdx > dataDates.Count");
+            return -1;
         }
 
-        Debug.Log("ERROR: Can't get current month... timeIdx:" + timeIdx + " > dataDates.Length:" + dataDates.Length + " endTimeIdx:" + endTimeIdx);
+        //string[] curDateFields;
+        DateModel cur = dataDates[timeIdx];            // Save data file headings
+        if (timeIdx < dataDates.Count - 2)
+            return cur.day;
+
+        Debug.Log("ERROR: Can't get current day in month... timeIdx:" + timeIdx + " > dataDates.Count:" + dataDates.Count + " endTimeIdx:" + endTimeIdx);
 
         if (debugMessages)
-            DebugMessage("ERROR: Can't get current month... timeIdx:" + timeIdx + " > dataDates.Length:" + dataDates.Length + " endTimeIdx:" + endTimeIdx, true);
+            DebugMessage("ERROR: Can't get current day in month... timeIdx:" + timeIdx + " > dataDates.Count:" + dataDates.Count + " endTimeIdx:" + endTimeIdx, true);
 
-        curDateFields = dataDates[dataDates.Length - 2].Split('-');            // Save data file headings
-        return int.Parse(curDateFields[2]);
+        cur = dataDates[dataDates.Count - 2];
+        return cur.day;
     }
 
     /// <summary>
@@ -1886,17 +2601,24 @@ public class GameController : MonoBehaviour
     /// <returns>The current month.</returns>
     private int GetCurrentMonth()
     {
-        string[] curDateFields;
-        if (timeIdx < dataDates.Length - 2)
+        if (timeIdx > dataDates.Count)
         {
-            curDateFields = dataDates[timeIdx].Split('-');            // Save data file headings
-            return int.Parse(curDateFields[1]);
+            Debug.Log("ERROR... timeIdx > dataDates.Count");
+            return -1;
         }
-        Debug.Log("ERROR: Can't get current month... timeIdx:" + timeIdx + " > dataDates.Length:" + dataDates.Length + " endTimeIdx:" + endTimeIdx);
+
+        //string[] curDateFields;
+        DateModel cur = dataDates[timeIdx];            // Save data file headings
+        if (timeIdx < dataDates.Count - 2)
+            return cur.month;
+
+        Debug.Log("ERROR: Can't get current month... timeIdx:" + timeIdx + " > dataDates.Count:" + dataDates.Count + " endTimeIdx:" + endTimeIdx);
+
         if (debugMessages)
-            DebugMessage("ERROR: Can't get current month... timeIdx:" + timeIdx + " > dataDates.Length:" + dataDates.Length + " endTimeIdx:" + endTimeIdx, true);
-        curDateFields = dataDates[dataDates.Length - 2].Split('-');            // Save data file headings
-        return int.Parse(curDateFields[1]);
+            DebugMessage("ERROR: Can't get current month... timeIdx:" + timeIdx + " > dataDates.Count:" + dataDates.Count + " endTimeIdx:" + endTimeIdx, true);
+
+        cur = dataDates[dataDates.Count - 2];
+        return cur.month;
     }
 
     /// <summary>
@@ -1905,22 +2627,30 @@ public class GameController : MonoBehaviour
     /// <returns>The current year.</returns>
     private int GetCurrentYear()
     {
-        string[] curDateFields;
-        if (timeIdx < dataDates.Length - 2)
+        if (timeIdx > dataDates.Count)
         {
-            curDateFields = dataDates[timeIdx].Split('-');            // Save data file headings
-            return int.Parse(curDateFields[0]);
+            Debug.Log("ERROR... timeIdx > dataDates.Count");
+            return -1;
         }
-        else
-        {
-            Debug.Log("ERROR: Can't get current year... timeIdx:" + timeIdx + " > dataDates.Length:" + dataDates.Length);
-            if (debugMessages)
-                DebugMessage("ERROR: Can't get current year... timeIdx:" + timeIdx + " > dataDates.Length:" + dataDates.Length, true);
-            curDateFields = dataDates[dataDates.Length - 2].Split('-');            // Save data file headings
-            return int.Parse(curDateFields[0]);
-        }
+
+        //string[] curDateFields;
+        DateModel cur = dataDates[timeIdx];            // Save data file headings
+        if (timeIdx < dataDates.Count - 2)
+            return cur.year;
+
+        Debug.Log("ERROR: Can't get current year... timeIdx:" + timeIdx + " > dataDates.Count:" + dataDates.Count + " endTimeIdx:" + endTimeIdx);
+
+        if (debugMessages)
+            DebugMessage("ERROR: Can't get current year... timeIdx:" + timeIdx + " > dataDates.Count:" + dataDates.Count + " endTimeIdx:" + endTimeIdx, true);
+
+        cur = dataDates[dataDates.Count - 2];
+        return cur.year;
     }
 
+    public int GetEndTimeIdx()
+    {
+        return endTimeIdx;
+    }
     #endregion
 
     #region Controls
@@ -2026,6 +2756,21 @@ public class GameController : MonoBehaviour
             ShowStatistics();
         else
             HideStatistics();
+    }
+
+    public List<DateModel> GetDates()
+    {
+        return dataDates;
+    }
+
+    public int GetLastDateYear()
+    {
+        return dataDates[dataDates.Count - 1].year;
+    }
+
+    public int GetLastTimeIdx()
+    {
+        return dataDates[dataDates.Count - 1].id;
     }
 
     /// <summary>

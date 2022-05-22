@@ -50,7 +50,10 @@ public class SERI_FireVisualManager : MonoBehaviour
         if (particleSystems != null)
         {
             for (int i = 0; i < particleSystems.Length; i++)
-                particleSystems[i].gameObject.SetActive(false);
+            {
+                if(particleSystems[i])
+                    particleSystems[i].gameObject.SetActive(false);
+            }
         }
 
         if (size > 0f)

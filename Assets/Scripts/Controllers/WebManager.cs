@@ -1,0 +1,148 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.Networking;
+using static CubeController;
+
+public class WebManager : MonoBehaviour
+{
+    private static WebManager _instance;
+    public static WebManager Instance { get { return _instance; } }
+
+    private void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
+
+    public void RequestData(int patchIdx, int warmingIdx, int timeIdxStart, int timeIdxEnd, Action<string> callback)  // [time idx offset][row, col]
+    {
+        //float[,] result = new float[timeIdxEnd - timeIdxStart, (int)DataColumnIdx.Day];
+
+        string uri = "http://localhost:5056/api/cubedata/" + patchIdx + "/" + warmingIdx + "/" + timeIdxStart + "/" + timeIdxEnd;
+        Debug.Log("RequestData()... uri:  " + uri);
+
+        Coroutine coroutine = this.StartCoroutine(this.GetRequest(uri, callback));
+    }
+
+    public Coroutine RequestData(int patchIdx, int warmingIdx, Action<string> callback)  // [time idx offset][row, col]
+    {
+        //float[,] result = new float[timeIdxEnd - timeIdxStart, (int)DataColumnIdx.Day];
+
+        string uri = "http://localhost:5056/api/cubedata/" + patchIdx + "/" + warmingIdx;
+        Debug.Log("RequestData()... uri:  " + uri);
+
+        return this.StartCoroutine(this.GetRequest(uri, callback));
+    }
+
+    public Coroutine GetDataDates(Action<string> callback)
+    {
+        string uri = "http://localhost:5056/api/dates";
+        Debug.Log("GetDataDates()... uri:  " + uri);
+
+        return this.StartCoroutine(this.GetRequest(uri, callback));
+    }
+
+    private IEnumerator GetRequest(string uri, Action<string> callback)
+    {
+        using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
+        {
+            // Request and wait for the desired page.
+            yield return webRequest.SendWebRequest();
+
+            var data = webRequest.downloadHandler.text;
+
+            Debug.Log("GetRequest()... uri: " + uri);
+
+            if (webRequest.result == UnityWebRequest.Result.ConnectionError)
+            {
+                Debug.Log("GetRequest()... Connection Error: " + webRequest.error);
+            }
+            else
+            {
+                Debug.Log("GetRequest()... data: " + data);
+
+                if (callback != null)
+                    callback(data);
+            }
+        }
+    }
+
+
+    //date snow evap netpsn depthtogw vegaccesswater Qout litter soil height_over trans_over height_under trans_under leafc_over stemc_over rootc_over leafc_under stemc_under rootc_under year month day
+    /// <summary>
+    /// Cube data parameter columns used in simulation
+    /// </summary>
+    private enum DataColumnIdx
+    {
+        Date = 0,
+        Snow = 1,
+        Evap = 2,
+        NetPsn = 3,
+        DepthToGW = 4,
+        WaterAccess = 5,
+        StreamLevel = 6,
+        Litter = 7,
+        SoilCarbon = 8,
+        HeightOver = 9,
+        TransOver = 10,
+        HeightUnder = 11,
+        TransUnder = 12,
+        LeafCarbonOver = 13,
+        StemCarbonOver = 14,
+        RootCarbonOver = 15,
+        LeafCarbonUnder = 16,
+        StemCarbonUnder = 17,
+        RootCarbonUnder = 18,
+        Year = 19,
+        Month = 20,
+        Day = 21
+    };
+
+    //  date snow evap netpsn depthtogw vegaccesswater Qout litter soil height_over trans height_under leafc_over stemc_over rootc_over leafc_under stemc_under rootc_under year month day
+    private enum AggregateDataColumnIdx
+    {
+        Date = 0,
+        Snow = 1,
+        Evap = 2,
+        NetPsn = 3,
+        DepthToGW = 4,
+        WaterAccess = 5,
+        StreamLevel = 6,
+        Litter = 7,
+        SoilCarbon = 8,
+        HeightOver = 9,
+        Trans = 10,
+        HeightUnder = 11,
+        //TransUnder = 12,
+        LeafCarbonOver = 13,
+        StemCarbonOver = 14,
+        RootCarbonOver = 15,
+        LeafCarbonUnder = 16,
+        StemCarbonUnder = 17,
+        RootCarbonUnder = 18,
+        Year = 19,
+        Month = 20,
+        Day = 21
+
+        //Trans = 10,
+        //HeightUnder = 11,
+        //LeafCarbonOver = 12,
+        //StemCarbonOver = 13,
+        //RootCarbonOver = 14,
+        //LeafCarbonUnder = 15,
+        //StemCarbonUnder = 16,
+        //RootCarbonUnder = 17,
+        //Year = 18,
+        //Month = 19,
+        //Day = 20
+    }
+}
