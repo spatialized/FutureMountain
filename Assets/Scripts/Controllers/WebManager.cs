@@ -8,8 +8,14 @@ using static CubeController;
 
 public class WebManager : MonoBehaviour
 {
+    private static bool runOnLocal = false;                 // Run on local (true) or remote (false) server
+
     private static WebManager _instance;
     public static WebManager Instance { get { return _instance; } }
+    
+    private static string connectionStringBase = runOnLocal ? "http://localhost:5056/api/" : "http://192.168.0.32:5550/api/";
+    private static string connectionStringCubes = "cubedata/";
+    private static string connectionStringDates = "dates/";
 
     private void Awake()
     {
@@ -27,7 +33,7 @@ public class WebManager : MonoBehaviour
     {
         //float[,] result = new float[timeIdxEnd - timeIdxStart, (int)DataColumnIdx.Day];
 
-        string uri = "http://localhost:5056/api/cubedata/" + patchIdx + "/" + warmingIdx + "/" + timeIdxStart + "/" + timeIdxEnd;
+        string uri = connectionStringBase + connectionStringCubes + patchIdx + "/" + warmingIdx + "/" + timeIdxStart + "/" + timeIdxEnd;
         Debug.Log("RequestData()... uri:  " + uri);
 
         Coroutine coroutine = this.StartCoroutine(this.GetRequest(uri, callback));
@@ -38,7 +44,7 @@ public class WebManager : MonoBehaviour
     {
         //float[,] result = new float[timeIdxEnd - timeIdxStart, (int)DataColumnIdx.Day];
 
-        string uri = "http://localhost:5056/api/cubedata/" + patchIdx + "/" + warmingIdx;
+        string uri = connectionStringBase + connectionStringCubes + patchIdx + "/" + warmingIdx;
         Debug.Log("RequestData()... uri:  " + uri);
 
         return this.StartCoroutine(this.GetRequest(uri, callback));
@@ -49,7 +55,7 @@ public class WebManager : MonoBehaviour
     {
         //float[,] result = new float[timeIdxEnd - timeIdxStart, (int)DataColumnIdx.Day];
 
-        string uri = "http://localhost:5056/api/dates/" + year + "/" + month + "/" + day;
+        string uri = connectionStringBase + connectionStringDates + year + "/" + month + "/" + day;
         Debug.Log("GetDate()... uri:  " + uri);
 
         return this.StartCoroutine(this.GetRequest(uri, callback));
@@ -57,7 +63,7 @@ public class WebManager : MonoBehaviour
 
     public Coroutine GetDataDates(Action<string> callback)
     {
-        string uri = "http://localhost:5056/api/dates";
+        string uri = connectionStringBase + connectionStringDates;
         Debug.Log("GetDataDates()... uri:  " + uri);
 
         return this.StartCoroutine(this.GetRequest(uri, callback));
