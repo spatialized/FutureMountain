@@ -418,7 +418,8 @@ public class CubeController : MonoBehaviour
         soilController.UpdateParams(timeStep, WaterAccess, DepthToGW);      // Initial update of soil parameters
         snowManager.snowValue = Mathf.Clamp(MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, 0f, snowScalingFactor), 0f, snowScalingFactor);
 
-        GrowInitialVegetation();
+        if(!settings.BuildForWeb)
+            GrowInitialVegetation();
 
         if (hasStream)
             UpdateStream();
@@ -1638,6 +1639,8 @@ public class CubeController : MonoBehaviour
         UpdateDataRowsFromJSON(jsonString);     // Update data for parameter range finding
         FindParameterRanges();
         UpdateDataFromJSON(jsonString);         // Update data for simulation
+
+        GrowInitialVegetation();        // TESTING
     }
 
     /// <summary>
@@ -4419,7 +4422,7 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void HideStatistics()
     {
-        if (!settings.BuildForWeb)
+        //if (!settings.BuildForWeb)
             displayObject.SetActive(false);
     }
     #endregion
