@@ -2969,8 +2969,8 @@ public class GameController : MonoBehaviour
     {
         landscapeController.GetFireManager().Reset();
 
-        if (settings.BuildForWeb)
-            return;
+        //if (settings.BuildForWeb)
+        //    return;
 
         aggregateCubeController.GetFireManager().Reset();
         foreach (CubeController cube in cubes)

@@ -693,8 +693,8 @@ public class CubeController : MonoBehaviour
 
     private void SetupStatisticsPanel(GameObject statsPanel)
     {
-        if (settings.BuildForWeb)
-            return;
+        //if (settings.BuildForWeb)
+        //    return;
 
         Debug.Log(transform.name + ".SetupStatisticsPanel()");
 
@@ -4391,7 +4391,7 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void ShowStatistics()
     {
-        if (!settings.BuildForWeb)
+        //if (!settings.BuildForWeb)
             displayObject.SetActive(true);
     }
 

@@ -12,7 +12,7 @@ using static CubeController;
 public class WebManager : MonoBehaviour
 {
     private static bool runOnLocal = false;                 // Run on local (true) or remote (false) server
-    private static bool debug = true;
+    private static bool debug = false;
     private static bool debugDetailed = false;
 
     private static WebManager _instance;
