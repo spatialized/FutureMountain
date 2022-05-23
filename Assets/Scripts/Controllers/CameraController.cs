@@ -190,6 +190,8 @@ public class CameraController : MonoBehaviour {
     public void StartZoomIntoCube(int cubeIdx)
     {
         string animTriggerName;
+        GameController.Instance.SetSideByToggleActive(false);
+
         if (ShouldEnterSideBySideMode())
         {
             if (cubeIdx == -1)
@@ -229,6 +231,9 @@ public class CameraController : MonoBehaviour {
     /// </summary>
     public void StartResetZoom()
     {
+        GameController.Instance.SetSideByToggleActive(true);
+        GameController.Instance.SetZoomOutButtonActive(false);
+
         pauseState = GamePauseState.pause;
         moving = true;
         animator.SetTrigger("ResetZoom");
@@ -244,6 +249,8 @@ public class CameraController : MonoBehaviour {
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
+                GameController.Instance.SetZoomOutButtonActive(false);
+                GameController.Instance.SetSideByToggleActive(true);
                 StartResetZoom();
             }
         }
@@ -372,6 +379,8 @@ public class CameraController : MonoBehaviour {
         {
             fly = false;
             GetComponent<Animator>().enabled = true;
+            GameController.Instance.SetZoomOutButtonActive(false);
+            GameController.Instance.SetSideByToggleActive(true);
             StartResetZoom();
         }
         else if (!fly && newFlyState)

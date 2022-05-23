@@ -305,8 +305,9 @@ public class GameController : MonoBehaviour
 
         loadingTextObject = loadingCanvas.transform.Find("LoadingPanel").transform.Find("LoadingText").gameObject;
         loadingTextField = loadingTextObject.GetComponent<Text>() as Text;
-        loadingCanvas.enabled = false;
-        loadingCanvas.gameObject.SetActive(false);
+        loadingCanvas.enabled = true;
+        loadingCanvas.gameObject.SetActive(true);
+        loadingTextObject.gameObject.SetActive(false);
 
         uiObject = GameObject.FindWithTag("UI");
         Assert.IsNotNull(uiObject);
@@ -561,6 +562,7 @@ public class GameController : MonoBehaviour
             sideBySideCanvas.enabled = false;
             loadingCanvas.enabled = true;
             loadingCanvas.gameObject.SetActive(true);
+            loadingTextObject.gameObject.SetActive(true);
 
             introPanel.SetActive(false);
 
@@ -1825,6 +1827,7 @@ public class GameController : MonoBehaviour
         }
 
         ShowCubes(false);
+
         cameraController.StartResetZoom();
 
         exitSideBySideButtonObject.SetActive(false);
@@ -2957,9 +2960,20 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void ResetCameraZoom()
     {
+        sideBySideModeToggleObject.SetActive(true);
         zoomOutButtonObject.SetActive(false);
         CameraController camControl = sceneCamera.GetComponent<CameraController>() as CameraController;
         camControl.StartResetZoom();
+    }
+
+    public void SetSideByToggleActive(bool state)
+    {
+        sideBySideModeToggleObject.SetActive(state);
+    }
+
+    public void SetZoomOutButtonActive(bool state)
+    {
+        zoomOutButtonObject.SetActive(state);
     }
 
     /// <summary>
