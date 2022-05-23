@@ -6,9 +6,14 @@ using UnityEngine;
 using UnityEngine.Networking;
 using static CubeController;
 
+/// <summary>
+/// Class for managing Unity web requests
+/// </summary>
 public class WebManager : MonoBehaviour
 {
     private static bool runOnLocal = false;                 // Run on local (true) or remote (false) server
+    private static bool debug = true;
+    private static bool debugDetailed = false;
 
     private static WebManager _instance;
     public static WebManager Instance { get { return _instance; } }
@@ -31,10 +36,9 @@ public class WebManager : MonoBehaviour
 
     public void RequestData(int patchIdx, int warmingIdx, int timeIdxStart, int timeIdxEnd, Action<string> callback)
     {
-        //float[,] result = new float[timeIdxEnd - timeIdxStart, (int)DataColumnIdx.Day];
-
         string uri = connectionStringBase + connectionStringCubes + patchIdx + "/" + warmingIdx + "/" + timeIdxStart + "/" + timeIdxEnd;
-        Debug.Log("RequestData()... uri:  " + uri);
+        if (debug)
+            Debug.Log("RequestData()... uri:  " + uri);
 
         Coroutine coroutine = this.StartCoroutine(this.GetRequest(uri, callback));
     }
@@ -42,10 +46,10 @@ public class WebManager : MonoBehaviour
     // Gets all data rows for given Patch Id and Warming Idx
     public Coroutine RequestData(int patchIdx, int warmingIdx, Action<string> callback)
     {
-        //float[,] result = new float[timeIdxEnd - timeIdxStart, (int)DataColumnIdx.Day];
-
         string uri = connectionStringBase + connectionStringCubes + patchIdx + "/" + warmingIdx;
-        Debug.Log("RequestData()... uri:  " + uri);
+
+        if(debug)
+            Debug.Log("RequestData()... uri:  " + uri);
 
         return this.StartCoroutine(this.GetRequest(uri, callback));
     }
@@ -53,10 +57,9 @@ public class WebManager : MonoBehaviour
     // Unused
     public Coroutine GetDateIndex(int year, int month, int day, Action<string> callback)
     {
-        //float[,] result = new float[timeIdxEnd - timeIdxStart, (int)DataColumnIdx.Day];
-
         string uri = connectionStringBase + connectionStringDates + year + "/" + month + "/" + day;
-        Debug.Log("GetDate()... uri:  " + uri);
+        if(debug)
+            Debug.Log("GetDateIndex()... uri:  " + uri);
 
         return this.StartCoroutine(this.GetRequest(uri, callback));
     }
@@ -64,7 +67,8 @@ public class WebManager : MonoBehaviour
     public Coroutine GetDataDates(Action<string> callback)
     {
         string uri = connectionStringBase + connectionStringDates;
-        Debug.Log("GetDataDates()... uri:  " + uri);
+        if(debug)
+            Debug.Log("GetDataDates()... uri:  " + uri);
 
         return this.StartCoroutine(this.GetRequest(uri, callback));
     }
@@ -80,7 +84,8 @@ public class WebManager : MonoBehaviour
 
             var data = webRequest.downloadHandler.text;
 
-            Debug.Log("GetRequest()... uri: " + uri);
+            if (debug && debugDetailed)
+                Debug.Log("GetRequest()... uri: " + uri);
 
             if (webRequest.result == UnityWebRequest.Result.ConnectionError)
             {
@@ -88,7 +93,8 @@ public class WebManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("GetRequest()... data: " + data);
+                if(debug && debugDetailed)
+                    Debug.Log("GetRequest()... data: " + data);
 
                 if (callback != null)
                     callback(data);
@@ -152,17 +158,5 @@ public class WebManager : MonoBehaviour
         Year = 19,
         Month = 20,
         Day = 21
-
-        //Trans = 10,
-        //HeightUnder = 11,
-        //LeafCarbonOver = 12,
-        //StemCarbonOver = 13,
-        //RootCarbonOver = 14,
-        //LeafCarbonUnder = 15,
-        //StemCarbonUnder = 16,
-        //RootCarbonUnder = 17,
-        //Year = 18,
-        //Month = 19,
-        //Day = 20
     }
 }
