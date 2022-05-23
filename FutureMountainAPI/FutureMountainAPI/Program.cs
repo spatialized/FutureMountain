@@ -14,6 +14,7 @@ builder.Services.AddControllers();
 //string connectionString = "Server=localhost\\SQLEXPRESS;Database=FutureMountain;Trusted_Connection=True;";    // WORKS
 //string connectionString = "Server=localhost\\SQLEXPRESS;Initial Catalog=FutureMountain;Integrated Security=True";
 string connectionString = "Server=localhost\\SQLEXPRESS;Initial Catalog=FutureMountain;user id=REDACTED_USER;password=REDACTED_PASSWORD;Connection Timeout=120;Integrated Security=True";
+string _policyName = "CorsPolicy";
 
 //var test = System.Configuration.ConfigurationManager.ConnectionStrings["CubeDataDbContext"].ConnectionString;
 
@@ -25,14 +26,22 @@ builder.Services.AddDbContext<DateDbContext>(options => options.UseSqlServer(con
 // Default Policy
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(
-        builder =>
+    options.AddPolicy(name: _policyName, builder =>
         {
-            builder.WithOrigins("https://localhost:90", "http://localhost:80", "http://localhost:5550", "http://localhost:5560",
-                                "http://192.168.0.32:80", "http://192.168.0.32:5550", "http://192.168.0.32:5560")
-                                .AllowAnyHeader()
-                                .AllowAnyMethod();
+            builder.AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
         });
+
+    //options.AddDefaultPolicy(
+    //    builder =>
+    //    {
+    //        //builder.WithOrigins("https://localhost:90", "http://localhost:80", "http://localhost:5550", "http://localhost:5560",
+    //        //                    "http://192.168.0.32:80", "http://192.168.0.32:90", "http://192.168.0.32:5550", "http://192.168.0.32:5560")
+    //        builder.WithOrigins("*")
+    //                            .AllowAnyHeader()
+    //                            .AllowAnyMethod();
+    //    });
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -48,7 +57,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseAuthorization();
+app.UseCors(_policyName);
+app.UseAuthorization();
 
 app.MapControllers();
 
