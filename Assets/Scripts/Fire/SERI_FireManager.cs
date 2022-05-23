@@ -291,15 +291,15 @@ public class SERI_FireManager : MonoBehaviour
     /// <param name="fireIdx">Fire index</param>
     public void IgniteTerrain(Terrain terrain, int timeStep, float fireLengthInSec, int fireIdx)
     {
-        if (webOptimized)
-        {
-            // TO DO
-        }
-        else
-        {
+        //if (webOptimized)
+        //{
+        //    // TO DO
+        //}
+        //else
+        //{
             SetFireGrid(fireIdx);
             CurrentFireGrid().Ignite(new Vector3(0,0,0), timeStep, fireLengthInSec);
-        }
+        //}
         StartBurning();
     }
 

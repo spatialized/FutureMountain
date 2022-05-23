@@ -305,8 +305,8 @@ public class GameController : MonoBehaviour
 
         loadingTextObject = loadingCanvas.transform.Find("LoadingPanel").transform.Find("LoadingText").gameObject;
         loadingTextField = loadingTextObject.GetComponent<Text>() as Text;
-        loadingCanvas.enabled = true;
-        loadingCanvas.gameObject.SetActive(true);
+        loadingCanvas.enabled = false;
+        loadingCanvas.gameObject.SetActive(false);
         loadingTextObject.gameObject.SetActive(false);
 
         uiObject = GameObject.FindWithTag("UI");

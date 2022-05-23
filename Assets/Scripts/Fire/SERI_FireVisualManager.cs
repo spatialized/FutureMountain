@@ -183,9 +183,9 @@ public class SERI_FireVisualManager : MonoBehaviour
             startSizeCurve.constantMin = startSizeCurve.constantMin + rand;
             startSizeCurve.constantMax = startSizeCurve.constantMax + rand;
 
-            Debug.Log("particleSystems.Length:" + particleSystems.Length);
-            Debug.Log(name + ".RandomizeFires()... startSizeCurve.constantMin:" + startSizeCurve.constantMin);
-            Debug.Log(name + ".RandomizeFires()... startSizeCurve.constantMax:" + startSizeCurve.constantMax);
+            //Debug.Log("particleSystems.Length:" + particleSystems.Length);
+            //Debug.Log(name + ".RandomizeFires()... startSizeCurve.constantMin:" + startSizeCurve.constantMin);
+            //Debug.Log(name + ".RandomizeFires()... startSizeCurve.constantMax:" + startSizeCurve.constantMax);
         }
     }
 }

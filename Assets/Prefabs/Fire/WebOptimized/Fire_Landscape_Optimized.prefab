@@ -5007,11 +5007,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   particleSystems:
   - {fileID: 198000014223865096}
-  - {fileID: 0}
   - {fileID: 2058899406196328708}
-  heatUp: 010101
-  ignition: 010101
-  extinguish: 010101
+  heatUp: 0101
+  ignition: 0101
+  extinguish: 0101
   heatState: 0
   ignitionState: 0
   extinguishState: 0

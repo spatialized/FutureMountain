@@ -518,7 +518,7 @@ public class CubeController : MonoBehaviour
         Assert.IsNotNull(cubeObject);
 
         string terrainName = "Terrain_" + name.Substring(name.Length == 5 ? name.Length - 1 : name.Length - 6);
-        Debug.Log("" + name + ".SetupObjects()... Looking for terrainName: " + terrainName + " name: " + name);
+        //Debug.Log("" + name + ".SetupObjects()... Looking for terrainName: " + terrainName + " name: " + name);
 
         terrain = cubeObject.transform.Find(terrainName).GetComponent<Terrain>();
         fireManager = terrain.transform.GetComponentInChildren<SERI_FireManager>() as SERI_FireManager;
@@ -696,7 +696,7 @@ public class CubeController : MonoBehaviour
         //if (settings.BuildForWeb)
         //    return;
 
-        Debug.Log(transform.name + ".SetupStatisticsPanel()");
+        //Debug.Log(transform.name + ".SetupStatisticsPanel()");
 
         netTransSlider = statsPanel.transform.Find("NetTransSlider").GetComponent<Slider>() as Slider;
         plantCarbonSlider = statsPanel.transform.Find("PlantCarbonSlider").GetComponent<Slider>() as Slider;
@@ -1235,8 +1235,8 @@ public class CubeController : MonoBehaviour
                     combinedSnow *= 5f;
                     snowValue = combinedSnow;
 
-                    if (transform.name.Contains("CubeB"))
-                        Debug.Log(transform.name + " >>> calculated new snowValue:" + snowValue);
+                    //if (transform.name.Contains("CubeB"))
+                    //    Debug.Log(transform.name + " >>> calculated new snowValue:" + snowValue);
                 }
             }
 
@@ -1796,27 +1796,24 @@ public class CubeController : MonoBehaviour
         firController.InitializePrefabs(treeList[0], rootsPrefabs, deadTreePrefab);
         firController.locationID = treeID;
 
-        if (!settings.BuildForWeb)
-        {
-            GameObject treeFireNodeChain = Instantiate(fireNodeChainPrefab, newTree.transform);         // Add fire node chain to tree
+        GameObject treeFireNodeChain = Instantiate(fireNodeChainPrefab, newTree.transform);         // Add fire node chain to tree
 
-            //SERI_FireNodeChain nodeChain = newTree.GetComponent<SERI_FireNodeChain>() as SERI_FireNodeChain;
-            SERI_FireNodeChain nodeChain = treeFireNodeChain.GetComponent<SERI_FireNodeChain>() as SERI_FireNodeChain;
-            firController.InitFireNodeChain(nodeChain);
+        //SERI_FireNodeChain nodeChain = newTree.GetComponent<SERI_FireNodeChain>() as SERI_FireNodeChain;
+        SERI_FireNodeChain nodeChain = treeFireNodeChain.GetComponent<SERI_FireNodeChain>() as SERI_FireNodeChain;
+        firController.InitFireNodeChain(nodeChain);
 
-            nodeChain.fireNodes = new SERI_FireNode[1];
-            nodeChain.fireNodes[0] = treeFireNodeChain.transform.GetChild(0).GetComponent<SERI_FireNode>();
-            nodeChain.Initialize(fireManager, true, true);
+        nodeChain.fireNodes = new SERI_FireNode[1];
+        nodeChain.fireNodes[0] = treeFireNodeChain.transform.GetChild(0).GetComponent<SERI_FireNode>();
+        nodeChain.Initialize(fireManager, true, true);
 
-            newTree.tag = "Fire";
-            newTree.AddComponent<BoxCollider>();
+        newTree.tag = "Fire";
+        newTree.AddComponent<BoxCollider>();
 
-            /* Create Box Collider */
-            BoxCollider bc = newTree.GetComponent<BoxCollider>();
-            //bc.material = treePhysicMaterial;
-            bc.center = new Vector3(0f, 3f, 0f);
-            bc.size = new Vector3(2.5f, 6f, 2.5f);
-        }
+        /* Create Box Collider */
+        BoxCollider bc = newTree.GetComponent<BoxCollider>();
+        //bc.material = treePhysicMaterial;
+        bc.center = new Vector3(0f, 3f, 0f);
+        bc.size = new Vector3(2.5f, 6f, 2.5f);
 
         float etY = etPrefab.transform.position.y;
         Vector3 etLocation = new Vector3(firLocations[treeID].x, firLocations[treeID].y + etY, firLocations[treeID].z);
@@ -2524,18 +2521,18 @@ public class CubeController : MonoBehaviour
 
         if (grassID < 0 || grassID >= grasses.Count)
         {
-            Debug.Log(name + ".KillGrassIdx()... Tried to kill shrub id:" + grassID + " but grasses.Count: " + grasses.Count);
+            //Debug.Log(name + ".KillGrassIdx()... Tried to kill shrub id:" + grassID + " but grasses.Count: " + grasses.Count);
             return;
         }
 
         if (grasses[grassID] == null)
         {
-            Debug.Log(name + ".KillGrassIdx()... grasses[grassID] for id:" + grassID + " is null!");
+            //Debug.Log(name + ".KillGrassIdx()... grasses[grassID] for id:" + grassID + " is null!");
             return;
         }
         if (grasses[grassID].gameObject == null)
         {
-            Debug.Log(name + ".KillGrassIdx()... grasses[grassID].gameObject for id:" + grassID + " is null!");
+            //Debug.Log(name + ".KillGrassIdx()... grasses[grassID].gameObject for id:" + grassID + " is null!");
             return;
         }
 
@@ -2729,7 +2726,7 @@ public class CubeController : MonoBehaviour
     /// Set vegetation to die from fire
     /// </summary>
     /// <param name="fireTimeIdx">Time index of fire</param>
-    private void SetVegetationToDieFromFire(int fireTimeIdx)
+    private void SetVegetationToDieFromFire(int fireTimeIdx)            // TO DO: Fix for web (?)
     {
         if (dataType == CubeDataType.Veg1)
         {
@@ -4484,8 +4481,8 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void UpdateStatistics()
     {
-        if (settings.BuildForWeb)
-            return;
+        //if (settings.BuildForWeb)
+        //    return;
 
         float netTrans = GetNetTranspiration();
         float leafCarbon = GetLeafCarbon();
