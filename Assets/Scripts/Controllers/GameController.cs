@@ -185,6 +185,7 @@ public class GameController : MonoBehaviour
     public Canvas controlsUICanvas;                           // Show Controls Button UI canvas
     public Canvas sideBySideCanvas;                           // Side-by-Side Mode UI Canvas
     public GameObject introPanel;                              // Intro Text Panel
+    public Canvas loadingCanvas;                           // Side-by-Side Mode UI Canvas
     public GameObject loadingTextObject;                       // Loading Text Object
     public Text loadingTextField;                              // Loading Text 
 
@@ -288,21 +289,24 @@ public class GameController : MonoBehaviour
         //mainGameObject = transform.parent.gameObject;
         Assert.IsNotNull(cameraController);
 
-        //landscapeController = landscapeObject.GetComponent<LandscapeController>() as LandscapeController;
         Assert.IsNotNull(landscapeController);
 
         /* Initialize UI objects */
         Assert.IsNotNull(setupUICanvas);
         Assert.IsNotNull(simulationUICanvas);
+        Assert.IsNotNull(introPanel);
+        introPanel.SetActive(true);
+
         Assert.IsNotNull(controlsUICanvas);
-        Assert.IsNotNull(sideBySideCanvas);
         controlsUICanvas.enabled = false;
 
-        Assert.IsNotNull(introPanel);
-        loadingTextObject = introPanel.transform.Find("LoadingText").gameObject;
+        Assert.IsNotNull(sideBySideCanvas);
+        Assert.IsNotNull(loadingCanvas);
+
+        loadingTextObject = loadingCanvas.transform.Find("LoadingPanel").transform.Find("LoadingText").gameObject;
         loadingTextField = loadingTextObject.GetComponent<Text>() as Text;
-        loadingTextObject.SetActive(false);
-        introPanel.SetActive(true);
+        loadingCanvas.enabled = false;
+        loadingCanvas.gameObject.SetActive(false);
 
         uiObject = GameObject.FindWithTag("UI");
         Assert.IsNotNull(uiObject);
@@ -551,10 +555,12 @@ public class GameController : MonoBehaviour
             sceneCamera.enabled = true;
             sunLight.enabled = true;
 
-            controlsUICanvas.enabled = true;
+            controlsUICanvas.enabled = false;
             setupUICanvas.enabled = false;
-            simulationUICanvas.enabled = true;
+            simulationUICanvas.enabled = false;
             sideBySideCanvas.enabled = false;
+            loadingCanvas.enabled = true;
+            loadingCanvas.gameObject.SetActive(true);
 
             introPanel.SetActive(false);
 
@@ -1609,6 +1615,12 @@ public class GameController : MonoBehaviour
             HideStatistics();
 
         starting = false;
+
+        loadingCanvas.enabled = false;
+        loadingCanvas.gameObject.SetActive(false);
+
+        controlsUICanvas.enabled = true;
+        simulationUICanvas.enabled = true;
     }
 
     //public void SetDataDatesFromFile()        // TO DO
@@ -3016,9 +3028,11 @@ public class GameController : MonoBehaviour
         simulationUICanvas.enabled = true;
         controlsUICanvas.enabled = false;
         sideBySideCanvas.enabled = false;
+        loadingCanvas.enabled = true;
+        loadingCanvas.gameObject.SetActive(true);
+        loadingTextObject.SetActive(false);
 
         introPanel.SetActive(true);
-        loadingTextObject.SetActive(false);
 
         endSimulation = false;
     }

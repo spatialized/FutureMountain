@@ -1533,7 +1533,7 @@ public class CubeController : MonoBehaviour
     {
         if (full)  // Always true
         {
-            Debug.Log("UpdateDataFromWeb()...");// full newTimeIdx: " + newTimeIdx + " set dataFrontier: " + lastCurrentDataIdx);
+            //Debug.Log("UpdateDataFromWeb()...");
             WebManager.Instance.RequestData(patchID, warmingIdx, this.FinishUpdateDataFromWeb);
         }
         //else       // Unused
@@ -1574,28 +1574,15 @@ public class CubeController : MonoBehaviour
         //}
     }
 
-    //private void UpdateNextDataFromJSON(string jsonString)
-    //{
-    //    //Debug.Log("UpdateNextDataFromJSON()... FromJson:  " + "{\"rows\":" + jsonString + "}");
-
-    //    CubeDataRowList rowsObj = JsonUtility.FromJson<CubeDataRowList>("{\"rows\":" + jsonString + "}");
-    //    CubeDataRow[] rows = rowsObj.rows;
-
-    //    Debug.Log("UpdateNextDataFromJSON()... rows.Length: " + rows.Length);
-    //    Debug.Log("UpdateNextDataFromJSON()... rows[0].DateIdx: " + rows[0].DateIdx + " rows[0].Evap: " + rows[0].Evap + " rows[0].DepthToGW: " + rows[0].DepthToGW);
-
-    //    //nextCubeData = LoadData(rows);
-    //}
-
     private void UpdateDataFromJSON(string jsonString)
     {
         //Debug.Log("UpdateDataFromJSON()... FromJson:  " + "{\"rows\":" + jsonString + "}");
         CubeDataModelList rowsObj = JsonUtility.FromJson<CubeDataModelList>("{\"rows\":" + jsonString + "}");
         CubeData[] rows = rowsObj.rows;
 
-        Debug.Log(name + ".UpdateDataFromJSON()... rows.Length: " + rows.Length);
+        //Debug.Log(name + ".UpdateDataFromJSON()... rows.Length: " + rows.Length);
         //Debug.Log("UpdateDataFromJSON()... rows[0].DateIdx: " + rows[0].dateIdx + " rows[0].VegAccessWater" + rows[0].vegAccessWater + " rows[0].Evap: " + rows[0].evap + " rows[0].DepthToGW: " + rows[0].depthToGW);
-        Debug.Log("UpdateDataFromJSON()... rows[5].DateIdx: " + rows[5].dateIdx + " rows[5].VegAccessWater" + rows[5].vegAccessWater + " rows[5].Evap: " + rows[5].evap + " rows[5].DepthToGW: " + rows[5].depthToGW);
+        //Debug.Log("UpdateDataFromJSON()... rows[5].DateIdx: " + rows[5].dateIdx + " rows[5].VegAccessWater" + rows[5].vegAccessWater + " rows[5].Evap: " + rows[5].evap + " rows[5].DepthToGW: " + rows[5].depthToGW);
 
         cubeData = LoadData(rows);
     }
@@ -1605,8 +1592,8 @@ public class CubeController : MonoBehaviour
         CubeDataModelList rowsObj = JsonUtility.FromJson<CubeDataModelList>("{\"rows\":" + jsonString + "}");
         CubeData[] rows = rowsObj.rows;
 
-        Debug.Log(name + ".UpdateDataRowsFromJSON()... rows.Length: " + rows.Length);
-        Debug.Log("UpdateDataRowsFromJSON()... rows[0].DateIdx: " + rows[0].dateIdx + " rows[0].VegAccessWater" + rows[0].vegAccessWater + " rows[0].Evap: " + rows[0].evap + " rows[0].DepthToGW: " + rows[0].depthToGW);
+        //Debug.Log(name + ".UpdateDataRowsFromJSON()... rows.Length: " + rows.Length);
+        //Debug.Log("UpdateDataRowsFromJSON()... rows[0].DateIdx: " + rows[0].dateIdx + " rows[0].VegAccessWater" + rows[0].vegAccessWater + " rows[0].Evap: " + rows[0].evap + " rows[0].DepthToGW: " + rows[0].depthToGW);
         //Debug.Log("UpdateDataRowsFromJSON()... rows[5].DateIdx: " + rows[5].dateIdx + " rows[5].VegAccessWater" + rows[5].vegAccessWater + " rows[5].Evap: " + rows[5].evap + " rows[5].DepthToGW: " + rows[5].depthToGW);
 
         dataRows = rows;
@@ -1617,18 +1604,9 @@ public class CubeController : MonoBehaviour
     private Dictionary<int, CubeData> LoadData(CubeData[] rows)
     {
         Dictionary<int, CubeData> result = new Dictionary<int, CubeData>();
-        //bool fixDateIdxField = false;
-        //if (rows.Length > 1 && rows[1].DateIdx == 0)
-        //{
-        //    Debug.Log(name + ".LoadData()... fixing dateIdx field");
-        //    fixDateIdxField = true;
-        //}
 
         foreach(CubeData row in rows)
         {
-            //Debug.Log(">>>> row.DateIdx:" + row.dateIdx + " row.HeightOver" + row.heightOver);
-            //if(fixDateIdxField)
-            //    row.DateIdx = GameController.Instance.GetDateIdxForDate(row.Year, row.Month, row.Day);
             result.Add(row.dateIdx, row);
         }
         return result;
