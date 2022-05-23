@@ -73,6 +73,8 @@ public class WebManager : MonoBehaviour
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
         {
+            webRequest.SetRequestHeader("Access-Control-Allow-Origin", "*");
+
             // Request and wait for the desired page.
             yield return webRequest.SendWebRequest();
 
