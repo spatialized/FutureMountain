@@ -17,24 +17,24 @@ namespace FutureMountainAPI
         public int dateIdx { get; set; }
         public int warmingIdx { get; set; }
         public int patchIdx { get; set; }
-        public decimal snow { get; set; }
-        public decimal evap { get; set; }
-        public decimal netpsn { get; set; }
-        public decimal depthToGW { get; set; }
-        public decimal vegAccessWater { get; set; }
-        public decimal Qout { get; set; }
-        public decimal litter { get; set; }
-        public decimal soil { get; set; }
-        public decimal heightOver { get; set; }
-        public decimal transOver { get; set; }
-        public decimal heightUnder { get; set; }
-        public decimal transUnder { get; set; }
-        public decimal leafCOver { get; set; }
-        public decimal stemCOver { get; set; }
-        public decimal rootCOver { get; set; }
-        public decimal leafCUnder { get; set; }
-        public decimal stemCUnder { get; set; }
-        public decimal rootCUnder { get; set; }
+        public float snow { get; set; }
+        public float evap { get; set; }
+        public float netpsn { get; set; }
+        public float depthToGW { get; set; }
+        public float vegAccessWater { get; set; }
+        public float Qout { get; set; }
+        public float litter { get; set; }
+        public float soil { get; set; }
+        public float heightOver { get; set; }
+        public float transOver { get; set; }
+        public float heightUnder { get; set; }
+        public float transUnder { get; set; }
+        public float leafCOver { get; set; }
+        public float stemCOver { get; set; }
+        public float rootCOver { get; set; }
+        public float leafCUnder { get; set; }
+        public float stemCUnder { get; set; }
+        public float rootCUnder { get; set; }
         public CubeData() { }
     }
 }

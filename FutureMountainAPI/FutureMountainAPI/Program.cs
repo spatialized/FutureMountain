@@ -17,6 +17,18 @@ string connectionString = "Server=localhost\\SQLEXPRESS;Database=FutureMountain;
 builder.Services.AddDbContext<CubeDataDbContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddDbContext<DateDbContext>(options => options.UseSqlServer(connectionString));
 
+// Default Policy
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        builder =>
+        {
+            builder.WithOrigins("https://localhost:90", "http://localhost:80")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+        });
+});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
