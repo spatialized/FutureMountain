@@ -23,7 +23,7 @@ public class WebManager : MonoBehaviour
         }
     }
 
-    public void RequestData(int patchIdx, int warmingIdx, int timeIdxStart, int timeIdxEnd, Action<string> callback)  // [time idx offset][row, col]
+    public void RequestData(int patchIdx, int warmingIdx, int timeIdxStart, int timeIdxEnd, Action<string> callback)
     {
         //float[,] result = new float[timeIdxEnd - timeIdxStart, (int)DataColumnIdx.Day];
 
@@ -33,12 +33,24 @@ public class WebManager : MonoBehaviour
         Coroutine coroutine = this.StartCoroutine(this.GetRequest(uri, callback));
     }
 
-    public Coroutine RequestData(int patchIdx, int warmingIdx, Action<string> callback)  // [time idx offset][row, col]
+    // Gets all data rows for given Patch Id and Warming Idx
+    public Coroutine RequestData(int patchIdx, int warmingIdx, Action<string> callback)
     {
         //float[,] result = new float[timeIdxEnd - timeIdxStart, (int)DataColumnIdx.Day];
 
         string uri = "http://localhost:5056/api/cubedata/" + patchIdx + "/" + warmingIdx;
         Debug.Log("RequestData()... uri:  " + uri);
+
+        return this.StartCoroutine(this.GetRequest(uri, callback));
+    }
+
+    // Unused
+    public Coroutine GetDateIndex(int year, int month, int day, Action<string> callback)
+    {
+        //float[,] result = new float[timeIdxEnd - timeIdxStart, (int)DataColumnIdx.Day];
+
+        string uri = "http://localhost:5056/api/dates/" + year + "/" + month + "/" + day;
+        Debug.Log("GetDate()... uri:  " + uri);
 
         return this.StartCoroutine(this.GetRequest(uri, callback));
     }

@@ -127,7 +127,8 @@ public class GameController : MonoBehaviour
     public CubeDataList aggregateCubeDataList;      // Data for aggregate cube
     public CubeDataList cubeDataList;               // Data for cubes
     //private string[] dataDates;                     // Dates (taken from Cube 1) -- OBSOLETE
-    public List<DateModel> dataDates;              // List of dates in model data
+    public List<DateModel> dataDates;               // List of dates in model data
+    public Dictionary<Vector3, int> dateLookup;      // Date idx reference
 
     /* Simulation */
     public bool sideBySideMode = false;                      // Side-by-Side mode flag
@@ -278,7 +279,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void InitializeGame()
     {
-        //// TESTING
+        // Test Web API
         WebManager.Instance.RequestData(-1, 1, 1, 10, this.test1);
 
         /// END TESTING
@@ -586,9 +587,6 @@ public class GameController : MonoBehaviour
             }
 
             //endTimeIdx = GetLastTimeIdx();
-
-            //ffff
-
             //if (cube1Object != null)
             //{
             //    cubes[0].SetWarmingRange(warmingRange);
@@ -1113,7 +1111,7 @@ public class GameController : MonoBehaviour
 
             if (settings.BuildForWeb)
             {
-                cubes[0].UpdateDataFromWeb(timeIdx, true);
+                cubes[0].UpdateDataFromWeb(timeIdx, true, true);
             }
             else
             {
@@ -1157,7 +1155,7 @@ public class GameController : MonoBehaviour
 
             if (settings.BuildForWeb)
             {
-                sideCubes[0].UpdateDataFromWeb(timeIdx, true);
+                sideCubes[0].UpdateDataFromWeb(timeIdx, true, true); ;
             }
             else
             {
@@ -1193,7 +1191,7 @@ public class GameController : MonoBehaviour
 
             if (settings.BuildForWeb)
             {
-                cubes[1].UpdateDataFromWeb(timeIdx, true);
+                cubes[1].UpdateDataFromWeb(timeIdx, true, true);
             }
             else
             {
@@ -1254,7 +1252,7 @@ public class GameController : MonoBehaviour
 
             if (settings.BuildForWeb)
             {
-                cubes[2].UpdateDataFromWeb(timeIdx, true);
+                cubes[2].UpdateDataFromWeb(timeIdx, true, true);
             }
             else
             {
@@ -1314,7 +1312,7 @@ public class GameController : MonoBehaviour
 
             if (settings.BuildForWeb)
             {
-                cubes[3].UpdateDataFromWeb(timeIdx, true);
+                cubes[3].UpdateDataFromWeb(timeIdx, true, true);
             }
             else
             {
@@ -1374,7 +1372,7 @@ public class GameController : MonoBehaviour
 
             if (settings.BuildForWeb)
             {
-                cubes[4].UpdateDataFromWeb(timeIdx, true);
+                cubes[4].UpdateDataFromWeb(timeIdx, true, true);
             }
             else
             {
@@ -1435,7 +1433,7 @@ public class GameController : MonoBehaviour
 
             if (settings.BuildForWeb)
             {
-                aggregateCubeController.UpdateDataFromWeb(timeIdx, true);
+                aggregateCubeController.UpdateDataFromWeb(timeIdx, true, true);
             }
             else
             {
@@ -1459,7 +1457,7 @@ public class GameController : MonoBehaviour
 
             if (settings.BuildForWeb)
             {
-                aggregateSideCubeController.UpdateDataFromWeb(timeIdx, true);
+                aggregateSideCubeController.UpdateDataFromWeb(timeIdx, true, true);
             }
             else
             {
@@ -1628,7 +1626,19 @@ public class GameController : MonoBehaviour
         dataDates = new List<DateModel>(dates);
 
         if (debugWeb)
-            Debug.Log("Set dataDates...");
+            Debug.Log("Set dataDates... dataDates[0].month:" + dataDates[0].month+" dataDates[10].year:" + dataDates[10].year);
+
+        dateLookup = new Dictionary<Vector3, int>();
+        foreach(DateModel date in dataDates)
+        {
+            Vector3 vec = new Vector3(date.year, date.month, date.day);
+            int id = date.id;
+
+            dateLookup.Add(vec, id);
+        }
+
+        if (debugWeb)
+            Debug.Log("Set dateLookup...");
 
         //dataDates = JsonUtility.FromJson<List<DateModel>>(jsonString);
 
@@ -2761,6 +2771,17 @@ public class GameController : MonoBehaviour
     public List<DateModel> GetDates()
     {
         return dataDates;
+    }
+
+    public int GetDateIdxForDate(int year, int month, int day)
+    {
+        if(year > 0 && month > 0 && day > 0)
+            return dateLookup[new Vector3(year, month, day)];
+        else
+        {
+            Debug.Log("GetDateIdxForDate()... ERROR: year / month / day cannot be zero!");
+            return -1;
+        }
     }
 
     public int GetLastDateYear()
