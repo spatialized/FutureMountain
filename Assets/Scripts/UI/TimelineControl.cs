@@ -31,8 +31,8 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     private int resolution;
     private static float widthFactor = 0.5f;                        // Timeline width factor
-    private static float xOffset = 430f;                            // Timeline x offset
-    private static float yOffset = 40f;                             // Timeline y offset
+    private static float xOffset = 242f;                            // Timeline x offset
+    private static float yOffset = 22f;                             // Timeline y offset
     private float dateYOffset = yOffset * 0.45f;                    // Offset of date text from bottom of screen
     private float fireYOffset = yOffset * 4f;                       // Offset of event icons from bottom of screen
     private float messageYOffset = yOffset * 2.95f;                 // Offset of event icons from bottom of screen

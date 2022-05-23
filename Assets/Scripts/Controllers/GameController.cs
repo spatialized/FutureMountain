@@ -3042,8 +3042,8 @@ public class GameController : MonoBehaviour
         simulationUICanvas.enabled = true;
         controlsUICanvas.enabled = false;
         sideBySideCanvas.enabled = false;
-        loadingCanvas.enabled = true;
-        loadingCanvas.gameObject.SetActive(true);
+        loadingCanvas.enabled = false;
+        loadingCanvas.gameObject.SetActive(false);
         loadingTextObject.SetActive(false);
 
         introPanel.SetActive(true);
