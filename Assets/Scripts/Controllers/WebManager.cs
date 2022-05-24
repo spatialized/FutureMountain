@@ -17,8 +17,10 @@ public class WebManager : MonoBehaviour
 
     private static WebManager _instance;
     public static WebManager Instance { get { return _instance; } }
-    
-    private static string connectionStringBase = runOnLocal ? "http://localhost:5056/api/" : "http://192.168.0.32:5550/api/";
+
+    private static string ngrokString = "https://2247-2603-8000-a641-cb00-2c66-1f21-9f9f-a60.ngrok.io/api/";
+    //private static string connectionStringBase = runOnLocal ? "http://localhost:5056/api/" : ngrokString;
+    private static string connectionStringBase = ngrokString;
     private static string connectionStringCubes = "cubedata/";
     private static string connectionStringDates = "dates/";
 
