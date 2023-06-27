@@ -6,7 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.WebHost.UseUrls("https://*:5001;http://*:5000;http://*:80;http://*:5550;http://*:5560");
+builder.WebHost.UseUrls("https://*:7273;");
+//builder.WebHost.UseUrls("https://*:5001;http://*:5000;http://*:80;http://*:5550;http://*:5560");
 
 builder.Services.AddControllers();
 
