@@ -21,7 +21,9 @@ string _policyName = "CorsPolicy";
 // Remote MySQL
 //DbConfiguration.SetConfiguration(new MySqlEFConfiguration());
 
-string connectionString = "Server=REDACTED_HOST;User ID=REDACTED_USER;Password=REDACTED_PASSWORD;Database=defaultdb";
+//string connectionString = "Server=REDACTED_HOST;User ID=REDACTED_USER;Password=REDACTED_PASSWORD;Database=defaultdb";
+string connectionString = "Server=REDACTED_HOST;Port=16751;Database=futuremountain;Uid=REDACTED_USER;Pwd=REDACTED_PASSWORD;SslMode=Preferred;";
+    //"mysql --host=\"REDACTED_HOST\" --port=16751 --user=REDACTED_USER"REDACTED_USER\" --password=REDACTED_PASSWORD"REDACTED_PASSWORD\"";
 //string connectionString = "server=localhost;user=REDACTED_USER;password=REDACTED_PASSWORD;database=ef"
 
 //var test = System.Configuration.ConfigurationManager.ConnectionStrings["CubeDataDbContext"].ConnectionString;
@@ -29,7 +31,9 @@ string connectionString = "Server=REDACTED_HOST;User ID=REDACTED_USER;Password=R
 
 // Remote MySQL
 //builder.Services.AddDbContext<CubeDataDbContext>()
-ServerVersion.AutoDetect(connectionString);
+var serverVersion = ServerVersion.AutoDetect(connectionString);
+builder.Services.AddDbContext<CubeDataDbContext>(options => options.UseMySql(connectionString, serverVersion).EnableDetailedErrors(true));
+builder.Services.AddDbContext<DateDbContext>(options => options.UseMySql(connectionString, serverVersion).EnableDetailedErrors(true));
 
 
 // Local MSSQL
@@ -41,8 +45,8 @@ ServerVersion.AutoDetect(connectionString);
 //        System.Configuration.ConfigurationManager.ConnectionStrings["CubeDataDbContext"].ConnectionString)
 //    .EnableDetailedErrors(true));
 
-builder.Services.AddDbContext<CubeDataDbContext>(options => options.UseSqlServer(connectionString).EnableDetailedErrors(true));
-builder.Services.AddDbContext<DateDbContext>(options => options.UseSqlServer(connectionString).EnableDetailedErrors(true));
+//builder.Services.AddDbContext<CubeDataDbContext>(options => options.UseSqlServer(connectionString).EnableDetailedErrors(true));
+//builder.Services.AddDbContext<DateDbContext>(options => options.UseSqlServer(connectionString).EnableDetailedErrors(true));
 
 // Default Policy
 builder.Services.AddCors(options =>

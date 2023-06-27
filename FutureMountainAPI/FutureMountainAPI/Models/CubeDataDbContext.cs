@@ -41,7 +41,8 @@ namespace FutureMountainAPI
             // Local
             //string connectionString = "Server=DESKTOP-BGU64QR\\SQLEXPRESS;Initial Catalog=FutureMountain;User ID=REDACTED_USER;password=REDACTED_PASSWORD;";
             // Remote
-            string connectionString = "Server=REDACTED_HOST:16751;User ID=REDACTED_USER;Password=REDACTED_PASSWORD;Database=defaultdb";
+            //string connectionString = "Server=REDACTED_HOST:16751;User ID=REDACTED_USER;Password=REDACTED_PASSWORD;Database=defaultdb";
+            string connectionString = "Server=REDACTED_HOST;Port=16751;Database=futuremountain;Uid=REDACTED_USER;Pwd=REDACTED_PASSWORD;SslMode=Preferred;";
 
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
