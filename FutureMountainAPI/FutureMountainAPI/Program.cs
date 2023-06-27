@@ -1,6 +1,9 @@
 using FutureMountainAPI;
 using Microsoft.EntityFrameworkCore;
+//using MySql.Data.EntityFrameworkCore;
+//using MySqlConnector;
 using System.Configuration;
+//using System.Data.Entity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,16 +14,33 @@ builder.WebHost.UseUrls("https://*:7273;");
 
 builder.Services.AddControllers();
 
-//string connectionString = "Server=localhost\\SQLEXPRESS;Database=FutureMountain;Trusted_Connection=True;";    // WORKS
-//string connectionString = "Server=localhost\\SQLEXPRESS;Database=FutureMountain;Trusted_Connection=True;";    // WORKS
-//string connectionString = "Server=localhost\\SQLEXPRESS;Initial Catalog=FutureMountain;Integrated Security=True";
-string connectionString = "Server=localhost\\SQLEXPRESS;Initial Catalog=FutureMountain;user id=REDACTED_USER;password=REDACTED_PASSWORD;Connection Timeout=120;Integrated Security=True";
 string _policyName = "CorsPolicy";
+
+// Local MSSQL
+//string connectionString = "Server=DESKTOP-BGU64QR\\SQLEXPRESS;Initial Catalog=FutureMountain;User ID=REDACTED_USER;password=REDACTED_PASSWORD;";
+// Remote MySQL
+//DbConfiguration.SetConfiguration(new MySqlEFConfiguration());
+
+string connectionString = "Server=REDACTED_HOST;User ID=REDACTED_USER;Password=REDACTED_PASSWORD;Database=defaultdb";
+//string connectionString = "server=localhost;user=REDACTED_USER;password=REDACTED_PASSWORD;database=ef"
 
 //var test = System.Configuration.ConfigurationManager.ConnectionStrings["CubeDataDbContext"].ConnectionString;
 
+
+// Remote MySQL
+//builder.Services.AddDbContext<CubeDataDbContext>()
+ServerVersion.AutoDetect(connectionString);
+
+
+// Local MSSQL
+
 //builder.Services.AddDbContext<CubeDataDbContext>(options => options.UseSqlServer(
-//    System.Configuration.ConfigurationManager.ConnectionStrings["CubeDataDbContext"].ConnectionString));
+//        System.Configuration.ConfigurationManager.ConnectionStrings["CubeDataDbContext"].ConnectionString)
+//    .EnableDetailedErrors(true));
+//builder.Services.AddDbContext<DateDbContext>(options => options.UseSqlServer(
+//        System.Configuration.ConfigurationManager.ConnectionStrings["CubeDataDbContext"].ConnectionString)
+//    .EnableDetailedErrors(true));
+
 builder.Services.AddDbContext<CubeDataDbContext>(options => options.UseSqlServer(connectionString).EnableDetailedErrors(true));
 builder.Services.AddDbContext<DateDbContext>(options => options.UseSqlServer(connectionString).EnableDetailedErrors(true));
 
