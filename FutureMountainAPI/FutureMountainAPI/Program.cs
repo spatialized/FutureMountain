@@ -1,15 +1,10 @@
 using FutureMountainAPI;
 using Microsoft.EntityFrameworkCore;
-//using MySql.Data.EntityFrameworkCore;
-//using MySqlConnector;
 using System.Configuration;
-//using System.Data.Entity;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.WebHost.UseUrls("https://*:7273;");
+builder.WebHost.UseUrls("https://*:44301;");
 //builder.WebHost.UseUrls("https://*:5001;http://*:5000;http://*:80;http://*:5550;http://*:5560");
 
 builder.Services.AddControllers();
@@ -21,16 +16,13 @@ string _policyName = "CorsPolicy";
 // Remote MySQL
 //DbConfiguration.SetConfiguration(new MySqlEFConfiguration());
 
-//string connectionString = "Server=REDACTED_HOST;User ID=REDACTED_USER;Password=REDACTED_PASSWORD;Database=defaultdb";
-string connectionString = "Server=REDACTED_HOST;Port=16751;Database=futuremountain;Uid=REDACTED_USER;Pwd=REDACTED_PASSWORD;SslMode=Preferred;";
-    //"mysql --host=\"REDACTED_HOST\" --port=16751 --user=REDACTED_USER"REDACTED_USER\" --password=REDACTED_PASSWORD"REDACTED_PASSWORD\"";
-//string connectionString = "server=localhost;user=REDACTED_USER;password=REDACTED_PASSWORD;database=ef"
-
-//var test = System.Configuration.ConfigurationManager.ConnectionStrings["CubeDataDbContext"].ConnectionString;
-
+string connectionString =
+    "Server=REDACTED_HOST; User ID=REDACTED_USER; Password=REDACTED_PASSWORD; port=16751; Database=defaultdb;";
+//string connectionString = configuration.GetConnectionString("CubeDataDbContext");
 
 // Remote MySQL
 //builder.Services.AddDbContext<CubeDataDbContext>()
+
 var serverVersion = ServerVersion.AutoDetect(connectionString);
 builder.Services.AddDbContext<CubeDataDbContext>(options => options.UseMySql(connectionString, serverVersion).EnableDetailedErrors(true));
 builder.Services.AddDbContext<DateDbContext>(options => options.UseMySql(connectionString, serverVersion).EnableDetailedErrors(true));
@@ -84,6 +76,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(_policyName);
 app.UseAuthorization();
+app.UseDeveloperExceptionPage();
 
 app.MapControllers();
 
