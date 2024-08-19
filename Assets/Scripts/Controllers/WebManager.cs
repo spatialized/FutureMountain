@@ -18,7 +18,7 @@ public class WebManager : MonoBehaviour
     private static WebManager _instance;
     public static WebManager Instance { get { return _instance; } }
 
-    private static string connectionStringBase = runOnLocal ? "https://localhost:7273/api/" : "https://entopticstudios.com/api/";
+    private static string connectionStringBase = runOnLocal ? "https://localhost:7273/api/" : "https://data.futuremtn.org/api/";
     //private static string connectionStringBase = runOnLocal ? "http://localhost:5056/api/" : "http://192.168.0.32:5550/api/";
     private static string connectionStringCubes = "cubedata/";
     private static string connectionStringDates = "dates/";
