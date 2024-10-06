@@ -17,7 +17,8 @@ namespace FutureMountainAPI
         public int dateIdx { get; set; }
         public int warmingIdx { get; set; }
         public int patchIdx { get; set; }
-        public float snow { get; set; }
+        //public int snow { get; set; } 
+        public float snow { get; set; }      
         public float evap { get; set; }
         public float netpsn { get; set; }
         public float depthToGW { get; set; }
@@ -29,6 +30,7 @@ namespace FutureMountainAPI
         public float transOver { get; set; }
         public float heightUnder { get; set; }
         public float transUnder { get; set; }
+        //public int transUnder { get; set; }
         public float leafCOver { get; set; }
         public float stemCOver { get; set; }
         public float rootCOver { get; set; }

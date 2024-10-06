@@ -1,11 +1,23 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿// REMOTE
+//using MySql.Data.Entity;
+using Microsoft.EntityFrameworkCore;
+//using MySql.Data.EntityFrameworkCore;
+//using System.Data.Entity;
+//using DbContext = System.Data.Entity.DbContext;
+
+// LOCAL
+//using Microsoft.EntityFrameworkCore;
+//using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+//using DbContext = Microsoft.EntityFrameworkCore.DbContext;
 
 namespace FutureMountainAPI
 {
+    /// REMOTE
 
-    /// <summary>
+    /// /// <summary>
     /// The cube data database context.
     /// </summary>
+    //[DbConfigurationType(typeof(MySqlEFConfiguration))]
     public class CubeDataDbContext : DbContext
     {
         //private const string connectionString = "Server=localhost\\SQLEXPRESS;Database=EFCore;Trusted_Connection=True;";
@@ -30,7 +42,14 @@ namespace FutureMountainAPI
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                 .AddJsonFile("appsettings.json")
                 .Build();
-            optionsBuilder.UseSqlServer(configuration.GetConnectionString("CubeDataDbContext"));
+
+            string connectionString = configuration.GetConnectionString("CubeDataDbContext");
+
+            // Sql Server
+            //optionsBuilder.UseSqlServer(configuration.GetConnectionString("CubeDataDbContext"));
+
+            // MySQL
+            optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
         }
 
         public DbSet<CubeData> CubeData { get; set; }

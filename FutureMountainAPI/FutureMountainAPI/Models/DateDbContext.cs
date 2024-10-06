@@ -1,11 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
+//using MySql.Data.EntityFrameworkCore;
+//using System.Data.Entity;
+//using DbContext = System.Data.Entity.DbContext;
+
+// LOCAL
+//using DbContext = Microsoft.EntityFrameworkCore.DbContext;
 
 namespace FutureMountainAPI
 {
-
+    // REMOTE
     /// <summary>
     /// The cube data database context.
     /// </summary>
+    //[DbConfigurationType(typeof(MySqlEFConfiguration))]
     public class DateDbContext : DbContext
     {
         //private const string connectionString = "Server=localhost\\SQLEXPRESS;Database=EFCore;Trusted_Connection=True;";
@@ -30,7 +37,14 @@ namespace FutureMountainAPI
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                 .AddJsonFile("appsettings.json")
                 .Build();
-            optionsBuilder.UseSqlServer(configuration.GetConnectionString("CubeDataDbContext"));
+
+            string connectionString = configuration.GetConnectionString("CubeDataDbContext");
+
+            // Sql Server
+            //optionsBuilder.UseSqlServer(configuration.GetConnectionString("CubeDataDbContext"));
+
+            // MySQL
+            optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
         }
 
         public DbSet<Date> Dates { get; set; }

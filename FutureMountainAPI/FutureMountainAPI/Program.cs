@@ -122,6 +122,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors(_policyName);
 app.UseAuthorization();
+app.UseDeveloperExceptionPage();
 
 app.MapControllers();
 
