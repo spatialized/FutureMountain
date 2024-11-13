@@ -1,4 +1,6 @@
 //using System;
+
+using System;
 using Assets.Scripts.Models;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,6 +9,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 /// <summary>
 /// Cube controller.
@@ -1067,6 +1070,7 @@ public class CubeController : MonoBehaviour
     public void UpdateVegetationBehavior(int newTimeIdx, int curTimeStep)
     {
         //Debug.Log(name + ".UpdateVegetationBehavior()... newTimeIdx: " + newTimeIdx+ " simulationOn:"+ simulationOn);
+
         if (!simulationOn)
             return;
 
@@ -1074,16 +1078,19 @@ public class CubeController : MonoBehaviour
 
         timeStep = curTimeStep;
 
-        //if (settings.BuildForWeb)
-        //{
-            //if (ShouldUpdateDataFromWeb())
-            //    UpdateDataFromWeb(timeIdx, false, false);
-        //}
-
-        if (timeIdx >= 0 && timeIdx < GetDataLength())
+        int dataLength = -1;
+        try
         {
-            //Debug.Log(name + ".UpdateVegetationBehavior()... Will call UpdateCurrentData...");
+            dataLength = GetDataLength();
+        }
+        catch(Exception ex)
+        {
+            Debug.Log(name + ".UpdateVegetationBehavior()... ERROR in GetDataLength() ex: " + ex.Message);
+            return;
+        }
 
+        if (timeIdx >= 0 && timeIdx < dataLength)
+        {
             UpdateCurrentData(timeIdx);
 
             /* Update Shrub ET Rate */
@@ -4018,6 +4025,12 @@ public class CubeController : MonoBehaviour
 
         if (settings.BuildForWeb)
         {
+            if (!cubeData.ContainsKey(timeIndex))
+            {
+                Debug.Log("ReadData()... ERROR: cubeData has no key timeIndex: "+timeIndex);
+                return 0f;
+            }
+
             switch (col) {
                 case (int)DataColumnIdx.Snow:
                     return cubeData[timeIndex].snow;

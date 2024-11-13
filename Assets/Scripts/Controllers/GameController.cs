@@ -13,6 +13,7 @@ using Assets.Scripts.Models;
 /// </summary>
 public class GameController : MonoBehaviour
 {
+    #region Debug
     /* Debugging */
     private bool debugGame = true;                  // Debug messages on / off
     private bool debugModel = false;                // Debug model (graph) display
@@ -25,12 +26,13 @@ public class GameController : MonoBehaviour
     private int lastDebugMessageFrame = -1;         // Last debug message printed frame (for delayed debug messages)
     private static string debugOutputPath = "/Users/davidgordon/Desktop/debug.txt";     // Debug output filepath
     private int debugMessageMinLength = 15;         // Debug message min. length in frames
+    #endregion
 
-    #region Fields
     /* Game Controller */
     private static GameController _instance;
     public static GameController Instance { get { return _instance; } }
 
+    #region Fields
     /* Data */
     private static bool fireCubes = true;           // Fire Cubes (default)     -- TO DO: Remove
 
@@ -218,14 +220,14 @@ public class GameController : MonoBehaviour
     private GameObject warmingKnobObject;                     // Large warming knob
     private WarmingKnobSlider warmingKnobSlider;              // Large warming knob slider object
     private GameObject warmingKnob1Object;                    // Side-by-Side warming knob 1
-    private WarmingKnobSlider warmingKnob1Slider;              // Large warming knob slider object
+    private WarmingKnobSlider warmingKnob1Slider;             // Large warming knob slider object
     private GameObject warmingKnob2Object;                    // Side-by-Side warming knob 2
-    private WarmingKnobSlider warmingKnob2Slider;              // Large warming knob slider object
+    private WarmingKnobSlider warmingKnob2Slider;             // Large warming knob slider object
     private GameObject timeKnobObject;                        // Time scale knob
     private TimeKnobSlider timeKnobSlider;                    // Time knob slider object
 
     /* UI Graphics */
-    private GameObject blankScreenObject;                     // Blank screen UI object
+    //private GameObject blankScreenObject;                     // Blank screen UI object
 
     /* UI Text */
     private bool showControls = true;                         // Show controls setting
@@ -280,193 +282,19 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void InitializeGame()
     {
-        // Test Web API
-        WebManager.Instance.RequestData(-1, 1, 1, 10, this.test1);
+        //// Test Web API
+        //WebManager.Instance.RequestData(-1, 1, 1, 10, this.test1);
 
-        /// END TESTING
+        InitializeControls();
 
-        /* Set Main Game Objects */
-        //mainGameObject = transform.parent.gameObject;
-        Assert.IsNotNull(cameraController);
+        InitializeSnow();
 
-        Assert.IsNotNull(landscapeController);
+        InitializeCubeObjects();
 
-        /* Initialize UI objects */
-        Assert.IsNotNull(setupUICanvas);
-        Assert.IsNotNull(simulationUICanvas);
-        Assert.IsNotNull(introPanel);
-        introPanel.SetActive(true);
-
-        Assert.IsNotNull(controlsUICanvas);
-        controlsUICanvas.enabled = false;
-
-        Assert.IsNotNull(sideBySideCanvas);
-        Assert.IsNotNull(loadingCanvas);
-
-        loadingTextObject = loadingCanvas.transform.Find("LoadingPanel").transform.Find("LoadingText").gameObject;
-        loadingTextField = loadingTextObject.GetComponent<Text>() as Text;
-        loadingCanvas.enabled = false;
-        loadingCanvas.gameObject.SetActive(false);
-        loadingTextObject.gameObject.SetActive(false);
-
-        uiObject = GameObject.FindWithTag("UI");
-        Assert.IsNotNull(uiObject);
-        uiObjectDefaultPosition = uiObject.transform.localPosition;
-        uiObjectHidden = false;
-
-        Assert.IsNotNull(uiTimelineObject);
-        uiTimeline = uiTimelineObject.GetComponent<TimelineControl>() as TimelineControl;
-        Assert.IsNotNull(uiTimeline);
-        uiTimeline.Initialize(this);
-
-        pauseButtonObject = GameObject.Find("PauseButton");
-        zoomOutButtonObject = GameObject.Find("ZoomOutButton");
-        exitSideBySideButtonObject = GameObject.Find("ExitSideBySideButton");
-        zoomOutButtonObject.SetActive(false);
-
-        endButtonObject = GameObject.Find("EndButton");
-        showControlsToggleObject = GameObject.Find("ShowControlsToggle");
-        showModelDataToggleObject = GameObject.Find("ShowModelDataToggle");
-        storyModeToggleObject = GameObject.Find("StoryModeToggle");
-        sideBySideModeToggleObject = GameObject.Find("SideBySideToggle");
-        seasonsToggleObject = GameObject.Find("ShowSeasonsToggle");
-        flyCameraButtonObject = GameObject.Find("FlyCameraToggle");
-        cubesToggleObject = GameObject.Find("ShowCubesToggle");
-
-        messageManager = new UI_MessageManager();      // Create MessageManager
-
-        seasonsToggleObject.GetComponent<Toggle>().isOn = displaySeasons;
-        showControlsToggleObject.GetComponent<Toggle>().isOn = showControls;
-        showModelDataToggleObject.GetComponent<Toggle>().isOn = displayModel;
-        storyModeToggleObject.GetComponent<Toggle>().isOn = storyMode;
-        sideBySideModeToggleObject.GetComponent<Toggle>().isOn = sideBySideMode;
-
-        flyCameraButtonObject.GetComponent<Toggle>().isOn = false;
-        cubesToggleObject.GetComponent<Toggle>().isOn = true;
-
-        Assert.IsNotNull(endButtonObject);
-        Assert.IsNotNull(seasonsToggleObject);
-        Assert.IsNotNull(showModelDataToggleObject);
-        Assert.IsNotNull(showControlsToggleObject);
-        Assert.IsNotNull(sideBySideModeToggleObject);
-        Assert.IsNotNull(storyModeToggleObject);
-        Assert.IsNotNull(flyCameraButtonObject);
-        Assert.IsNotNull(zoomOutButtonObject);
-        Assert.IsNotNull(pauseButtonObject);
-        Assert.IsNotNull(exitSideBySideButtonObject);
-
-        pauseButtonObject.SetActive(false);
-        exitSideBySideButtonObject.SetActive(false);
-
-        warmingKnobObject = GameObject.Find("WarmingKnob");
-        warmingKnobSlider = warmingKnobObject.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
-        warmingKnobSlider.respondToUser = true;
-
-        warmingKnob1Object = GameObject.Find("WarmingKnob1");
-        warmingKnob1Slider = warmingKnob1Object.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
-        warmingKnob1Slider.respondToUser = true;
-        warmingKnob1Object.SetActive(false);
-
-        warmingKnob2Object = GameObject.Find("WarmingKnob2");
-        warmingKnob2Slider = warmingKnob2Object.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
-        warmingKnob2Slider.respondToUser = true;
-        warmingKnob2Object.SetActive(false);
-
-        timeKnobObject = GameObject.Find("TimeKnob");
-        timeKnobObject.SetActive(true);
-        timeKnobSlider = timeKnobObject.GetComponent<TimeKnobSlider>() as TimeKnobSlider;
-
-        blankScreenObject = GameObject.Find("BlankScreen");     // -- OBSOLETE
-        Assert.IsNotNull(blankScreenObject);
-        //Assert.IsNotNull(largeTerrainMaterial);
-
-        /* Load Settings */
-        settings = GameObject.Find("Settings").GetComponent<SimulationSettings>() as SimulationSettings;
-        Assert.IsNotNull(settings);
-
-        debugGame = settings.DebugGame;
-        debugFire = settings.DebugFire;
-        debugModel = settings.DebugModel;
-        debugDetailed = settings.DebugDetailed;
-
-        /* Initialize Snow Managers */
-        snowManagerObject = GameObject.Find("SnowManager_Landscape");
-        snowManagerTerrain = snowManagerObject.GetComponent<SnowManager>() as SnowManager;
-        Assert.IsNotNull(snowManagerObject);
-        Assert.IsNotNull(snowManagerTerrain);
-        Assert.IsNotNull(horizonMaster);
-
-        //SetSnowAmount(0.0f);
-
-        /* Initialize Cube Objects */
-        Assert.IsNotNull(cube1Object);
-        Assert.IsNotNull(cube2Object);
-        Assert.IsNotNull(cube3Object);
-        Assert.IsNotNull(cube4Object);
-        Assert.IsNotNull(cube5Object);
-        Assert.IsNotNull(cube1Object_Side);
-        Assert.IsNotNull(cube2Object_Side);
-        Assert.IsNotNull(cube3Object_Side);
-        Assert.IsNotNull(cube4Object_Side);
-        Assert.IsNotNull(cube5Object_Side);
-        Assert.IsNotNull(aggregateCubeObject);
-        Assert.IsNotNull(aggregateCubeObject_Side);
-
-        Assert.IsNotNull(cube1Stats);
-        Assert.IsNotNull(cube2Stats);
-        cube1Stats.SetActive(false);
-        cube2Stats.SetActive(false);
-
-        Assert.IsNotNull(warmingLevelText);
-
-        warmingLevelText.SetActive(false);
-
-        cubes = new CubeController[5];
-        sideCubes = new CubeController[5];
-        cubes[0] = cube1Object.GetComponent<CubeController>() as CubeController;
-        cubes[1] = cube2Object.GetComponent<CubeController>() as CubeController;
-        cubes[2] = cube3Object.GetComponent<CubeController>() as CubeController;
-        cubes[3] = cube4Object.GetComponent<CubeController>() as CubeController;
-        cubes[4] = cube5Object.GetComponent<CubeController>() as CubeController;
-        sideCubes[0] = cube1Object_Side.GetComponent<CubeController>() as CubeController;
-        sideCubes[1] = cube2Object_Side.GetComponent<CubeController>() as CubeController;
-        sideCubes[2] = cube3Object_Side.GetComponent<CubeController>() as CubeController;
-        sideCubes[3] = cube4Object_Side.GetComponent<CubeController>() as CubeController;
-        sideCubes[4] = cube5Object_Side.GetComponent<CubeController>() as CubeController;
-        aggregateCubeController = aggregateCubeObject.GetComponent<CubeController>() as CubeController;
-        aggregateSideCubeController = aggregateCubeObject_Side.GetComponent<CubeController>() as CubeController;
-
-        /* Initialize Side-by-Side Cubes */
-        for (int i = 0; i < cubes.Length; i++)
-        {
-            CubeController cube = cubes[i];
-            CubeController sideCube = sideCubes[i];
-
-            Assert.IsNotNull(cube);
-            Assert.IsNotNull(sideCube);
-
-            cube.simulationOn = true;
-
-            cube.SetupObjects();
-            sideCube.SetupObjects();
-
-            Vector3 newPos = sideCube.transform.position;   // Offset side cube from original
-            newPos.x -= settings.SideBySideModeXOffset;
-            sideCube.transform.position = newPos;
-
-            sideCube.gameObject.SetActive(false);
-        }
+        InitializeSideBySideCubes();
 
         if (debugMessages)
             HandleTextFile.ClearFile();
-
-        Assert.IsNotNull(aggregateCubeController);
-        aggregateCubeController.SetupObjects();
-        aggregateCubeController.simulationOn = true;
-
-        Assert.IsNotNull(aggregateSideCubeController);
-        aggregateSideCubeController.SetupObjects();
-        aggregateSideCubeController.gameObject.SetActive(false);
 
         HideCubes(true, -1);
         HideSideCubes();
@@ -593,505 +421,6 @@ public class GameController : MonoBehaviour
             {
                 StartCoroutine(FinishStarting());
             }
-
-            //endTimeIdx = GetLastTimeIdx();
-            //if (cube1Object != null)
-            //{
-            //    cubes[0].SetWarmingRange(warmingRange);
-            //    cubes[0].InitializeData(cubeDataList.data[idx].list[0]);
-
-            //    if (settings.BuildForWeb)
-            //    {
-            //        cubes[0].UpdateDataFromWeb(timeIdx, true);
-            //    }
-            //    else
-            //    {
-            //        int count = 0;
-            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-            //        {
-            //            cubes[0].ProcessDataTextAsset(cubeDataText, count);
-            //            count++;
-            //        }
-            //    }
-
-            //    cubes[0].Initialize(etPrefab, shrubETPrefab, firePrefab);
-            //    cubes[0].SetWarmingIdx(warmingIdx);
-            //    cubes[0].SetWarmingDegrees(warmingDegrees);
-
-            //    if (!settings.BuildForWeb)
-            //        cubes[0].FindParameterRanges();
-
-            //    cubes[0].SetModelDebugMode(debugModel);
-
-            //    //else
-            //    //{
-            //        //SetDataDatesFromFile(); // -- TO DO
-            //        //dataDates = cubes[0].GetDataDates();                 // Dates by time index
-            //    //}
-
-            //    //Debug.Log("Set dataDates... length: " + dataDates.Length);
-            //    //string[] firstDateFields = dataDates[0].Split('-');  // Save data file headings
-            //    cubeStartYear = dataDates[0].year;
-            //    cubeStartMonth = dataDates[0].month;
-            //    cubeStartDay = dataDates[0].day;
-
-            //    //string[] lastDateFields = dataDates[dataDates.Length - 2].Split('-');
-            //    cubeEndYear = dataDates[dataDates.Count - 2].year;
-            //    cubeEndMonth = dataDates[dataDates.Count - 2].month;
-            //    cubeEndDay = dataDates[dataDates.Count - 2].day;
-
-            //    // Setup side-by-side comparison cube
-            //    sideCubes[0].SetWarmingRange(warmingRange);
-            //    sideCubes[0].InitializeData(cubeDataList.data[idx].list[0]);
-
-            //    if (settings.BuildForWeb)
-            //    {
-            //        sideCubes[0].UpdateDataFromWeb(timeIdx, true);
-            //    }
-            //    else
-            //    {
-            //        int count = 0;
-            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-            //        {
-            //            sideCubes[0].ProcessDataTextAsset(cubeDataText, count);
-            //            count++;
-            //        }
-            //    }
-
-            //    sideCubes[0].Initialize(etPrefab, shrubETPrefab, firePrefab);
-            //    sideCubes[0].SetWarmingIdx(warmingIdx);
-            //    sideCubes[0].SetWarmingDegrees(warmingDegrees);
-            //    if (!settings.BuildForWeb)
-            //        sideCubes[0].FindParameterRanges();
-            //    sideCubes[0].SetModelDebugMode(debugModel);
-
-            //    sideCubes[0].gameObject.SetActive(false);
-            //}
-            //else
-            //{
-            //    Debug.Log(name + ".StartSimulationRun()... No Cube1!");
-            //}
-
-            //yield return null;
-
-            //idx = 1 + offset;
-            //if (cube2Object != null)
-            //{
-            //    cubes[1].SetWarmingRange(warmingRange);
-            //    cubes[1].InitializeData(cubeDataList.data[idx].list[0]);
-
-            //    int count = 0;
-            //    foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-            //    {
-            //        cubes[1].ProcessDataTextAsset(cubeDataText, count);
-            //        count++;
-            //    }
-            //    cubes[1].Initialize(etPrefab, shrubETPrefab, firePrefab);
-            //    cubes[1].SetWarmingIdx(warmingIdx);
-            //    cubes[1].SetWarmingDegrees(warmingDegrees);
-            //    if (!settings.BuildForWeb)
-            //        cubes[1].FindParameterRanges();
-            //    cubes[1].SetModelDebugMode(debugModel);
-
-            //    // Setup side-by-side comparison cube
-            //    sideCubes[1].SetWarmingRange(warmingRange);
-            //    sideCubes[1].InitializeData(cubeDataList.data[idx].list[0]);
-
-            //    if (settings.BuildForWeb)
-            //    {
-            //        //sideCubes[1].UpdateDataFromWeb(timeIdx);
-            //    }
-            //    else
-            //    {
-            //        count = 0;
-            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-            //        {
-            //            sideCubes[1].ProcessDataTextAsset(cubeDataText, count);
-            //            count++;
-            //        }
-            //    }
-
-            //    sideCubes[1].Initialize(etPrefab, shrubETPrefab, firePrefab);
-            //    sideCubes[1].SetWarmingIdx(warmingIdx);
-            //    sideCubes[1].SetWarmingDegrees(warmingDegrees);
-            //    if (!settings.BuildForWeb)
-            //        sideCubes[1].FindParameterRanges();
-            //    sideCubes[1].SetModelDebugMode(debugModel);
-
-            //    sideCubes[1].gameObject.SetActive(false);
-            //}
-            //else
-            //{
-            //    Debug.Log(name + ".StartSimulationRun()... No Cube2!");
-            //}
-
-            //yield return null;
-
-            //idx = 2 + offset;
-            //if (cube3Object != null)
-            //{
-            //    cubes[2].SetWarmingRange(warmingRange);
-            //    cubes[2].InitializeData(cubeDataList.data[idx].list[0]);
-
-            //    if (settings.BuildForWeb)
-            //    {
-            //        cubes[2].UpdateDataFromWeb(timeIdx, true);
-            //    }
-            //    else
-            //    {
-            //        int count = 0;
-            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-            //        {
-            //            cubes[2].ProcessDataTextAsset(cubeDataText, count);
-            //            count++;
-            //        }
-            //    }
-            //    cubes[2].Initialize(etPrefab, shrubETPrefab, firePrefab);
-            //    cubes[2].SetWarmingIdx(warmingIdx);
-            //    cubes[2].SetWarmingDegrees(warmingDegrees);
-            //    if (!settings.BuildForWeb)
-            //        cubes[2].FindParameterRanges();
-            //    cubes[2].SetModelDebugMode(debugModel);
-
-            //    // Setup side-by-side comparison cube
-            //    sideCubes[2].SetWarmingRange(warmingRange);
-            //    sideCubes[2].InitializeData(cubeDataList.data[idx].list[0]);
-
-            //    if (settings.BuildForWeb)
-            //    {
-            //        //sideCubes[2].UpdateDataFromWeb(timeIdx, true);
-            //    }
-            //    else
-            //    {
-            //        int count = 0;
-            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-            //        {
-            //            sideCubes[2].ProcessDataTextAsset(cubeDataText, count);
-            //            count++;
-            //        }
-            //    }
-
-            //    sideCubes[2].Initialize(etPrefab, shrubETPrefab, firePrefab);
-            //    sideCubes[2].SetWarmingIdx(warmingIdx);
-            //    sideCubes[2].SetWarmingDegrees(warmingDegrees);
-            //    if (!settings.BuildForWeb)
-            //        sideCubes[2].FindParameterRanges();
-            //    sideCubes[2].SetModelDebugMode(debugModel);
-
-            //    sideCubes[2].gameObject.SetActive(false);
-            //}
-            //else
-            //{
-            //    Debug.Log(name + ".StartSimulationRun()... No Cube3!");
-            //}
-
-            //yield return null;
-
-            //idx = 3 + offset;
-            //if (cube4Object != null)
-            //{
-            //    cubes[3].SetWarmingRange(warmingRange);
-            //    cubes[3].InitializeData(cubeDataList.data[idx].list[0]);
-
-            //    if (settings.BuildForWeb)
-            //    {
-            //        cubes[3].UpdateDataFromWeb(timeIdx, true);
-            //    }
-            //    else
-            //    {
-            //        int count = 0;
-            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-            //        {
-            //            cubes[3].ProcessDataTextAsset(cubeDataText, count);
-            //            count++;
-            //        }
-            //    }
-            //    cubes[3].Initialize(etPrefab, shrubETPrefab, firePrefab);
-            //    cubes[3].SetWarmingIdx(warmingIdx);
-            //    cubes[3].SetWarmingDegrees(warmingDegrees);
-            //    if (!settings.BuildForWeb)
-            //        cubes[3].FindParameterRanges();
-            //    cubes[3].SetModelDebugMode(debugModel);
-
-            //    // Setup side-by-side comparison cube
-            //    sideCubes[3].SetWarmingRange(warmingRange);
-            //    sideCubes[3].InitializeData(cubeDataList.data[idx].list[0]);
-
-            //    if (settings.BuildForWeb)
-            //    {
-            //        //sideCubes[3].UpdateDataFromWeb(timeIdx);
-            //    }
-            //    else
-            //    {
-            //        int count = 0;
-            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-            //        {
-            //            sideCubes[3].ProcessDataTextAsset(cubeDataText, count);
-            //            count++;
-            //        }
-            //    }
-
-            //    sideCubes[3].Initialize(etPrefab, shrubETPrefab, firePrefab);
-            //    sideCubes[3].SetWarmingIdx(warmingIdx);
-            //    sideCubes[3].SetWarmingDegrees(warmingDegrees);
-            //    if (!settings.BuildForWeb)
-            //        sideCubes[3].FindParameterRanges();
-            //    sideCubes[3].SetModelDebugMode(debugModel);
-
-            //    sideCubes[3].gameObject.SetActive(false);
-            //}
-            //else
-            //{
-            //    Debug.Log(name + ".StartSimulationRun()... No Cube4!");
-            //}
-
-            //yield return null;
-
-            //idx = 4 + offset;
-            //if (cube5Object != null)
-            //{
-            //    cubes[4].SetWarmingRange(warmingRange);
-            //    cubes[4].InitializeData(cubeDataList.data[idx].list[0]);
-
-            //    if (settings.BuildForWeb)
-            //    {
-            //        cubes[4].UpdateDataFromWeb(timeIdx, true);
-            //    }
-            //    else
-            //    {
-            //        int count = 0;
-            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-            //        {
-            //            sideCubes[4].ProcessDataTextAsset(cubeDataText, count);
-            //            count++;
-            //        }
-            //    }
-            //    cubes[4].Initialize(etPrefab, shrubETPrefab, firePrefab);
-            //    cubes[4].SetWarmingIdx(warmingIdx);
-            //    cubes[4].SetWarmingDegrees(warmingDegrees);
-            //    if (!settings.BuildForWeb)
-            //        cubes[4].FindParameterRanges();
-            //    cubes[4].SetModelDebugMode(debugModel);
-
-            //    // Setup side-by-side comparison cube
-            //    sideCubes[4].SetWarmingRange(warmingRange);
-            //    sideCubes[4].InitializeData(cubeDataList.data[idx].list[0]);
-
-            //    if (settings.BuildForWeb)
-            //    {
-            //        //sideCubes[4].UpdateDataFromWeb(timeIdx, true);
-            //    }
-            //    else
-            //    {
-            //        int count = 0;
-            //        foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
-            //        {
-            //            sideCubes[4].ProcessDataTextAsset(cubeDataText, count);
-            //            count++;
-            //        }
-            //    }
-
-            //    sideCubes[4].Initialize(etPrefab, shrubETPrefab, firePrefab);
-            //    sideCubes[4].SetWarmingIdx(warmingIdx);
-            //    sideCubes[4].SetWarmingDegrees(warmingDegrees);
-            //    if (!settings.BuildForWeb)
-            //        sideCubes[4].FindParameterRanges();
-            //    sideCubes[4].SetModelDebugMode(debugModel);
-
-            //    sideCubes[4].gameObject.SetActive(false);
-            //}
-            //else
-            //{
-            //    Debug.Log(name + ".StartSimulationRun()... No Cube5!");
-            //}
-
-            //yield return null;
-
-            //offset = fireCubes ? 1 : 0;
-            //idx = offset;
-            //if (aggregateCubeObject != null)
-            //{
-            //    aggregateCubeController.SetWarmingRange(warmingRange);
-            //    aggregateCubeController.InitializeData(aggregateCubeDataList.data[idx].list[0]);
-
-            //    if (settings.BuildForWeb)
-            //    {
-            //        aggregateCubeController.UpdateDataFromWeb(timeIdx, true);
-            //    }
-            //    else
-            //    {
-            //        int counter = 0;
-            //        foreach (TextAsset cubeDataText in aggregateCubeDataList.data[idx].list)
-            //        {
-            //            aggregateCubeController.ProcessDataTextAsset(cubeDataText, counter);
-            //            counter++;
-            //        }
-            //    }
-
-            //    aggregateCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
-            //    aggregateCubeController.SetWarmingIdx(warmingIdx);
-            //    aggregateCubeController.SetWarmingDegrees(warmingDegrees);
-            //    if (!settings.BuildForWeb)
-            //        aggregateCubeController.FindParameterRanges();
-            //    aggregateCubeController.SetModelDebugMode(debugModel);
-
-            //    aggregateSideCubeController.SetWarmingRange(warmingRange);
-            //    aggregateSideCubeController.InitializeData(aggregateCubeDataList.data[idx].list[0]);
-
-            //    if (settings.BuildForWeb)
-            //    {
-            //        aggregateSideCubeController.UpdateDataFromWeb(timeIdx, true);
-            //    }
-            //    else
-            //    {
-            //        int counter = 0;
-            //        foreach (TextAsset cubeDataText in aggregateCubeDataList.data[idx].list)
-            //        {
-            //            aggregateSideCubeController.ProcessDataTextAsset(cubeDataText, counter);
-            //            counter++;
-            //        }
-            //    }
-
-            //    aggregateSideCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
-            //    aggregateSideCubeController.SetWarmingIdx(warmingIdx);
-            //    aggregateSideCubeController.SetWarmingDegrees(warmingDegrees);
-            //    if (!settings.BuildForWeb)
-            //        aggregateSideCubeController.FindParameterRanges();
-            //    aggregateSideCubeController.SetModelDebugMode(debugModel);
-            //}
-            //else
-            //{
-            //    Debug.Log(name + ".StartSimulationRun()... No Aggregate Cube!");
-            //}
-
-            //yield return null;
-
-            ///* Initialize UI Messages */
-            //List<UI_Message> messages = LoadMessagesFile(messagesFile, false);                 // Load messages
-            //List<UI_Message> fireMessages = LoadMessagesFile(fireMessagesFile, true);          // Load fire messages 
-            //List<UI_Message> currentMessages = new List<UI_Message>();                         // List of messages currently displayed
-
-            //GameObject[] cubeLabels = new GameObject[6];
-            //cubeLabels[0] = aggregateCubeController.cubeLabel;
-            //for (int i = 0; i < 5; i++)
-            //    cubeLabels[i + 1] = cubes[i].cubeLabel;
-
-            //messageManager.Initialize(messages, fireMessages, cubeLabels);                      // Create MessageManager
-            //messageManager.ClearMessages();
-            //messageManager.messagePanel.SetActive(true);
-
-            //Debug.Log(name + ".StartSimulationRun()... Initialized messageManager...");
-
-            //yield return null;
-
-            //if (landscapeController.updateDate)
-            //{
-            //    int startIdx = 0;
-            //    startIdx = GetTimeIdxForDay(landscapeController.simulationStartDay, landscapeController.simulationStartMonth, landscapeController.simulationStartYear);
-
-            //    Debug.Log("Setting start time index from streamflow file: startIdx:" + startIdx + " landscapeController.startYear:" + landscapeController.simulationStartYear + " month:" + landscapeController.simulationStartMonth);
-            //    if (debugMessages)
-            //        DebugMessage("Setting start time index from streamflow file: startIdx:" + startIdx + " landscapeController.startYear:" + landscapeController.simulationStartYear + " month:" + landscapeController.simulationStartMonth, true);
-
-            //    simulationStartYear = landscapeController.simulationStartYear;
-            //    simulationEndYear = GetLastDateYear();
-
-            //    simulationStartMonth = landscapeController.simulationStartMonth;
-            //    simulationStartDay = landscapeController.simulationStartDay;
-
-            //    timeIdx = startIdx;                                             // Set timeIdx to beginning frame of streamflow data 
-            //}
-            //else
-            //{
-            //    simulationStartYear = cubeStartYear;
-            //    simulationStartMonth = cubeStartMonth;
-            //    simulationStartDay = cubeStartDay;
-
-            //    simulationEndYear = cubeEndYear;
-            //    simulationEndMonth = cubeEndMonth;
-            //    simulationEndDay = cubeEndDay;
-
-            //    timeIdx = 0;                                                    // Set timeIdx to beginning frame of extents data 
-            //}
-
-            //Debug.Log(name + ".StartSimulationRun()... Initialized simulation dates...");
-
-            //yield return null;
-
-            ///* Set Fire Dates for CAW Installation */
-            //fireDates = new Vector3[2];
-            //fireDates[0] = new Vector3(7, 15, 1969);
-            //fireDates[1] = new Vector3(11, 20, 1988);
-
-            //fireFrames = new List<int>();
-            //fireYears = new List<int>();
-
-            //int ct = 0;
-            //foreach (Vector3 date in fireDates)
-            //{
-            //    fireFrames.Add(GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z));
-            //    fireYears.Add((int)date.z);
-            //    ct++;
-            //}
-
-            //yield return null;
-
-            //Assert.IsNotNull(landscapeDataList);
-            //landscapeController.SetupFires(fireDates, warmingIdx);
-
-            //yield return null;
-
-            //ShowCubes(false);
-
-            //landscapeController.SetSnowVisibility(landscapeController.LandscapeSimulationIsOn());
-            //landscapeController.ResetBackgroundSnow();
-
-            ///* Set Message Dates for CAW Installation */
-
-            //yield return null;
-
-            //messageDates = new Vector3[messages.Count];
-            //for (int i = 0; i < messages.Count; i++)
-            //{
-            //    UI_Message message = messages[i];
-            //    if (message.AppliesToWarmingDegrees(warmingDegrees))
-            //        messageDates[i] = message.GetDate();
-
-            //    //Debug.Log("Added message #"+i+" at:" + message.GetDate()+ " :" + message.GetMessage());
-            //}
-
-            //messageYears = new List<int>();
-
-            //foreach (Vector3 date in messageDates)
-            //{
-            //    //messageFrames.Add(GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z));
-            //    messageYears.Add((int)date.z);
-            //    ct++;
-            //}
-
-            //yield return null;
-
-            ///* Create Timeline */
-            //if (landscapeController.LandscapeSimulationIsOn())
-            //    uiTimeline.CreateTimeline(landscapeController.GetWaterData(), warmingIdx, warmingDegrees, fireYears, messageYears);
-            //else
-            //    uiTimeline.CreateTestTimeline(simulationStartYear, simulationEndYear, warmingIdx, warmingDegrees, fireYears, messageYears);
-
-            //if (debugGame)
-            //    Debug.Log(name + ".StartSimulationRun()... Created timeline... ");
-
-            //yield return null;
-
-            ///* Set Initial Sun Position */
-            //InitSunTransition();
-
-            ///* Show / Hide Data Display */
-            //if (displayModel)
-            //    ShowStatistics();
-            //else
-            //    HideStatistics();
-
-            //starting = false;
         }
         else
         {
@@ -1139,13 +468,7 @@ public class GameController : MonoBehaviour
                 cubes[0].FindParameterRanges();
 
             cubes[0].SetModelDebugMode(debugModel);
-
-            //else
-            //{
-            //SetDataDatesFromFile(); // -- TO DO
-            //dataDates = cubes[0].GetDataDates();                 // Dates by time index
-            //}
-
+            
             //Debug.Log("Set dataDates... length: " + dataDates.Length);
             //string[] firstDateFields = dataDates[0].Split('-');  // Save data file headings
             cubeStartYear = dataDates[0].year;
@@ -1653,22 +976,7 @@ public class GameController : MonoBehaviour
 
         if (debugWeb)
             Debug.Log("Set dateLookup...");
-
-        //dataDates = JsonUtility.FromJson<List<DateModel>>(jsonString);
-
-        //cubes[0].SetDataDates(dataDates);
-        //sideCubes[0].SetDataDates(dataDates);
-        //cubes[1].SetDataDates(dataDates);
-        //sideCubes[1].SetDataDates(dataDates);
-        //cubes[2].SetDataDates(dataDates);
-        //sideCubes[2].SetDataDates(dataDates);
-        //cubes[3].SetDataDates(dataDates);
-        //sideCubes[3].SetDataDates(dataDates);
-        //cubes[4].SetDataDates(dataDates);
-        //sideCubes[4].SetDataDates(dataDates);
-        //aggregateCubeController.SetDataDates(dataDates);
-        //aggregateSideCubeController.SetDataDates(dataDates);
-
+        
         StartCoroutine(FinishStarting());
     }
 
@@ -1799,7 +1107,7 @@ public class GameController : MonoBehaviour
     }
 
     /// <summary>
-    /// Enter Side-by-Side Mode
+    /// Exit Side-by-Side Mode
     /// </summary>
     /// <param name="idx">Cube index to show in Side-by-Side Mode</param>
     public void ExitSideBySideMode()
@@ -3477,6 +2785,195 @@ public class GameController : MonoBehaviour
 
     #endregion
 
+    #region Initialization
+
+    private void InitializeControls()
+    {
+        /* Set Main Game Objects */
+        Assert.IsNotNull(cameraController);
+        Assert.IsNotNull(landscapeController);
+
+        /* Initialize UI objects */
+        Assert.IsNotNull(setupUICanvas);
+        Assert.IsNotNull(simulationUICanvas);
+        Assert.IsNotNull(introPanel);
+        introPanel.SetActive(true);
+
+        Assert.IsNotNull(controlsUICanvas);
+        controlsUICanvas.enabled = false;
+
+        Assert.IsNotNull(sideBySideCanvas);
+        Assert.IsNotNull(loadingCanvas);
+
+        loadingTextObject = loadingCanvas.transform.Find("LoadingPanel").transform.Find("LoadingText").gameObject;
+        loadingTextField = loadingTextObject.GetComponent<Text>() as Text;
+        loadingCanvas.enabled = false;
+        loadingCanvas.gameObject.SetActive(false);
+        loadingTextObject.gameObject.SetActive(false);
+
+        uiObject = GameObject.FindWithTag("UI");
+        Assert.IsNotNull(uiObject);
+        uiObjectDefaultPosition = uiObject.transform.localPosition;
+        uiObjectHidden = false;
+
+        Assert.IsNotNull(uiTimelineObject);
+        uiTimeline = uiTimelineObject.GetComponent<TimelineControl>() as TimelineControl;
+        Assert.IsNotNull(uiTimeline);
+        uiTimeline.Initialize(this);
+
+        pauseButtonObject = GameObject.Find("PauseButton");
+        zoomOutButtonObject = GameObject.Find("ZoomOutButton");
+        exitSideBySideButtonObject = GameObject.Find("ExitSideBySideButton");
+        zoomOutButtonObject.SetActive(false);
+
+        endButtonObject = GameObject.Find("EndButton");
+        showControlsToggleObject = GameObject.Find("ShowControlsToggle");
+        showModelDataToggleObject = GameObject.Find("ShowModelDataToggle");
+        storyModeToggleObject = GameObject.Find("StoryModeToggle");
+        sideBySideModeToggleObject = GameObject.Find("SideBySideToggle");
+        seasonsToggleObject = GameObject.Find("ShowSeasonsToggle");
+        flyCameraButtonObject = GameObject.Find("FlyCameraToggle");
+        cubesToggleObject = GameObject.Find("ShowCubesToggle");
+
+        messageManager = new UI_MessageManager();      // Create MessageManager
+
+        seasonsToggleObject.GetComponent<Toggle>().isOn = displaySeasons;
+        showControlsToggleObject.GetComponent<Toggle>().isOn = showControls;
+        showModelDataToggleObject.GetComponent<Toggle>().isOn = displayModel;
+        storyModeToggleObject.GetComponent<Toggle>().isOn = storyMode;
+        sideBySideModeToggleObject.GetComponent<Toggle>().isOn = sideBySideMode;
+
+        flyCameraButtonObject.GetComponent<Toggle>().isOn = false;
+        cubesToggleObject.GetComponent<Toggle>().isOn = true;
+
+        Assert.IsNotNull(endButtonObject);
+        Assert.IsNotNull(seasonsToggleObject);
+        Assert.IsNotNull(showModelDataToggleObject);
+        Assert.IsNotNull(showControlsToggleObject);
+        Assert.IsNotNull(sideBySideModeToggleObject);
+        Assert.IsNotNull(storyModeToggleObject);
+        Assert.IsNotNull(flyCameraButtonObject);
+        Assert.IsNotNull(zoomOutButtonObject);
+        Assert.IsNotNull(pauseButtonObject);
+        Assert.IsNotNull(exitSideBySideButtonObject);
+
+        pauseButtonObject.SetActive(false);
+        exitSideBySideButtonObject.SetActive(false);
+
+        warmingKnobObject = GameObject.Find("WarmingKnob");
+        warmingKnobSlider = warmingKnobObject.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
+        warmingKnobSlider.respondToUser = true;
+
+        warmingKnob1Object = GameObject.Find("WarmingKnob1");
+        warmingKnob1Slider = warmingKnob1Object.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
+        warmingKnob1Slider.respondToUser = true;
+        warmingKnob1Object.SetActive(false);
+
+        warmingKnob2Object = GameObject.Find("WarmingKnob2");
+        warmingKnob2Slider = warmingKnob2Object.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
+        warmingKnob2Slider.respondToUser = true;
+        warmingKnob2Object.SetActive(false);
+
+        timeKnobObject = GameObject.Find("TimeKnob");
+        timeKnobObject.SetActive(true);
+        timeKnobSlider = timeKnobObject.GetComponent<TimeKnobSlider>() as TimeKnobSlider;
+
+        /* Load Settings */
+        settings = GameObject.Find("Settings").GetComponent<SimulationSettings>() as SimulationSettings;
+        Assert.IsNotNull(settings);
+
+        debugGame = settings.DebugGame;
+        debugFire = settings.DebugFire;
+        debugModel = settings.DebugModel;
+        debugDetailed = settings.DebugDetailed;
+    }
+
+    private void InitializeSnow()
+    {
+        /* Initialize Snow Managers */
+        snowManagerObject = GameObject.Find("SnowManager_Landscape");
+        snowManagerTerrain = snowManagerObject.GetComponent<SnowManager>() as SnowManager;
+        Assert.IsNotNull(snowManagerObject);
+        Assert.IsNotNull(snowManagerTerrain);
+        Assert.IsNotNull(horizonMaster);
+    }
+
+    private void InitializeCubeObjects()
+    {
+
+        /* Initialize Cube Objects */
+        Assert.IsNotNull(cube1Object);
+        Assert.IsNotNull(cube2Object);
+        Assert.IsNotNull(cube3Object);
+        Assert.IsNotNull(cube4Object);
+        Assert.IsNotNull(cube5Object);
+        Assert.IsNotNull(cube1Object_Side);
+        Assert.IsNotNull(cube2Object_Side);
+        Assert.IsNotNull(cube3Object_Side);
+        Assert.IsNotNull(cube4Object_Side);
+        Assert.IsNotNull(cube5Object_Side);
+        Assert.IsNotNull(aggregateCubeObject);
+        Assert.IsNotNull(aggregateCubeObject_Side);
+
+        Assert.IsNotNull(cube1Stats);
+        Assert.IsNotNull(cube2Stats);
+        cube1Stats.SetActive(false);
+        cube2Stats.SetActive(false);
+
+        Assert.IsNotNull(warmingLevelText);
+
+        warmingLevelText.SetActive(false);
+
+        cubes = new CubeController[5];
+        sideCubes = new CubeController[5];
+        cubes[0] = cube1Object.GetComponent<CubeController>() as CubeController;
+        cubes[1] = cube2Object.GetComponent<CubeController>() as CubeController;
+        cubes[2] = cube3Object.GetComponent<CubeController>() as CubeController;
+        cubes[3] = cube4Object.GetComponent<CubeController>() as CubeController;
+        cubes[4] = cube5Object.GetComponent<CubeController>() as CubeController;
+        sideCubes[0] = cube1Object_Side.GetComponent<CubeController>() as CubeController;
+        sideCubes[1] = cube2Object_Side.GetComponent<CubeController>() as CubeController;
+        sideCubes[2] = cube3Object_Side.GetComponent<CubeController>() as CubeController;
+        sideCubes[3] = cube4Object_Side.GetComponent<CubeController>() as CubeController;
+        sideCubes[4] = cube5Object_Side.GetComponent<CubeController>() as CubeController;
+        aggregateCubeController = aggregateCubeObject.GetComponent<CubeController>() as CubeController;
+        aggregateSideCubeController = aggregateCubeObject_Side.GetComponent<CubeController>() as CubeController;
+    }
+
+    private void InitializeSideBySideCubes()
+    {
+        /* Initialize Side-by-Side Cubes */
+        for (int i = 0; i < cubes.Length; i++)
+        {
+            CubeController cube = cubes[i];
+            CubeController sideCube = sideCubes[i];
+
+            Assert.IsNotNull(cube);
+            Assert.IsNotNull(sideCube);
+
+            cube.simulationOn = true;
+
+            cube.SetupObjects();
+            sideCube.SetupObjects();
+
+            Vector3 newPos = sideCube.transform.position;   // Offset side cube from original
+            newPos.x -= settings.SideBySideModeXOffset;
+            sideCube.transform.position = newPos;
+
+            sideCube.gameObject.SetActive(false);
+        }
+
+        Assert.IsNotNull(aggregateCubeController);
+        aggregateCubeController.SetupObjects();
+        aggregateCubeController.simulationOn = true;
+
+        Assert.IsNotNull(aggregateSideCubeController);
+        aggregateSideCubeController.SetupObjects();
+        aggregateSideCubeController.gameObject.SetActive(false);
+    }
+
+
+    #endregion
     #region Debugging
     /// <summary>
     /// Prints debug message on screen.
