@@ -1190,11 +1190,6 @@ public class CubeController : MonoBehaviour
 
             if (soilController != null && cubeObject.activeInHierarchy)
                 soilController.UpdateSimulation(timeIdx, curTimeStep, WaterAccess, DepthToGW);
-            //else if(!GameController.Instance.sideBySideMode)
-            //{
-            //    if (gameObject.activeInHierarchy && !cubeObject.activeInHierarchy)
-            //        Debug.Log(name + " ERROR... cubeObject is inactive, cannot update simulation...");
-            //}
 
             if (snowValue > 0.0001f)
                 snowValue = Mathf.Clamp(snowValue - snowMeltRate * Mathf.Sqrt(timeStep), 0f, 100000f);      // Melt snow

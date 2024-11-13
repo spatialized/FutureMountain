@@ -1110,7 +1110,7 @@ public class GameController : MonoBehaviour
     /// Exit Side-by-Side Mode
     /// </summary>
     /// <param name="idx">Cube index to show in Side-by-Side Mode</param>
-    public void ExitSideBySideMode()
+    public void ExitSideBySideMode(bool immediate)
     {
         CubeController sideCube = sideCubes[sbsIdx];
         sideCube.gameObject.SetActive(true);
@@ -1134,15 +1134,25 @@ public class GameController : MonoBehaviour
             cube.ResetStatsPanel();
         }
 
-        ShowCubes(false);
-
-        cameraController.StartResetZoom();
+        if (immediate)
+        {
+            //ShowCubes(true);
+        }
+        else
+        {
+            ShowCubes(false);
+            cameraController.StartResetZoom();
+        }
 
         exitSideBySideButtonObject.SetActive(false);
         zoomOutButtonObject.SetActive(false);
 
         sideBySideCanvas.enabled = true;
         sideBySideMode = false;
+
+        SetSideByToggleActive(true);
+        sideBySideModeToggleObject.GetComponent<Toggle>().isOn = false;
+
     }
 
     #endregion
@@ -2328,6 +2338,7 @@ public class GameController : MonoBehaviour
 
         showControlsToggleObject.GetComponent<Toggle>().isOn = true;
         showModelDataToggleObject.GetComponent<Toggle>().isOn = false;
+        sideBySideModeToggleObject.GetComponent<Toggle>().isOn = false;
         flyCameraButtonObject.GetComponent<Toggle>().isOn = false;
         cubesToggleObject.GetComponent<Toggle>().isOn = true;
         camControl.SetCameraFlyMode(false);
@@ -2364,6 +2375,9 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void ResetCubes()
     {
+        if (sideBySideMode)
+            ExitSideBySideMode(true);
+
         aggregateCubeController.ResetCube();
         aggregateSideCubeController.ResetCube();
         foreach (CubeController cube in cubes)
