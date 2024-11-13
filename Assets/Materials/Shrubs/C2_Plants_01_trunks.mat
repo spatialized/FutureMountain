@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: C2_Plants_01_trunks
   m_Shader: {fileID: 4800000, guid: 18ad8974dce9e49d48bc326c8d11a996, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords:
   - _ALPHATEST_ON
@@ -20,6 +22,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -115,7 +118,7 @@ Material:
     - _SnowAmbientOcclusionPower: 1
     - _SnowSmothnessPower: 0
     - _SnowSpecularPower: 0
-    - _Snow_Amount: 3.619048
+    - _Snow_Amount: 0.46133804
     - _SpecularHighlights: 1
     - _SpecularPower: 0
     - _SrcBlend: 1

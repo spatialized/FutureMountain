@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: M_Fir_Bark_01_Snow_4
   m_Shader: {fileID: 4800000, guid: d54f8080f6467324ba91af3d46748933, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords:
   - _NORMALMAP
@@ -19,6 +21,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -141,7 +144,7 @@ Material:
     - _SnowSmothnessPower: 1
     - _SnowSpecularPower: 0
     - _SnowUseUV3: 0
-    - _Snow_Amount: 1.0554124
+    - _Snow_Amount: 0.026520433
     - _SpecularHighlights: 1
     - _SpecularPower: 0
     - _SrcBlend: 1

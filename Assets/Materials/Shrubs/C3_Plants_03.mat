@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: C3_Plants_03
   m_Shader: {fileID: 4800000, guid: b75779154f6849b4197db55d006c9b49, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _WINDVERTEXCOLORMAINRNOISEB_ON
   m_InvalidKeywords:
@@ -19,6 +21,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -125,7 +128,7 @@ Material:
     - _SnowMaskTreshold: 0.53
     - _SnowSmothnessPower: 1
     - _SnowSpecularPower: 1
-    - _Snow_Amount: 3.6381578
+    - _Snow_Amount: 0.57277226
     - _SpecularHighlights: 1
     - _SpecularPower: 0
     - _SrcBlend: 1

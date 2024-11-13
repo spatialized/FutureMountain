@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: M_Fir_03_Cross Snow_Aggregate
   m_Shader: {fileID: 4800000, guid: 6fff49e2c6ea6e148a385309c1f1b71d, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _INVERTSNOWMASK_ON
   m_InvalidKeywords:
@@ -21,6 +23,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -117,7 +120,7 @@ Material:
     - _SnowMaskTreshold: 0.912
     - _SnowNormalPower: 2
     - _SnowNormalTreshold: 5
-    - _Snow_Amount: 1.2532749
+    - _Snow_Amount: 0.0232978
     - _Specular: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1

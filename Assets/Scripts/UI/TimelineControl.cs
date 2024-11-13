@@ -4,6 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Assertions;
 using UnityEngine.EventSystems;
+using System.Collections;
+using System.Numerics;
+using Quaternion = UnityEngine.Quaternion;
+using Vector3 = UnityEngine.Vector3;
+//using UnityEditor.VersionControl;
 
 public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
@@ -20,6 +25,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     public GameObject yearTextLabelPrefab;
     public GameObject graphBarPrefab;
     public GameObject timelineLayoutGroup;
+    public GameObject iconPanel;
 
     /* Geometry */
     private static float heightScale = 0.33f;         // Works on Optoma projector 1920x1080 was .00044
@@ -31,8 +37,10 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     private int resolution;
     private static float widthFactor = 0.5f;                        // Timeline width factor
-    private static float xOffset = 242f;                            // Timeline x offset
+    private static float xOffset = 282f;                            // Timeline x offset
     private static float yOffset = 22f;                             // Timeline y offset
+    private static float xOffsetFactor = 0f;  //2f;                      // Timeline x offset
+    private static float yOffsetFactor = 1f;                        // Timeline y offset
     private float dateYOffset = yOffset * 0.45f;                    // Offset of date text from bottom of screen
     private float fireYOffset = yOffset * 4f;                       // Offset of event icons from bottom of screen
     private float messageYOffset = yOffset * 2.95f;                 // Offset of event icons from bottom of screen
@@ -385,15 +393,22 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             image.color = defaultColor;
 
             position = pt.position;
-            float step = Screen.width * widthFactor / resolution;       
-            position.x = (i + 0.5f) * step - 1f + xOffset;
-
+            float step = Screen.width * widthFactor / resolution;
+            //position.x = (i + 0.5f) * step - 1f + xOffset * step;
+            //position.x = (i + 0.5f) * step - 1f + xOffsetFactor * widthFactor / resolution;
+            position.x = (i + 0.5f) * step - 1f;// + xOffsetFactor * widthFactor / resolution;
             position.y = fireYOffset;
+
+            Debug.Log("CreateTimeline()...");
+            Debug.Log("CreateTimeline()... step: " + step + " Screen.width:" + Screen.width + " widthFactor:" + widthFactor + " resolution:" + resolution);
+            Debug.Log("CreateTimeline()... position.x:" + position.x + " position.y:" + position.y);
+
 
             if (fireYears.Contains(i + startYear))
             {
                 GameObject fireIcon = Instantiate(fireIconPrefab, position, fireIconPrefab.transform.rotation, transform);           // Instantiate fire icon at each fire year
                 fireIcon.name = "Fire_" + (i + startYear);
+                fireIcon.transform.parent = iconPanel.transform;                          // Added
                 fireIcons.Add(fireIcon);
             }
 
@@ -403,6 +418,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             {
                 GameObject messageIcon = Instantiate(messageIconPrefab, position, fireIconPrefab.transform.rotation, transform);     // Instantiate message icon at each message year
                 messageIcon.name = "Message_" + (i + startYear) + "_" + warmingDegrees;
+                messageIcon.transform.parent = iconPanel.transform;                          // Added
                 messageIcons.Add(messageIcon);
             }
         }
@@ -450,7 +466,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             float precip = Random.Range(minPrecip, maxPrecip);
 
             position.x = 0;
-            position.y = 0;       // ADDED
+            position.y = 0;       
 
             GameObject point = Instantiate(graphBarPrefab, position, new Quaternion(), transform) as GameObject;
             Transform pt = point.GetComponent<Transform>();
@@ -469,29 +485,76 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             image.color = defaultColor;
 
             position = pt.position;
-
-            float step = Screen.width * widthFactor / resolution;       
-            position.x = (i + 0.5f) * step - 1f + xOffset;
-
+            float step = Screen.width * widthFactor / resolution;
+            //position.x = (i + 0.5f) * step - 1f + xOffset;
+            //position.x = (i + 0.5f) * step - 1f + xOffset * step;
+            //position.x = (i + 0.5f) * step - 1f + xOffsetFactor * widthFactor / resolution;
+            position.x = (i + 0.5f) * step - 1f;// + xOffsetFactor * widthFactor / resolution;
             position.y = fireYOffset;
+
+            Debug.Log("CreateTestTimeline()...");
+            Debug.Log("CreateTestTimeline()... step: " + step + " Screen.width:" + Screen.width + " widthFactor:" + widthFactor + " resolution:" + resolution);
+            Debug.Log("CreateTestTimeline()... position.x:" + position.x + " position.y:" + position.y);
+
+            Vector3 iconPos = new Vector3(position.x + 30 * step, position.y);
 
             if (fireYears.Contains(i + startYear))
             {
-                GameObject fireIcon = Instantiate(fireIconPrefab, position, fireIconPrefab.transform.rotation, transform);           // Instantiate fire icon at each fire year
+                Vector3 startPos = new Vector3(0,0);
+
+                GameObject fireIcon = Instantiate(fireIconPrefab, startPos, fireIconPrefab.transform.rotation, transform);           // Instantiate fire icon at each fire year
                 fireIcon.name = "Fire_" + (i + startYear);
+                fireIcon.transform.parent = iconPanel.transform;
+                //fireIcon.transform.localScale = scale;
+                fireIcon.transform.position = iconPos;
                 fireIcons.Add(fireIcon);
+
+                //Debug.Log("CreateTestTimeline()... Fire Year:"+ startYear);
+
+                StartCoroutine(CoWaitForPosition(point, "Point for Fire Year: " + startYear));
+                //StartCoroutine(CoWaitForPosition(fireIcon, "Icon for Fire Year: " + startYear));
+                StartCoroutine(CoSetIconPosition(point, fireIcon, fireYOffset, "Fire Year: " + startYear));
+
             }
 
             position.y = messageYOffset;
 
             if (messageYears.Contains(i + startYear))
             {
-                GameObject messageIcon = Instantiate(messageIconPrefab, position, fireIconPrefab.transform.rotation, transform);     // Instantiate message icon at each message year
+                Vector3 startPos = new Vector3(0, 0);
+
+                GameObject messageIcon = Instantiate(messageIconPrefab, startPos, fireIconPrefab.transform.rotation, transform);     // Instantiate message icon at each message year
                 messageIcon.name = "Message_" + (i + startYear) + "_" + warmingDegrees;
+                messageIcon.transform.parent = iconPanel.transform;
+                //messageIcon.transform.localScale = scale;
+                messageIcon.transform.position = iconPos;
                 messageIcons.Add(messageIcon);
+
+                //Debug.Log("CreateTestTimeline()... Message Year:" + startYear);
+
+                StartCoroutine(CoWaitForPosition(point, "Point for Message Year: " + startYear));
+                //StartCoroutine(CoWaitForPosition(messageIcon, "Message Year: " + startYear));
+                StartCoroutine(CoSetIconPosition(point, messageIcon, messageYOffset, "Message Year: " + startYear));
             }
         }
+
+
+        IEnumerator CoSetIconPosition(GameObject posObject, GameObject iconObject, float yOffset, string prefix)
+        {
+            yield return new WaitForEndOfFrame();
+            //iconObject.transform.position = posObject.transform.position;
+            iconObject.transform.position = new Vector3(posObject.transform.position.x, yOffset);
+            Debug.Log("CoSetIconPosition()... " + prefix + " Setting new position to: " + posObject.transform.position);
+        }
+
+        IEnumerator CoWaitForPosition(GameObject gameObject, string prefix)
+        {
+            yield return new WaitForEndOfFrame();
+            var debugPosition = gameObject.transform.position;
+            Debug.Log(">>"+ prefix+" Position: " +gameObject.transform.position);
+        }
     }
+
 
     /// <summary>
     /// Clears the timeline.

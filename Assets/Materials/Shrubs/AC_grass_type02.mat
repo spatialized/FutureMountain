@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: AC_grass_type02
   m_Shader: {fileID: 4800000, guid: e9099493497b41845aea6aa168aa38fc, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _SNOWREMOVESAO_ON
   - _WIND_VERTEXCOLORR_ON
@@ -21,6 +23,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -115,7 +118,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
-    - _Snow_Amount: 1.2532749
+    - _Snow_Amount: 0.0232978
     - _SnowremovesAO: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1

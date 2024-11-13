@@ -9,6 +9,8 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: AC_Plants_01
   m_Shader: {fileID: 4800000, guid: 745c8e826863e4239acae2ff73216884, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _WINDVERTEXCOLORMAINRNOISEB_ON
   m_InvalidKeywords:
@@ -21,6 +23,7 @@ Material:
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -129,7 +132,7 @@ Material:
     - _SnowMaskTreshold: 1.03
     - _SnowSmothnessPower: 1
     - _SnowSpecularPower: 1
-    - _Snow_Amount: 1.2532749
+    - _Snow_Amount: 0.0232978
     - _SpecularHighlights: 1
     - _SpecularPower: 0
     - _SrcBlend: 1

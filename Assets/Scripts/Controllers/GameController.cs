@@ -525,7 +525,7 @@ public class GameController : MonoBehaviour
         {
             if (landscapeController.LandscapeSimulationIsOn())
             {
-                if (!landscapeController.PatchDataExists())
+                if (!landscapeController.PatchDataExists())     // -- TO DO: GET PATCH DATA FROM API!
                 {
                     landscapeController.initialized = false;
                     initialized = false;
