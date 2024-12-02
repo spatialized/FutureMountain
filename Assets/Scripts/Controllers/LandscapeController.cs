@@ -1,6 +1,9 @@
+using Assets.Scripts.Utilities;
+using GPUInstancer;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -15,6 +18,10 @@ public class LandscapeController : MonoBehaviour
     public bool debug = false;
     public bool debugFire = false;
     public bool debugDetailed = false;
+
+    /* Optimization */
+    public bool _saveAlphamaps = true;
+    private string splatPath = "";
 
     #region Fields
     /* Settings */
@@ -338,7 +345,20 @@ public class LandscapeController : MonoBehaviour
         else
             Debug.Log("ERROR NO sdf");
 
+        if (_saveAlphamaps)
+        {
+            StartCoroutine(ExportSplatMapNextFrame(terrain, "snow_" + curYear + "_" + curMonth + "_" + curDay));
+            //splatPath = ExportSplatmap.Export(terrain, "snow_"+curYear+"_"+curMonth+"_"+curDay, splatPath);
+        }
+
         //UpdateBackgroundSnow();
+    }
+
+
+    private IEnumerator ExportSplatMapNextFrame(Terrain terrain, string fileName)
+    {
+        yield return null;      // Wait until next frame
+        splatPath = ExportSplatmap.Export(terrain, fileName, splatPath);
     }
 
     /// <summary>
