@@ -10,7 +10,7 @@ namespace Assets.Scripts.Utilities
     using UnityEditor;
     using UnityEngine;
 
-    public class ExportSplatmap
+    public class ExportSplatmap : MonoBehaviour
     {
         //[MenuItem("Terrain/Export Splatmap...")]
         static public string Export(Terrain terrain, string fileName, string path)
@@ -38,10 +38,21 @@ namespace Assets.Scripts.Utilities
                 for (int i = 0; i < alphaMapsCount; i++)
                 {
                     Texture2D tex = terrainData.GetAlphamapTexture(i);
+                    Debug.Log("alphamap px(10,10):" + tex.GetPixel(10, 10).ToString() + " px(100,100):" + tex.GetPixel(100, 100).ToString());
+                    //try
+                    //{
+                    //    tex = terrainData.terrainLayers[i].maskMapTexture;
+                    //    Debug.Log("maskMap px(10,10):" + tex.GetPixel(10, 10).ToString() + " px(100,100):" +
+                    //              tex.GetPixel(100, 100).ToString());
+                    //}
+                    //catch
+                    //{
+                    //}
+
                     byte[] pngData = tex.EncodeToPNG();
                     if (pngData != null)
                     {
-                        Debug.Log("Exporting " + fileName + " to png... texture count: "+ terrainData.alphamapTextureCount);
+                        Debug.Log("Exporting terrain maskMap texture:" + terrain.name+" as fileName:" + fileName + " to png...  tex.name:" + tex.name + " texture count: " + terrainData.alphamapTextureCount);
                         File.WriteAllBytes(path + "/" + fileName + "_"+i+".png", pngData);
                     }
                     else
@@ -52,6 +63,74 @@ namespace Assets.Scripts.Utilities
             }
 
             return path;
+        }
+
+        static public string Export2(Terrain terrain, string fileName, string path)
+        {
+            //Terrain terrain = Selection.activeObject as Terrain;
+            if (!terrain)
+            {
+                terrain = Terrain.activeTerrain;
+                if (!terrain)
+                {
+                    Debug.Log("Could not find any terrain. Please select or create a terrain first.");
+                    return "";
+                }
+            }
+
+            if (path.Equals(""))
+                path = EditorUtility.SaveFolderPanel("Choose a directory to save the alpha maps:", "", "");
+
+            if (path != null && path.Length != 0)
+            {
+                path = path.Replace(Application.dataPath, "Assets");
+                TerrainData terrainData = terrain.terrainData;
+                int alphaMapsCount = terrainData.alphamapTextureCount;
+
+                for (int i = 0; i < alphaMapsCount; i++)
+                {
+                    Texture2D tex = terrainData.GetAlphamapTexture(i);
+                    //Debug.Log("px(10,10):" + tex.GetPixel(10, 10).ToString()+" px(100,100):" + tex.GetPixel(100, 100).ToString());
+
+                    byte[] pngData = tex.EncodeToPNG();
+                    if (pngData != null)
+                    {
+                        Debug.Log("Exporting terrain:" + terrain.name + " as fileName:" + fileName + " to png...  tex.name:" + tex.name + " texture count: " + terrainData.alphamapTextureCount);
+                        File.WriteAllBytes(path + "/" + fileName + "_" + i + ".png", pngData);
+                    }
+                    else
+                    {
+                        Debug.Log("Could not convert " + fileName + " to png. Skipping saving texture.");
+                    }
+                }
+            }
+
+            return path;
+        }
+
+        // -- TO DO: TRY THIS
+        // https://stuff.mattgadient.com/download/SplatmapHelper.js
+        static public void ExportPNG(Texture2D texture1, string path)
+        {
+            var texture = Instantiate(texture1) as Texture2D;
+            var textureColors = texture.GetPixels();
+            for (int i = 0; i < textureColors.Length; i++) {
+                textureColors[i].a = 1;
+            }
+
+            texture.SetPixels(textureColors);
+            texture.Apply();
+
+            if (texture.format != TextureFormat.ARGB32 && texture.format != TextureFormat.RGB24)
+            {
+                var newTexture = new Texture2D(texture.width, texture.height);
+                newTexture.SetPixels(texture.GetPixels(0), 0);
+                texture = newTexture;
+            }
+
+            var bytes = texture.EncodeToPNG();
+            File.WriteAllBytes(path, bytes);
+            AssetDatabase.Refresh();
         }
 
         //static public string ExportSplat(float[,,] splatMap, string fileName, string path)

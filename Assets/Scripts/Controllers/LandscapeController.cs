@@ -347,13 +347,48 @@ public class LandscapeController : MonoBehaviour
 
         if (_saveAlphamaps)
         {
-            StartCoroutine(ExportSplatMapNextFrame(terrain, "snow_" + curYear + "_" + curMonth + "_" + curDay));
-            //splatPath = ExportSplatmap.Export(terrain, "snow_"+curYear+"_"+curMonth+"_"+curDay, splatPath);
+            //StartCoroutine(ExportSplatMapNextFrame(terrain, "snow_" + curYear + "_" + curMonth + "_" + curDay));
+            splatPath = ExportSplatmap.Export(terrain, "snow_" + curYear + "_" + curMonth + "_" + curDay, splatPath);
+            ExportSplatData(sdf.GetData(), splatPath + "snow_" + curYear + "_" + curMonth + "_" + curDay);
+
+            //var w = terrain.terrainData.alphamapResolution;
+            //var data = terrain.terrainData.GetAlphamaps(0, 0, w, w);
+
+            ////ShowArrayInfo(data);
+            //void ShowArrayInfo(Array arr)
+            //{
+            //    Debug.LogFormat("Length of Array:      {0,3}", arr.Length);
+            //    Debug.LogFormat("Number of Dimensions: {0,3}", arr.Rank);
+            //    // For multidimensional arrays, show number of elements in each dimension.
+            //    if (arr.Rank > 1)
+            //    {
+            //        for (int dimension = 1; dimension <= arr.Rank; dimension++)
+            //            Debug.LogFormat("   Dimension {0}: {1,3}", dimension,
+            //                arr.GetUpperBound(dimension - 1) + 1);
+            //    }
+            //}
+
         }
 
         //UpdateBackgroundSnow();
     }
 
+    private void ExportSplatData(float[,,] grid, string path)
+    {
+            string textOutput = "";
+            int upperBound = grid.GetUpperBound(0) - 1;
+            for (int y = 0; y < grid.GetUpperBound(1); y++)
+            {
+                for (int x = 0; x < grid.GetUpperBound(0); x++)
+                {
+                    textOutput += grid[x, y, 0];
+                    if (x != upperBound)
+                        textOutput += ",";
+                }
+                textOutput += Environment.NewLine;
+            }
+            System.IO.File.WriteAllText(path+".csv", textOutput);
+    }
 
     private IEnumerator ExportSplatMapNextFrame(Terrain terrain, string fileName)
     {
