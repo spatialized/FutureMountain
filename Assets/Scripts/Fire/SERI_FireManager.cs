@@ -212,10 +212,13 @@ public class SERI_FireManager : MonoBehaviour
                 pos.y += terrain.transform.position.y;
                 pos.z += offset.z;
 
-                fireGrid.Initialize(this, firePrefab, pos, gridWidth, gridHeight, pooler, fdf.GetDataList(), fdf.GetDataGrid(), newLandscapeController, true, false);
+                fireGrid.Initialize(this, firePrefab, pos, gridWidth, gridHeight, pooler, 
+                    fdf.GetDataList(), fdf.GetDataGrid(), newLandscapeController, 
+                    true, false);
                 fireGrids[count] = fireGrid;
 
-                Debug.Log(name + ".Initialize()... grid #" + count);
+                //if(debug)
+                //    Debug.Log(name + ".Initialize()... grid #" + count);
 
                 count++;
             }

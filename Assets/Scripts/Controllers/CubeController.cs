@@ -2322,18 +2322,21 @@ public class CubeController : MonoBehaviour
 
         if (grassID < 0 || grassID >= grasses.Count)
         {
-            Debug.Log(name + ".KillGrassIdx()... Tried to kill shrub id:" + grassID + " but grasses.Count: " + grasses.Count);
+            if(debugCubes && debugDetailed)
+                Debug.Log(name + ".KillGrassIdx()... Tried to kill shrub id:" + grassID + " but grasses.Count: " + grasses.Count);
             return;
         }
 
         if (grasses[grassID] == null)
         {
-            Debug.Log(name + ".KillGrassIdx()... grasses[grassID] for id:" + grassID + " is null!");
+            if (debugCubes && debugDetailed)
+                Debug.Log(name + ".KillGrassIdx()... grasses[grassID] for id:" + grassID + " is null!");
             return;
         }
         if (grasses[grassID].gameObject == null)
         {
-            Debug.Log(name + ".KillGrassIdx()... grasses[grassID].gameObject for id:" + grassID + " is null!");
+            if (debugCubes && debugDetailed)
+                Debug.Log(name + ".KillGrassIdx()... grasses[grassID].gameObject for id:" + grassID + " is null!");
             return;
         }
 
