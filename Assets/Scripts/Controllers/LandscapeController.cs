@@ -23,8 +23,10 @@ public class LandscapeController : MonoBehaviour
     public bool debugDetailed = false;
 
     /* Optimization */
-    public bool saveSnowVegFireData = true;
-    private string splatPath = "";
+    public bool saveSnowVegData = false;
+    public bool saveFireData = true;
+    public bool saveBurnData = true;
+    private string dataPath = "";
 
     #region Fields
     /* Settings */
@@ -99,7 +101,7 @@ public class LandscapeController : MonoBehaviour
     [Range(0f, 2000f)]
     public float snowWeightFactor = 250f;
     private float backgroundSnowFactor = 12500f; //= 10000f;    // Background snow amount visualization factor
-    private SnowManager snowManagerBkgd;                // Background mountains snow manager
+    //private SnowManager snowManagerBkgd;                // Background mountains snow manager
     private SnowManager snowManager;                // Background mountains snow manager
     private float averageSnowAmount = 0f;               // Average snow amount for current frame
     private float snowWeightMax = 1f;               // Amount above which full snow is shown
@@ -352,13 +354,16 @@ public class LandscapeController : MonoBehaviour
         else
             Debug.Log("ERROR NO sdf");
 
-        if (saveSnowVegFireData)
+        if (saveSnowVegData)
         {
             if (savedMonth != curMonth) 
             {
+                if (dataPath.Equals(""))
+                    dataPath = EditorUtility.SaveFolderPanel("Choose a directory to save the background landscape data:", "", "");
+
                 //string fileName = "snow_warm" + warmingIdx + "_" + curYear + "_" + curMonth;// + "_" + curDay;
-                //splatPath = SplatmapHelper.Export(terrain, fileName, splatPath);
-                ExportSplatData(grid, splatPath + "/"+"splat_warm"+warmingIdx+"_" + curYear + "_" + curMonth + "_" + curDay + ".json");
+                //dataPath = SplatmapHelper.Export(terrain, fileName, dataPath);
+                ExportTerrainData(grid, dataPath + "/"+"terrain_warm"+warmingIdx+"_" + curYear + "_" + curMonth + ".json");
                 savedMonth = curMonth;
             }
         }
@@ -366,9 +371,10 @@ public class LandscapeController : MonoBehaviour
         //UpdateBackgroundSnow();
     }
 
-    private void ExportSplatData(float[,,] grid, string path)
+    private void ExportTerrainData(float[,,] grid, string path)
     {
-        Debug.Log(" grid[10,10,0]: " + grid[10, 10, 0]);
+
+        //Debug.Log(" grid[10,10,0]: " + grid[10, 10, 0]);
 
         //Debug.Log("Exporting splat data to path: "+path);
         float[] flatArray = Flatten3DArrayTo1D(grid);
@@ -391,9 +397,11 @@ public class LandscapeController : MonoBehaviour
         //}
         //catch (Exception ex)
         //{
-        //    Debug.Log("ExportSplatData ERROR ex: " + ex.Message);
+        //    Debug.Log("ExportTerrainData ERROR ex: " + ex.Message);
         //}
         // END TESTING
+
+        //return path;
     }
 
     private float[,,] ImportSplatData(string path)
@@ -427,7 +435,9 @@ public class LandscapeController : MonoBehaviour
                 }
             }
         }
-        Debug.Log("Flatten3DArrayTo1D()... flatArray length:" + flatArray.Length);
+
+        //Debug.Log("Flatten3DArrayTo1D()... flatArray length:" + flatArray.Length);
+
         return flatArray;
     }
 
@@ -473,7 +483,7 @@ public class LandscapeController : MonoBehaviour
     //private IEnumerator ExportSplatMapNextFrame(Terrain terrain, string fileName)
     //{
     //    yield return null;      // Wait until next frame
-    //    splatPath = SplatmapHelper.Export(terrain, fileName, splatPath);
+    //    dataPath = SplatmapHelper.Export(terrain, fileName, dataPath);
     //}
 
     /// <summary>
@@ -525,9 +535,9 @@ public class LandscapeController : MonoBehaviour
         Assert.IsNotNull(riverFaceObject);
 
         snowManager = transform.Find("SnowManager_Landscape").gameObject.GetComponent<SnowManager>() as SnowManager;
-        snowManagerBkgd = transform.Find("SnowManager_Background").gameObject.GetComponent<SnowManager>() as SnowManager;
+        //snowManagerBkgd = transform.Find("SnowManager_Background").gameObject.GetComponent<SnowManager>() as SnowManager;
         Assert.IsNotNull(snowManager);
-        Assert.IsNotNull(snowManagerBkgd);
+        //Assert.IsNotNull(snowManagerBkgd);
 
         SetSnowVisibility(false);
         ResetBackgroundSnow();
@@ -796,13 +806,13 @@ public class LandscapeController : MonoBehaviour
 
             patchesToBurnDict.Add(new Vector3(fire.GetMonth(), fire.GetDay(), fire.GetYear()), patchesToBurn);
 
-            if (saveSnowVegFireData)
+            if (saveBurnData)
             {
                 try
                 {
-                    string fileName = "fire_warm" + warmingIdx + "_" + fire.GetYear() + "_" + fire.GetMonth() + "_" +
+                    string fileName = "burn_warm" + warmingIdx + "_" + fire.GetYear() + "_" + fire.GetMonth() + "_" +
                                       fire.GetDay();
-                    SavePatchesToBurn(patchesToBurnDict, fileName, splatPath);
+                    SavePatchesToBurn(patchesToBurnDict, fileName, dataPath);
                 }
                 catch (Exception ex)
                 {
@@ -841,41 +851,41 @@ public class LandscapeController : MonoBehaviour
         patchesToBurn = JsonUtility.FromJson<Dictionary<Vector3, List<int>>>(inputStr);
     }
 
-    /// <summary>
-    /// Gets the active fire cells for date.
-    /// </summary>
-    /// <param name="date">Date.</param>
-    private List<FireDataPoint> GetFirePointsForDate(Vector3 date)
-    {
-        int month = (int)date.x;
-        int day = (int)date.y;
-        int year = (int)date.z;
+    ///// <summary>
+    ///// Gets the active fire cells for date.
+    ///// </summary>
+    ///// <param name="date">Date.</param>
+    //private List<FireDataPoint> GetFirePointsForDate(Vector3 date)
+    //{
+    //    int month = (int)date.x;
+    //    int day = (int)date.y;
+    //    int year = (int)date.z;
 
-        List<FireDataFrame> frames = GetCurrentSimulationData().GetFireData();
-        List<FireDataPoint> activePoints = new List<FireDataPoint>();
+    //    List<FireDataFrame> frames = GetCurrentSimulationData().GetFireData();
+    //    List<FireDataPoint> activePoints = new List<FireDataPoint>();
 
-        //Debug.Log(name + ".GetActiveFireCellsForDate().. Looking for fire at month:" + month + " day:" + day + " year:" + year + " frames.Count:" + frames.Count);
+    //    //Debug.Log(name + ".GetActiveFireCellsForDate().. Looking for fire at month:" + month + " day:" + day + " year:" + year + " frames.Count:" + frames.Count);
 
-        int count = 0;
-        foreach (FireDataFrame fire in frames)
-        {
-            //Debug.Log(name + ".GetActiveFireCellsForDate().. Checking fire frame at month:" + fire.GetMonth() + " day:" + fire.GetDay() + " year:" + fire.GetYear());
-            if (fire.GetMonth() == month && fire.GetDay() == day && fire.GetYear() == year)         // Get fire data frames for fire day
-            {
-                return firePointLists[count];
-                //activePoints = fire.GetData();
-                //activePoints.Sort();                 // Sort cells
+    //    int count = 0;
+    //    foreach (FireDataFrame fire in frames)
+    //    {
+    //        //Debug.Log(name + ".GetActiveFireCellsForDate().. Checking fire frame at month:" + fire.GetMonth() + " day:" + fire.GetDay() + " year:" + fire.GetYear());
+    //        if (fire.GetMonth() == month && fire.GetDay() == day && fire.GetYear() == year)         // Get fire data frames for fire day
+    //        {
+    //            return firePointLists[count];
+    //            //activePoints = fire.GetData();
+    //            //activePoints.Sort();                 // Sort cells
 
-                //Debug.Log(name + ".GetActiveFireCellsForDate().. Found fire at month:" + month + " day:" + day + " year:" + year + " cellLocations.Count:" + activePoints.Count + " warmingIdx:" + warmingIdx);
-            }
+    //            //Debug.Log(name + ".GetActiveFireCellsForDate().. Found fire at month:" + month + " day:" + day + " year:" + year + " cellLocations.Count:" + activePoints.Count + " warmingIdx:" + warmingIdx);
+    //        }
 
-            count++;
-        }
+    //        count++;
+    //    }
 
-        Debug.Log(name + ".GetActiveFireCellsForDate().. Found cellLocations.Count:" + activePoints.Count);
+    //    Debug.Log(name + ".GetActiveFireCellsForDate().. Found cellLocations.Count:" + activePoints.Count);
 
-        return null;
-    }
+    //    return null;
+    //}
 
     public SERI_FireManager GetFireManager()
     {
@@ -895,7 +905,7 @@ public class LandscapeController : MonoBehaviour
     /// Sets the landscape data list.
     /// </summary>
     /// <param name="newFireDates">New fire date list.</param>
-    public void SetupFires(Vector3[] fireDates, int warmIdx)
+    public void SetupFires(Vector3[] fireDates, int warmIdx)        /// -- TO DO: Get fire dates from data!!
     {
         Assert.IsNotNull(fireDates);
         Assert.IsNotNull(pooler);
@@ -1368,22 +1378,22 @@ public class LandscapeController : MonoBehaviour
 
                     FireDataFrame fireFrame = BuildFireDataFrame(month);
 
-                    //if (saveSnowVegFireData)
-                    //{
-                        //string fileName = "fire_warm" + warmingIdx + "_"+year.GetYear()+"_"+month.GetMonth();
+                    if (saveFireData)
+                    {
+                        string fileName = "fire_warm" + warmingIdx + "_" + year.GetYear() + "_" + month.GetMonth();
 
-                        ////string fileName = "snowveg_warm" + warmingIdx + "_" + fire.GetYear() + "_" + fire.GetMonth() + "_" +
-                        ////                  fire.GetDay() + ".json";
+                        //string fileName = "snowveg_warm" + warmingIdx + "_" + fire.GetYear() + "_" + fire.GetMonth() + "_" +
+                        //                  fire.GetDay() + ".json";
 
-                        //try
-                        //{
-                        //    splatPath = ExportFireDataFrame(fireFrame, month.GetMonth(), fileName, splatPath);
-                        //}
-                        //catch (Exception ex)
-                        //{
-                        //    Debug.Log("ExportFireDataFrame ERROR ex.Message: " + ex.Message);
-                        //}
-                    //}
+                        try
+                        {
+                            dataPath = ExportFireDataFrame(fireFrame, month.GetMonth(), fileName, dataPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.Log("ExportFireDataFrame ERROR ex.Message: " + ex.Message);
+                        }
+                    }
 
                     if (fireFrame != null)
                         fDataList.Add(fireFrame);
@@ -2122,7 +2132,7 @@ public class LandscapeController : MonoBehaviour
     /// </summary>
     public void ResetBackgroundSnow()
     {
-        snowManagerBkgd.snowValue = 0f;
+        snowManager.snowValue = 0f;
     }
 
     /// <summary>
@@ -3266,7 +3276,7 @@ public class WaterDataYear : IComparable<WaterDataYear>
 [Serializable]
 public class TerrainSimulationData
 {
-    List<SnowDataFrame> snowData;
+    List<SnowDataFrame> snowData;               // Currently unused?
     List<FireDataFrame> fireData;
     string name;
 
