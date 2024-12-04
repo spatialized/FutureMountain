@@ -377,21 +377,23 @@ public class LandscapeController : MonoBehaviour
         string json = JsonConvert.SerializeObject(flatArray);
         File.WriteAllText(path, json);
 
-        try
-        {
-            float[,,] unflattened = ImportSplatData(path); // -- TO TEST
+        // TESTING -- USE IN WEB VERSION
+        //try
+        //{
+        //    float[,,] unflattened = ImportSplatData(path); // -- TO TEST
 
-            Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
-                             + " unflattened 1: " + unflattened.GetLength(1)
-                             + " unflattened 2: " + unflattened.GetLength(2));
+        //    Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
+        //                     + " unflattened 1: " + unflattened.GetLength(1)
+        //                     + " unflattened 2: " + unflattened.GetLength(2));
 
 
-            Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
-        }
-        catch (Exception ex)
-        {
-            Debug.Log("ExportSplatData ERROR ex: " + ex.Message);
-        }
+        //    Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
+        //}
+        //catch (Exception ex)
+        //{
+        //    Debug.Log("ExportSplatData ERROR ex: " + ex.Message);
+        //}
+        // END TESTING
     }
 
     private float[,,] ImportSplatData(string path)
