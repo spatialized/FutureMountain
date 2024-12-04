@@ -43,7 +43,7 @@ public class SERI_FireGrid : MonoBehaviour
     List<SERI_FireCell> fireCellsList = new List<SERI_FireCell>();
     //FireDataPoint[,] activePoints;
     List<FireDataPoint> activePoints;
-    FireDataPointCollection[,] activePointsGrid;
+    FireDataPointCollection[,] activePointsGrid;                // Used in data-controlled fire
 
     /* Pooling */
     private GameObjectPool pooler;

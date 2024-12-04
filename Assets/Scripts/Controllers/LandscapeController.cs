@@ -1378,25 +1378,27 @@ public class LandscapeController : MonoBehaviour
 
                     FireDataFrame fireFrame = BuildFireDataFrame(month);
 
-                    if (saveFireData)
-                    {
-                        string fileName = "fire_warm" + warmingIdx + "_" + year.GetYear() + "_" + month.GetMonth();
-
-                        //string fileName = "snowveg_warm" + warmingIdx + "_" + fire.GetYear() + "_" + fire.GetMonth() + "_" +
-                        //                  fire.GetDay() + ".json";
-
-                        try
-                        {
-                            dataPath = ExportFireDataFrame(fireFrame, month.GetMonth(), fileName, dataPath);
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.Log("ExportFireDataFrame ERROR ex.Message: " + ex.Message);
-                        }
-                    }
-
                     if (fireFrame != null)
+                    {
                         fDataList.Add(fireFrame);
+
+                        //if (saveFireData)
+                        //{
+                        //    string fileName = "fire_warm" + warmingIdx + "_" + year.GetYear() + "_" + month.GetMonth();
+
+                        //    //string fileName = "snowveg_warm" + warmingIdx + "_" + fire.GetYear() + "_" + fire.GetMonth() + "_" +
+                        //    //                  fire.GetDay() + ".json";
+
+                        //    try
+                        //    {
+                        //        dataPath = ExportFireDataFrame(fireFrame, month.GetMonth(), fileName, dataPath);
+                        //    }
+                        //    catch (Exception ex)
+                        //    {
+                        //        Debug.Log("ExportFireDataFrame ERROR ex.Message: " + ex.Message);
+                        //    }
+                        //}
+                    }
                 }
 
                 //Debug.Log(name + ".GenerateLandscapeData()... year:" + year.GetYear() + " last month:" + year.GetMonths().Last().GetMonth());
@@ -1423,6 +1425,20 @@ public class LandscapeController : MonoBehaviour
                 default:
                     warm = 0;
                     break;
+            }
+
+            if (saveFireData)
+            {
+                string fileName = "fireDataList";
+
+                try
+                {
+                    dataPath = ExportFireDataFrameList(fDataList, fileName, dataPath);
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log("ExportFireDataFrame ERROR ex.Message: " + ex.Message);
+                }
             }
 
             simulationData[i] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
@@ -1507,6 +1523,21 @@ public class LandscapeController : MonoBehaviour
         }
     }
 
+    private string ExportFireDataFrameList(List<FireDataFrame> fireFrameList, string fileName, string path)
+    {
+        if (path.Equals(""))
+            path = EditorUtility.SaveFolderPanel("Choose a directory to save the landscape data files:", "", "");
+
+        string json = JsonUtility.ToJson(fireFrameList);
+        string json2 = JsonConvert.SerializeObject(fireFrameList);
+
+        File.WriteAllText(path + "/" + fileName + ".json", json);
+        File.WriteAllText(path + "/" + fileName + "2" + ".json", json2);
+
+        return path;
+    }
+
+
     private string ExportFireDataFrame(FireDataFrame fireFrame, int month, string fileName, string path)
     {
         if (path.Equals(""))
@@ -1514,7 +1545,7 @@ public class LandscapeController : MonoBehaviour
 
         //string json = JsonUtility.ToJson(fireFrame);
         string json = JsonConvert.SerializeObject(fireFrame);
-        File.WriteAllText(path + "/" + fileName, json);
+        File.WriteAllText(path + "/" + fileName + ".json", json);
 
         return path;
     }
@@ -2690,6 +2721,7 @@ public class LandscapeController : MonoBehaviour
 /// <summary>
 /// Patch point collection.
 /// </summary>
+[Serializable]
 public class PatchPointCollection
 {
     private int patchID;
@@ -2752,6 +2784,7 @@ public class PatchPointCollection
 /// <summary>
 /// Point on terrain splatmap associated with a patch ID.
 /// </summary>
+[Serializable]
 public class PatchPoint
 {
     private int patchID;
@@ -2912,6 +2945,7 @@ public class FireDataPoint : IComparable<FireDataPoint>
 /// <summary>
 /// Collection of fire data points
 /// </summary>
+[Serializable]
 public class FireDataPointCollection
 {
     List<FireDataPoint> points;
@@ -2939,7 +2973,7 @@ public class FireDataPointCollection
 public class FireDataFrame
 {
     int year, month, day;
-    int gridHeight, gridWidth;
+    //int gridHeight, gridWidth;
     //FireDataPoint[,] dataGrid;
     FireDataPointCollection[,] dataGrid; 
 
@@ -2952,8 +2986,8 @@ public class FireDataFrame
         day = newDay;
         dataGrid = newDataGrid;
         dataList = newDataList;
-        gridHeight = newGridHeight;
-        gridWidth = newGridWidth;
+        //gridHeight = newGridHeight;
+        //gridWidth = newGridWidth;
     }
 
     public int GetYear()
