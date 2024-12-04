@@ -52,7 +52,8 @@ public class GameController : MonoBehaviour
     private List<int> messageFrames;                // List of message indices of fires (CAW Installation Data)
     private List<int> messageYears;                 // List of message years
 
-    private bool usePatchIDsForFire = false;        // Use cube patchIDs burned in landscape when determining to start fire    Note: OFF for unsynced simulation
+    private bool usePatchIDsForFire = true;        // Use cube patchIDs burned in landscape when determining to start fire
+                                                   // Note: Should be OFF for unsynced (cube only?) simulation
 
     /* Game States */
     [Header("Game State")]
@@ -1461,8 +1462,9 @@ public class GameController : MonoBehaviour
 
                     if (cube.simulationOn)
                     {
-                        if (usePatchIDsForFire)                                  // Currently OFF since using unsynced simulation data
+                        if (usePatchIDsForFire)                                  // Set to OFF when using unsynced simulation data
                         {
+                            landscapeController.CalculatePatchesToBurn();        // Added 12-2-24
                             List<int> patchIDsToBurn = landscapeController.GetPatchesToBurnForDate(date);
                             if (patchIDsToBurn.Contains(cube.patchID))
                             {

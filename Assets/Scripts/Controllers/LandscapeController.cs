@@ -354,7 +354,7 @@ public class LandscapeController : MonoBehaviour
 
         if (saveSnowVegFireData)
         {
-            string fileName = "warm_" + warmingIdx + "_snow_" + curYear + "_" + curMonth;// + "_" + curDay;
+            string fileName = "snow_warm" + warmingIdx + "_" + curYear + "_" + curMonth;// + "_" + curDay;
 
             if (savedMonth != curMonth) 
             {
@@ -799,7 +799,7 @@ public class LandscapeController : MonoBehaviour
             {
                 try
                 {
-                    string fileName = "warm" + warmingIdx + "_snow_" + fire.GetYear() + "_" + fire.GetMonth() + "_" +
+                    string fileName = "fire_warm" + warmingIdx + "_" + fire.GetYear() + "_" + fire.GetMonth() + "_" +
                                       fire.GetDay() + ".json";
                     SavePatchesToBurn(patchesToBurnDict, fileName, splatPath);
                 }
@@ -1361,26 +1361,28 @@ public class LandscapeController : MonoBehaviour
                 List<PatchDataMonth> months = year.GetMonths();
                 foreach (PatchDataMonth month in months)                                // Generate terrain alphamap for each month of patch data
                 {
-                    List<PatchDataFrame> frames = month.GetFrames();                    // Get patch data frames for month
+                    //List<PatchDataFrame> frames = month.GetFrames();                    // Get patch data frames for month
+                    if (month.GetFrames().Count == 0)
+                        continue;
+
                     FireDataFrame fireFrame = BuildFireDataFrame(month);
 
-                    if (saveSnowVegFireData)
-                    {
-                        string fileName = "fire_warm" + warmingIdx + "_"+year.GetYear()+"_"+month.GetMonth();
+                    //if (saveSnowVegFireData)
+                    //{
+                        //string fileName = "fire_warm" + warmingIdx + "_"+year.GetYear()+"_"+month.GetMonth();
 
-                        //string fileName = "snowveg_warm" + warmingIdx + "_" + fire.GetYear() + "_" + fire.GetMonth() + "_" +
-                        //                  fire.GetDay() + ".json";
+                        ////string fileName = "snowveg_warm" + warmingIdx + "_" + fire.GetYear() + "_" + fire.GetMonth() + "_" +
+                        ////                  fire.GetDay() + ".json";
 
-                        try
-                        {
-
-                            splatPath = ExportFireDataFrame(fireFrame, month.GetMonth(), fileName, splatPath);
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.Log("ExportFireDataFrame ERROR ex.Message: " + ex.Message);
-                        }
-                    }
+                        //try
+                        //{
+                        //    splatPath = ExportFireDataFrame(fireFrame, month.GetMonth(), fileName, splatPath);
+                        //}
+                        //catch (Exception ex)
+                        //{
+                        //    Debug.Log("ExportFireDataFrame ERROR ex.Message: " + ex.Message);
+                        //}
+                    //}
 
                     if (fireFrame != null)
                         fDataList.Add(fireFrame);
@@ -1499,7 +1501,8 @@ public class LandscapeController : MonoBehaviour
         if (path.Equals(""))
             path = EditorUtility.SaveFolderPanel("Choose a directory to save the landscape data files:", "", "");
 
-        string json = JsonUtility.ToJson(fireFrame);
+        //string json = JsonUtility.ToJson(fireFrame);
+        string json = JsonConvert.SerializeObject(fireFrame);
         File.WriteAllText(path + "/" + fileName, json);
 
         return path;
