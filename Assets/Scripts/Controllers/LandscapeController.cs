@@ -354,18 +354,13 @@ public class LandscapeController : MonoBehaviour
 
         if (saveSnowVegFireData)
         {
-            string fileName = "snow_warm" + warmingIdx + "_" + curYear + "_" + curMonth;// + "_" + curDay;
-
             if (savedMonth != curMonth) 
             {
-                splatPath = ExportSplatmap.Export(terrain, fileName, splatPath);
-                //ExportSplatData(grid, splatPath + "/snow_" + curYear + "_" + curMonth + "_" + curDay + ".json");
+                //string fileName = "snow_warm" + warmingIdx + "_" + curYear + "_" + curMonth;// + "_" + curDay;
+                //splatPath = SplatmapHelper.Export(terrain, fileName, splatPath);
+                ExportSplatData(grid, splatPath + "/"+"splat_warm"+warmingIdx+"_" + curYear + "_" + curMonth + "_" + curDay + ".json");
                 savedMonth = curMonth;
             }
-            //Debug.Log(" grid.GetLength(0):" + grid.GetLength(0) + "  grid.GetLength(1):" + grid.GetLength(1) + "  grid.GetLength(2):" + grid.GetLength(2));
-
-            //if (++dayCount > 6)
-            //    dayCount = 0;
         }
 
         //UpdateBackgroundSnow();
@@ -373,26 +368,29 @@ public class LandscapeController : MonoBehaviour
 
     private void ExportSplatData(float[,,] grid, string path)
     {
+        Debug.Log(" grid[10,10,0]: " + grid[10, 10, 0]);
+
         //Debug.Log("Exporting splat data to path: "+path);
         float[] flatArray = Flatten3DArrayTo1D(grid);
 
-        string json = JsonUtility.ToJson(flatArray);
+        //string json = JsonUtility.ToJson(flatArray);
+        string json = JsonConvert.SerializeObject(flatArray);
         File.WriteAllText(path, json);
-        
+
         try
         {
             float[,,] unflattened = ImportSplatData(path); // -- TO TEST
 
-            Debug.Log(  " unflattened 0: " + unflattened.GetLength(0)
+            Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
                              + " unflattened 1: " + unflattened.GetLength(1)
-                             + " unflattened 2: " + unflattened.GetLength(2)  );
+                             + " unflattened 2: " + unflattened.GetLength(2));
 
 
-            Debug.Log(" unflattened[10,10,0]: " + unflattened[10,10,0]);
+            Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
         }
         catch (Exception ex)
         {
-            Debug.Log("ExportSplatData ERROR ex: "+ex.Message);
+            Debug.Log("ExportSplatData ERROR ex: " + ex.Message);
         }
     }
 
@@ -403,7 +401,8 @@ public class LandscapeController : MonoBehaviour
         if (File.Exists(path))
         {
             string inputStr = File.ReadAllText(path);
-            float[] flatArray = JsonUtility.FromJson<float[]>(inputStr);
+            //float[] flatArray = JsonUtility.FromJson<float[]>(inputStr);
+            float[] flatArray = JsonConvert.DeserializeObject<float[]>(inputStr);
             float[,,] unflattened = Unflatten1DArrayTo3D(flatArray);
             return unflattened;
         }
@@ -426,7 +425,7 @@ public class LandscapeController : MonoBehaviour
                 }
             }
         }
-        Debug.Log("Flatten3DArrayTo1D()... flatArray length:"+ flatArray.Length);
+        Debug.Log("Flatten3DArrayTo1D()... flatArray length:" + flatArray.Length);
         return flatArray;
     }
 
@@ -440,39 +439,39 @@ public class LandscapeController : MonoBehaviour
         var output = new float[xCount, yCount, zCount];
         var index = 0;
         for (var x = 0; x < xCount; x++)
-        for (var y = 0; y < yCount; y++)
-        for (var z = 0; z < zCount; z++)
-            output[x, y, z] = array[index++];
+            for (var y = 0; y < yCount; y++)
+                for (var z = 0; z < zCount; z++)
+                    output[x, y, z] = array[index++];
 
         return output;
     }
 
-    private void ExportSplatData2(float[,,] grid, string path)
-    {
-        StringBuilder textOutput = new StringBuilder();
-        //sb.Append("Hello ");
-        //sb.AppendLine("World!");
-        //sb.AppendLine("Hello C#");
+    //private void ExportSplatData2(float[,,] grid, string path)
+    //{
+    //    StringBuilder textOutput = new StringBuilder();
+    //    //sb.Append("Hello ");
+    //    //sb.AppendLine("World!");
+    //    //sb.AppendLine("Hello C#");
 
-        //string textOutput = "";
-        int upperBound = grid.GetUpperBound(0) - 1;
-        for (int y = 0; y < grid.GetUpperBound(1); y++)
-        {
-            for (int x = 0; x < grid.GetUpperBound(0); x++)
-            {
-                textOutput.Append(grid[x, y, 0]);
-                if (x != upperBound)
-                    textOutput.Append(",");
-            }
-            textOutput.Append(Environment.NewLine);
-        }
-        System.IO.File.WriteAllText(path+".csv", textOutput.ToString());
-    }
+    //    //string textOutput = "";
+    //    int upperBound = grid.GetUpperBound(0) - 1;
+    //    for (int y = 0; y < grid.GetUpperBound(1); y++)
+    //    {
+    //        for (int x = 0; x < grid.GetUpperBound(0); x++)
+    //        {
+    //            textOutput.Append(grid[x, y, 0]);
+    //            if (x != upperBound)
+    //                textOutput.Append(",");
+    //        }
+    //        textOutput.Append(Environment.NewLine);
+    //    }
+    //    System.IO.File.WriteAllText(path+".csv", textOutput.ToString());
+    //}
 
     //private IEnumerator ExportSplatMapNextFrame(Terrain terrain, string fileName)
     //{
     //    yield return null;      // Wait until next frame
-    //    splatPath = ExportSplatmap.Export(terrain, fileName, splatPath);
+    //    splatPath = SplatmapHelper.Export(terrain, fileName, splatPath);
     //}
 
     /// <summary>
@@ -800,7 +799,7 @@ public class LandscapeController : MonoBehaviour
                 try
                 {
                     string fileName = "fire_warm" + warmingIdx + "_" + fire.GetYear() + "_" + fire.GetMonth() + "_" +
-                                      fire.GetDay() + ".json";
+                                      fire.GetDay();
                     SavePatchesToBurn(patchesToBurnDict, fileName, splatPath);
                 }
                 catch (Exception ex)
