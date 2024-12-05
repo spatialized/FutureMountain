@@ -25,6 +25,7 @@ public class LandscapeController : MonoBehaviour
     /* Optimization */
     public bool saveSnowVegData = false;
     public bool saveFireData = true;
+    //public bool saveFireDataFrames = true;
     public bool saveBurnData = true;
     private string dataPath = "";
 
@@ -1382,16 +1383,13 @@ public class LandscapeController : MonoBehaviour
                     {
                         fDataList.Add(fireFrame);
 
-                        //if (saveFireData)
+                        //if (saveFireDataFrames)
                         //{
                         //    string fileName = "fire_warm" + warmingIdx + "_" + year.GetYear() + "_" + month.GetMonth();
-
-                        //    //string fileName = "snowveg_warm" + warmingIdx + "_" + fire.GetYear() + "_" + fire.GetMonth() + "_" +
-                        //    //                  fire.GetDay() + ".json";
-
+                            
                         //    try
                         //    {
-                        //        dataPath = ExportFireDataFrame(fireFrame, month.GetMonth(), fileName, dataPath);
+                        //        dataPath = ExportFireDataFrame(fireFrame, fileName, dataPath);
                         //    }
                         //    catch (Exception ex)
                         //    {
@@ -1433,7 +1431,7 @@ public class LandscapeController : MonoBehaviour
 
                 try
                 {
-                    dataPath = ExportFireDataFrameList(fDataList, fileName, dataPath);
+                    dataPath = ExportFireDataFrameLists(fDataList, fileName + "_" + i, dataPath);
                 }
                 catch (Exception ex)
                 {
@@ -1523,29 +1521,41 @@ public class LandscapeController : MonoBehaviour
         }
     }
 
-    private string ExportFireDataFrameList(List<FireDataFrame> fireFrameList, string fileName, string path)
+    private string ExportFireDataFrameLists(List<FireDataFrame> fireFrameList, string fileName, string path)
     {
         if (path.Equals(""))
             path = EditorUtility.SaveFolderPanel("Choose a directory to save the landscape data files:", "", "");
 
-        string json = JsonUtility.ToJson(fireFrameList);
-        string json2 = JsonConvert.SerializeObject(fireFrameList);
-
+        //string json = JsonUtility.ToJson(fireFrameList);
+        string json = JsonConvert.SerializeObject(fireFrameList, Formatting.None,
+            new JsonSerializerSettings()
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
+        
         File.WriteAllText(path + "/" + fileName + ".json", json);
-        File.WriteAllText(path + "/" + fileName + "2" + ".json", json2);
+        //File.WriteAllText(path + "/" + fileName + "2" + ".json", json);
 
         return path;
     }
 
 
-    private string ExportFireDataFrame(FireDataFrame fireFrame, int month, string fileName, string path)
+    private string ExportFireDataFrame(FireDataFrame fireFrame, string fileName, string path)
     {
         if (path.Equals(""))
             path = EditorUtility.SaveFolderPanel("Choose a directory to save the landscape data files:", "", "");
 
         //string json = JsonUtility.ToJson(fireFrame);
-        string json = JsonConvert.SerializeObject(fireFrame);
+        //string json2 = JsonConvert.SerializeObject(fireFrame);
+
+        string json = JsonConvert.SerializeObject(fireFrame, Formatting.None,
+            new JsonSerializerSettings()
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
+
         File.WriteAllText(path + "/" + fileName + ".json", json);
+        //File.WriteAllText(path + "/" + fileName + "2" + ".json", json2);
 
         return path;
     }
@@ -2876,31 +2886,35 @@ public class PatchPoint
 [Serializable]
 public class FireDataPoint : IComparable<FireDataPoint>
 {
-    PatchPoint patchPoint;
-    float spread;
-    int iter;
+    public Vector2 gridLocation;
+    public int patchId;
+    public float spread;
+    public int iter;
 
     /// <summary>
     /// Constructor 
     /// </summary>
-    /// <param name="newPatchPoint">Position in terrain alphamap grid</param>
+    /// <param name="patchPoint">Position in terrain alphamap grid</param>
     /// <param name="newSpread"></param>
     /// <param name="newIter"></param>
-    public FireDataPoint(PatchPoint newPatchPoint, float newSpread, int newIter)
+    public FireDataPoint(PatchPoint patchPoint, float newSpread, int newIter)
     {
-        patchPoint = newPatchPoint;
         spread = newSpread;
         iter = newIter;
+
+        gridLocation = patchPoint.GetFireGridLocation();
+        patchId = patchPoint.GetPatchID();
     }
 
-    public PatchPoint GetPatchPoint()
-    {
-        return patchPoint;
-    }
+    //public PatchPoint GetPatchPoint()
+    //{
+    //    return patchPoint;
+    //}
 
     public Vector2 GetGridPosition()
     {
-        return patchPoint.GetFireGridLocation();
+        return gridLocation;
+        //return patchPoint.GetFireGridLocation();
     }
 
     /// <summary>
@@ -2909,7 +2923,8 @@ public class FireDataPoint : IComparable<FireDataPoint>
     /// <returns>The x.</returns>
     public int X()
     {
-        return (int)patchPoint.GetFireGridLocation().x;
+        return (int) gridLocation.x;
+        //return (int)patchPoint.GetFireGridLocation().x;
     }
 
     /// <summary>
@@ -2918,7 +2933,8 @@ public class FireDataPoint : IComparable<FireDataPoint>
     /// <returns>The y.</returns>
     public int Y()
     {
-        return (int)patchPoint.GetFireGridLocation().y;
+        return (int)gridLocation.y;
+        //return (int)patchPoint.GetFireGridLocation().y;
     }
 
     public float GetSpread()
@@ -2933,7 +2949,8 @@ public class FireDataPoint : IComparable<FireDataPoint>
 
     public int GetPatchID()
     {
-        return patchPoint.GetPatchID();
+        return patchId;
+        //return patchPoint.GetPatchID();
     }
 
     public int CompareTo(FireDataPoint that)
@@ -2948,7 +2965,7 @@ public class FireDataPoint : IComparable<FireDataPoint>
 [Serializable]
 public class FireDataPointCollection
 {
-    List<FireDataPoint> points;
+    public List<FireDataPoint> points;
 
     public FireDataPointCollection()
     {
@@ -2972,12 +2989,10 @@ public class FireDataPointCollection
 [Serializable]
 public class FireDataFrame
 {
-    int year, month, day;
+    public int year, month, day;
     //int gridHeight, gridWidth;
-    //FireDataPoint[,] dataGrid;
-    FireDataPointCollection[,] dataGrid; 
-
-    List<FireDataPoint> dataList;
+    public FireDataPointCollection[,] dataGrid; 
+    public List<FireDataPoint> dataList;
 
     public FireDataFrame(int newDay, int newMonth, int newYear, int newGridHeight, int newGridWidth, List<FireDataPoint> newDataList, FireDataPointCollection[,] newDataGrid)
     {
