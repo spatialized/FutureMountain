@@ -1,7 +1,11 @@
+using Assets.Scripts.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -19,6 +23,8 @@ public class LandscapeController : MonoBehaviour
     #region Fields
     /* Settings */
     private bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
+    private bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
+
     private int immediateFireTimeThreshold;
     SimulationSettings settings;
 
@@ -27,7 +33,7 @@ public class LandscapeController : MonoBehaviour
     public bool dataFormatted { get; set; } = false;          // Data formatted flag
     public bool setup { get; set; } = false;                  // Setup flag
     public bool pauseGameState { get; set; }                  // Pause game flag
-    public bool unpauseGameState { get; set; }                // Pause game flag
+    public bool unpauseGameState { get; set; }                // Unpause game flag
     public bool updateDate { get; set; }                      // Update date flag
 
     /* Pooling */
@@ -50,7 +56,7 @@ public class LandscapeController : MonoBehaviour
     [SerializeField]
     private bool terrainBurnt = false;              // Burnt terrain flag
 
-    List<FireDataPoint>[] firePointLists = null;
+    List<FireDataPoint>[] firePointLists = null;    // List of fire points for each fire date
     private Vector3[] fireDates;
     private SERI_FireManager fireManager;           // Fire Manager
     public GameObject firePrefab;                   // Ground fire prefab
@@ -113,6 +119,7 @@ public class LandscapeController : MonoBehaviour
     /* Data */
     private int warmingIdx = 0;                        // Warming index for current simulation run
 
+    /* Data -- Desktop Version */
     private TextAsset dataFile;                        // Data file as TextAsset ( from GameController in ProcessDataFile() )
     private TerrainSimulationData[] simulationData;    // Terrain data from patch extents file  
     private List<PatchDataYear[]> patchesData;         // List of patch data arrays ordered by warming index
@@ -133,6 +140,9 @@ public class LandscapeController : MonoBehaviour
     private int streamflowDataLength;            // Streamflow line count
     private int streamflowDataCols;              // Streamflow column count
     private int streamflowDataRows;              // Streamflow row count
+
+    /* Data -- Web Version */
+    // -- TO DO
 
     /* Dimensions */
     private float northEdge;                     // Patch file North boundary
@@ -192,13 +202,15 @@ public class LandscapeController : MonoBehaviour
         {
             if (patchesData != null && waterData != null)
             {
-                if(!pausedDuringFire)
-                    UpdateData(curTimeIdx, curYear, curMonth, curDay, timeStep);
+                if(!landscapeSimulationWeb)
+                    if(!pausedDuringFire)
+                        UpdateData(curTimeIdx, curYear, curMonth, curDay, timeStep);
 
                 UpdateTerrain(curYear, curMonth, curDay, timeStep);
 
-                if(!pausedDuringFire)
-                    UpdateRiver(curYear, curMonth, curDay, timeStep);
+                if (!landscapeSimulationWeb)
+                    if (!pausedDuringFire)
+                        UpdateRiver(curYear, curMonth, curDay, timeStep);
             }
             else
             {
@@ -308,8 +320,6 @@ public class LandscapeController : MonoBehaviour
     {
         Terrain t = terrain;
 
-        int currentYear = currentPatchData.GetYear();
-
         float regrowthAmount = 1f;          // Fire regrowth amount
 
         if (terrainBurning)                 // Set burnt splatmap
@@ -333,11 +343,21 @@ public class LandscapeController : MonoBehaviour
             }
         }
 
-        SnowDataFrame sdf = BuildTerrainSplatmapForDay(curDay, currentYear, currentPatchData, nextPatchData, regrowthAmount);
-        if (sdf != null)
-            terrain.terrainData.SetAlphamaps(0, 0, sdf.GetData());
+        if (landscapeSimulationWeb)
+        {
+            //SnowDataFrame sdf = GetTerrainSplatmapForDay(curDay, currentYear, currentPatchData, nextPatchData, regrowthAmount);
+            //if (sdf != null)
+            //    terrain.terrainData.SetAlphamaps(0, 0, sdf.GetData());
+        }
         else
-            Debug.Log("ERROR NO sdf");
+        {
+            int currentYear = currentPatchData.GetYear();
+            SnowDataFrame sdf = BuildTerrainSplatmapForDay(curDay, currentYear, currentPatchData, nextPatchData, regrowthAmount);
+            if (sdf != null)
+                terrain.terrainData.SetAlphamaps(0, 0, sdf.GetData());
+            else
+                Debug.Log("ERROR NO sdf");
+        }
 
         //UpdateBackgroundSnow();
     }
@@ -442,7 +462,16 @@ public class LandscapeController : MonoBehaviour
         settings = newSettings;
 
         if (landscapeSimulationOn)
-            LoadData();
+        {
+            if (landscapeSimulationWeb)
+            {
+                LoadDataWeb();
+            }
+            else
+            {
+                LoadData();                     // Loads patches data (Desktop Version)
+            }
+        }
 
         InitSplatmaps();
         ResetTerrainSplatmap();
@@ -734,7 +763,7 @@ public class LandscapeController : MonoBehaviour
     /// Sets the landscape data list.
     /// </summary>
     /// <param name="newFireDates">New fire date list.</param>
-    public void SetupFires(Vector3[] fireDates, int warmIdx)
+    public void SetupFires(Vector3[] fireDates, int warmIdx)        /// -- TO DO: Get fire dates from data!!
     {
         Assert.IsNotNull(fireDates);
         Assert.IsNotNull(pooler);
@@ -1238,6 +1267,90 @@ public class LandscapeController : MonoBehaviour
         }
     }
 
+    private void LoadLandscapeData()
+    {
+        Debug.Log("LoadLandscapeData()... Loading landscape data...");
+
+        //TextAsset[] burnDataFrames = (TextAsset[])Resources.LoadAll("BurnData", typeof(TextAsset));
+        TextAsset[] fireDataFrames = (TextAsset[])Resources.LoadAll("FireData", typeof(TextAsset));
+        
+        simulationData = new TerrainSimulationData[5];                      // -- TO DO: Use variable rather than constant warming degree count
+
+        for (int i = 0; i < 5; i++)
+        {
+            List<SnowDataFrame> sDataList = new List<SnowDataFrame>();      // Snow data frames (unused)
+            //List<FireDataFrame> fDataList = new List<FireDataFrame>();      // Fire data frames
+
+            TextAsset fireFrameTextAsset = fireDataFrames[i];       // List<FireDataFrame> 
+
+            List<FireDataFrame> fDataList = JsonConvert.DeserializeObject<List<FireDataFrame>>(fireFrameTextAsset.text);
+            //List<FireDataFrame> fdf = JsonConvert.DeserializeObject<List<FireDataFrame>>(fireFrameTextAsset.text, JsonSerializerSettings);
+
+            // -- TO DO: Convert TextAsset to FireDataFrame with JsonConvert
+            //JsonConvert
+
+            //FireDataFrame fireFrame = new FireDataFrame(1, month, year, fireGridRows, fireGridCols, firePointList, firePointGrid);
+
+            //if (fdf != null)
+            //    fDataList.Add(fdf);
+
+
+            //foreach (PatchDataYear year in patchesData[i])
+            //{
+            //    List<PatchDataMonth> months = year.GetMonths();
+            //    foreach (PatchDataMonth month in months)                                // Generate terrain alphamap for each month of patch data
+            //    {
+            //        List<PatchDataFrame> frames = month.GetFrames();                    // Get patch data frames for month
+            //        FireDataFrame fireFrame = BuildFireDataFrame(month);
+
+            //        if (fireFrame != null)
+            //            fDataList.Add(fireFrame);
+            //    }
+
+            //    Debug.Log(name + ".LoadLandscapeData()... year:" + year.GetYear() + " last month:" + year.GetMonths().Last().GetMonth());
+            //}
+
+            //LoadFireDataFrames(fireDataFrames);
+
+
+
+            int warm = 0;
+            switch (i)
+            {
+                case 0:
+                    warm = 0;
+                    break;
+                case 1:
+                    warm = 1;
+                    break;
+                case 2:
+                    warm = 2;
+                    break;
+                case 3:
+                    warm = 4;
+                    break;
+                case 4:
+                    warm = 6;
+                    break;
+                default:
+                    warm = 0;
+                    break;
+            }
+
+            simulationData[i] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
+        }
+    }
+
+
+    //public static string LoadResourceTextfile(string path)
+    //{
+    //    //string path;
+    //    string filePath = "SetupData/" + path.Replace(".json", "");
+    //    TextAsset targetFile = Resources.Load<TextAsset>(filePath);
+    //    return targetFile.text;
+    //}
+
+
     /// <summary>
     /// Gets the terrain data frame from patch data for month.
     /// </summary>
@@ -1317,7 +1430,7 @@ public class LandscapeController : MonoBehaviour
     }
 
     /// <summary>
-    /// Loads the chosen data list.
+    /// Loads the chosen data list. (Desktop Version)
     /// </summary>
     private void LoadData()
     {
@@ -1346,7 +1459,50 @@ public class LandscapeController : MonoBehaviour
         dataFormatted = true;
     }
 
+    private void LoadDataWeb()
+    {
+        Debug.Log("LoadDataWeb()...");
 
+        //TextAsset newPatchesFile = landscapeDataList.patches;
+        //patchExtents = LoadPatchesFile(newPatchesFile);            // Load patches data file
+
+        //patchesData = new List<PatchDataYear[]>();                 // Initialize patchesData list
+
+        //for (int i = 0; i < 5; i++)
+        //{
+        //    TextAsset newDataFile = landscapeDataList.extents[i];
+        //    float[,] extentsData = LoadDataFile(newDataFile);      // Load data file
+
+        //    FormatExtentsData(extentsData);                        // Format patch extents data by date
+        //}
+
+        //SetPatchDataRanges();                                      // Set data ranges
+
+        //GenerateLandscapeData();                                   // Generate terrain alphamaps from data
+        LoadLandscapeData();                                   // Generate terrain alphamaps from data
+
+        TextAsset newDailyFile = landscapeDataList.streamflowDaily;
+        LoadStreamflowFile(newDailyFile);             // Load daily streamflow data file
+
+        FormatWaterData(waterDataArray);              // Format water data by date
+        CalculateWaterRanges();                       // Calculate streamflow range
+
+        dataFormatted = true;
+
+    }
+
+    //public FireDataFrame(int newDay, int newMonth, int newYear, int newGridHeight, int newGridWidth, List<FireDataPoint> newDataList, FireDataPointCollection[,] newDataGrid)
+    //{
+    //    year = newYear;
+    //    month = newMonth;
+    //    day = newDay;
+    //    dataGrid = newDataGrid;
+    //    dataList = newDataList;
+    //    gridHeight = newGridHeight;
+    //    gridWidth = newGridWidth;
+    //}
+
+    
 
     /// <summary>
     /// Load and process landscape patches data file (ASC Format).
@@ -2486,6 +2642,7 @@ public class LandscapeController : MonoBehaviour
 /// <summary>
 /// Patch point collection.
 /// </summary>
+[Serializable]
 public class PatchPointCollection
 {
     private int patchID;
@@ -2548,6 +2705,7 @@ public class PatchPointCollection
 /// <summary>
 /// Point on terrain splatmap associated with a patch ID.
 /// </summary>
+[Serializable]
 public class PatchPoint
 {
     private int patchID;
@@ -2580,14 +2738,15 @@ public class PatchPoint
         return patchID;
     }
 
-    /// <summary>
-    /// Gets the patch grid location.
-    /// </summary>
-    /// <returns>The location.</returns>
-    public Vector2 GetLocation()
-    {
-        return location;
-    }
+    ///// <summary>
+    ///// Gets the patch grid location.
+    ///// </summary>
+    ///// <returns>The location.</returns>
+    //public Vector2 GetLocation()
+    //{
+    //    return location;
+    //}
+
     /// <summary>
     /// Gets the fire grid location.
     /// </summary>
@@ -2708,6 +2867,7 @@ public class FireDataPoint : IComparable<FireDataPoint>
 /// <summary>
 /// Collection of fire data points
 /// </summary>
+[Serializable]
 public class FireDataPointCollection
 {
     List<FireDataPoint> points;
@@ -3072,7 +3232,7 @@ public class WaterDataYear : IComparable<WaterDataYear>
 [Serializable]
 public class TerrainSimulationData
 {
-    List<SnowDataFrame> snowData;
+    List<SnowDataFrame> snowData;               // Currently unused?
     List<FireDataFrame> fireData;
     string name;
 
