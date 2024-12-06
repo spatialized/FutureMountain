@@ -519,7 +519,11 @@ public class LandscapeController : MonoBehaviour
                         foreach (FireDataFrameRecord rec in fDataRecordList)
                         {
                             fDataList.Add(ConvertFireDataFrameRecordToFrame(rec));
+                            yield return null;
                         }
+
+                        fDataRecordList.Clear();
+                        yield return null;
 
                         int warm = 0;
                         switch (i)
@@ -548,7 +552,7 @@ public class LandscapeController : MonoBehaviour
 
                         Debug.Log("Loading simulation data : "+i);
 
-                    yield return null;
+                        yield return null;
                     }
                 //}
                 //catch (Exception ex)
@@ -556,158 +560,171 @@ public class LandscapeController : MonoBehaviour
                 //    Debug.Log("LoadLandscapeData()... ERROR ex: " + ex.Message);
                 //}
 
-                //TextAsset newDailyFile = landscapeDataList.streamflowDaily;
-                TextAsset newDataFile = landscapeDataList.streamflowDaily;
-                //LoadStreamflowFile(newDailyFile);             // Load daily streamflow data file
-                List<string> rawData = TextAssetToList(newDataFile);
-                streamflowDataLength = rawData.Count - 1;                  // Set data length (raw data length - 1 for blank space at end)
-                int columnCount = Enum.GetNames(typeof(WaterDataColumnIdx)).Length;
-                waterDataArray = new float[streamflowDataLength, columnCount];
+                ////TextAsset newDailyFile = landscapeDataList.streamflowDaily;
+                //TextAsset newDataFile = landscapeDataList.streamflowDaily;
+                ////LoadStreamflowFile(newDailyFile);             // Load daily streamflow data file
+                //List<string> rawData = TextAssetToList(newDataFile);
+                //streamflowDataLength = rawData.Count - 1;                  // Set data length (raw data length - 1 for blank space at end)
+                //int columnCount = Enum.GetNames(typeof(WaterDataColumnIdx)).Length;
+                //waterDataArray = new float[streamflowDataLength, columnCount];
 
-                if (debug)
-                    Debug.Log("LoadStreamflowFile()... length x:" + waterDataArray.GetLength(0) + " y:" + waterDataArray.GetLength(1) + " streamflowDataLength:" + streamflowDataLength + " columnCount:" + columnCount);
+                //if (debug)
+                //    Debug.Log("LoadStreamflowFile()... length x:" + waterDataArray.GetLength(0) + " y:" + waterDataArray.GetLength(1) + " streamflowDataLength:" + streamflowDataLength + " columnCount:" + columnCount);
 
-                string[] tempData = new string[7];                   // Streamflow daily data TXT file has 7 columns
+                //string[] tempData = new string[7];                   // Streamflow daily data TXT file has 7 columns
 
-                for (int i = 1; i < streamflowDataLength; i++)       // Store data in 'data' 2D array
+                //for (int i = 1; i < streamflowDataLength; i++)       // Store data in 'data' 2D array
+                //{
+                //    tempData = rawData[i].Split(' ');
+                //    waterDataArray[i - 1, 0] = i - 1;                          // Store line index as first element in row
+
+                //    for (int j = 0; j < columnCount; j++)
+                //    {
+                //        try
+                //        {
+                //            waterDataArray[i - 1, j] = float.Parse(tempData[j]);    // Store data fields
+                //        }
+                //        catch (System.Exception e)
+                //        {
+                //            try
+                //            {
+                //                waterDataArray[i - 1, j] = int.Parse(tempData[j]);      // Store data fields
+                //            }
+                //            catch (System.Exception f)
+                //            {
+                //                waterDataArray[i - 1, j] = 0;
+                //            }
+                //        }
+
+                //        Debug.Log("Loading streamflow data : " + i);
+
+                //        if(i % 50 == 0)
+                //            yield return null;
+                //    }
+                //}
+
+                //if (debug)
+                //    Debug.Log("LoadStreamflowFile()... Finished");
+
+                ////FormatWaterData(waterDataArray);              // Format water data by date
+                //var dataArray = waterDataArray;
+                //waterData = new List<WaterDataYear>();
+                //List<WaterDataFrame> dataFrames = new List<WaterDataFrame>();           // List of frames in month
+                //List<WaterDataMonth> dataMonths = new List<WaterDataMonth>();           // List to store months data 
+                //int dataLength = dataArray.GetLength(0);
+                //int curYear = -1;
+                //int curMonth = -1;
+                //int monthCount = 0;
+
+                //waterStartYear = (int)dataArray[0, (int)WaterDataColumnIdx.Year];
+                //updateDate = false;
+
+                //if (simulationStartYear != waterStartYear)        // Compare starting years of data files
+                //{
+                //    if (waterStartYear > simulationStartYear)
+                //    {
+                //        simulationStartYear = waterStartYear;
+                //        simulationStartMonth = (int)dataArray[0, (int)WaterDataColumnIdx.Month];
+                //        simulationStartDay = (int)dataArray[0, (int)WaterDataColumnIdx.Day];
+                //        updateDate = true;
+
+                //        if (debug)
+                //            Debug.Log(name + ".FormatStreamflowData()... Setting startYear / startMonth / startDay from streamflow data... setting startYear to:" + simulationStartYear);
+                //    }
+                //}
+
+                //if (debug)
+                //    Debug.Log(name + ".FormatStreamflowData()... Formatting data of length:" + dataLength + " startYear:" + simulationStartYear);
+
+                //for (int i = 0; i < dataLength - 1; i++)                                    // Store data in 'data' 2D array
+                //{
+                //    int year = (int)dataArray[i, (int)WaterDataColumnIdx.Year];
+                //    int month = (int)dataArray[i, (int)WaterDataColumnIdx.Month];
+                //    int day = (int)dataArray[i, (int)WaterDataColumnIdx.Day];
+                //    float precip = dataArray[i, (int)WaterDataColumnIdx.Precip];
+                //    float QBase = dataArray[i, (int)WaterDataColumnIdx.QBase];
+                //    float QWarm1 = dataArray[i, (int)WaterDataColumnIdx.QWarm1];
+                //    float QWarm2 = dataArray[i, (int)WaterDataColumnIdx.QWarm2];
+                //    float QWarm4 = dataArray[i, (int)WaterDataColumnIdx.QWarm4];
+                //    float QWarm6 = dataArray[i, (int)WaterDataColumnIdx.QWarm6];
+
+                //    if (year > curYear)            // Check if moved to new year (and month)
+                //    {
+                //        if (curYear > -1)
+                //        {
+                //            dataFrames.Sort();                                                  // Sort frames by month
+                //            WaterDataMonth dataMonth = new WaterDataMonth(dataFrames, curMonth, curYear);
+                //            dataMonths.Add(dataMonth);                                          // Add month to list
+                //            monthCount++;
+
+                //            WaterDataYear dataYear = new WaterDataYear(dataMonths, curYear);
+                //            waterData.Add(dataYear);                                            // Add year to list
+
+                //            dataMonths = new List<WaterDataMonth>();
+                //            dataFrames = new List<WaterDataFrame>();
+
+                //            if (debug && debugDetailed)
+                //                Debug.Log("> FormatStreamflowData()... Set data for curYear:" + curYear + " month:" + month + " QBase:" + QBase + " precip:" + precip);
+                //        }
+
+                //        curYear = year;
+                //        curMonth = month;
+                //    }
+
+                //    if (month > curMonth)                       // Check if moved to new month in same year
+                //    {
+                //        if (curMonth > -1)
+                //        {
+                //            dataFrames.Sort();                                                      // Sort frames by month
+                //            WaterDataMonth dataMonth = new WaterDataMonth(dataFrames, curMonth, curYear);
+                //            dataMonths.Add(dataMonth);                                              // Add month to list
+                //            monthCount++;
+
+                //            curMonth = month;
+                //            dataFrames = new List<WaterDataFrame>();
+
+                //            if (debug && debugDetailed)
+                //                Debug.Log(">> FormatStreamflowData()... Set data for month:" + month + " year:" + year + " streamflow:" + QBase + " precip:" + precip);
+                //        }
+                //    }
+
+                //    WaterDataFrame frame = new WaterDataFrame(year, month, day, precip, QBase, QWarm1, QWarm2, QWarm4, QWarm6, i);
+                //    dataFrames.Add(frame);
+
+                //    if (i == dataLength - 2)
+                //    {
+                //        dataFrames.Sort();                                                  // Sort frames by month
+                //        WaterDataMonth dataMonth = new WaterDataMonth(dataFrames, curMonth, curYear);
+                //        dataMonths.Add(dataMonth);                                          // Add month to list
+
+                //        WaterDataYear dataYear = new WaterDataYear(dataMonths, curYear);
+                //        waterData.Add(dataYear);                                                // Add year to list
+                //    }
+
+                //    Debug.Log("Loading water data : " + i);
+                //    if (i % 10 == 0)
+                //        yield return null;
+                //}
+
+                //waterData.Sort();                                                               // Sort frame lists by year
+                //                                                                                // waterData = wData.ToArray();
+
+                //ImportWaterData();
+                try
                 {
-                    tempData = rawData[i].Split(' ');
-                    waterDataArray[i - 1, 0] = i - 1;                          // Store line index as first element in row
-
-                    for (int j = 0; j < columnCount; j++)
-                    {
-                        try
-                        {
-                            waterDataArray[i - 1, j] = float.Parse(tempData[j]);    // Store data fields
-                        }
-                        catch (System.Exception e)
-                        {
-                            try
-                            {
-                                waterDataArray[i - 1, j] = int.Parse(tempData[j]);      // Store data fields
-                            }
-                            catch (System.Exception f)
-                            {
-                                waterDataArray[i - 1, j] = 0;
-                            }
-                        }
-
-                        Debug.Log("Loading streamflow data : " + i);
-
-                        if(i % 50 == 0)
-                            yield return null;
-                    }
+                    TextAsset patchExtTextAsset = (TextAsset)Resources.Load("WaterData/WaterData");
+                    waterData = JsonConvert.DeserializeObject<List<WaterDataYear>>(patchExtTextAsset.text);
                 }
-
-                if (debug)
-                    Debug.Log("LoadStreamflowFile()... Finished");
-
-                //FormatWaterData(waterDataArray);              // Format water data by date
-                var dataArray = waterDataArray;
-                waterData = new List<WaterDataYear>();
-                List<WaterDataFrame> dataFrames = new List<WaterDataFrame>();           // List of frames in month
-                List<WaterDataMonth> dataMonths = new List<WaterDataMonth>();           // List to store months data 
-                int dataLength = dataArray.GetLength(0);
-                int curYear = -1;
-                int curMonth = -1;
-                int monthCount = 0;
-
-                waterStartYear = (int)dataArray[0, (int)WaterDataColumnIdx.Year];
-                updateDate = false;
-
-                if (simulationStartYear != waterStartYear)        // Compare starting years of data files
+                catch (Exception e)
                 {
-                    if (waterStartYear > simulationStartYear)
-                    {
-                        simulationStartYear = waterStartYear;
-                        simulationStartMonth = (int)dataArray[0, (int)WaterDataColumnIdx.Month];
-                        simulationStartDay = (int)dataArray[0, (int)WaterDataColumnIdx.Day];
-                        updateDate = true;
-
-                        if (debug)
-                            Debug.Log(name + ".FormatStreamflowData()... Setting startYear / startMonth / startDay from streamflow data... setting startYear to:" + simulationStartYear);
-                    }
+                    Debug.Log("InitializeData()... waterData ERROR: " + e.Message);
                 }
-
-                if (debug)
-                    Debug.Log(name + ".FormatStreamflowData()... Formatting data of length:" + dataLength + " startYear:" + simulationStartYear);
-
-                for (int i = 0; i < dataLength - 1; i++)                                    // Store data in 'data' 2D array
-                {
-                    int year = (int)dataArray[i, (int)WaterDataColumnIdx.Year];
-                    int month = (int)dataArray[i, (int)WaterDataColumnIdx.Month];
-                    int day = (int)dataArray[i, (int)WaterDataColumnIdx.Day];
-                    float precip = dataArray[i, (int)WaterDataColumnIdx.Precip];
-                    float QBase = dataArray[i, (int)WaterDataColumnIdx.QBase];
-                    float QWarm1 = dataArray[i, (int)WaterDataColumnIdx.QWarm1];
-                    float QWarm2 = dataArray[i, (int)WaterDataColumnIdx.QWarm2];
-                    float QWarm4 = dataArray[i, (int)WaterDataColumnIdx.QWarm4];
-                    float QWarm6 = dataArray[i, (int)WaterDataColumnIdx.QWarm6];
-
-                    if (year > curYear)            // Check if moved to new year (and month)
-                    {
-                        if (curYear > -1)
-                        {
-                            dataFrames.Sort();                                                  // Sort frames by month
-                            WaterDataMonth dataMonth = new WaterDataMonth(dataFrames, curMonth, curYear);
-                            dataMonths.Add(dataMonth);                                          // Add month to list
-                            monthCount++;
-
-                            WaterDataYear dataYear = new WaterDataYear(dataMonths, curYear);
-                            waterData.Add(dataYear);                                            // Add year to list
-
-                            dataMonths = new List<WaterDataMonth>();
-                            dataFrames = new List<WaterDataFrame>();
-
-                            if (debug && debugDetailed)
-                                Debug.Log("> FormatStreamflowData()... Set data for curYear:" + curYear + " month:" + month + " QBase:" + QBase + " precip:" + precip);
-                        }
-
-                        curYear = year;
-                        curMonth = month;
-                    }
-
-                    if (month > curMonth)                       // Check if moved to new month in same year
-                    {
-                        if (curMonth > -1)
-                        {
-                            dataFrames.Sort();                                                      // Sort frames by month
-                            WaterDataMonth dataMonth = new WaterDataMonth(dataFrames, curMonth, curYear);
-                            dataMonths.Add(dataMonth);                                              // Add month to list
-                            monthCount++;
-
-                            curMonth = month;
-                            dataFrames = new List<WaterDataFrame>();
-
-                            if (debug && debugDetailed)
-                                Debug.Log(">> FormatStreamflowData()... Set data for month:" + month + " year:" + year + " streamflow:" + QBase + " precip:" + precip);
-                        }
-                    }
-
-                    WaterDataFrame frame = new WaterDataFrame(year, month, day, precip, QBase, QWarm1, QWarm2, QWarm4, QWarm6, i);
-                    dataFrames.Add(frame);
-
-                    if (i == dataLength - 2)
-                    {
-                        dataFrames.Sort();                                                  // Sort frames by month
-                        WaterDataMonth dataMonth = new WaterDataMonth(dataFrames, curMonth, curYear);
-                        dataMonths.Add(dataMonth);                                          // Add month to list
-
-                        WaterDataYear dataYear = new WaterDataYear(dataMonths, curYear);
-                        waterData.Add(dataYear);                                                // Add year to list
-                    }
-
-                    Debug.Log("Loading water data : " + i);
-                    if (i % 10 == 0)
-                        yield return null;
-                }
-
-                waterData.Sort();                                                               // Sort frame lists by year
-                                                                                                // waterData = wData.ToArray();
-
                 //return updateDate;
 
                 CalculateWaterRanges();                       // Calculate streamflow range
+
+                waterStartYear = waterData[0].GetYear();
+                updateDate = false;
 
                 dataFormatted = true;
                 //dataInitialized = true;
@@ -732,8 +749,8 @@ public class LandscapeController : MonoBehaviour
         nextFrameMonth = -1;
         nextFrameYear = -1;
 
-        yield return null;
         initialized = true;
+        yield return null;
     }
 
     /// <summary>
@@ -1193,6 +1210,49 @@ public class LandscapeController : MonoBehaviour
     /// Calculates the streamflow parameter ranges (min/max values).  
     /// </summary>
     private void CalculateWaterRanges()
+    {
+        if (debug && debugDetailed)
+            Debug.Log("CalculateParameterRanges()... Time:" + Time.time);
+
+        RiverLevelMin = 100000f;
+        RiverLevelMax = -100000f;
+
+        foreach (WaterDataYear wdy in waterData)
+        {
+            foreach (WaterDataMonth mon in wdy.GetMonths())
+            {
+                foreach (WaterDataFrame frame in mon.GetFrames())
+                {
+                    float val = frame.QBase;
+                    if (val < RiverLevelMin)
+                        RiverLevelMin = val;
+                    if (val > RiverLevelMax)
+                        RiverLevelMax = val;
+
+                }
+            }
+            //int rows = waterData.Count;               // Get row count
+            //int idx = 0;                                          // Row in data file
+
+            //int s = (int)WaterDataColumnIdx.QBase + i;            // Start with streamflow base level 
+
+            //while (idx < rows)
+            //{
+            //    float val = waterDataArray[idx, s];
+            //    if (val < RiverLevelMin)
+            //        RiverLevelMin = val;
+            //    if (val > RiverLevelMax)
+            //        RiverLevelMax = val;
+
+            //    idx++;
+            //}
+        }
+    }
+
+    /// <summary>
+    /// Calculates the streamflow parameter ranges (min/max values).  
+    /// </summary>
+    private void CalculateWaterRangesOLD()
     {
         if (debug && debugDetailed)
             Debug.Log("CalculateParameterRanges()... Time:" + Time.time);
@@ -3493,8 +3553,8 @@ public class SnowDataFrame
 [Serializable]
 public class WaterDataFrame : IComparable<WaterDataFrame>
 {
-    int index;
-    int year, month, day;
+    public int index;
+    public int year, month, day;
     public float QBase { get; set; }
     public float QWarm1 { get; set; }
     public float QWarm2 { get; set; }
@@ -3537,7 +3597,7 @@ public class WaterDataFrame : IComparable<WaterDataFrame>
     /// <param name="warmIdx">Warm index.</param>
     public float GetStreamflowForWarmingIdx(int warmIdx)
     {
-        switch(warmIdx)
+        switch (warmIdx)
         {
             case 0:
                 return QBase;
@@ -3581,9 +3641,9 @@ public class WaterDataFrame : IComparable<WaterDataFrame>
 [Serializable]
 public class WaterDataMonth : IComparable<WaterDataMonth>
 {
-    private int index;
-    private int month, year;
-    private List<WaterDataFrame> dataFrames;
+    public int index;
+    public int month, year;
+    public List<WaterDataFrame> dataFrames;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="T:LandscapeController.PatchDataMonth"/> class.
@@ -3634,8 +3694,8 @@ public class WaterDataMonth : IComparable<WaterDataMonth>
 [Serializable]
 public class WaterDataYear : IComparable<WaterDataYear>
 {
-    private int year;
-    private List<WaterDataMonth> dataMonths;
+    public int year;
+    public List<WaterDataMonth> dataMonths;
 
     public WaterDataYear(List<WaterDataMonth> newDataFrames, int newYear)
     {

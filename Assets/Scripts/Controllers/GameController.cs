@@ -1201,12 +1201,6 @@ public class GameController : MonoBehaviour
             Application.Quit();
         }
 
-        if (!gameInitialized && landscapeController.initialized)
-        {
-            loadingDataCanvas.enabled = false;
-            setupUICanvas.enabled = true;
-        }
-
         if (gameInitialized)
         {
             bool animating = false;
@@ -1353,6 +1347,9 @@ public class GameController : MonoBehaviour
                     Debug.Log(name + ".Update()...  landscapeController.gameInitialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
                 else
                     Debug.Log(name + ".Update()...  landscapeController.gameInitialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.patchesData null? " + (landscapeController.GetPatchesData() == null) + " landscapeController.extentsData null? " + (landscapeController.GetExtentsData() == null) + " landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
+
+                loadingDataCanvas.enabled = false;
+                setupUICanvas.enabled = true;
 
                 StopCoroutine(landscapeInitializer);
                 gameInitialized = true;
