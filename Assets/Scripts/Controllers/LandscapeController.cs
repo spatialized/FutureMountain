@@ -18,14 +18,15 @@ public class LandscapeController : MonoBehaviour
 {
     /* Debugging */
     [Header("Debugging")]
-    public bool debug = false;
+    public bool debug = true;
     public bool debugFire = false;
-    public bool debugDetailed = false;
+    public bool debugDetailed = true;
 
     #region Fields
     /* Settings */
     public bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
     public bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
+    //public bool dataInitialized = false;                    // Data initialized flag (web version)
 
     private int immediateFireTimeThreshold;
     SimulationSettings settings;
@@ -483,7 +484,236 @@ public class LandscapeController : MonoBehaviour
         {
             if (landscapeSimulationWeb)
             {
-                LoadDataWeb();                         // Loads snow and fire data frames (Web Version)
+                //LoadDataWeb();                         // Loads snow and fire data frames (Web Version)
+                if (debug)
+                    Debug.Log("InitializeData()... Web Optimized");
+
+                //LoadPatchExtentsData();                                // Load patch extents from Resources
+                try
+                {
+                    TextAsset patchExtTextAsset = (TextAsset)Resources.Load("PatchData/PatchData");
+                    patchExtents = JsonConvert.DeserializeObject<Dictionary<int, PatchPointCollection>>(patchExtTextAsset.text);
+                }
+                catch (Exception e)
+                {
+                    Debug.Log("InitializeData()... ERROR: " + e.Message);
+                }
+
+                Debug.Log("Loading landscape data... ");
+
+                //try
+                //{
+                    TextAsset[] fireDataFrames = Resources.LoadAll<TextAsset>("FireData");
+                    simulationData = new TerrainSimulationData[5];
+
+                    for (int i = 0; i < 5; i++)
+                    {
+                        List<SnowDataFrame> sDataList = new List<SnowDataFrame>(); // Snow data frames (unused)
+                        List<FireDataFrame> fDataList = new List<FireDataFrame>(); // Fire data frames
+                        List<FireDataFrameRecord> fDataRecordList = new List<FireDataFrameRecord>(); // Fire data frames
+
+                        TextAsset fireFrameTextAsset = fireDataFrames[i]; // List<FireDataFrame> 
+
+                        fDataRecordList = JsonConvert.DeserializeObject<List<FireDataFrameRecord>>(fireFrameTextAsset.text);
+
+                        foreach (FireDataFrameRecord rec in fDataRecordList)
+                        {
+                            fDataList.Add(ConvertFireDataFrameRecordToFrame(rec));
+                        }
+
+                        int warm = 0;
+                        switch (i)
+                        {
+                            case 0:
+                                warm = 0;
+                                break;
+                            case 1:
+                                warm = 1;
+                                break;
+                            case 2:
+                                warm = 2;
+                                break;
+                            case 3:
+                                warm = 4;
+                                break;
+                            case 4:
+                                warm = 6;
+                                break;
+                            default:
+                                warm = 0;
+                                break;
+                        }
+
+                        simulationData[i] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
+
+                        Debug.Log("Loading simulation data : "+i);
+
+                    yield return null;
+                    }
+                //}
+                //catch (Exception ex)
+                //{
+                //    Debug.Log("LoadLandscapeData()... ERROR ex: " + ex.Message);
+                //}
+
+                //TextAsset newDailyFile = landscapeDataList.streamflowDaily;
+                TextAsset newDataFile = landscapeDataList.streamflowDaily;
+                //LoadStreamflowFile(newDailyFile);             // Load daily streamflow data file
+                List<string> rawData = TextAssetToList(newDataFile);
+                streamflowDataLength = rawData.Count - 1;                  // Set data length (raw data length - 1 for blank space at end)
+                int columnCount = Enum.GetNames(typeof(WaterDataColumnIdx)).Length;
+                waterDataArray = new float[streamflowDataLength, columnCount];
+
+                if (debug)
+                    Debug.Log("LoadStreamflowFile()... length x:" + waterDataArray.GetLength(0) + " y:" + waterDataArray.GetLength(1) + " streamflowDataLength:" + streamflowDataLength + " columnCount:" + columnCount);
+
+                string[] tempData = new string[7];                   // Streamflow daily data TXT file has 7 columns
+
+                for (int i = 1; i < streamflowDataLength; i++)       // Store data in 'data' 2D array
+                {
+                    tempData = rawData[i].Split(' ');
+                    waterDataArray[i - 1, 0] = i - 1;                          // Store line index as first element in row
+
+                    for (int j = 0; j < columnCount; j++)
+                    {
+                        try
+                        {
+                            waterDataArray[i - 1, j] = float.Parse(tempData[j]);    // Store data fields
+                        }
+                        catch (System.Exception e)
+                        {
+                            try
+                            {
+                                waterDataArray[i - 1, j] = int.Parse(tempData[j]);      // Store data fields
+                            }
+                            catch (System.Exception f)
+                            {
+                                waterDataArray[i - 1, j] = 0;
+                            }
+                        }
+
+                        Debug.Log("Loading streamflow data : " + i);
+
+                        if(i % 50 == 0)
+                            yield return null;
+                    }
+                }
+
+                if (debug)
+                    Debug.Log("LoadStreamflowFile()... Finished");
+
+                //FormatWaterData(waterDataArray);              // Format water data by date
+                var dataArray = waterDataArray;
+                waterData = new List<WaterDataYear>();
+                List<WaterDataFrame> dataFrames = new List<WaterDataFrame>();           // List of frames in month
+                List<WaterDataMonth> dataMonths = new List<WaterDataMonth>();           // List to store months data 
+                int dataLength = dataArray.GetLength(0);
+                int curYear = -1;
+                int curMonth = -1;
+                int monthCount = 0;
+
+                waterStartYear = (int)dataArray[0, (int)WaterDataColumnIdx.Year];
+                updateDate = false;
+
+                if (simulationStartYear != waterStartYear)        // Compare starting years of data files
+                {
+                    if (waterStartYear > simulationStartYear)
+                    {
+                        simulationStartYear = waterStartYear;
+                        simulationStartMonth = (int)dataArray[0, (int)WaterDataColumnIdx.Month];
+                        simulationStartDay = (int)dataArray[0, (int)WaterDataColumnIdx.Day];
+                        updateDate = true;
+
+                        if (debug)
+                            Debug.Log(name + ".FormatStreamflowData()... Setting startYear / startMonth / startDay from streamflow data... setting startYear to:" + simulationStartYear);
+                    }
+                }
+
+                if (debug)
+                    Debug.Log(name + ".FormatStreamflowData()... Formatting data of length:" + dataLength + " startYear:" + simulationStartYear);
+
+                for (int i = 0; i < dataLength - 1; i++)                                    // Store data in 'data' 2D array
+                {
+                    int year = (int)dataArray[i, (int)WaterDataColumnIdx.Year];
+                    int month = (int)dataArray[i, (int)WaterDataColumnIdx.Month];
+                    int day = (int)dataArray[i, (int)WaterDataColumnIdx.Day];
+                    float precip = dataArray[i, (int)WaterDataColumnIdx.Precip];
+                    float QBase = dataArray[i, (int)WaterDataColumnIdx.QBase];
+                    float QWarm1 = dataArray[i, (int)WaterDataColumnIdx.QWarm1];
+                    float QWarm2 = dataArray[i, (int)WaterDataColumnIdx.QWarm2];
+                    float QWarm4 = dataArray[i, (int)WaterDataColumnIdx.QWarm4];
+                    float QWarm6 = dataArray[i, (int)WaterDataColumnIdx.QWarm6];
+
+                    if (year > curYear)            // Check if moved to new year (and month)
+                    {
+                        if (curYear > -1)
+                        {
+                            dataFrames.Sort();                                                  // Sort frames by month
+                            WaterDataMonth dataMonth = new WaterDataMonth(dataFrames, curMonth, curYear);
+                            dataMonths.Add(dataMonth);                                          // Add month to list
+                            monthCount++;
+
+                            WaterDataYear dataYear = new WaterDataYear(dataMonths, curYear);
+                            waterData.Add(dataYear);                                            // Add year to list
+
+                            dataMonths = new List<WaterDataMonth>();
+                            dataFrames = new List<WaterDataFrame>();
+
+                            if (debug && debugDetailed)
+                                Debug.Log("> FormatStreamflowData()... Set data for curYear:" + curYear + " month:" + month + " QBase:" + QBase + " precip:" + precip);
+                        }
+
+                        curYear = year;
+                        curMonth = month;
+                    }
+
+                    if (month > curMonth)                       // Check if moved to new month in same year
+                    {
+                        if (curMonth > -1)
+                        {
+                            dataFrames.Sort();                                                      // Sort frames by month
+                            WaterDataMonth dataMonth = new WaterDataMonth(dataFrames, curMonth, curYear);
+                            dataMonths.Add(dataMonth);                                              // Add month to list
+                            monthCount++;
+
+                            curMonth = month;
+                            dataFrames = new List<WaterDataFrame>();
+
+                            if (debug && debugDetailed)
+                                Debug.Log(">> FormatStreamflowData()... Set data for month:" + month + " year:" + year + " streamflow:" + QBase + " precip:" + precip);
+                        }
+                    }
+
+                    WaterDataFrame frame = new WaterDataFrame(year, month, day, precip, QBase, QWarm1, QWarm2, QWarm4, QWarm6, i);
+                    dataFrames.Add(frame);
+
+                    if (i == dataLength - 2)
+                    {
+                        dataFrames.Sort();                                                  // Sort frames by month
+                        WaterDataMonth dataMonth = new WaterDataMonth(dataFrames, curMonth, curYear);
+                        dataMonths.Add(dataMonth);                                          // Add month to list
+
+                        WaterDataYear dataYear = new WaterDataYear(dataMonths, curYear);
+                        waterData.Add(dataYear);                                                // Add year to list
+                    }
+
+                    Debug.Log("Loading water data : " + i);
+                    if (i % 10 == 0)
+                        yield return null;
+                }
+
+                waterData.Sort();                                                               // Sort frame lists by year
+                                                                                                // waterData = wData.ToArray();
+
+                //return updateDate;
+
+                CalculateWaterRanges();                       // Calculate streamflow range
+
+                dataFormatted = true;
+                //dataInitialized = true;
+
+                if (debug)
+                    Debug.Log("LoadDataWeb()... Finished");
             }
             else
             {
@@ -1355,86 +1585,79 @@ public class LandscapeController : MonoBehaviour
         }
     }
 
-    private void LoadLandscapeData()
-    {
-        Debug.Log("LoadLandscapeData()... ");
+    //private void LoadLandscapeData()
+    //{
+    //    Debug.Log("LoadLandscapeData()... ");
 
-        try
-        {
-            //TextAsset[] fireDataFrames = (TextAsset[])Resources.LoadAll("FireData", typeof(TextAsset[]));
-            TextAsset[] fireDataFrames = Resources.LoadAll<TextAsset>("FireData");
+    //    try
+    //    {
+    //        //TextAsset[] fireDataFrames = (TextAsset[])Resources.LoadAll("FireData", typeof(TextAsset[]));
+    //        TextAsset[] fireDataFrames = Resources.LoadAll<TextAsset>("FireData");
 
-            //TextAsset[] fireDataFrames = (TextAsset[])Resources.LoadAll("FireData");
+    //        //TextAsset[] fireDataFrames = (TextAsset[])Resources.LoadAll("FireData");
 
-            simulationData = new TerrainSimulationData[5]; 
+    //        simulationData = new TerrainSimulationData[5]; 
 
-            for (int i = 0; i < 5; i++)
-            {
-                List<SnowDataFrame> sDataList = new List<SnowDataFrame>(); // Snow data frames (unused)
-                List<FireDataFrame> fDataList = new List<FireDataFrame>(); // Fire data frames
-                List<FireDataFrameRecord> fDataRecordList = new List<FireDataFrameRecord>(); // Fire data frames
+    //        for (int i = 0; i < 5; i++)
+    //        {
+    //            List<SnowDataFrame> sDataList = new List<SnowDataFrame>(); // Snow data frames (unused)
+    //            List<FireDataFrame> fDataList = new List<FireDataFrame>(); // Fire data frames
+    //            List<FireDataFrameRecord> fDataRecordList = new List<FireDataFrameRecord>(); // Fire data frames
 
-                TextAsset fireFrameTextAsset = fireDataFrames[i]; // List<FireDataFrame> 
+    //            TextAsset fireFrameTextAsset = fireDataFrames[i]; // List<FireDataFrame> 
 
-                fDataRecordList = JsonConvert.DeserializeObject<List<FireDataFrameRecord>>(fireFrameTextAsset.text);
+    //            fDataRecordList = JsonConvert.DeserializeObject<List<FireDataFrameRecord>>(fireFrameTextAsset.text);
 
-                foreach(FireDataFrameRecord rec in fDataRecordList)
-                {
-                    fDataList.Add(ConvertFireDataFrameRecordToFrame(rec));
-                }
+    //            foreach(FireDataFrameRecord rec in fDataRecordList)
+    //            {
+    //                fDataList.Add(ConvertFireDataFrameRecordToFrame(rec));
+    //            }
 
-                int warm = 0;
-                switch (i)
-                {
-                    case 0:
-                        warm = 0;
-                        break;
-                    case 1:
-                        warm = 1;
-                        break;
-                    case 2:
-                        warm = 2;
-                        break;
-                    case 3:
-                        warm = 4;
-                        break;
-                    case 4:
-                        warm = 6;
-                        break;
-                    default:
-                        warm = 0;
-                        break;
-                }
+    //            int warm = 0;
+    //            switch (i)
+    //            {
+    //                case 0:
+    //                    warm = 0;
+    //                    break;
+    //                case 1:
+    //                    warm = 1;
+    //                    break;
+    //                case 2:
+    //                    warm = 2;
+    //                    break;
+    //                case 3:
+    //                    warm = 4;
+    //                    break;
+    //                case 4:
+    //                    warm = 6;
+    //                    break;
+    //                default:
+    //                    warm = 0;
+    //                    break;
+    //            }
 
-                simulationData[i] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.Log("LoadLandscapeData()... ERROR ex: "+ex.Message);
-        }
-    }
+    //            simulationData[i] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.Log("LoadLandscapeData()... ERROR ex: "+ex.Message);
+    //    }
+    //}
 
 
-    private void LoadPatchExtentsData()
-    {
-        try
-        {
-            //TextAsset mytxtData = (TextAsset)Resources.Load("MyText");
-            //string txt = mytxtData.text;
-            //AssetDatabase.Refresh();
-
-           TextAsset patchExtTextAsset = (TextAsset)Resources.Load("PatchData/PatchData");
-            //TextAsset patchExtTextAsset = patchExtDataArr[0];
-
-            patchExtents = JsonConvert.DeserializeObject<Dictionary<int, PatchPointCollection>>(patchExtTextAsset.text);
-        }
-        catch (Exception e)
-        {
-            Debug.Log("LoadPatchExtentsData()... ERROR: "+e.Message);
-        }
-        //patchExtents = new Dictionary<int, PatchPointCollection>();
-    }
+    //private void LoadPatchExtentsData()
+    //{
+    //    try
+    //    {
+    //       TextAsset patchExtTextAsset = (TextAsset)Resources.Load("PatchData/PatchData");
+    //        patchExtents = JsonConvert.DeserializeObject<Dictionary<int, PatchPointCollection>>(patchExtTextAsset.text);
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        Debug.Log("LoadPatchExtentsData()... ERROR: "+e.Message);
+    //    }
+    //}
 
 
     /// <summary>
@@ -1545,31 +1768,26 @@ public class LandscapeController : MonoBehaviour
         dataFormatted = true;
     }
 
-    private void LoadDataWeb()
-    {
-        if(debug)
-            Debug.Log("LoadDataWeb()...");
+    //private void LoadDataWeb()
+    //{
+    //    if(debug)
+    //        Debug.Log("LoadDataWeb()...");
 
-        //TextAsset newPatchesFile = landscapeDataList.patches;
-        //patchExtents = LoadPatchesFile(newPatchesFile);            // Load patches data file
+    //    LoadPatchExtentsData();                                // Load patch extents from Resources
+    //    LoadLandscapeData();                                   // Load (terrain splatmaps +) fire data from Resources
 
-        //SetPatchDataRanges();                                      // Set data ranges
+    //    TextAsset newDailyFile = landscapeDataList.streamflowDaily;
+    //    LoadStreamflowFile(newDailyFile);             // Load daily streamflow data file
 
-        //GenerateLandscapeData();                                   // Generate terrain alphamaps from data
-        LoadPatchExtentsData();                                // Load patch extents from Resources
-        LoadLandscapeData();                                   // Load (terrain splatmaps +) fire data from Resources
+    //    FormatWaterData(waterDataArray);              // Format water data by date
+    //    CalculateWaterRanges();                       // Calculate streamflow range
 
-        TextAsset newDailyFile = landscapeDataList.streamflowDaily;
-        LoadStreamflowFile(newDailyFile);             // Load daily streamflow data file
+    //    dataFormatted = true;
+    //    dataInitialized = true;
 
-        FormatWaterData(waterDataArray);              // Format water data by date
-        CalculateWaterRanges();                       // Calculate streamflow range
-
-        dataFormatted = true;
-
-        if (debug)
-            Debug.Log("LoadDataWeb()... Finished");
-    }
+    //    if (debug)
+    //        Debug.Log("LoadDataWeb()... Finished");
+    //}
 
     //public FireDataFrame(int newDay, int newMonth, int newYear, int newGridHeight, int newGridWidth, List<FireDataPoint> newDataList, FireDataPointCollection[,] newDataGrid)
     //{

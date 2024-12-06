@@ -4363,7 +4363,10 @@ public class CubeController : MonoBehaviour
     public int GetDataLength()                    // Get data length
     {
         if (settings.BuildForWeb)
-            return cubeData.Count;
+        {
+            if(cubeData != null)
+                return cubeData.Count;
+        }
 
         return dataLength;
     }

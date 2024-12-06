@@ -61,9 +61,9 @@ public class GameController : MonoBehaviour
 
     /* Game States */
     [Header("Game State")]
-    private bool initialized = false;               // Simulation initialized state
-    private bool started = false;                   // Simulation started state
-    private bool starting = false;                  // Starting simulation
+    private bool gameInitialized = false;           // Simulation initialized state
+    private bool gameStarted = false;               // Simulation gameStarted state
+    private bool gameStarting = false;              // Starting simulation
 
     [SerializeField]
     private bool paused = false;                    // User-driven Paused state
@@ -182,12 +182,13 @@ public class GameController : MonoBehaviour
 
     /* UI */
     [Header("UI")]
+    public Canvas loadingDataCanvas;                          // Loading Data UI canvas
     public Canvas setupUICanvas;                              // Setup UI canvas
     public Canvas simulationUICanvas;                         // Simulation UI canvas 
     public Canvas controlsUICanvas;                           // Show Controls Button UI canvas
     public Canvas sideBySideCanvas;                           // Side-by-Side Mode UI Canvas
-    public GameObject introPanel;                              // Intro Text Panel
-    public Canvas loadingCanvas;                           // Side-by-Side Mode UI Canvas
+    public GameObject introPanel;                             // Intro Text Panel
+    public Canvas loadingCanvas;                              // Loading Simulation UI Canvas
     public GameObject loadingTextObject;                       // Loading Text Object
     public Text loadingTextField;                              // Loading Text 
 
@@ -204,10 +205,11 @@ public class GameController : MonoBehaviour
 
     /* UI Buttons */
     private GameObject showControlsToggleObject;              // Toggle button for showing controls
-    private GameObject showModelDataToggleObject;                 // Toggle button for model data display
+    private GameObject showModelDataToggleObject;             // Toggle button for model data display
     private GameObject storyModeToggleObject;                 // Story mode toggle button
     private GameObject sideBySideModeToggleObject;            // Side-by-Side Mode toggle button
     private GameObject exitSideBySideButtonObject;            // Exit Side-by-Side Mode button object
+    private GameObject startButtonObject;                     // Start button object
     private GameObject pauseButtonObject;                     // End button object
     private GameObject zoomOutButtonObject;                   // Zoom out button object
     private GameObject endButtonObject;                       // End button object
@@ -266,7 +268,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     void Start()
     {
-        started = false;
+        gameStarted = false;
         paused = true;
 
         InitializeGame();
@@ -322,7 +324,7 @@ public class GameController : MonoBehaviour
         {
             landscapeController.InitSplatmaps();
             landscapeController.ResetTerrainSplatmap();                // Assign default splatmap
-            initialized = true;
+            gameInitialized = true;
         }
     }
 
@@ -340,7 +342,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void StartSimulationRun()
     {
-        starting = true;
+        gameStarting = true;
         StartCoroutine(RunStartSimulation());
     }
 
@@ -349,7 +351,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     private IEnumerator RunStartSimulation()
     {
-        if (!started)
+        if (!gameStarted)
         {
             if (landscapeController.LandscapeSimulationIsOn())
             {
@@ -358,7 +360,7 @@ public class GameController : MonoBehaviour
                     if (!landscapeController.PatchExtentDataExists())
                     {
                         landscapeController.initialized = false;
-                        initialized = false;
+                        gameInitialized = false;
 
                         Debug.Log(
                             "StartSimulationRun()... ERROR landscapeController.patchExtents == null!... Quitting...");
@@ -375,7 +377,7 @@ public class GameController : MonoBehaviour
                     if (!landscapeController.PatchDataExists())
                     {
                         landscapeController.initialized = false;
-                        initialized = false;
+                        gameInitialized = false;
 
                         Debug.Log(
                             "StartSimulationRun()... ERROR landscapeController.patchesData == null!... Quitting...");
@@ -962,7 +964,7 @@ public class GameController : MonoBehaviour
         else
             HideStatistics();
 
-        starting = false;
+        gameStarting = false;
 
         loadingCanvas.enabled = false;
         loadingCanvas.gameObject.SetActive(false);
@@ -1186,7 +1188,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     void Update()
     {
-        if (starting)
+        if (gameStarting)
             return;
 
         if (timeIdx - lastDebugMessageFrame >= 30)
@@ -1199,7 +1201,13 @@ public class GameController : MonoBehaviour
             Application.Quit();
         }
 
-        if (initialized)
+        if (!gameInitialized && landscapeController.initialized)
+        {
+            loadingDataCanvas.enabled = false;
+            setupUICanvas.enabled = true;
+        }
+
+        if (gameInitialized)
         {
             bool animating = false;
             foreach (CubeController cube in cubes)                                      /* Update cube animation */
@@ -1227,7 +1235,7 @@ public class GameController : MonoBehaviour
 
             if (!animating)
             {
-                if (started)                                                               /* Update Game */
+                if (gameStarted)                                                               /* Update Game */
                 {
                     CameraController.GamePauseState cState = cameraController.pauseState;
 
@@ -1332,22 +1340,22 @@ public class GameController : MonoBehaviour
                     aggregateCubeController.StartSimulation(timeIdx, timeStep);
                     aggregateCubeController.messageManager = messageManager;
 
-                    started = true;
+                    gameStarted = true;
                     //startTime = Time.time;
                 }
             }
         }
-        else                                               // Check if landscapeController is initialized yet
+        else                                               // Check if landscapeController is gameInitialized yet
         {
             if (landscapeController.initialized)
             {
                 if(landscapeController.LandscapeWebSimulationIsOn())
-                    Debug.Log(name + ".Update()...  landscapeController.initialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
+                    Debug.Log(name + ".Update()...  landscapeController.gameInitialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
                 else
-                    Debug.Log(name + ".Update()...  landscapeController.initialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.patchesData null? " + (landscapeController.GetPatchesData() == null) + " landscapeController.extentsData null? " + (landscapeController.GetExtentsData() == null) + " landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
+                    Debug.Log(name + ".Update()...  landscapeController.gameInitialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.patchesData null? " + (landscapeController.GetPatchesData() == null) + " landscapeController.extentsData null? " + (landscapeController.GetExtentsData() == null) + " landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
 
                 StopCoroutine(landscapeInitializer);
-                initialized = true;
+                gameInitialized = true;
             }
         }
     }
@@ -1668,7 +1676,7 @@ public class GameController : MonoBehaviour
     {
         if (paused)
         {
-            if (started)
+            if (gameStarted)
             {
                 if (showResumeButton)
                 {
@@ -2001,7 +2009,7 @@ public class GameController : MonoBehaviour
     /// <returns>The current year.</returns>
     private int GetCurrentYear()
     {
-        if (timeIdx > dataDates.Count)
+        if (timeIdx >= dataDates.Count)
         {
             Debug.Log("ERROR... timeIdx > dataDates.Count");
             return -1;
@@ -2261,7 +2269,7 @@ public class GameController : MonoBehaviour
             }
         }
 
-        if (!immediate && initialized)
+        if (!immediate && gameInitialized)
         {
             for (int i = 0; i < 5; i++)
             {
@@ -2356,7 +2364,7 @@ public class GameController : MonoBehaviour
             Debug.Log("EndSimulationRun()...  dailyTimeIdx: " + timeIdx + " endTimeIdx:" + endTimeIdx);
 
         timeIdx = 0;
-        started = false;
+        gameStarted = false;
         hideUI = false;                    // UI hidden state
         SetPaused(true);
 
@@ -2564,7 +2572,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void InitSunTransition()
     {
-        /* Set starting sun transition direction */
+        /* Set gameStarting sun transition direction */
         if (simulationStartMonth == 6)
         {
             if (simulationStartDay <= 21)
@@ -2639,7 +2647,7 @@ public class GameController : MonoBehaviour
 
                 sunTransitionDirection = -1;
             }
-            else if (pos > sunTransitionLength)             // Already started transition back to summer
+            else if (pos > sunTransitionLength)             // Already gameStarted transition back to summer
             {
                 sunTransitionStart = GetDayOfYear(12, 21, simulationStartYear - 1);       // Last Winter Solstice
                 sunTransitionEnd = GetDayOfYear(6, 21, simulationStartYear);              // Next Summer Solstice
@@ -2691,7 +2699,7 @@ public class GameController : MonoBehaviour
 
                 sunTransitionDirection = 1;
             }
-            else if (pos > sunTransitionLength)                 // Already started transition back to winter
+            else if (pos > sunTransitionLength)                 // Already gameStarted transition back to winter
             {
                 sunTransitionStart = GetDayOfYear(6, 21, simulationStartYear);            // Last Summer Solstice
                 sunTransitionEnd = GetDayOfYear(12, 21, simulationStartYear);             // Next Winter Solstice
@@ -2839,7 +2847,12 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(landscapeController);
 
         /* Initialize UI objects */
+        Assert.IsNotNull(loadingDataCanvas);
+        loadingDataCanvas.enabled = true;
+
         Assert.IsNotNull(setupUICanvas);
+        setupUICanvas.enabled = false;
+
         Assert.IsNotNull(simulationUICanvas);
         Assert.IsNotNull(introPanel);
         introPanel.SetActive(true);
@@ -2866,6 +2879,7 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(uiTimeline);
         uiTimeline.Initialize(this);
 
+        startButtonObject = GameObject.Find("StartButton");
         pauseButtonObject = GameObject.Find("PauseButton");
         zoomOutButtonObject = GameObject.Find("ZoomOutButton");
         exitSideBySideButtonObject = GameObject.Find("ExitSideBySideButton");
