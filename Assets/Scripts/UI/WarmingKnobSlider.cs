@@ -285,7 +285,7 @@ public class WarmingKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler,
 
         SetAngle(angle_Z);
 
-        Debug.Log("RespondToInput()... warmingValue: " + warmingValue + " isSideBySideKnob:"+isSideBySideKnob);
+        //Debug.Log("RespondToInput()... warmingValue: " + warmingValue + " isSideBySideKnob:"+isSideBySideKnob);
 
         if (isSideBySideKnob)               // TO DO: Generalize for cubes besides Cube B
         {

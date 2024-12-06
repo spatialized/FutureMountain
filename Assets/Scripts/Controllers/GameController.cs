@@ -353,18 +353,41 @@ public class GameController : MonoBehaviour
         {
             if (landscapeController.LandscapeSimulationIsOn())
             {
-                if (!landscapeController.PatchDataExists())     // -- TO DO: GET PATCH DATA FROM API!
+                if (landscapeController.LandscapeWebSimulationIsOn())
                 {
-                    landscapeController.initialized = false;
-                    initialized = false;
+                    if (!landscapeController.PatchExtentDataExists())
+                    {
+                        landscapeController.initialized = false;
+                        initialized = false;
 
-                    Debug.Log("StartSimulationRun()... ERROR landscapeController.patchesData == null!... Quitting...");
-                    Debug.Log("  StartSimulationRun()... extentsData == null?" + (landscapeController.GetExtentsData() == null));
-                    Debug.Log("  StartSimulationRun()... landscapeData == null?" + (landscapeController.GetCurrentSimulationData() == null));
+                        Debug.Log(
+                            "StartSimulationRun()... ERROR landscapeController.patchExtents == null!... Quitting...");
+                        Debug.Log("  StartSimulationRun()... landscapeData == null?" +
+                                  (landscapeController.GetCurrentSimulationData() == null));
 
-                    exitGame = true;
+                        exitGame = true;
 
-                    yield break;
+                        yield break;
+                    }
+                }
+                else
+                {
+                    if (!landscapeController.PatchDataExists())
+                    {
+                        landscapeController.initialized = false;
+                        initialized = false;
+
+                        Debug.Log(
+                            "StartSimulationRun()... ERROR landscapeController.patchesData == null!... Quitting...");
+                        Debug.Log("  StartSimulationRun()... extentsData == null?" +
+                                  (landscapeController.GetExtentsData() == null));
+                        Debug.Log("  StartSimulationRun()... landscapeData == null?" +
+                                  (landscapeController.GetCurrentSimulationData() == null));
+
+                        exitGame = true;
+
+                        yield break;
+                    }
                 }
             }
 
@@ -892,7 +915,7 @@ public class GameController : MonoBehaviour
         ShowCubes(false);
 
         landscapeController.SetSnowVisibility(landscapeController.LandscapeSimulationIsOn());
-        landscapeController.ResetBackgroundSnow();
+        landscapeController.ResetSnow(false);
 
         /* Set Message Dates for CAW Installation */
 
@@ -1318,7 +1341,10 @@ public class GameController : MonoBehaviour
         {
             if (landscapeController.initialized)
             {
-                Debug.Log(name + ".Update()...  landscapeController.initialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.patchesData null? " + (landscapeController.GetPatchesData() == null) + " landscapeController.extentsData null? " + (landscapeController.GetExtentsData() == null) + " landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
+                if(landscapeController.LandscapeWebSimulationIsOn())
+                    Debug.Log(name + ".Update()...  landscapeController.initialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
+                else
+                    Debug.Log(name + ".Update()...  landscapeController.initialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.patchesData null? " + (landscapeController.GetPatchesData() == null) + " landscapeController.extentsData null? " + (landscapeController.GetExtentsData() == null) + " landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
 
                 StopCoroutine(landscapeInitializer);
                 initialized = true;
@@ -1490,6 +1516,11 @@ public class GameController : MonoBehaviour
                     {
                         if (usePatchIDsForFire)                                  // Currently OFF since using unsynced simulation data
                         {
+                            //if(landscapeController.LandscapeWebSimulationIsOn())    // Added 12-4-24
+                            //    landscapeController.LoadPatchesToBurn();             
+                            //else
+                                landscapeController.CalculatePatchesToBurn();        
+
                             List<int> patchIDsToBurn = landscapeController.GetPatchesToBurnForDate(date);
                             if (patchIDsToBurn.Contains(cube.patchID))
                             {
@@ -2196,7 +2227,7 @@ public class GameController : MonoBehaviour
                 {
                     if (cube.patchID != -1)
                     {
-                        Vector2 utm = landscapeController.GetPatchUTMLocation(cube.patchID);
+                        Vector2 utm = landscapeController.GetPatchUTMLocation(cube.patchID);    // -- TO DO: Import from file
                         if (!utm.Equals(new Vector3(0, 0, 0)))
                         {
                             Vector3 pos = landscapeController.GetWorldPositionOfUTMLocation(utm);
@@ -2329,7 +2360,7 @@ public class GameController : MonoBehaviour
         hideUI = false;                    // UI hidden state
         SetPaused(true);
 
-        landscapeController.ResetBackgroundSnow();
+        landscapeController.ResetSnow(false);
         landscapeController.SetSnowVisibility(false);
 
         CameraController camControl = sceneCamera.GetComponent<CameraController>() as CameraController;
@@ -3040,7 +3071,7 @@ public class GameController : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        landscapeController.ResetBackgroundSnow();
+        landscapeController.ResetSnow(false);
         landscapeController.SetSnowVisibility(false);
     }
     #endregion
