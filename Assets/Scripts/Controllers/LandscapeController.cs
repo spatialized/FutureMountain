@@ -26,7 +26,8 @@ public class LandscapeController : MonoBehaviour
 
     /* Optimization */
     public bool saveSnowVegData = false;
-    public bool saveFireData = true;
+    public bool saveFireData = false;
+    public bool saveWaterData = true;
     public bool savePatchExtentsData = false;
     //public bool saveBurnData = false;
     private string dataPath = "";
@@ -461,6 +462,48 @@ public class LandscapeController : MonoBehaviour
         return output;
     }
 
+    public float[] Flatten2DArrayTo1D(float[,] grid)
+    {
+        float[] flatArray = new float[grid.GetLength(0) * grid.GetLength(1)];
+
+        string str = "";
+
+        int i = 0;
+        for (int a = 0; a < grid.GetLength(0); a++)
+        {
+            for (int b = 0; b < grid.GetLength(1); b++)
+            {
+                flatArray[i++] = grid[a, b];
+                if (i < 100)
+                    str += "a: " + a + " b:" + b + " val: " + grid[a, b] + " __ ";
+            }
+        }
+
+        Debug.Log("Flatten2DArrayTo1D()... flatArray length:" + flatArray.Length + "   str: " + str);
+
+        return flatArray;
+    }
+
+    public float[,] Unflatten1DArrayTo2D(float[] array, int xCount, int yCount)
+    {
+        string str = "";
+
+        var output = new float[xCount, yCount];
+        var i = 0;
+        for (var a = 0; a < xCount; a++)
+        {
+            for (var b = 0; b < yCount; b++)
+            {
+                output[a, b] = array[i++];
+                if (i < 100)
+                    str += "a: " + a + " b:" + b + " val: " + output[a, b] + " __ ";
+            }
+        }
+
+        Debug.Log("Unflatten1DArrayTo2D()... output length:" + output.Length + "   str: " + str);
+
+        return output;
+    }
 
     //private void ExportSplatData2(float[,,] grid, string path)
     //{
@@ -1602,6 +1645,11 @@ public class LandscapeController : MonoBehaviour
         FormatWaterData(waterDataArray);              // Format water data by date
         CalculateWaterRanges();                       // Calculate streamflow range
 
+        //if(saveWaterData)
+        //    dataPath = ExportWaterGrid("waterDataGrid", dataPath);
+        if (saveWaterData)
+            dataPath = ExportWaterData("waterDataList", dataPath);
+
         dataFormatted = true;
 
         if (savePatchExtentsData)
@@ -1625,15 +1673,44 @@ public class LandscapeController : MonoBehaviour
         return path;
     }
 
-    private void ImportPatchExtents(string path)
+    private string ExportWaterData(string fileName, string path)
     {
         if (path.Equals(""))
-            return;
+            path = EditorUtility.SaveFolderPanel("Choose a directory to save the landscape data files:", "", "");
 
-        //File.ReadAllText(path + "/" + fileName + ".json", json);
+        //float[] flatArray = Flatten2DArrayTo1D(waterDataArray);
+        //string json = JsonConvert.SerializeObject(flatArray);
+        string json = JsonConvert.SerializeObject(waterData);
+        File.WriteAllText(path + "/" + fileName + ".json", json);
 
-        //patchExtents = JsonConvert.DeserializeObject<Dictionary<int, PatchPointCollection>>(fff);
+        return path;
     }
+
+    private string ExportWaterGrid(string fileName, string path)
+    {
+        if (path.Equals(""))
+            path = EditorUtility.SaveFolderPanel("Choose a directory to save the landscape data files:", "", "");
+
+        //float[] flatArray = Flatten2DArrayTo1D(waterDataArray);
+        //string json = JsonConvert.SerializeObject(flatArray);
+        string json = JsonConvert.SerializeObject(waterDataArray);
+        File.WriteAllText(path + "/" + fileName + ".json", json);
+
+        return path;
+    }
+
+    //private void ImportWaterGrid(string path)
+    //{
+    //    if (path.Equals(""))
+    //        return;
+
+    //    //File.ReadAllText(path + "/" + fileName + ".json", json);
+
+    //    waterDataArray = JsonConvert.DeserializeObject<float[,]>(path);
+
+    //    //var waterDataArray1D = JsonConvert.DeserializeObject<float[]>(path);
+    //    //waterDataArray = Unflatten1DArrayTo2D(waterDataArray1D, ?, ?);
+    //}
 
 
     /// <summary>
@@ -3295,8 +3372,8 @@ public class SnowDataFrame
 [Serializable]
 public class WaterDataFrame : IComparable<WaterDataFrame>
 {
-    int index;
-    int year, month, day;
+    public int index;
+    public int year, month, day;
     public float QBase { get; set; }
     public float QWarm1 { get; set; }
     public float QWarm2 { get; set; }
@@ -3383,9 +3460,9 @@ public class WaterDataFrame : IComparable<WaterDataFrame>
 [Serializable]
 public class WaterDataMonth : IComparable<WaterDataMonth>
 {
-    private int index;
-    private int month, year;
-    private List<WaterDataFrame> dataFrames;
+    public int index;
+    public int month, year;
+    public List<WaterDataFrame> dataFrames;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="T:LandscapeController.PatchDataMonth"/> class.
@@ -3436,8 +3513,8 @@ public class WaterDataMonth : IComparable<WaterDataMonth>
 [Serializable]
 public class WaterDataYear : IComparable<WaterDataYear>
 {
-    private int year;
-    private List<WaterDataMonth> dataMonths;
+    public int year;
+    public List<WaterDataMonth> dataMonths;
 
     public WaterDataYear(List<WaterDataMonth> newDataFrames, int newYear)
     {
