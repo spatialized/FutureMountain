@@ -223,7 +223,7 @@ public class SERI_FireGrid : MonoBehaviour
 
                 try
                 {
-                    cell.SetupCell(firePrefab, cellSize, fireManager.maxCombustionRate, terrainName, fireManager.cellFireSpawnPositions);
+                    cell.SetupCell(firePrefab, fireManager.maxCombustionRate, terrainName, fireManager.cellFireSpawnPositions);
                 }
                 catch (System.Exception e)
                 {
