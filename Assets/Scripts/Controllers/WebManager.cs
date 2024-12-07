@@ -20,8 +20,9 @@ public class WebManager : MonoBehaviour
 
     private static string connectionStringBase = runOnLocal ? "https://localhost:7273/api/" : "https://data.futuremtn.org/api/";
     //private static string connectionStringBase = runOnLocal ? "http://localhost:5056/api/" : "http://192.168.0.32:5550/api/";
-    private static string connectionStringCubes = "cubedata/";
-    private static string connectionStringDates = "dates/";
+    private static string apiPathCubes = "cubedata/";
+    private static string apiPathWater = "waterdata/";
+    private static string apiPathDates = "dates/";
 
     private void Awake()
     {
@@ -35,30 +36,55 @@ public class WebManager : MonoBehaviour
         }
     }
 
-    public void RequestData(int patchIdx, int warmingIdx, int timeIdxStart, int timeIdxEnd, Action<string> callback)
-    {
-        string uri = connectionStringBase + connectionStringCubes + patchIdx + "/" + warmingIdx + "/" + timeIdxStart + "/" + timeIdxEnd;
-        if (debug)
-            Debug.Log("RequestData()... uri:  " + uri);
+    //public void RequestCubeData(int patchIdx, int warmingIdx, int timeIdxStart, int timeIdxEnd, Action<string> callback)
+    //{
+    //    string uri = connectionStringBase + apiPathCubes + patchIdx + "/" + warmingIdx + "/" + timeIdxStart + "/" + timeIdxEnd;
+    //    if (debug)
+    //        Debug.Log("RequestCubeData()... uri:  " + uri);
 
-        Coroutine coroutine = this.StartCoroutine(this.GetRequest(uri, callback));
-    }
+    //    Coroutine coroutine = this.StartCoroutine(this.GetRequest(uri, callback));
+    //}
 
     // Gets all data rows for given Patch Id and Warming Idx
-    public Coroutine RequestData(int patchIdx, int warmingIdx, Action<string> callback)
+    public Coroutine RequestCubeData(int patchIdx, int warmingIdx, Action<string> callback)
     {
-        string uri = connectionStringBase + connectionStringCubes + patchIdx + "/" + warmingIdx;
+        string uri = connectionStringBase + apiPathCubes + patchIdx + "/" + warmingIdx;
 
         if(debug)
-            Debug.Log("RequestData()... uri:  " + uri);
+            Debug.Log("RequestCubeData()... uri:  " + uri);
 
         return this.StartCoroutine(this.GetRequest(uri, callback));
     }
 
+
+    // Gets precipitation data for given data index
+    public Coroutine RequestWaterData(int index, Action<string> callback)
+    {
+        string uri = connectionStringBase + apiPathWater + index;
+
+        if (debug)
+            Debug.Log("RequestWaterData()... uri:  " + uri);
+
+        return this.StartCoroutine(this.GetRequest(uri, callback));
+    }
+
+    // Gets precipitation data for given data index
+    public Coroutine GetTimelineWaterData(Action<string> callback)
+    {
+        string uri = connectionStringBase + apiPathWater + "total";
+
+        if (debug)
+            Debug.Log("GetTimelineWaterData()... uri:  " + uri);
+
+        return this.StartCoroutine(this.GetRequest(uri, callback));
+    }
+
+    
+
     // Unused
     public Coroutine GetDateIndex(int year, int month, int day, Action<string> callback)
     {
-        string uri = connectionStringBase + connectionStringDates + year + "/" + month + "/" + day;
+        string uri = connectionStringBase + apiPathDates + year + "/" + month + "/" + day;
         if(debug)
             Debug.Log("GetDateIndex()... uri:  " + uri);
 
@@ -67,7 +93,7 @@ public class WebManager : MonoBehaviour
 
     public Coroutine GetDataDates(Action<string> callback)
     {
-        string uri = connectionStringBase + connectionStringDates;
+        string uri = connectionStringBase + apiPathDates;
         if(debug)
             Debug.Log("GetDataDates()... uri:  " + uri);
 

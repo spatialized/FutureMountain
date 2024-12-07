@@ -5,6 +5,7 @@
 // date  : 04/04/2017
 */
 
+using System;
 using UnityEngine;
 //using System.Collections;
 
@@ -143,8 +144,15 @@ public class SERI_FireVisualManager : MonoBehaviour
             return;
         }
 
-        for (int i = 0; i < particleSystems.Length; i++)
-            particleSystems[i].transform.localScale = new Vector3(size, size, size);
+        try
+        {
+            for (int i = 0; i < particleSystems.Length; i++)
+                particleSystems[i].transform.localScale = new Vector3(size, size, size);
+        }
+        catch (Exception ex)
+        {
+            Debug.Log("FireVisualManager.SetSize()... size:"+ size+" ex: " + ex.Message);
+        }
     }
 
     public void RandomizeFire()

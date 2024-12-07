@@ -23,29 +23,33 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
     #region Fields
     /* Settings */
     public Vector2 gridLocation { get; set; } = new Vector2(-1, -1);
-    private float fireLocationRandomness = 0.4f;
-    float fireSizeVariability = 0.66f;
+    private float fireLocationRandomness = 0.4f;                            // -- TO DO
+    float fireSizeVariability = 0.66f;                                      // -- TO DO
 
-    /* Main */
-    //public List<int> patchIDList;
+    /* State */
+    public bool fireInstantiated { get; set; } = false;
+    public bool returnedToPool { get; set; } = false;
+    public bool setToDelete = false;
+
+    /* Objects */
+    public List<int> patchIDList;               
     private GameObjectPool pooler;
     public float fuelAmount;
     private GameObject firePrefab;              // Fire prefab 
     private GameObject[] fireList;              // Fires in cell
-    private SERI_FireBox m_fireBox = null;      // used to detect collision with GameObjects that have colliders
-    private float fuelThreshold = 1f;                       // -- ADD TO SIMULATION SETTINGS
+    private Vector2[] firePositions;
+    //private SERI_FireBox m_fireBox = null;      // used to detect collision with GameObjects that have colliders
+
+    /* Data */
+    private float fuelThreshold = 1f;                       // -- TO DO: ADD TO SIMULATION SETTINGS
     public float combustionRate;
-    public bool fireInstantiated { get; set; } = false;
-    public bool returnedToPool { get; set; } = false;
     private float fireSize;
 
-    public bool setToDelete = false;
     [SerializeField]
     private bool isAlight = false;
     public bool extinguished = false;
-    private Vector2[] firePositions;
 
-    public Vector3 position { get { return transform.position; } }
+    //public Vector3 position { get { return transform.position; } }
 
     //ParticleSystem[] psArr;                     // Particle system references
     //ParticleSystem.MainModule[] psMainArr;                     // Particle system references
@@ -62,7 +66,7 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
     /// <param name="data">The cell data</param>
     /// <param name="terrainName">Name of the terrain</param>
     /// <param name="firesPositionsInCell">Positions within the cell to instantiate fire</param>
-    public void SetupCell(GameObject fire, float newCellSize, float newFuel, string terrainName, Vector2[] firesPositionsInCell)
+    public void SetupCell(GameObject fire, float newFuel, string terrainName, Vector2[] firesPositionsInCell)
     {
         firePrefab = fire;
         fireList = new GameObject[firesPositionsInCell.Length];
@@ -70,10 +74,10 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
 
         fuelAmount = newFuel;
 
-        m_fireBox = new SERI_FireBox();
-        m_fireBox.Init(transform.position, terrainName);
-        float boxExtents = newCellSize / 2.0f;
-        m_fireBox.radius = new Vector3(boxExtents, boxExtents, boxExtents);
+        //m_fireBox = new SERI_FireBox();
+        //m_fireBox.Init(transform.position, terrainName);
+        //float boxExtents = newCellSize / 2.0f;
+        //m_fireBox.radius = new Vector3(boxExtents, boxExtents, boxExtents);
     }
     
     /// <summary>
@@ -222,13 +226,13 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
         {
             extinguished = true;
 
-            if (m_fireBox != null)
-            {
-                m_fireBox = null;
+            //if (m_fireBox != null)
+            //{
+            //    m_fireBox = null;
 
                 if (!returnedToPool)
                     ReturnToPool();
-            }
+            //}
         }
     }
 
@@ -255,22 +259,21 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
             if (!extinguished)
             {
                 isAlight = true;
-
-                IgniteAtSize(1f);
+                IgniteAtSize(1f);               // ?
             }
         }
     }
     #endregion
 
     #region Data
-    ///// <summary>
-    ///// Set patch ID
-    ///// </summary>
-    ///// <param name="newPatchIDList"></param>
-    //public void SetPatchIDList(List<int> newPatchIDList)
-    //{
-    //    patchIDList = newPatchIDList;
-    //}
+    /// <summary>
+    /// Set patch ID
+    /// </summary>
+    /// <param name="newPatchIDList"></param>
+    public void SetPatchIDList(List<int> newPatchIDList)
+    {
+        patchIDList = newPatchIDList;
+    }
 
     /// <summary>
     /// Set fire order

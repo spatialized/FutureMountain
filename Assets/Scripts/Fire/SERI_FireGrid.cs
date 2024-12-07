@@ -223,7 +223,7 @@ public class SERI_FireGrid : MonoBehaviour
 
                 try
                 {
-                    cell.SetupCell(firePrefab, cellSize, fireManager.maxCombustionRate, terrainName, fireManager.cellFireSpawnPositions);
+                    cell.SetupCell(firePrefab, fireManager.maxCombustionRate, terrainName, fireManager.cellFireSpawnPositions);
                 }
                 catch (System.Exception e)
                 {
@@ -291,16 +291,30 @@ public class SERI_FireGrid : MonoBehaviour
                             }
                         }
 
-                        avgFireSize /= ptList.Count;
-                        avgIter /= ptList.Count;
+                        //if (ptList.Count == 0)
+                        //    avgFireSize = 0;
+                        //if (ptList.Count == 0)
+                        //    avgIter = 0;
 
-                        cell.SetFireSize(avgFireSize);                                      // Set fire size based on spread data
-                        cell.SetIter(avgIter);
+                        if (ptList.Count > 0)
+                        {
+                            avgFireSize /= ptList.Count;
+                            avgIter /= ptList.Count;
 
-                        //cell.SetPatchIDList(patchIDList);
+                            cell.SetFireSize(avgFireSize);                                      // Set fire size based on spread data
+                            cell.SetIter(avgIter);
+                            cell.SetPatchIDList(patchIDList);
 
-                        fireCellsList.Add(cell);
-                        cellBurnCount++;
+                            fireCellsList.Add(cell);
+                            cellBurnCount++;
+                        }
+                        else
+                        {
+                            avgFireSize = 0;
+                            avgIter = 0;
+                            cell.SetFireSize(avgFireSize);                                      
+                            cell.SetIter(avgIter);
+                        }
                     }
                     else
                     {

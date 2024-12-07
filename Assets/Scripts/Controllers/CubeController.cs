@@ -1536,7 +1536,7 @@ public class CubeController : MonoBehaviour
         if (full)  // Always true
         {
             //Debug.Log("UpdateDataFromWeb()...");
-            WebManager.Instance.RequestData(patchID, warmingIdx, this.FinishUpdateDataFromWeb);
+            WebManager.Instance.RequestCubeData(patchID, warmingIdx, this.FinishUpdateDataFromWeb);
         }
         //else       // Unused
         //{
@@ -1600,7 +1600,7 @@ public class CubeController : MonoBehaviour
 
         dataRows = rows;
 
-        FindParameterRanges();
+        //FindParameterRanges();
     }
 
     private Dictionary<int, CubeData> LoadData(CubeData[] rows)
@@ -1614,7 +1614,7 @@ public class CubeController : MonoBehaviour
         return result;
     }
 
-    private void FinishUpdateDataFromWeb(string jsonString)
+    private void FinishUpdateDataFromWeb(string jsonString) // -- TO DO: OPTIMIZE THIS!!!  CALCULATE PARAMETERS ON BACKEND!!!
     {
         UpdateDataRowsFromJSON(jsonString);     // Update data for parameter range finding
         FindParameterRanges();

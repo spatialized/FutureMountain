@@ -7,6 +7,7 @@ using System.IO;
 using UnityEngine.UI;
 using static CubeController;
 using Assets.Scripts.Models;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Game controller.
@@ -56,6 +57,7 @@ public class GameController : MonoBehaviour
     private Vector3[] messageDates;                 // List of message dates
     private List<int> messageFrames;                // List of message indices of fires (CAW Installation Data)
     private List<int> messageYears;                 // List of message years
+    //private PrecipByYear[] precipByYears;            // List of precipitation totals by year -- Web Version
 
     private bool usePatchIDsForFire = false;        // Use cube patchIDs burned in landscape when determining to start fire    Note: OFF for unsynced simulation
 
@@ -429,17 +431,9 @@ public class GameController : MonoBehaviour
 
             yield return null;
 
-            //int offset = fireCubes ? 5 : 0;                                  // Use fire or non-fire data
-            //idx = offset;
-
-            //if (settings.BuildForWeb)
-            //{
-
-            //}
-
-
             if (settings.BuildForWeb)
             {
+                landscapeController.LoadLandscapeDataForWarmingIdx(warmingIdx);
                 WebManager.Instance.GetDataDates(this.SetDataDatesAndFinishStarting);
             }
             else
@@ -495,12 +489,10 @@ public class GameController : MonoBehaviour
             cubes[0].SetModelDebugMode(debugModel);
             
             //Debug.Log("Set dataDates... length: " + dataDates.Length);
-            //string[] firstDateFields = dataDates[0].Split('-');  // Save data file headings
             cubeStartYear = dataDates[0].year;
             cubeStartMonth = dataDates[0].month;
             cubeStartDay = dataDates[0].day;
 
-            //string[] lastDateFields = dataDates[dataDates.Length - 2].Split('-');
             cubeEndYear = dataDates[dataDates.Count - 2].year;
             cubeEndMonth = dataDates[dataDates.Count - 2].month;
             cubeEndDay = dataDates[dataDates.Count - 2].day;
@@ -946,7 +938,20 @@ public class GameController : MonoBehaviour
 
         /* Create Timeline */
         if (landscapeController.LandscapeSimulationIsOn())
-            uiTimeline.CreateTimeline(landscapeController.GetWaterData(), warmingIdx, warmingDegrees, fireYears, messageYears);
+        {
+            if (landscapeController.LandscapeWebSimulationIsOn())
+            {
+                GetTimelineWaterDataFromWeb();
+                //precipByYears
+                yield return null;
+
+                //uiTimeline.CreateTimelineWeb(waterDataWeb, warmingIdx, warmingDegrees, fireYears,
+                //    messageYears);
+            }
+            else
+                uiTimeline.CreateTimeline(landscapeController.GetWaterData(), warmingIdx, warmingDegrees, fireYears,
+                    messageYears);
+        }
         else
             uiTimeline.CreateTestTimeline(simulationStartYear, simulationEndYear, warmingIdx, warmingDegrees, fireYears, messageYears);
 
@@ -973,10 +978,26 @@ public class GameController : MonoBehaviour
         simulationUICanvas.enabled = true;
     }
 
-    //public void SetDataDatesFromFile()        // TO DO
-    //{
+    public void GetTimelineWaterDataFromWeb()       
+    {
+        //Each Year's Total Precip as list	(Number of water data years)
+        //(First year of water data)
+        //https://data.futuremtn.org/api/WaterData/Total
 
-    //}
+        WebManager.Instance.GetTimelineWaterData(this.SetTimelineWaterData);
+
+    }
+
+    public void SetTimelineWaterData(string jsonString)
+    {
+        //TimelineWaterData timelineWaterData = JsonUtility.FromJson<TimelineWaterData>("{\"years\":" + jsonString + "}");
+        //TimelineWaterData timelineWaterData = JsonConvert.DeserializeObject<TimelineWaterData>(jsonString);
+        TimelineWaterData timelineWaterData = JsonConvert.DeserializeObject<TimelineWaterData>("{\"years\":" + jsonString + "}");
+        PrecipByYear[] precipByYears = timelineWaterData.years;
+
+        uiTimeline.CreateTimelineWeb(precipByYears, warmingIdx, warmingDegrees, fireYears,
+            messageYears);
+    }
 
     public void SetDataDatesAndFinishStarting(string jsonString)
     {
@@ -2232,13 +2253,14 @@ public class GameController : MonoBehaviour
                 {
                     if (cube.patchID != -1)
                     {
-                        Vector2 utm = landscapeController.GetPatchUTMLocation(cube.patchID);    // -- TO DO: Import from file
-                        if (!utm.Equals(new Vector3(0, 0, 0)))
-                        {
-                            Vector3 pos = landscapeController.GetWorldPositionOfUTMLocation(utm);
-                            cube.StartAnimation(pos, cube.defaultPosition, CubeController.CubeAnimationType.grow);
-                        }
-                        else cube.StartAnimation(new Vector3(0, 0, 0), cube.defaultPosition, CubeController.CubeAnimationType.grow);
+                        //Vector2 utm = landscapeController.GetPatchUTMLocation(cube.patchID);    // -- TO DO: Import from Web
+                        //if (!utm.Equals(new Vector3(0, 0, 0)))
+                        //{
+                        //    Vector3 pos = landscapeController.GetWorldPositionOfUTMLocation(utm);
+                        //    cube.StartAnimation(pos, cube.defaultPosition, CubeController.CubeAnimationType.grow);
+                        //}
+                        //else 
+                            cube.StartAnimation(new Vector3(0, 0, 0), cube.defaultPosition, CubeController.CubeAnimationType.grow);
                     }
                 }
                 else
@@ -2279,9 +2301,10 @@ public class GameController : MonoBehaviour
                 {
                     if (cube.patchID != -1)
                     {
-                        Vector2 utm = landscapeController.GetPatchUTMLocation(cube.patchID);
-                        Vector3 pos = landscapeController.GetWorldPositionOfUTMLocation(utm);
-                        cube.StartAnimation(cube.defaultPosition, pos, CubeController.CubeAnimationType.shrink);
+                        //Vector2 utm = landscapeController.GetPatchUTMLocation(cube.patchID);          // -- TO DO: Get from Web
+                        //Vector3 pos = landscapeController.GetWorldPositionOfUTMLocation(utm);
+                        //cube.StartAnimation(cube.defaultPosition, pos, CubeController.CubeAnimationType.shrink);
+                        cube.StartAnimation(cube.defaultPosition, new Vector3(0, 0, 0), CubeController.CubeAnimationType.shrink);
                     }
                 }
                 else

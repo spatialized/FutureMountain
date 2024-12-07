@@ -6,6 +6,7 @@ using UnityEngine.Assertions;
 using UnityEngine.EventSystems;
 using System.Collections;
 using System.Numerics;
+using Assets.Scripts.Models;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 //using UnityEditor.VersionControl;
@@ -322,8 +323,11 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     /// </summary>
     public void CreateTimeline(List<WaterDataYear> waterData, int warmingIdx, int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
     {
-        messageManager = gameController.messageManager;
+        if (waterData == null || waterData.Count == 0)
+            return;
 
+        messageManager = gameController.messageManager;
+        
         resolution = waterData.Count;                      // Set resolution to number of years of water data
         startYear = waterData[0].GetYear();
 
@@ -331,10 +335,10 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         fireYears = newFireYears;
         messageYears = newMessageYears;
 
-        float minPrecip = 100000f;
-        float maxPrecip = -100000f;
-        float minStreamflow = 100000f;
-        float maxStreamflow = -100000f;
+        float minPrecip = 100000f;              // Unused
+        float maxPrecip = -100000f;          
+        float minStreamflow = 100000f;         // Unused
+        float maxStreamflow = -100000f;         // Unused
 
         foreach (WaterDataYear wYear in waterData)
         {
@@ -371,7 +375,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         for (int i = 0; i < resolution; i++)
         {
             WaterDataYear waterYear = waterData[i];
-            float precip = waterYear.GetTotalPrecipitation();                   // Set data for current day
+            float precip = waterYear.GetTotalPrecipitation();          
 
             position.x = 0;
             position.y = 0;       // ADDED
@@ -388,6 +392,103 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             points[i] = pt.gameObject;
 
             pt.parent = timelineLayoutGroup.transform;                          // Added
+
+            Image image = points[i].GetComponent<Image>() as Image;
+            image.color = defaultColor;
+
+            position = pt.position;
+            float step = Screen.width * widthFactor / resolution;
+            //position.x = (i + 0.5f) * step - 1f + xOffset * step;
+            //position.x = (i + 0.5f) * step - 1f + xOffsetFactor * widthFactor / resolution;
+            position.x = (i + 0.5f) * step - 1f;// + xOffsetFactor * widthFactor / resolution;
+            position.y = fireYOffset;
+
+            Debug.Log("CreateTimeline()...");
+            Debug.Log("CreateTimeline()... step: " + step + " Screen.width:" + Screen.width + " widthFactor:" + widthFactor + " resolution:" + resolution);
+            Debug.Log("CreateTimeline()... position.x:" + position.x + " position.y:" + position.y);
+
+
+            if (fireYears.Contains(i + startYear))
+            {
+                GameObject fireIcon = Instantiate(fireIconPrefab, position, fireIconPrefab.transform.rotation, transform);           // Instantiate fire icon at each fire year
+                fireIcon.name = "Fire_" + (i + startYear);
+                fireIcon.transform.parent = iconPanel.transform;                          // Added
+                fireIcons.Add(fireIcon);
+            }
+
+            position.y = messageYOffset;
+
+            if (messageYears.Contains(i + startYear))
+            {
+                GameObject messageIcon = Instantiate(messageIconPrefab, position, fireIconPrefab.transform.rotation, transform);     // Instantiate message icon at each message year
+                messageIcon.name = "Message_" + (i + startYear) + "_" + warmingDegrees;
+                messageIcon.transform.parent = iconPanel.transform;                          // Added
+                messageIcons.Add(messageIcon);
+            }
+        }
+
+        //Debug.Log("AFTER fireIcons.Count:" + fireIcons.Count);
+    }
+
+
+    /// <summary>
+    /// Creates the timeline.
+    /// </summary>
+    public void CreateTimelineWeb(PrecipByYear[] waterData, int warmingIdx, int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
+    {
+        messageManager = gameController.messageManager;
+
+        resolution = waterData.Length;     
+        startYear = waterData[0].year;  
+
+        points = new GameObject[resolution];
+        fireYears = newFireYears;
+        messageYears = newMessageYears;
+
+        //float minPrecip = 100000f;
+        float maxPrecip = 2582f;                 // -- TO DO: GET FROM WEB!!
+
+        //Max Precip. 			float
+        //https://data.futuremtn.org/api/WaterData/MaxTotal
+
+
+        //float minStreamflow = 100000f;
+        //float maxStreamflow = -100000f;
+
+        //minPrecip = GetMinPrecipFromWeb();   
+        //maxPrecip = GetMaxPrecipFromWeb();
+        //minStreamflow = GetMinStreamflowFromWeb();
+        //maxStreamflow = GetMaxStreamflowFromWeb();
+
+
+        fireIcons = new List<GameObject>();
+        messageIcons = new List<GameObject>();
+
+        Vector3 scale = new Vector3(1f, 0f, 1f);
+
+        Vector3 position;
+        position.z = 0f;
+
+        for (int i = 0; i < resolution; i++)
+        {
+            PrecipByYear waterYear = waterData[i];
+            float precip = waterYear.precipitation;      
+
+            position.x = 0;
+            position.y = 0;      
+
+            GameObject point = Instantiate(graphBarPrefab, position, new Quaternion(), transform) as GameObject;
+            Transform pt = point.GetComponent<Transform>();
+
+            pt.localScale = scale;                                      // Set width to default and height to 0
+            float prevHeight = pt.localScale.y;
+            float scaleDelta = MapValue(precip, 0f, maxPrecip, 0f, heightScale);
+            pt.localScale += new Vector3(0f, scaleDelta, 0f);
+
+            pt.name = "Point_" + i;
+            points[i] = pt.gameObject;
+
+            pt.parent = timelineLayoutGroup.transform;                         
 
             Image image = points[i].GetComponent<Image>() as Image;
             image.color = defaultColor;
