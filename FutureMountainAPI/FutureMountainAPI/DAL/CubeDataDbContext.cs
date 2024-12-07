@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 //using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 //using DbContext = Microsoft.EntityFrameworkCore.DbContext;
 
-namespace FutureMountainAPI
+namespace FutureMountainAPI.DAL
 {
     /// REMOTE
 

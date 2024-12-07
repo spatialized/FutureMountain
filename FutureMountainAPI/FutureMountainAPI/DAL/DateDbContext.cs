@@ -6,7 +6,7 @@
 // LOCAL
 //using DbContext = Microsoft.EntityFrameworkCore.DbContext;
 
-namespace FutureMountainAPI
+namespace FutureMountainAPI.DAL
 {
     // REMOTE
     /// <summary>

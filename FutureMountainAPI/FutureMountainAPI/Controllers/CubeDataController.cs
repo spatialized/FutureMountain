@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FutureMountainAPI;
+using FutureMountainAPI.DAL;
+
 //using .EntityFrameworkCore;
 
 namespace FutureMountainAPI.Controllers
@@ -141,7 +143,7 @@ namespace FutureMountainAPI.Controllers
 
         //// GET: api/CubeData
         //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<CubeData>>> GetCubeData()
+        //public async Task<ActionResult<IEnumerable<CubeData>>> GetWaterData()
         //{
         //    if (_context.CubeData == null)
         //    {
@@ -152,7 +154,7 @@ namespace FutureMountainAPI.Controllers
 
         //// GET: api/CubeData/5
         //[HttpGet("{id}")]
-        //public async Task<ActionResult<CubeData>> GetCubeData(int id)
+        //public async Task<ActionResult<CubeData>> GetWaterData(int id)
         //{
         //    if (_context.CubeData == null)
         //    {
@@ -170,7 +172,7 @@ namespace FutureMountainAPI.Controllers
 
         //// GET: api/CubeData/5
         //[HttpGet("{patchIdx}/{warmingIdx}")]
-        //public async Task<ActionResult<IEnumerable<CubeData>>> GetCubeData(int patchIdx, int warmingIdx)
+        //public async Task<ActionResult<IEnumerable<CubeData>>> GetWaterData(int patchIdx, int warmingIdx)
         //{
         //    if (_context.CubeData == null)
         //    {
@@ -190,7 +192,7 @@ namespace FutureMountainAPI.Controllers
 
         //// GET: api/CubeData/-1/1/1
         //[HttpGet("{patchIdx}/{warmingIdx}/{dateIdx}")]
-        //public async Task<ActionResult<IEnumerable<CubeData>>> GetCubeData(int patchIdx, int warmingIdx, int dateIdx)
+        //public async Task<ActionResult<IEnumerable<CubeData>>> GetWaterData(int patchIdx, int warmingIdx, int dateIdx)
         //{
         //    if (_context.CubeData == null)
         //    {
@@ -210,7 +212,7 @@ namespace FutureMountainAPI.Controllers
 
         //// GET: api/CubeData/-1/1/1/10
         //[HttpGet("{patchIdx}/{warmingIdx}/{dateIdxStart}/{dateIdxEnd}")]
-        //public async Task<ActionResult<IEnumerable<CubeData>>> GetCubeData(int patchIdx, int warmingIdx, int dateIdxStart, int dateIdxEnd)
+        //public async Task<ActionResult<IEnumerable<CubeData>>> GetWaterData(int patchIdx, int warmingIdx, int dateIdxStart, int dateIdxEnd)
         //{
         //    if (_context.CubeData == null)
         //    {
@@ -277,7 +279,7 @@ namespace FutureMountainAPI.Controllers
         //    _context.CubeData.Add(cubeData);
         //    await _context.SaveChangesAsync();
 
-        //    return CreatedAtAction("GetCubeData", new { id = cubeData.id }, cubeData);
+        //    return CreatedAtAction("GetWaterData", new { id = cubeData.id }, cubeData);
         //}
 
         // DELETE: api/CubeData/5

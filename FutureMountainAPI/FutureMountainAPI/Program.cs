@@ -1,6 +1,7 @@
 using FutureMountainAPI;
 using Microsoft.EntityFrameworkCore;
 using System.Configuration;
+using FutureMountainAPI.DAL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,6 +46,14 @@ var serverVersion = ServerVersion.AutoDetect(connectionString);
 
 // Replace 'YourDbContext' with the name of your own DbContext derived class.
 builder.Services.AddDbContext<CubeDataDbContext>(
+    dbContextOptions => dbContextOptions
+        .UseMySql(connectionString, serverVersion)
+        // The following three options help with debugging, but should
+        // be changed or removed for production.
+        .LogTo(Console.WriteLine, LogLevel.Information)
+        .EnableSensitiveDataLogging()
+        .EnableDetailedErrors());
+builder.Services.AddDbContext<WaterDataDbContext>(
     dbContextOptions => dbContextOptions
         .UseMySql(connectionString, serverVersion)
         // The following three options help with debugging, but should
