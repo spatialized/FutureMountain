@@ -27,7 +27,7 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
     float fireSizeVariability = 0.66f;
 
     /* Main */
-    public List<int> patchIDList;
+    //public List<int> patchIDList;
     private GameObjectPool pooler;
     public float fuelAmount;
     private GameObject firePrefab;              // Fire prefab 
@@ -47,8 +47,8 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
 
     public Vector3 position { get { return transform.position; } }
 
-    ParticleSystem[] psArr;                     // Particle system references
-    ParticleSystem.MainModule[] psMainArr;                     // Particle system references
+    //ParticleSystem[] psArr;                     // Particle system references
+    //ParticleSystem.MainModule[] psMainArr;                     // Particle system references
 
     /* Spread */
     private float iter = 0f;
@@ -263,14 +263,14 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
     #endregion
 
     #region Data
-    /// <summary>
-    /// Set patch ID
-    /// </summary>
-    /// <param name="newPatchIDList"></param>
-    public void SetPatchIDList(List<int> newPatchIDList)
-    {
-        patchIDList = newPatchIDList;
-    }
+    ///// <summary>
+    ///// Set patch ID
+    ///// </summary>
+    ///// <param name="newPatchIDList"></param>
+    //public void SetPatchIDList(List<int> newPatchIDList)
+    //{
+    //    patchIDList = newPatchIDList;
+    //}
 
     /// <summary>
     /// Set fire order

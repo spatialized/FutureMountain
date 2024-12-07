@@ -41,8 +41,7 @@ public class SERI_FireGrid : MonoBehaviour
     private Vector2 startPoint;                                 // Fire start point
 
     List<SERI_FireCell> fireCellsList = new List<SERI_FireCell>();
-    //FireDataPoint[,] activePoints;
-    List<FireDataPoint> activePoints;
+    List<FireDataPoint> activePointsList;
     FireDataPointCollection[,] activePointsGrid;                // Used in data-controlled fire
 
     /* Pooling */
@@ -86,7 +85,7 @@ public class SERI_FireGrid : MonoBehaviour
         immediateFire = newImmediate;
         dataControlled = newDataControlled;
 
-        activePoints = newActivePoints;
+        activePointsList = newActivePoints;
         activePointsGrid = newActivePointsGrid;
 
         if (!pooler)
@@ -114,7 +113,7 @@ public class SERI_FireGrid : MonoBehaviour
 
                 if (dataControlled && !immediateFire)
                 {
-                    startPoint = activePoints[0].GetGridPosition();
+                    startPoint = activePointsList[0].GetGridPosition();
                 }
                 else
                 {
@@ -123,11 +122,11 @@ public class SERI_FireGrid : MonoBehaviour
                     else
                         startPoint = new Vector2((float)gridWidth - 1, (float)gridHeight - 1);          // Start at edge
                 }
-                if (activePoints == null)                // Non-data-controlled fire
+                if (activePointsList == null)               // Non-data-controlled fire
                 {
                     CreateGrid(null);
                 }
-                else                                     // Data-controlled fire
+                else                                        // Data-controlled fire
                 {
                     CreateGrid(activePointsGrid);
                 }
@@ -154,11 +153,11 @@ public class SERI_FireGrid : MonoBehaviour
     /// <summary>
     /// Build a grid in a single frame
     /// </summary>
-    /// <param name="activePoints">Active points in fire</param>
+    /// <param name="gridActivePoints">Active points in fire</param>
     /// <param name="fuelAmount">Fuel amount for all cells</param>
     /// <param name="combustionRate">Combustion rate for all cells</param>
     /// <param name="fireLengthInSec">Fire length in seconds</param>
-    private void CreateGrid(FireDataPointCollection[,] activePoints)//, float fuelAmount, float combustionRate, float fireLengthInSec)
+    private void CreateGrid(FireDataPointCollection[,] gridActivePoints)//, float fuelAmount, float combustionRate, float fireLengthInSec)
     {
         burningCells = new SortedList<int, Vector2>(allocatedListSize);
 
@@ -169,31 +168,11 @@ public class SERI_FireGrid : MonoBehaviour
             offsetX = (gridWidth / 2.0f) * cellSize;
         else if (gridWidth % 2 == 1)
             offsetX = ((gridWidth - 1) / 2.0f) * cellSize;
-
-        //if (gridHeight % 2 == 0)
-        //    offsetY = (gridHeight / 2.0f) * cellSize - cellSize / 2.0f;
-        //else if (gridHeight % 2 == 1)
-        //    offsetY = ((gridHeight - 1) / 2.0f) * cellSize - cellSize / 2.0f;
-
+        
         if (gridHeight % 2 == 0)
             offsetY = (gridHeight / 2.0f) * cellSize - cellSize * .5f;
         else if (gridHeight % 2 == 1)
             offsetY = ((gridHeight - 1) / 2.0f) * cellSize - cellSize * .5f;
-
-        //if (gridHeight % 2 == 0)
-        //    offsetY = (gridHeight / 2.0f) * cellSize + cellSize * 2.75f;
-        //else if (gridHeight % 2 == 1)
-        //    offsetY = ((gridHeight - 1) / 2.0f) * cellSize + cellSize * 2.75f;
-
-        //if (gridWidth % 2 == 0)
-        //    offsetX = (gridWidth / 2.0f) * cellSize;
-        //else if (gridWidth % 2 == 1)
-        //    offsetX = ((gridWidth - 1) / 2.0f) * cellSize;
-
-        //if (gridHeight % 2 == 0)
-        //    offsetY = (gridHeight / 2.0f) * cellSize;
-        //else if (gridHeight % 2 == 1)
-        //    offsetY = ((gridHeight - 1) / 2.0f) * cellSize;
 
         fireGrid = new GameObject[gridWidth, gridHeight];
         fireCells = new SERI_FireCell[gridWidth, gridHeight];
@@ -253,27 +232,27 @@ public class SERI_FireGrid : MonoBehaviour
 
                 if (immediateFire)                                                      // Ignite cells immediately
                 {
-                    bool ignite = true;
-                    if (dataControlled)                                                 // Only true for large landscape fires
-                    {
-                        //FireDataPoint point = activePoints[x, y];
-                        //if (point != null)
-                        //    ignite = true;
+                    //bool ignite = true;
+                    //if (dataControlled)                                                 // Only true for large landscape fires
+                    //{
+                    //    //FireDataPoint point = activePointsList[x, y];
+                    //    //if (point != null)
+                    //    //    ignite = true;
 
-                        foreach (FireDataPoint point in activePoints[x, y].GetPoints())
-                        {
-                            ignite = true;
-                            break;
-                        }
+                    //    foreach (FireDataPoint point in gridActivePoints[x, y].GetPoints())
+                    //    {
+                    //        ignite = true;
+                    //        break;
+                    //    }
 
-                    }
+                    //}
 
-                    if (ignite)
-                    {
+                    //if (ignite)
+                    //{
                         cell.SetFireSize(1f);
                         fireCellsList.Add(cell);
                         cellBurnCount++;
-                    }
+                    //}
                 }
                 else
                 {
@@ -283,23 +262,23 @@ public class SERI_FireGrid : MonoBehaviour
                         float avgFireSize = 0f;
                         float avgIter = 0f;
 
-                        //if (activePoints[x, y] == null)
-                        //    Debug.Log("ERROR: x:" + x + " y:" + y + " activePoints[x,y] == null!");
-                        //if (activePoints[x, y].GetPoints() == null)
-                        //    Debug.Log("ERROR: x:" + x + " y:" + y + " activePoints[x, y].GetPoints() == null!");
+                        //if (activePointsList[x, y] == null)
+                        //    Debug.Log("ERROR: x:" + x + " y:" + y + " activePointsList[x,y] == null!");
+                        //if (activePointsList[x, y].GetPoints() == null)
+                        //    Debug.Log("ERROR: x:" + x + " y:" + y + " activePointsList[x, y].GetPoints() == null!");
 
-                        if (activePoints[x, y] == null)
+                        if (gridActivePoints[x, y] == null)
                         {
-                            //Debug.Log("ERROR: x:" + x + " y:" + y + " activePoints[x,y] == null! Time:"+Time.time);
+                            Debug.Log("ERROR: x:" + x + " y:" + y + " activePointsList[x,y] == null! Time:" + Time.time);
                             continue;
                         }
-                        if (activePoints[x, y].GetPoints() == null)
+                        if (gridActivePoints[x, y].GetPoints() == null)
                         {
-                            Debug.Log("ERROR: x:" + x + " y:" + y + " activePoints[x, y].GetPoints() == null!  Time:" + Time.time);
+                            Debug.Log("ERROR: x:" + x + " y:" + y + " activePointsList[x, y].GetPoints() == null!  Time:" + Time.time);
                             continue;
                         }
 
-                        List<FireDataPoint> ptList = activePoints[x, y].GetPoints();
+                        List<FireDataPoint> ptList = gridActivePoints[x, y].GetPoints();
                         foreach (FireDataPoint point in ptList)
                         {
                             if (point != null)
@@ -318,7 +297,7 @@ public class SERI_FireGrid : MonoBehaviour
                         cell.SetFireSize(avgFireSize);                                      // Set fire size based on spread data
                         cell.SetIter(avgIter);
 
-                        cell.SetPatchIDList(patchIDList);
+                        //cell.SetPatchIDList(patchIDList);
 
                         fireCellsList.Add(cell);
                         cellBurnCount++;
@@ -392,7 +371,7 @@ public class SERI_FireGrid : MonoBehaviour
 
                 float combustionRate = fireManager.maxCombustionRate / fireLengthInFrames;     // Find combustion rate from fire frame length
 
-                if (activePoints == null)               // Non-data-controlled fire
+                if (activePointsList == null)               // Non-data-controlled fire
                 {
                     if (debug)
                         Debug.Log(name + ".Ignite()... parent:" + transform.parent.name + " IMMEDIATE  fireLengthInFrames:" + fireLengthInFrames + " fireLengthInSec:" + fireLengthInSec + " combustionRate:" + combustionRate);
@@ -401,7 +380,7 @@ public class SERI_FireGrid : MonoBehaviour
                 else                                     // Data-controlled fire
                 {
                     if (debug)
-                        Debug.Log(name + ".Ignite()...   SPREAD fireLengthInFrames:" + fireLengthInFrames + " fireLengthInSec:" + fireLengthInSec + "   combustionRate:" + combustionRate + " activePoints.Count:" + activePoints.Count);
+                        Debug.Log(name + ".Ignite()...   SPREAD fireLengthInFrames:" + fireLengthInFrames + " fireLengthInSec:" + fireLengthInSec + "   combustionRate:" + combustionRate + " activePointsList.Count:" + activePointsList.Count);
                     IgniteGrid(fireManager.maxCombustionRate, combustionRate, fireLengthInSec);
                 }
 
