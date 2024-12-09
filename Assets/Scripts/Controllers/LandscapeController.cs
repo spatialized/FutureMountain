@@ -20,15 +20,18 @@ public class LandscapeController : MonoBehaviour
 {
     /* Debugging */
     [Header("Debugging")]
-    public bool debug = false;
+    public bool debug = true;
     public bool debugFire = false;
-    public bool debugDetailed = false;
+    public bool debugDetailed = true;
 
     /* Optimization */
     public bool saveSnowVegData = false;
-    public bool saveFireData = false;
-    public bool saveWaterData = true;
+    public bool saveFireData = true;
+    public bool saveWaterData = false;
     public bool savePatchExtentsData = false;
+
+    public bool ignoreWater = true;
+
     //public bool saveBurnData = false;
     private string dataPath = "";
 
@@ -999,8 +1002,18 @@ public class LandscapeController : MonoBehaviour
             fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, terrain.transform.position, frames, this, true, false);
 
             patchesToBurnDict = new Dictionary<Vector3, List<int>>();
+
+            ExportFireManagerData(fireManager);
         }
     }
+
+    private void ExportFireManagerData(SERI_FireManager manager)
+    {
+        // -- TO DO
+        // Export fireManager.fireGrid[]
+    }
+
+
 
     #endregion
 
@@ -1427,6 +1440,13 @@ public class LandscapeController : MonoBehaviour
 
                     if (fireFrame != null)
                     {
+                        if (fireFrame.dataList != null && fireFrame.dataGrid != null)
+                        {
+                            Debug.Log("fireFrame.dataList.Count BEFORE: " + fireFrame.dataList.Count);
+                            fireFrame.OptimizeData(); // Added 12-7-24
+                            Debug.Log("fireFrame.dataList.Count AFTER: " + fireFrame.dataList.Count);
+                        }
+
                         fDataList.Add(fireFrame);
 
                         //if (saveFireDataFrames)
@@ -1496,7 +1516,7 @@ public class LandscapeController : MonoBehaviour
     /// <param name="dataMonth">First month.</param>
     private FireDataFrame BuildFireDataFrame(PatchDataMonth dataMonth)
     {
-        Terrain t = terrain;
+        //Terrain t = terrain;
         List<PatchDataFrame> frames = dataMonth.GetFrames();
 
         int month = dataMonth.GetMonth();
@@ -1524,8 +1544,8 @@ public class LandscapeController : MonoBehaviour
             {
                 int iterValue = (int)frame.iter;
 
-                if (iterRange < iterValue)
-                    iterRange = iterValue;
+                //if (iterRange < iterValue)
+                //    iterRange = iterValue;
 
                 foreach (PatchPoint point in points)                                               // Loop over points in collection
                 {
@@ -1552,6 +1572,8 @@ public class LandscapeController : MonoBehaviour
             count += ct;
             //frameCt++;
         }
+
+        // -- TO DO: CHECK GRID STATUS HERE
 
         if (count > 0)
         {
@@ -1639,22 +1661,25 @@ public class LandscapeController : MonoBehaviour
         SetPatchDataRanges();                                      // Set data ranges
         GenerateLandscapeData();                                   // Generate terrain alphamaps from data
 
-        TextAsset newDailyFile = landscapeDataList.streamflowDaily;
-        LoadStreamflowFile(newDailyFile);             // Load daily streamflow data file
+        if (ignoreWater)
+        {
+            TextAsset newDailyFile = landscapeDataList.streamflowDaily;
+            LoadStreamflowFile(newDailyFile); // Load daily streamflow data file
 
-        FormatWaterData(waterDataArray);              // Format water data by date
-        CalculateWaterRanges();                       // Calculate streamflow range
+            FormatWaterData(waterDataArray); // Format water data by date
+            CalculateWaterRanges(); // Calculate streamflow range
 
-        //if(saveWaterData)
-        //    dataPath = ExportWaterGrid("waterDataGrid", dataPath);
-        if (saveWaterData)
-            dataPath = ExportWaterData("waterDataList", dataPath);
+            //if(saveWaterData)
+            //    dataPath = ExportWaterGrid("waterDataGrid", dataPath);
+            if (saveWaterData)
+                dataPath = ExportWaterData("waterDataList", dataPath);
+        }
 
         dataFormatted = true;
 
         if (savePatchExtentsData)
         {
-            dataPath = ExportPatchExtents(patchExtents, "patchExtentsData", dataPath);
+            dataPath = ExportPatchExtents(patchExtents, "PatchData", dataPath);
         }
     }
 
@@ -3093,7 +3118,7 @@ public class FireDataPoint : IComparable<FireDataPoint>
         return spread;
     }
 
-    public float GetIter()
+    public int GetIter()
     {
         return iter;
     }
@@ -3192,6 +3217,58 @@ public class FireDataFrame
         return dataList;
     }
 
+    public void OptimizeData()
+    {
+        FireDataPointCollection[,] newDataGrid = new FireDataPointCollection[gridWidth, gridHeight];
+        List<FireDataPoint> newDataList = new List<FireDataPoint>();
+
+        for (int x = 0; x < gridWidth; x++)
+        {
+            for (int y = 0; y < gridHeight; y++)
+            {
+                int iter = 0;
+                float size = 0f;
+                int patchId = -1;
+                FireDataPointCollection coll = dataGrid[x, y];
+                if (coll == null)
+                {
+                    Debug.Log("OptimizeData() WARNING coll == null?: " + (coll == null));
+
+                    coll = new FireDataPointCollection();
+                }
+
+                if(coll.GetPoints() == null)
+                {
+                    Debug.Log("coll.GetPoints() == null? " + (coll.GetPoints() == null));
+                    coll.points = new List<FireDataPoint>();
+                }
+
+                foreach (FireDataPoint p in coll.GetPoints())
+                {
+                    iter += p.GetIter();
+
+                    float fireSizeFactor = 5f;                  // -- TO DO: MOVE TO SETTINGS
+                    size += p.GetSpread() * fireSizeFactor;
+
+                    patchId = p.patchId;
+                }
+
+                if (patchId == -1)
+                {
+                    Debug.Log("NO PatchId");
+                }
+                FireDataPointCollection newColl = new FireDataPointCollection();
+                FireDataPoint fdp = new FireDataPoint(new Vector2(x, y), patchId, size, iter);
+                newColl.AddPoint(fdp);
+                newDataList.Add(fdp);
+                newDataGrid[x, y] = newColl;
+            }
+        }
+
+        dataGrid = newDataGrid;
+        dataList = newDataList;
+    }
+
 
     //public FireDataPointCollection[] Flatten2DArrayTo1D(FireDataPointCollection[,] grid)
     //{
@@ -3238,10 +3315,10 @@ public class FireDataFrame
 }
 
 /// <summary>
-/// Terrain fire data frame record (for serialization).
+/// Terrain fire data frame record (for serialization).     // -- TOO MUCH DATA FOR WEB??
 /// </summary>
 [Serializable]
-public class FireDataFrameRecord
+public class FireDataFrameRecord        
 {
     public List<FireDataPoint> dataList;                  
     public int year, month, day;

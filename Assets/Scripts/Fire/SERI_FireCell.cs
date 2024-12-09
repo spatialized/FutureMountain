@@ -37,10 +37,10 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
     public float fuelAmount;
     private GameObject firePrefab;              // Fire prefab 
     private GameObject[] fireList;              // Fires in cell
-    private Vector2[] firePositions;
     //private SERI_FireBox m_fireBox = null;      // used to detect collision with GameObjects that have colliders
 
     /* Data */
+    private Vector2[] firePositions;
     private float fuelThreshold = 1f;                       // -- TO DO: ADD TO SIMULATION SETTINGS
     public float combustionRate;
     private float fireSize;
@@ -50,7 +50,7 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
     public bool extinguished = false;
 
     /* Spread */
-    private float iter = 0f;
+    private float iter = 0f;            // For sorting
     #endregion
 
     #region Initialization

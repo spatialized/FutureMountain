@@ -33,13 +33,14 @@ public class SERI_FireGrid : MonoBehaviour
     // Classes
     public LandscapeController landscapeController;
 
-    // Variables
+    /* Variables */
     private bool immediateFire = false;                         // Immediate fire
     private bool startAtCenter = false;                         // Start at center flag
     private bool dataControlled = false;                        // Data controlled fire
 
     private Vector2 startPoint;                                 // Fire start point
 
+    /* Data */
     List<SERI_FireCell> fireCellsList = new List<SERI_FireCell>();
     List<FireDataPoint> activePointsList;
     FireDataPointCollection[,] activePointsGrid;                // Used in data-controlled fire
@@ -55,7 +56,7 @@ public class SERI_FireGrid : MonoBehaviour
     private Terrain terrain;
 
     private GameObject[,] fireGrid;
-    private Vector3[,] fireGridPositions;
+    //private Vector3[,] fireGridPositions;
     private SERI_FireCell[,] fireCells;
 
     private SortedList<int, Vector2> burningCells;
@@ -66,6 +67,7 @@ public class SERI_FireGrid : MonoBehaviour
     private int gridWidth;
     private int gridHeight;
     public bool fireStarted = false;
+    
     [SerializeField]
     private bool gridCreated = false;
     #endregion
@@ -153,11 +155,11 @@ public class SERI_FireGrid : MonoBehaviour
     /// <summary>
     /// Build a grid in a single frame
     /// </summary>
-    /// <param name="gridActivePoints">Active points in fire</param>
+    /// <param name="activePointsGrid">Active points in fire</param>
     /// <param name="fuelAmount">Fuel amount for all cells</param>
     /// <param name="combustionRate">Combustion rate for all cells</param>
     /// <param name="fireLengthInSec">Fire length in seconds</param>
-    private void CreateGrid(FireDataPointCollection[,] gridActivePoints)//, float fuelAmount, float combustionRate, float fireLengthInSec)
+    private void CreateGrid(FireDataPointCollection[,] activePointsGrid)//, float fuelAmount, float combustionRate, float fireLengthInSec)
     {
         burningCells = new SortedList<int, Vector2>(allocatedListSize);
 
@@ -235,13 +237,13 @@ public class SERI_FireGrid : MonoBehaviour
                     //bool ignite = true;
                     //if (dataControlled)                                                 // Only true for large landscape fires
                     //{
-                    //    //foreach (FireDataPoint point in gridActivePoints[x, y].GetPoints())    
+                    //    //foreach (FireDataPoint point in activePointsGrid[x, y].GetPoints())    
                     //    //{
                     //    //    ignite = true;                     
                     //    //    break;
                     //    //}
 
-                    //    if (gridActivePoints[x, y].GetPoints().Count > 0)
+                    //    if (activePointsGrid[x, y].GetPoints().Count > 0)
                     //    {
                     //        ignite = true;
                     //        break;
@@ -263,18 +265,18 @@ public class SERI_FireGrid : MonoBehaviour
                         float avgFireSize = 0f;
                         float avgIter = 0f;
 
-                        if (gridActivePoints[x, y] == null)
+                        if (activePointsGrid[x, y] == null)
                         {
                             Debug.Log("ERROR: x:" + x + " y:" + y + " activePointsList[x,y] == null! Time:" + Time.time);
                             continue;
                         }
-                        if (gridActivePoints[x, y].GetPoints() == null)
+                        if (activePointsGrid[x, y].GetPoints() == null)
                         {
                             Debug.Log("ERROR: x:" + x + " y:" + y + " activePointsList[x, y].GetPoints() == null!  Time:" + Time.time);
                             continue;
                         }
 
-                        List<FireDataPoint> ptList = gridActivePoints[x, y].GetPoints();
+                        List<FireDataPoint> ptList = activePointsGrid[x, y].GetPoints();
                         foreach (FireDataPoint point in ptList)
                         {
                             if (point != null)
