@@ -17,10 +17,6 @@ namespace FutureMountainAPI.Controllers
     [ApiController]
     public class WaterDataController : ControllerBase
     {
-        ///////
-        // REMOTE
-        ///////
-
         /// <summary>
         /// Water Data Controller
         /// </summary>
@@ -31,7 +27,7 @@ namespace FutureMountainAPI.Controllers
             _context = context;
         }
 
-        // GET: api/CubeData
+        // GET: api/WaterData
         [HttpGet]
         public async Task<ActionResult<IEnumerable<WaterDataFrame>>> GetWaterData()
         {
@@ -86,7 +82,7 @@ namespace FutureMountainAPI.Controllers
 
         // GET: api/WaterData/max/4
         [HttpGet("max/{warmingIdx}")]
-        public ActionResult<float> GetPrecipitationMaxForWarmingIdx(int warmingIdx)
+        public ActionResult<float> GetQMaxForWarmingIdx(int warmingIdx = -1)
         {
             if (!_context.WaterData.Any())
             {
@@ -151,6 +147,103 @@ namespace FutureMountainAPI.Controllers
             }
 
             return min;
+        }
+
+        // GET: api/WaterData/min/4
+        [HttpGet("total/{year}")]
+        public ActionResult<float> GetTotalPrecipitationForYear(int year)
+        {
+            if (!_context.WaterData.Any())
+            {
+                return NotFound();
+            }
+
+            float total = _context.WaterData.Where(x => x.year == year).Sum(x => x.precipitation);
+            return total;
+        }
+
+
+        // GET: api/WaterData/min/4
+        [HttpGet("total")]
+        public ActionResult<List<PrecipByYear>> GetTotalPrecipitationForAllYears()
+        {
+            if (!_context.WaterData.Any())
+            {
+                return NotFound();
+            }
+
+            int year = 1942;
+            int firstYear = _context.WaterData.Min(x => x.year);
+
+            //var distinctPeople = people.DistinctBy(p => p.Id);
+            //_ = blogs.DistinctBy(b => b.Id);
+            //_ = blogs.GroupBy(b => b.Id).Select(g => g.First());
+
+            //List<WaterDataFrame> years = _context.WaterData.DistinctBy(x => x.year).ToList();
+            List<WaterDataFrame> years = _context.WaterData.GroupBy(x => x.year)
+                                        .Select(y => y.First()).ToList();
+            List<PrecipByYear> precipByYearList = new List<PrecipByYear>();
+
+            for (int i = 0; i < years.Count(); i++)
+            {
+                int testYear = years[i].year;
+                year = i + firstYear;
+
+                //float total = _context.WaterData.Where(x => x.year == year).Sum(x => x.precipitation);
+                float total = _context.WaterData.Where(x => x.year == year)
+                    .Select(x => x.precipitation).Sum();
+                
+                PrecipByYear py = new PrecipByYear();
+                py.precipitation = total;
+                py.year = year;
+
+                precipByYearList.Add(py);
+            }
+
+            return precipByYearList;
+        }
+
+
+        // GET: api/WaterData/min/4
+        [HttpGet("maxtotal")]
+        public ActionResult<float> GetMaxTotalPrecipitationPerYear()
+        {
+            if (!_context.WaterData.Any())
+            {
+                return NotFound();
+            }
+
+            int year = 1942;
+            int firstYear = _context.WaterData.Min(x => x.year);
+
+            List<WaterDataFrame> years = _context.WaterData.GroupBy(x => x.year)
+                .Select(y => y.First()).ToList();
+            List<PrecipByYear> precipByYearList = new List<PrecipByYear>();
+
+            for (int i = 0; i < years.Count(); i++)
+            {
+                int testYear = years[i].year;
+                year = i + firstYear;
+
+                //float total = _context.WaterData.Where(x => x.year == year).Sum(x => x.precipitation);
+                float total = _context.WaterData.Where(x => x.year == year)
+                    .Select(x => x.precipitation).Sum();
+
+                PrecipByYear py = new PrecipByYear();
+                py.precipitation = total;
+                py.year = year;
+
+                precipByYearList.Add(py);
+            }
+
+            float max = -1000;
+            foreach (PrecipByYear py in precipByYearList)
+            {
+                if(py.precipitation > max)
+                    max = py.precipitation;
+            }
+
+            return max;
         }
 
         // GET: api/WaterData/-1/1/1
