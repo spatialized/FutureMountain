@@ -312,6 +312,15 @@ public class SERI_FireManager : MonoBehaviour
     {
         burning = false;
     }
+
+    public void StopAllGridFires()
+    {
+        StopBurning();
+        foreach (var grid in fireGrids)
+        {
+            StartCoroutine(grid.WaitToStopAllFires(3f));
+        }
+    }
     #endregion
 
     #region Grid

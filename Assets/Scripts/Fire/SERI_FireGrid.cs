@@ -354,6 +354,17 @@ public class SERI_FireGrid : MonoBehaviour
         yield return new WaitForSeconds(waitSec);
         cell.Ignite(pooler, false, fuelAmount, combustionRate);
     }
+
+    public IEnumerator WaitToStopAllFires(float waitTime)
+    {
+        yield return new WaitForSeconds(waitTime);
+
+        foreach (SERI_FireCell cell in fireCells)
+        {
+            cell.Extinguish();
+            cell.gameObject.SetActive(false);       // TESTING
+        }
+    }
     #endregion
 
     #region Ignition
@@ -431,6 +442,8 @@ public class SERI_FireGrid : MonoBehaviour
 
         foreach (SERI_FireCell cell in fireCellsList)
         {
+            cell.gameObject.SetActive(true);       // TESTING
+
             if (immediateFire)
             {
                 //if (debug && count % 10 == 0)

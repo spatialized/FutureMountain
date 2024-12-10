@@ -276,6 +276,8 @@ public class LandscapeController : MonoBehaviour
                 fireRegrowthStartTimeIdx = currentTimeIdx;                  // Time idx when last fire ended
                 terrainBurning = false;
                 terrainBurnt = true;
+
+                fireManager.StopAllGridFires();
             }
         }
     }
@@ -357,26 +359,12 @@ public class LandscapeController : MonoBehaviour
 
     private void FinishUpdateWaterDataFromWeb(string jsonString)
     {
-        //currentWaterData = waterYear.GetDataForMonth(curFrameMonth).GetDataForDay(curFrameDay);               // Set data for current day
-
-        //WaterData rowsObj = JsonUtility.FromJson<WaterData>("{\"rows\":" + jsonString + "}");
-        //CubeData[] rows = rowsObj.rows;
-
-        //WaterData waterDataObj = JsonUtility.FromJson<WaterData>(jsonString);
         WaterData waterDataObj = JsonConvert.DeserializeObject<WaterData>(jsonString);
         currentWaterData = ConvertWaterDataToWaterDataFrame(waterDataObj);
-
-        //Debug.Log(name + ".UpdateDataRowsFromJSON()... rows.Length: " + rows.Length);
-        //Debug.Log("UpdateDataRowsFromJSON()... rows[0].DateIdx: " + rows[0].dateIdx + " rows[0].VegAccessWater" + rows[0].vegAccessWater + " rows[0].Evap: " + rows[0].evap + " rows[0].DepthToGW: " + rows[0].depthToGW);
-        //Debug.Log("UpdateDataRowsFromJSON()... rows[5].DateIdx: " + rows[5].dateIdx + " rows[5].VegAccessWater" + rows[5].vegAccessWater + " rows[5].Evap: " + rows[5].evap + " rows[5].DepthToGW: " + rows[5].depthToGW);
-
-        //dataRows = rows;
-
 
         //need currentWaterData
         StreamflowLevel = currentWaterData.GetStreamflowForWarmingIdx(warmingIdx);
         Precipitation = currentWaterData.precipitation;
-
     }
 
     private void FinishUpdateFireDataFromWeb(string jsonString)
@@ -385,7 +373,6 @@ public class LandscapeController : MonoBehaviour
         List<SnowDataFrame> sDataList = new List<SnowDataFrame>(); // Snow data frames (unused)
         List<FireDataFrame> fDataList = new List<FireDataFrame>(); // Fire data frames for curr. warming idx
 
-        //List<FireDataFrameJSONRecord> jDataList = JsonConvert.DeserializeObject<List<FireDataFrameJSONRecord>>(jsonString);
         TimelineFireData timelineFireData = JsonConvert.DeserializeObject<TimelineFireData>("{\"years\":" + jsonString + "}");
 
         if (timelineFireData != null)
@@ -409,7 +396,8 @@ public class LandscapeController : MonoBehaviour
         }
     }
 
-    private void FinishUpdatePatchDataFromWeb(string jsonString)
+    // Unused
+    private void FinishUpdateAllPatchDataFromWeb(string jsonString)
     {
         PatchDataList patchDataList = JsonConvert.DeserializeObject<PatchDataList>("{\"patches\":" + jsonString + "}");
         patchExtents = new Dictionary<int, PatchPointCollection>();
@@ -424,11 +412,11 @@ public class LandscapeController : MonoBehaviour
         }
         else
         {
-            Debug.Log(("FinishUpdatePatchDataFromWeb ERROR... deserialize failed"));
+            Debug.Log(("FinishUpdateAllPatchDataFromWeb ERROR... deserialize failed"));
         }
 
         //if(debug && debugDetailed)
-            Debug.Log("FinishUpdatePatchDataFromWeb finished... patchExtents.Count:"+patchExtents.Count);
+            Debug.Log("FinishUpdateAllPatchDataFromWeb finished... patchExtents.Count:"+patchExtents.Count);
     }
 
     private WaterDataFrame ConvertWaterDataToWaterDataFrame(WaterData wd)
@@ -626,8 +614,8 @@ public class LandscapeController : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("RequestPatchData()...");
-                    WebManager.Instance.RequestPatchData(this.FinishUpdatePatchDataFromWeb);
+                    //Debug.Log("RequestAllPatchData()...");
+                    //WebManager.Instance.RequestAllPatchData(this.FinishUpdateAllPatchDataFromWeb);
 
                 }
 
@@ -959,26 +947,32 @@ public class LandscapeController : MonoBehaviour
                 continue;
             }
 
-            var patchCollection = patchExtents[patchID];
-
-            foreach (PatchPoint point in patchCollection.GetPoints())                   // Loop over points in collection
+            if (!landscapeSimulationWeb)
             {
-                Vector2 loc = point.GetAlphamapLocation();           // -- TO DO: Optimize by skipping duplicates (if any)
-                burnedAlphamapGrid[(int)loc.y, (int)loc.x] = true;
-                
-                if (!gridMode)                                       // Remove grid   -- OPTIMIZE?? ONLY APPLY TO EDGES OF COLLECTION
+                var patchCollection = patchExtents[patchID]; // -- TO DO: Optimize - get atomic data from web
+
+                foreach (PatchPoint point in patchCollection.GetPoints()) // Loop over points in collection
                 {
-                    if ((int)loc.y + 1 < burnedAlphamapGrid.GetLength(0))
+                    Vector2 loc = point.GetAlphamapLocation(); // -- TO DO: Optimize by skipping duplicates (if any)
+                    burnedAlphamapGrid[(int)loc.y, (int)loc.x] = true;
+
+                    if (!gridMode) // Remove grid   -- OPTIMIZE?? ONLY APPLY TO EDGES OF COLLECTION
                     {
-                        burnedAlphamapGrid[(int)loc.y + 1, (int)loc.x] = true;
-                    }
-                    if ((int)loc.x + 1 < burnedAlphamapGrid.GetLength(1))
-                    {
-                        burnedAlphamapGrid[(int)loc.y, (int)loc.x + 1] = true;
-                    }
-                    if ((int)loc.y + 1 < burnedAlphamapGrid.GetLength(0) && (int)loc.x + 1 < burnedAlphamapGrid.GetLength(1))
-                    {
-                        burnedAlphamapGrid[(int)loc.y + 1, (int)loc.x + 1] = true;
+                        if ((int)loc.y + 1 < burnedAlphamapGrid.GetLength(0))
+                        {
+                            burnedAlphamapGrid[(int)loc.y + 1, (int)loc.x] = true;
+                        }
+
+                        if ((int)loc.x + 1 < burnedAlphamapGrid.GetLength(1))
+                        {
+                            burnedAlphamapGrid[(int)loc.y, (int)loc.x + 1] = true;
+                        }
+
+                        if ((int)loc.y + 1 < burnedAlphamapGrid.GetLength(0) &&
+                            (int)loc.x + 1 < burnedAlphamapGrid.GetLength(1))
+                        {
+                            burnedAlphamapGrid[(int)loc.y + 1, (int)loc.x + 1] = true;
+                        }
                     }
                 }
             }
@@ -2595,11 +2589,11 @@ public class LandscapeController : MonoBehaviour
     }
 
     /// <summary>
-    /// Gets the patch location in UTM coords.
+    /// Gets the patch location in UTM coords.                      // -- TO DO: Get from web
     /// </summary>
     /// <returns>The patch location.</returns>
     /// <param name="patchID">Patch identifier.</param>
-    public Vector2 GetPatchUTMLocation(int patchID)
+    public Vector2 GetPatchUTMLocation(int patchID)             // Usage commented in GameController
     {
         if (patchExtents != null)
         {

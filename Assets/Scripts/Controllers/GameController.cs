@@ -359,20 +359,20 @@ public class GameController : MonoBehaviour
             {
                 if (landscapeController.LandscapeWebSimulationIsOn())
                 {
-                    if (!landscapeController.PatchExtentDataExists())
-                    {
-                        landscapeController.initialized = false;
-                        gameInitialized = false;
+                    //if (!landscapeController.PatchExtentDataExists())
+                    //{
+                    //    landscapeController.initialized = false;
+                    //    gameInitialized = false;
 
-                        Debug.Log(
-                            "StartSimulationRun()... ERROR landscapeController.patchExtents == null!... Quitting...");
-                        Debug.Log("  StartSimulationRun()... landscapeData == null?" +
-                                  (landscapeController.GetCurrentSimulationData() == null));
+                    //    Debug.Log(
+                    //        "StartSimulationRun()... ERROR landscapeController.patchExtents == null!... Quitting...");
+                    //    Debug.Log("  StartSimulationRun()... landscapeData == null?" +
+                    //              (landscapeController.GetCurrentSimulationData() == null));
 
-                        exitGame = true;
+                    //    exitGame = true;
 
-                        yield break;
-                    }
+                    //    yield break;
+                    //}
                 }
                 else
                 {
@@ -464,10 +464,12 @@ public class GameController : MonoBehaviour
         {
             cubes[0].SetWarmingRange(warmingRange);
             cubes[0].InitializeData(cubeDataList.data[idx].list[0]);
+            yield return null;
 
             if (settings.BuildForWeb)
             {
                 cubes[0].UpdateDataFromWeb(timeIdx, true, true);
+                yield return null;
             }
             else
             {
@@ -480,8 +482,10 @@ public class GameController : MonoBehaviour
             }
 
             cubes[0].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            yield return null;
             cubes[0].SetWarmingIdx(warmingIdx);
             cubes[0].SetWarmingDegrees(warmingDegrees);
+            yield return null;
 
             if (!settings.BuildForWeb)
                 cubes[0].FindParameterRanges();
@@ -497,13 +501,18 @@ public class GameController : MonoBehaviour
             cubeEndMonth = dataDates[dataDates.Count - 2].month;
             cubeEndDay = dataDates[dataDates.Count - 2].day;
 
+            yield return null;
+
             // Setup side-by-side comparison cube
             sideCubes[0].SetWarmingRange(warmingRange);
             sideCubes[0].InitializeData(cubeDataList.data[idx].list[0]);
 
+            yield return null;
+
             if (settings.BuildForWeb)
             {
-                sideCubes[0].UpdateDataFromWeb(timeIdx, true, true); ;
+                sideCubes[0].UpdateDataFromWeb(timeIdx, true, true);
+                yield return null;
             }
             else
             {
@@ -512,15 +521,18 @@ public class GameController : MonoBehaviour
                 {
                     sideCubes[0].ProcessDataTextAsset(cubeDataText, count);
                     count++;
+                    yield return null;
                 }
             }
 
             sideCubes[0].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            yield return null;
             sideCubes[0].SetWarmingIdx(warmingIdx);
             sideCubes[0].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[0].FindParameterRanges();
             sideCubes[0].SetModelDebugMode(debugModel);
+            yield return null;
 
             sideCubes[0].gameObject.SetActive(false);
         }
@@ -536,10 +548,12 @@ public class GameController : MonoBehaviour
         {
             cubes[1].SetWarmingRange(warmingRange);
             cubes[1].InitializeData(cubeDataList.data[idx].list[0]);
+            yield return null;
 
             if (settings.BuildForWeb)
             {
                 cubes[1].UpdateDataFromWeb(timeIdx, true, true);
+                yield return null;
             }
             else
             {
@@ -548,23 +562,27 @@ public class GameController : MonoBehaviour
                 {
                     cubes[1].ProcessDataTextAsset(cubeDataText, count);
                     count++;
+                    yield return null;
                 }
             }
 
             cubes[1].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            yield return null;
             cubes[1].SetWarmingIdx(warmingIdx);
             cubes[1].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 cubes[1].FindParameterRanges();
             cubes[1].SetModelDebugMode(debugModel);
+            yield return null;
 
             // Setup side-by-side comparison cube
             sideCubes[1].SetWarmingRange(warmingRange);
             sideCubes[1].InitializeData(cubeDataList.data[idx].list[0]);
+            yield return null;
 
             if (settings.BuildForWeb)
             {
-                //sideCubes[1].UpdateDataFromWeb(timeIdx);
+                //sideCubes[1].UpdateDataFromWeb(timeIdx);      // -- TO DO: NEEDED??
             }
             else
             {
@@ -573,15 +591,18 @@ public class GameController : MonoBehaviour
                 {
                     sideCubes[1].ProcessDataTextAsset(cubeDataText, count);
                     count++;
+                    yield return null;
                 }
             }
 
             sideCubes[1].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            yield return null;
             sideCubes[1].SetWarmingIdx(warmingIdx);
             sideCubes[1].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[1].FindParameterRanges();
             sideCubes[1].SetModelDebugMode(debugModel);
+            yield return null;
 
             sideCubes[1].gameObject.SetActive(false);
         }
@@ -597,10 +618,12 @@ public class GameController : MonoBehaviour
         {
             cubes[2].SetWarmingRange(warmingRange);
             cubes[2].InitializeData(cubeDataList.data[idx].list[0]);
+            yield return null;
 
             if (settings.BuildForWeb)
             {
                 cubes[2].UpdateDataFromWeb(timeIdx, true, true);
+                yield return null;
             }
             else
             {
@@ -609,18 +632,22 @@ public class GameController : MonoBehaviour
                 {
                     cubes[2].ProcessDataTextAsset(cubeDataText, count);
                     count++;
+                    yield return null;
                 }
             }
             cubes[2].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            yield return null;
             cubes[2].SetWarmingIdx(warmingIdx);
             cubes[2].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 cubes[2].FindParameterRanges();
             cubes[2].SetModelDebugMode(debugModel);
+            yield return null;
 
             // Setup side-by-side comparison cube
             sideCubes[2].SetWarmingRange(warmingRange);
             sideCubes[2].InitializeData(cubeDataList.data[idx].list[0]);
+            yield return null;
 
             if (settings.BuildForWeb)
             {
@@ -633,15 +660,18 @@ public class GameController : MonoBehaviour
                 {
                     sideCubes[2].ProcessDataTextAsset(cubeDataText, count);
                     count++;
+                    yield return null;
                 }
             }
 
             sideCubes[2].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            yield return null;
             sideCubes[2].SetWarmingIdx(warmingIdx);
             sideCubes[2].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[2].FindParameterRanges();
             sideCubes[2].SetModelDebugMode(debugModel);
+            yield return null;
 
             sideCubes[2].gameObject.SetActive(false);
         }
@@ -657,10 +687,12 @@ public class GameController : MonoBehaviour
         {
             cubes[3].SetWarmingRange(warmingRange);
             cubes[3].InitializeData(cubeDataList.data[idx].list[0]);
+            yield return null;
 
             if (settings.BuildForWeb)
             {
                 cubes[3].UpdateDataFromWeb(timeIdx, true, true);
+                yield return null;
             }
             else
             {
@@ -669,18 +701,22 @@ public class GameController : MonoBehaviour
                 {
                     cubes[3].ProcessDataTextAsset(cubeDataText, count);
                     count++;
+                    yield return null;
                 }
             }
             cubes[3].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            yield return null;
             cubes[3].SetWarmingIdx(warmingIdx);
             cubes[3].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 cubes[3].FindParameterRanges();
             cubes[3].SetModelDebugMode(debugModel);
+            yield return null;
 
             // Setup side-by-side comparison cube
             sideCubes[3].SetWarmingRange(warmingRange);
             sideCubes[3].InitializeData(cubeDataList.data[idx].list[0]);
+            yield return null;
 
             if (settings.BuildForWeb)
             {
@@ -693,15 +729,18 @@ public class GameController : MonoBehaviour
                 {
                     sideCubes[3].ProcessDataTextAsset(cubeDataText, count);
                     count++;
+                    yield return null;
                 }
             }
 
             sideCubes[3].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            yield return null;
             sideCubes[3].SetWarmingIdx(warmingIdx);
             sideCubes[3].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[3].FindParameterRanges();
             sideCubes[3].SetModelDebugMode(debugModel);
+            yield return null;
 
             sideCubes[3].gameObject.SetActive(false);
         }
@@ -717,10 +756,12 @@ public class GameController : MonoBehaviour
         {
             cubes[4].SetWarmingRange(warmingRange);
             cubes[4].InitializeData(cubeDataList.data[idx].list[0]);
+            yield return null;
 
             if (settings.BuildForWeb)
             {
                 cubes[4].UpdateDataFromWeb(timeIdx, true, true);
+                yield return null;
             }
             else
             {
@@ -729,18 +770,22 @@ public class GameController : MonoBehaviour
                 {
                     sideCubes[4].ProcessDataTextAsset(cubeDataText, count);
                     count++;
+                    yield return null;
                 }
             }
             cubes[4].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            yield return null;
             cubes[4].SetWarmingIdx(warmingIdx);
             cubes[4].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 cubes[4].FindParameterRanges();
             cubes[4].SetModelDebugMode(debugModel);
+            yield return null;
 
             // Setup side-by-side comparison cube
             sideCubes[4].SetWarmingRange(warmingRange);
             sideCubes[4].InitializeData(cubeDataList.data[idx].list[0]);
+            yield return null;
 
             if (settings.BuildForWeb)
             {
@@ -753,15 +798,18 @@ public class GameController : MonoBehaviour
                 {
                     sideCubes[4].ProcessDataTextAsset(cubeDataText, count);
                     count++;
+                    yield return null;
                 }
             }
 
             sideCubes[4].Initialize(etPrefab, shrubETPrefab, firePrefab);
+            yield return null;
             sideCubes[4].SetWarmingIdx(warmingIdx);
             sideCubes[4].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[4].FindParameterRanges();
             sideCubes[4].SetModelDebugMode(debugModel);
+            yield return null;
 
             sideCubes[4].gameObject.SetActive(false);
         }
@@ -778,10 +826,12 @@ public class GameController : MonoBehaviour
         {
             aggregateCubeController.SetWarmingRange(warmingRange);
             aggregateCubeController.InitializeData(aggregateCubeDataList.data[idx].list[0]);
+            yield return null;
 
             if (settings.BuildForWeb)
             {
                 aggregateCubeController.UpdateDataFromWeb(timeIdx, true, true);
+                yield return null;
             }
             else
             {
@@ -790,18 +840,22 @@ public class GameController : MonoBehaviour
                 {
                     aggregateCubeController.ProcessDataTextAsset(cubeDataText, counter);
                     counter++;
+                    yield return null;
                 }
             }
 
             aggregateCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
+            yield return null;
             aggregateCubeController.SetWarmingIdx(warmingIdx);
             aggregateCubeController.SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 aggregateCubeController.FindParameterRanges();
             aggregateCubeController.SetModelDebugMode(debugModel);
+            yield return null;
 
             aggregateSideCubeController.SetWarmingRange(warmingRange);
             aggregateSideCubeController.InitializeData(aggregateCubeDataList.data[idx].list[0]);
+            yield return null;
 
             if (settings.BuildForWeb)
             {
@@ -814,15 +868,18 @@ public class GameController : MonoBehaviour
                 {
                     aggregateSideCubeController.ProcessDataTextAsset(cubeDataText, counter);
                     counter++;
+                    yield return null;
                 }
             }
 
             aggregateSideCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
+            yield return null;
             aggregateSideCubeController.SetWarmingIdx(warmingIdx);
             aggregateSideCubeController.SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 aggregateSideCubeController.FindParameterRanges();
             aggregateSideCubeController.SetModelDebugMode(debugModel);
+            yield return null;
         }
         else
         {
@@ -835,6 +892,7 @@ public class GameController : MonoBehaviour
         List<UI_Message> messages = LoadMessagesFile(messagesFile, false);                 // Load messages
         List<UI_Message> fireMessages = LoadMessagesFile(fireMessagesFile, true);          // Load fire messages 
         List<UI_Message> currentMessages = new List<UI_Message>();                         // List of messages currently displayed
+        yield return null;
 
         GameObject[] cubeLabels = new GameObject[6];
         cubeLabels[0] = aggregateCubeController.cubeLabel;
@@ -844,11 +902,10 @@ public class GameController : MonoBehaviour
         messageManager.Initialize(messages, fireMessages, cubeLabels);                      // Create MessageManager
         messageManager.ClearMessages();
         messageManager.messagePanel.SetActive(true);
-
-        Debug.Log(name + ".FinishStarting()... Initialized messageManager...");
-
         yield return null;
 
+        Debug.Log(name + ".FinishStarting()... Initialized messageManager...");
+        
         if (landscapeController.updateDate)
         {
             int startIdx = 0;
@@ -885,7 +942,7 @@ public class GameController : MonoBehaviour
 
         /* Set Fire Dates for CAW Installation */
         fireDates = new Vector3[2];
-        fireDates[0] = new Vector3(7, 15, 1969);
+        fireDates[0] = new Vector3(7, 15, 1969);        // -- TO DO: Get from web!
         fireDates[1] = new Vector3(11, 20, 1988);
 
         fireFrames = new List<int>();
@@ -925,6 +982,7 @@ public class GameController : MonoBehaviour
             //Debug.Log("Added message #"+i+" at:" + message.GetDate()+ " :" + message.GetMessage());
         }
 
+        yield return null;
         messageYears = new List<int>();
 
         foreach (Vector3 date in messageDates)

@@ -95,14 +95,26 @@ public class WebManager : MonoBehaviour
     }
 
 
-    // Gets patch extents data 
-    public Coroutine RequestPatchData(Action<string> callback)
+    // Gets all patch extents data 
+    public Coroutine RequestAllPatchData(Action<string> callback)
     {
         //https://data.futuremtn.org/api/PatchData
         string uri = connectionStringBase + apiPathPatch;
 
         if (debug)
-            Debug.Log("RequestPatchData()... uri:  " + uri);
+            Debug.Log("RequestAllPatchData()... uri:  " + uri);
+
+        return this.StartCoroutine(this.GetRequest(uri, callback));
+    }
+
+    // Gets patch extents data 
+    public Coroutine RequestPatchData(int patchId, Action<string> callback)
+    {
+        //https://data.futuremtn.org/api/PatchData/{patchId}
+        string uri = connectionStringBase + apiPathPatch + "/" + patchId;
+
+        if (debug && debugDetailed)
+            Debug.Log("RequestPatchData()... /" + patchId+" uri:  " + uri);
 
         return this.StartCoroutine(this.GetRequest(uri, callback));
     }

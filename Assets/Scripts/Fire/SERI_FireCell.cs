@@ -230,16 +230,31 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
 
         if (m_extinguish && !extinguished)
         {
-            extinguished = true;
-
-            //if (m_fireBox != null)
-            //{
-            //    m_fireBox = null;
-
-                if (!returnedToPool)
-                    ReturnToPool();
-            //}
+            Extinguish();
         }
+    }
+
+    public void Extinguish()
+    {
+        extinguished = true;
+
+        //if (m_fireBox != null)
+        //{
+        //    m_fireBox = null;
+
+        //}
+
+        //for (int i = 0; i < fireList.Length; i++)
+        //{
+        //    SERI_FireVisualManager visualMgr = fireList[i].GetComponent<SERI_FireVisualManager>();
+        //    visualMgr.SetExtingushState();
+        //}
+
+        if (!returnedToPool)
+            ReturnToPool();
+
+        //Reset();
+
     }
 
     /// <summary>
