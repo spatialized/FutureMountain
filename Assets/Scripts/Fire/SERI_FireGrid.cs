@@ -573,7 +573,8 @@ public class SERI_FireGrid : MonoBehaviour
                     burningCells.Add(index, indexVector);
                 else if (contained && cell.extinguished)                            // Remove cell idx. if fire extinguished
                     burningCells.Remove(index);
-
+                else if(cell.combustionRate == 0)               // Added 12-8-24
+                    burningCells.Remove(index);
                 count++;
             }
         }

@@ -990,8 +990,6 @@ public class GameController : MonoBehaviour
 
     public void SetTimelineWaterData(string jsonString)
     {
-        //TimelineWaterData timelineWaterData = JsonUtility.FromJson<TimelineWaterData>("{\"years\":" + jsonString + "}");
-        //TimelineWaterData timelineWaterData = JsonConvert.DeserializeObject<TimelineWaterData>(jsonString);
         TimelineWaterData timelineWaterData = JsonConvert.DeserializeObject<TimelineWaterData>("{\"years\":" + jsonString + "}");
         PrecipByYear[] precipByYears = timelineWaterData.years;
 

@@ -1736,6 +1736,11 @@ public class CubeController : MonoBehaviour
     CubeData GetDataRow(int timeIdx)
     {
         //return dataRows[timeIdx - currentDataTimeIdx];
+        if (timeIdx > cubeData.Count)
+        {
+            Debug.Log("GetDataRow() ERROR... timeIdx: "+timeIdx+" cubeData.Count:"+cubeData.Count);
+            return null;
+        }
         return cubeData[timeIdx];
     }
 

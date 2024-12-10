@@ -22,6 +22,8 @@ public class WebManager : MonoBehaviour
     //private static string connectionStringBase = runOnLocal ? "http://localhost:5056/api/" : "http://192.168.0.32:5550/api/";
     private static string apiPathCubes = "cubedata/";
     private static string apiPathWater = "waterdata/";
+    private static string apiPathFire = "firedata/";
+    private static string apiPathPatch = "patchdata/";
     private static string apiPathDates = "dates/";
 
     private void Awake()
@@ -57,7 +59,7 @@ public class WebManager : MonoBehaviour
     }
 
 
-    // Gets precipitation data for given data index
+    // Gets precipitation data for given data warmingIdx
     public Coroutine RequestWaterData(int index, Action<string> callback)
     {
         string uri = connectionStringBase + apiPathWater + index;
@@ -68,7 +70,7 @@ public class WebManager : MonoBehaviour
         return this.StartCoroutine(this.GetRequest(uri, callback));
     }
 
-    // Gets precipitation data for given data index
+    // Gets precipitation data for whole timeline
     public Coroutine GetTimelineWaterData(Action<string> callback)
     {
         string uri = connectionStringBase + apiPathWater + "total";
@@ -79,7 +81,31 @@ public class WebManager : MonoBehaviour
         return this.StartCoroutine(this.GetRequest(uri, callback));
     }
 
-    
+
+    // Gets fire data for given warming warmingIdx
+    public Coroutine RequestFireData(int warmingIdx, Action<string> callback)
+    {
+        //https://data.futuremtn.org/api/FireData/2
+        string uri = connectionStringBase + apiPathFire + warmingIdx;
+
+        if (debug)
+            Debug.Log("RequestFireData()... uri:  " + uri);
+
+        return this.StartCoroutine(this.GetRequest(uri, callback));
+    }
+
+
+    // Gets patch extents data 
+    public Coroutine RequestPatchData(Action<string> callback)
+    {
+        //https://data.futuremtn.org/api/PatchData
+        string uri = connectionStringBase + apiPathPatch;
+
+        if (debug)
+            Debug.Log("RequestPatchData()... uri:  " + uri);
+
+        return this.StartCoroutine(this.GetRequest(uri, callback));
+    }
 
     // Unused
     public Coroutine GetDateIndex(int year, int month, int day, Action<string> callback)

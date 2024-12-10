@@ -141,6 +141,12 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
         fuelAmount = newFuelAmount;
         combustionRate = newCombustionRate;
 
+        if (combustionRate <= 0f)
+        {
+            Debug.Log("FireCell.Ignite().. Cell at gridLocation.x:"+gridLocation.x+" gridLocation.y:"+gridLocation.y+" WARNING Combustion rate == "+combustionRate+"!! Setting to 1f...");
+            combustionRate = 1f;
+        }
+
         if (combustImmediately)
             combustionRate = fuelAmount;
 

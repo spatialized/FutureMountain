@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Assets.Scripts.Models.Assets.Scripts.Models;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -27,6 +28,9 @@ public class LandscapeController : MonoBehaviour
     public bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
     public bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
     //public bool dataInitialized = false;                    // Data initialized flag (web version)
+
+    private bool loadFireDataFromFile = false;                
+    private bool loadPatchDataFromFile = false;
 
     private int immediateFireTimeThreshold;
     SimulationSettings settings;
@@ -375,11 +379,70 @@ public class LandscapeController : MonoBehaviour
 
     }
 
+    private void FinishUpdateFireDataFromWeb(string jsonString)
+    {
+        simulationData = new TerrainSimulationData[5];
+        List<SnowDataFrame> sDataList = new List<SnowDataFrame>(); // Snow data frames (unused)
+        List<FireDataFrame> fDataList = new List<FireDataFrame>(); // Fire data frames for curr. warming idx
+
+        //List<FireDataFrameJSONRecord> jDataList = JsonConvert.DeserializeObject<List<FireDataFrameJSONRecord>>(jsonString);
+        TimelineFireData timelineFireData = JsonConvert.DeserializeObject<TimelineFireData>("{\"years\":" + jsonString + "}");
+
+        if (timelineFireData != null)
+        {
+            FireDataFrameJSONRecord[] jDataArr = timelineFireData.years;
+
+            foreach (FireDataFrameJSONRecord jsonRecord in jDataArr)
+            {
+                FireDataFrameRecord frameRecord = ConvertFireDataJsonToFrameRecord(jsonRecord);
+                FireDataFrame frame = ConvertFireDataFrameRecordToFrame(frameRecord);
+                fDataList.Add(frame);
+            }
+
+            int warm = WarmingIndexToDegrees(warmingIdx);
+            simulationData[warmingIdx] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
+            currentSimulationData = simulationData[warmingIdx];
+        }
+        else
+        {
+            Debug.Log(("FinishUpdateFireDataFromWeb ERROR... deserialize failed"));
+        }
+    }
+
+    private void FinishUpdatePatchDataFromWeb(string jsonString)
+    {
+        PatchDataList patchDataList = JsonConvert.DeserializeObject<PatchDataList>("{\"patches\":" + jsonString + "}");
+        patchExtents = new Dictionary<int, PatchPointCollection>();
+
+        if (patchDataList != null)
+        {
+            PatchDataRecord[] jDataArr = patchDataList.patches;
+            foreach (PatchDataRecord jsonRecord in jDataArr)
+            {
+                patchExtents.Add(jsonRecord.patchID, jsonRecord.Data);
+            }
+        }
+        else
+        {
+            Debug.Log(("FinishUpdatePatchDataFromWeb ERROR... deserialize failed"));
+        }
+
+        //if(debug && debugDetailed)
+            Debug.Log("FinishUpdatePatchDataFromWeb finished... patchExtents.Count:"+patchExtents.Count);
+    }
+
     private WaterDataFrame ConvertWaterDataToWaterDataFrame(WaterData wd)
     {
         WaterDataFrame frame = new WaterDataFrame(wd.year, wd.month, wd.day, wd.precipitation, wd.qBase,
             wd.qWarm1, wd.qWarm2, wd.qWarm4, wd.qWarm6, wd.index);
         return frame;
+    }
+
+    private FireDataFrameRecord ConvertFireDataJsonToFrameRecord(FireDataFrameJSONRecord fdjr)
+    {
+        FireDataFrameRecord frameRecord = new FireDataFrameRecord(fdjr.day, fdjr.month, fdjr.year,
+            fdjr.gridHeight, fdjr.gridWidth, fdjr.DataList);
+        return frameRecord;
     }
 
     /// <summary>
@@ -547,14 +610,25 @@ public class LandscapeController : MonoBehaviour
                     Debug.Log("InitializeData()... Web Optimized");
 
                 //LoadPatchExtentsData();                                // Load patch extents from Resources
-                try
+                if (loadPatchDataFromFile)
                 {
-                    TextAsset patchExtTextAsset = (TextAsset)Resources.Load("PatchData/PatchData");
-                    patchExtents = JsonConvert.DeserializeObject<Dictionary<int, PatchPointCollection>>(patchExtTextAsset.text);
+                    try
+                    {
+                        TextAsset patchExtTextAsset = (TextAsset)Resources.Load("PatchData/PatchData");
+                        patchExtents =
+                            JsonConvert.DeserializeObject<Dictionary<int, PatchPointCollection>>(patchExtTextAsset
+                                .text);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.Log("InitializeData()... ERROR: " + e.Message);
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    Debug.Log("InitializeData()... ERROR: " + e.Message);
+                    Debug.Log("RequestPatchData()...");
+                    WebManager.Instance.RequestPatchData(this.FinishUpdatePatchDataFromWeb);
+
                 }
 
                 yield return null;
@@ -564,67 +638,71 @@ public class LandscapeController : MonoBehaviour
                 //LoadFireData();
                 //try
                 //{
-                    //TextAsset[] fireDataFrames = Resources.LoadAll<TextAsset>("FireData");
-                    //simulationData = new TerrainSimulationData[5];
+                //if (loadFireDataFromFile)
+                //{
+                //    TextAsset[] fireDataFrames = Resources.LoadAll<TextAsset>("FireData");
+                //    simulationData = new TerrainSimulationData[5];
 
-                    //int i = warmingIdx;
-                    //for (int i = 0; i < 5; i++)
-                    //{
-                        //List<SnowDataFrame> sDataList = new List<SnowDataFrame>(); // Snow data frames (unused)
-                        //List<FireDataFrame> fDataList = new List<FireDataFrame>(); // Fire data frames
-                        //List<FireDataFrameRecord> fDataRecordList = new List<FireDataFrameRecord>(); // Fire data frames
+                //    //int i = warmingIdx;
+                //    for (int i = 0; i < 5; i++)
+                //    {
+                //        List<SnowDataFrame> sDataList = new List<SnowDataFrame>(); // Snow data frames (unused)
+                //        List<FireDataFrame> fDataList = new List<FireDataFrame>(); // Fire data frames
+                //        List<FireDataFrameRecord> fDataRecordList = new List<FireDataFrameRecord>(); // Fire data frames
 
-                        //TextAsset fireFrameTextAsset = fireDataFrames[i]; // List<FireDataFrame> 
+                //        TextAsset fireFrameTextAsset = fireDataFrames[i]; // List<FireDataFrame> 
 
-                        //fDataRecordList = JsonConvert.DeserializeObject<List<FireDataFrameRecord>>(fireFrameTextAsset.text);
+                //        fDataRecordList =
+                //            JsonConvert.DeserializeObject<List<FireDataFrameRecord>>(fireFrameTextAsset.text);
 
-                        //yield return null;
+                //        yield return null;
 
-                        //foreach (FireDataFrameRecord rec in fDataRecordList)
-                        //{
-                        //    fDataList.Add(ConvertFireDataFrameRecordToFrame(rec));
-                        //    yield return null;
-                        //}
+                //        foreach (FireDataFrameRecord rec in fDataRecordList)
+                //        {
+                //            fDataList.Add(ConvertFireDataFrameRecordToFrame(rec));
+                //            yield return null;
+                //        }
 
-                        //fDataRecordList.Clear();
-                        //yield return null;
+                //        fDataRecordList.Clear();
+                //        yield return null;
 
-                        //int warm = 0;
-                        //switch (i)
-                        //{
-                        //    case 0:
-                        //        warm = 0;
-                        //        break;
-                        //    case 1:
-                        //        warm = 1;
-                        //        break;
-                        //    case 2:
-                        //        warm = 2;
-                        //        break;
-                        //    case 3:
-                        //        warm = 4;
-                        //        break;
-                        //    case 4:
-                        //        warm = 6;
-                        //        break;
-                        //    default:
-                        //        warm = 0;
-                        //        break;
-                        //}
+                //        int warm = 0;
+                //        switch (i)
+                //        {
+                //            case 0:
+                //                warm = 0;
+                //                break;
+                //            case 1:
+                //                warm = 1;
+                //                break;
+                //            case 2:
+                //                warm = 2;
+                //                break;
+                //            case 3:
+                //                warm = 4;
+                //                break;
+                //            case 4:
+                //                warm = 6;
+                //                break;
+                //            default:
+                //                warm = 0;
+                //                break;
+                //        }
 
-                        //simulationData[i] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
-                        //currentSimulationData = simulationData[i];
+                //        simulationData[i] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
+                //        currentSimulationData = simulationData[i];
 
-                        //Debug.Log("Loading simulation data : "+i);
+                //        Debug.Log("Loading simulation data : " + i);
 
-                        //yield return null;
-                    //}
+                //        yield return null;
+                //    }
+                //}
                 //}
                 //catch (Exception ex)
                 //{
                 //    Debug.Log("LoadLandscapeData()... ERROR ex: " + ex.Message);
                 //}
-                
+
                 //ImportWaterData();
                 //try
                 //{
@@ -635,12 +713,12 @@ public class LandscapeController : MonoBehaviour
                 //{
                 //    Debug.Log("InitializeData()... waterData ERROR: " + e.Message);
                 //}
-                //return updateDate;
 
-                GetWaterRangesFromWeb();    // -- TO DO
                 //CalculateWaterRanges();                       // Calculate streamflow range
 
-                waterStartYear = 1942;//waterData[0].GetYear();
+                GetWaterRangesFromWeb();    // -- TO DO
+                waterStartYear = 1941;//waterData[0].GetYear();
+
                 updateDate = false;
 
                 dataFormatted = true;
@@ -674,30 +752,49 @@ public class LandscapeController : MonoBehaviour
     {
         int i = warmingIdx;
 
-        //TextAsset[] fireDataFrames = Resources.LoadAll<TextAsset>("FireData");
-        //TextAsset fireFrameTextAsset = fireDataFrames[i]; // List<FireDataFrame> 
-        TextAsset fireFrameTextAsset = Resources.Load<TextAsset>("FireData/fireDataList_"+i); // List<FireDataFrame> 
-
-        simulationData = new TerrainSimulationData[5];
-
-        //for (int i = 0; i < 5; i++)
-        //{
-        List<SnowDataFrame> sDataList = new List<SnowDataFrame>(); // Snow data frames (unused)
-        List<FireDataFrame> fDataList = new List<FireDataFrame>(); // Fire data frames
-        List<FireDataFrameRecord> fDataRecordList = new List<FireDataFrameRecord>(); // Fire data frames
-
-
-        fDataRecordList = JsonConvert.DeserializeObject<List<FireDataFrameRecord>>(fireFrameTextAsset.text);
-
-        foreach (FireDataFrameRecord rec in fDataRecordList)
+        if (loadFireDataFromFile)
         {
-            fDataList.Add(ConvertFireDataFrameRecordToFrame(rec));
+            TextAsset fireFrameTextAsset =
+                Resources.Load<TextAsset>("FireData/fireDataList_" + i); // List<FireDataFrame> 
+
+            simulationData = new TerrainSimulationData[5];
+
+            //for (int i = 0; i < 5; i++)
+            //{
+            List<SnowDataFrame> sDataList = new List<SnowDataFrame>(); // Snow data frames (unused)
+            List<FireDataFrame> fDataList = new List<FireDataFrame>(); // Fire data frames
+            List<FireDataFrameRecord> fDataRecordList = new List<FireDataFrameRecord>(); // Fire data frames
+
+
+            fDataRecordList = JsonConvert.DeserializeObject<List<FireDataFrameRecord>>(fireFrameTextAsset.text);
+
+            foreach (FireDataFrameRecord rec in fDataRecordList)
+            {
+                fDataList.Add(ConvertFireDataFrameRecordToFrame(rec));
+            }
+
+            fDataRecordList.Clear();
+            
+            int warm = WarmingIndexToDegrees(i);
+            
+
+            simulationData[i] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
+            currentSimulationData = simulationData[i];
+        }
+        else // Load from web
+        {
+            WebManager.Instance.RequestFireData(warmingIdx, this.FinishUpdateFireDataFromWeb);
         }
 
-        fDataRecordList.Clear();
+            
+        Debug.Log("LoadLandscapeDataForWarmingIdx()... Loading simulation data : " + i);
+    }
 
-        int warm = 0;
-        switch (i)
+
+    private static int WarmingIndexToDegrees(int idx)
+    {
+        int warm;
+        switch (idx)
         {
             case 0:
                 warm = 0;
@@ -719,10 +816,7 @@ public class LandscapeController : MonoBehaviour
                 break;
         }
 
-        simulationData[i] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
-        currentSimulationData = simulationData[i];
-
-        Debug.Log("LoadLandscapeDataForWarmingIdx()... Loading simulation data : " + i);
+        return warm;
     }
 
     /// <summary>
@@ -859,6 +953,12 @@ public class LandscapeController : MonoBehaviour
 
         foreach(int patchID in cell.patchIDList)
         {
+            if (patchID == -1)
+            {
+                Debug.Log("AddBurnedCell()... WARNING patchID == -1!  Skipping...");
+                continue;
+            }
+
             var patchCollection = patchExtents[patchID];
 
             foreach (PatchPoint point in patchCollection.GetPoints())                   // Loop over points in collection
@@ -1231,6 +1331,9 @@ public class LandscapeController : MonoBehaviour
     {
         RiverLevelMin = 100000f;
         RiverLevelMax = -100000f;
+
+        RiverLevelMin = 0f;
+        RiverLevelMax = 2500f;
 
         //private void FinishUpdateWaterDataFromWeb(string jsonString)
         //{
@@ -1649,7 +1752,7 @@ public class LandscapeController : MonoBehaviour
     /// <param name="dataMonth">First month.</param>
     private FireDataFrame BuildFireDataFrame(PatchDataMonth dataMonth)
     {
-        Terrain t = terrain;
+        //Terrain t = terrain;
         List<PatchDataFrame> frames = dataMonth.GetFrames();
 
         int month = dataMonth.GetMonth();
@@ -2972,158 +3075,158 @@ public class LandscapeController : MonoBehaviour
 }
 
 #region Classes
-/// <summary>
-/// Patch point collection.
-/// </summary>
-[Serializable]
-public class PatchPointCollection
-{
-    private int patchID;
-    List<PatchPoint> points;                // Points in collection
+///// <summary>
+///// Patch point collection.
+///// </summary>
+//[Serializable]
+//public class PatchPointCollection
+//{
+//    private int patchID;
+//    List<PatchPoint> points;                // Points in collection
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="T:LandscapeController.PatchPointCollection"/> class.
-    /// </summary>
-    public PatchPointCollection(int newPatchID)
-    {
-        patchID = newPatchID;
-        points = new List<PatchPoint>();
-    }
+//    /// <summary>
+//    /// Initializes a new instance of the <see cref="T:LandscapeController.PatchPointCollection"/> class.
+//    /// </summary>
+//    public PatchPointCollection(int newPatchID)
+//    {
+//        patchID = newPatchID;
+//        points = new List<PatchPoint>();
+//    }
 
-    /// <summary>
-    /// Adds point to collection.
-    /// </summary>
-    /// <param name="newPoint">New point.</param>
-    public void AddPoint(PatchPoint newPoint)
-    {
-        points.Add(newPoint);
-    }
+//    /// <summary>
+//    /// Adds point to collection.
+//    /// </summary>
+//    /// <param name="newPoint">New point.</param>
+//    public void AddPoint(PatchPoint newPoint)
+//    {
+//        points.Add(newPoint);
+//    }
 
-    /// <summary>
-    /// Adds point to collection.
-    /// </summary>
-    /// <param name="newPoint">New point.</param>
-    public bool ContainsPoint(PatchPoint newPoint)
-    {
-        return points.Contains(newPoint);
-    }
+//    /// <summary>
+//    /// Adds point to collection.
+//    /// </summary>
+//    /// <param name="newPoint">New point.</param>
+//    public bool ContainsPoint(PatchPoint newPoint)
+//    {
+//        return points.Contains(newPoint);
+//    }
 
-    /// <summary>
-    /// Clears the points.
-    /// </summary>
-    public void ClearPoints()
-    {
-        points = new List<PatchPoint>();
-    }
+//    /// <summary>
+//    /// Clears the points.
+//    /// </summary>
+//    public void ClearPoints()
+//    {
+//        points = new List<PatchPoint>();
+//    }
 
-    /// <summary>
-    /// Gets the points.
-    /// </summary>
-    /// <returns>The points.</returns>
-    public List<PatchPoint> GetPoints()
-    {
-        return points;
-    }
+//    /// <summary>
+//    /// Gets the points.
+//    /// </summary>
+//    /// <returns>The points.</returns>
+//    public List<PatchPoint> GetPoints()
+//    {
+//        return points;
+//    }
 
-    /// <summary>
-    /// Gets the patch identifier.
-    /// </summary>
-    /// <returns>The patch identifier.</returns>
-    public int GetPatchID()
-    {
-        return patchID;
-    }
-}
+//    /// <summary>
+//    /// Gets the patch identifier.
+//    /// </summary>
+//    /// <returns>The patch identifier.</returns>
+//    public int GetPatchID()
+//    {
+//        return patchID;
+//    }
+//}
 
-/// <summary>
-/// Point on terrain splatmap associated with a patch ID.
-/// </summary>
-[Serializable]
-public class PatchPoint
-{
-    private int patchID;
-    private Vector2 location;           // Patch grid location (col, row in data file)
-    private Vector2 fireLocation;       // Fire grid location
-    private Vector2 alphamapLoc;        // Alphamap grid location
-    private Vector3 utm;                // UTM location
+///// <summary>
+///// Point on terrain splatmap associated with a patch ID.
+///// </summary>
+//[Serializable]
+//public class PatchPoint
+//{
+//    private int patchID;
+//    private Vector2 location;           // Patch grid location (col, row in data file)
+//    private Vector2 fireLocation;       // Fire grid location
+//    private Vector2 alphamapLoc;        // Alphamap grid location
+//    private Vector3 utm;                // UTM location
         
-    /// <summary>
-    /// Initializes a new instance of the <see cref="T:LandscapeController.PatchPoint"/> class.
-    /// </summary>
-    /// <param name="newPatchID">New patch identifier.</param>
-    /// <param name="newLocation">New location.</param>
-    /// <param name="newUTM">New utm.</param>
-    public PatchPoint(int newPatchID, Vector2 newLocation, Vector2 newFireLocation, Vector2 newAlphamapLocation, Vector3 newUTM)
-    {
-        patchID = newPatchID;
-        location = newLocation;
-        fireLocation = newFireLocation;
-        alphamapLoc = newAlphamapLocation;
-        utm = newUTM;
-    }
+//    /// <summary>
+//    /// Initializes a new instance of the <see cref="T:LandscapeController.PatchPoint"/> class.
+//    /// </summary>
+//    /// <param name="newPatchID">New patch identifier.</param>
+//    /// <param name="newLocation">New location.</param>
+//    /// <param name="newUTM">New utm.</param>
+//    public PatchPoint(int newPatchID, Vector2 newLocation, Vector2 newFireLocation, Vector2 newAlphamapLocation, Vector3 newUTM)
+//    {
+//        patchID = newPatchID;
+//        location = newLocation;
+//        fireLocation = newFireLocation;
+//        alphamapLoc = newAlphamapLocation;
+//        utm = newUTM;
+//    }
 
-    /// <summary>
-    /// Gets the patch identifier.
-    /// </summary>
-    /// <returns>The patch identifier.</returns>
-    public int GetPatchID()
-    {
-        return patchID;
-    }
+//    /// <summary>
+//    /// Gets the patch identifier.
+//    /// </summary>
+//    /// <returns>The patch identifier.</returns>
+//    public int GetPatchID()
+//    {
+//        return patchID;
+//    }
 
-    ///// <summary>
-    ///// Gets the patch grid location.
-    ///// </summary>
-    ///// <returns>The location.</returns>
-    //public Vector2 GetLocation()
-    //{
-    //    return location;
-    //}
+//    ///// <summary>
+//    ///// Gets the patch grid location.
+//    ///// </summary>
+//    ///// <returns>The location.</returns>
+//    //public Vector2 GetLocation()
+//    //{
+//    //    return location;
+//    //}
 
-    /// <summary>
-    /// Gets the fire grid location.
-    /// </summary>
-    /// <returns>The location.</returns>
-    public Vector2 GetFireGridLocation()
-    {
-        return fireLocation;
-    }
+//    /// <summary>
+//    /// Gets the fire grid location.
+//    /// </summary>
+//    /// <returns>The location.</returns>
+//    public Vector2 GetFireGridLocation()
+//    {
+//        return fireLocation;
+//    }
 
-    /// <summary>
-    /// Gets the alphamap location.
-    /// </summary>
-    /// <returns>The location.</returns>
-    public Vector2 GetAlphamapLocation()
-    {
-        return alphamapLoc;
-    }
+//    /// <summary>
+//    /// Gets the alphamap location.
+//    /// </summary>
+//    /// <returns>The location.</returns>
+//    public Vector2 GetAlphamapLocation()
+//    {
+//        return alphamapLoc;
+//    }
 
-    /// <summary>
-    /// Gets X coord.
-    /// </summary>
-    /// <returns>The x.</returns>
-    public int X()
-    {
-        return (int)location.x;
-    }
-    /// <summary>
-    /// Gets Y coord.
-    /// </summary>
-    /// <returns>The y.</returns>
-    public int Y()
-    {
-        return (int)location.y;
-    }
+//    /// <summary>
+//    /// Gets X coord.
+//    /// </summary>
+//    /// <returns>The x.</returns>
+//    public int X()
+//    {
+//        return (int)location.x;
+//    }
+//    /// <summary>
+//    /// Gets Y coord.
+//    /// </summary>
+//    /// <returns>The y.</returns>
+//    public int Y()
+//    {
+//        return (int)location.y;
+//    }
 
-    /// <summary>
-    /// Gets the UTM Location.
-    /// </summary>
-    /// <returns>The UTML ocation.</returns>
-    public Vector3 GetUTMLocation()
-    {
-        return utm;
-    }
-}
+//    /// <summary>
+//    /// Gets the UTM Location.
+//    /// </summary>
+//    /// <returns>The UTML ocation.</returns>
+//    public Vector3 GetUTMLocation()
+//    {
+//        return utm;
+//    }
+//}
 
 /// <summary>
 /// Data point on fire grid associated with a PatchPoint.
@@ -3204,7 +3307,7 @@ public class FireDataPoint : IComparable<FireDataPoint>
         return spread;
     }
 
-    public float GetIter()
+    public int GetIter()
     {
         return iter;
     }
@@ -3227,7 +3330,7 @@ public class FireDataPoint : IComparable<FireDataPoint>
 [Serializable]
 public class FireDataPointCollection
 {
-    List<FireDataPoint> points;
+    public List<FireDataPoint> points;
 
     public FireDataPointCollection()
     {
@@ -3302,6 +3405,58 @@ public class FireDataFrame
     public List<FireDataPoint> GetDataList()
     {
         return dataList;
+    }
+
+    public void OptimizeData()
+    {
+        FireDataPointCollection[,] newDataGrid = new FireDataPointCollection[gridWidth, gridHeight];
+        List<FireDataPoint> newDataList = new List<FireDataPoint>();
+
+        for (int x = 0; x < gridWidth; x++)
+        {
+            for (int y = 0; y < gridHeight; y++)
+            {
+                int iter = 0;
+                float size = 0f;
+                int patchId = -1;
+                FireDataPointCollection coll = dataGrid[x, y];
+                if (coll == null)
+                {
+                    Debug.Log("OptimizeData() WARNING coll == null?: " + (coll == null));
+
+                    coll = new FireDataPointCollection();
+                }
+
+                if (coll.GetPoints() == null)
+                {
+                    Debug.Log("coll.GetPoints() == null? " + (coll.GetPoints() == null));
+                    coll.points = new List<FireDataPoint>();
+                }
+
+                foreach (FireDataPoint p in coll.GetPoints())
+                {
+                    iter += p.GetIter();
+
+                    float fireSizeFactor = 5f;                  // -- TO DO: MOVE TO SETTINGS
+                    size += p.GetSpread() * fireSizeFactor;
+
+                    patchId = p.patchId;
+                }
+
+                if (patchId == -1)
+                {
+                    Debug.Log("NO PatchId");
+                }
+                FireDataPointCollection newColl = new FireDataPointCollection();
+                FireDataPoint fdp = new FireDataPoint(new Vector2(x, y), patchId, size, iter);
+                newColl.AddPoint(fdp);
+                newDataList.Add(fdp);
+                newDataGrid[x, y] = newColl;
+            }
+        }
+
+        dataGrid = newDataGrid;
+        dataList = newDataList;
     }
 
 
@@ -3411,18 +3566,12 @@ public class FireDataFrameRecord
 
         foreach (FireDataPoint fdp in dataList)                                            // Loop over points in collection
         {
-            int gridX = (int)fdp.GetGridPosition().x;      //(int)point.GetFireGridLocation().x;
-            int gridY = (int)fdp.GetGridPosition().y;      //(int)point.GetFireGridLocation().y;
-
-            //if (firePointGrid[gridX, gridY] == null)
-            //{
-            //    firePointGrid[gridX, gridY] = new FireDataPointCollection();
-            //    firePointGrid[gridX, gridY].AddPoint(fdp);
-            //}
-            //else
-            //{
+            if (Mathf.Abs(fdp.spread) > 0.0001) // Ignore if fire didn't spread to patch
+            {
+                int gridX = (int)fdp.GetGridPosition().x; //(int)point.GetFireGridLocation().x;
+                int gridY = (int)fdp.GetGridPosition().y; //(int)point.GetFireGridLocation().y;
                 firePointGrid[gridX, gridY].AddPoint(fdp);
-            //}
+            }
         }
 
         return firePointGrid;
