@@ -19,14 +19,14 @@ public class LandscapeController : MonoBehaviour
 {
     /* Debugging */
     [Header("Debugging")]
-    public bool debug = true;
-    public bool debugFire = false;
-    public bool debugDetailed = true;
+    private bool debug = true;
+    private bool debugFire = false;
+    private bool debugDetailed = true;
 
     #region Fields
     /* Settings */
-    public bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
-    public bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
+    private bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
+    private bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
     //public bool dataInitialized = false;                    // Data initialized flag (web version)
 
     private bool loadFireDataFromFile = false;                
@@ -572,7 +572,7 @@ public class LandscapeController : MonoBehaviour
 
         activeBurnCells = new List<SERI_FireCell>();
 
-        if (landscapeSimulationOn)
+        if (landscapeSimulationOn && !landscapeSimulationWeb)
             SetSnowVisibility(true);
 
         UpdateLandscape(curTimeIdx, curYear, curMonth, curDay, timeStep, false);
@@ -595,13 +595,16 @@ public class LandscapeController : MonoBehaviour
             {
                 //LoadDataWeb();                         // Loads snow and fire data frames (Web Version)
                 if (debug)
-                    Debug.Log("InitializeData()... Web Optimized");
+                    Debug.Log("InitializeData()... Data from web... ");
 
                 //LoadPatchExtentsData();                                // Load patch extents from Resources
                 if (loadPatchDataFromFile)
                 {
                     try
                     {
+                        if (debug)
+                            Debug.Log("loadPatchDataFromFile... true");
+
                         TextAsset patchExtTextAsset = (TextAsset)Resources.Load("PatchData/PatchData");
                         patchExtents =
                             JsonConvert.DeserializeObject<Dictionary<int, PatchPointCollection>>(patchExtTextAsset

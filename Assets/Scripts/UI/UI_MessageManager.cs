@@ -102,7 +102,6 @@ public class UI_MessageManager
             {
                 if (curTimeIdx == message.GetTimeIdx())
                 {
-                    Debug.Log("3 Current warmingIdx:" + warmingDegrees);
                     if (message.AppliesToWarmingDegrees(warmingDegrees))
                         DisplayMessage(message, curTimeIdx);
                 }

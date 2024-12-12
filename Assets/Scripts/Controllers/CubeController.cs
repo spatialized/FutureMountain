@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 
 /// <summary>
 /// Cube controller.
@@ -48,6 +49,9 @@ public class CubeController : MonoBehaviour
     public GameObject cubeObject { get; set; }               // Cube base containing all cube parts (except glass)
     public GameObject cubeLabel { get; set; }                // Cube label
     private List<ParticleSystem.EmissionModule> emissions;                // List of all ET emitting objects in cube
+    public GameObject housePrefab;             // House to spawn
+
+    private GameObject houseObj;
 
     /* Vegetation Prefabs */
     [Header("Vegetation Prefabs")]
@@ -520,6 +524,8 @@ public class CubeController : MonoBehaviour
         cubeObject = transform.Find("CubeObject").gameObject;              // Get (cube) base object
         Assert.IsNotNull(cubeObject);
 
+        //Assert.IsNotNull(housePrefab);
+
         string terrainName = "Terrain_" + name.Substring(name.Length == 5 ? name.Length - 1 : name.Length - 6);
         //Debug.Log("" + name + ".SetupObjects()... Looking for terrainName: " + terrainName + " name: " + name);
 
@@ -573,8 +579,10 @@ public class CubeController : MonoBehaviour
         etPrefab = newETPrefab;
         shrubETPrefab = newShrubETPrefab;
         firePrefab = newFirePrefab;
-        SetFirePrefab(firePrefab);
 
+        SetFirePrefab(firePrefab);
+        if(housePrefab)
+            SetupHouse();
         SetupCube();
 
         /* Initialize Geometry */
@@ -672,6 +680,21 @@ public class CubeController : MonoBehaviour
 
         if (isSideCube)
             cubeObject.SetActive(true);
+    }
+
+    /// <summary>
+    /// Sets up the house
+    /// </summary>
+    private void SetupHouse()
+    {
+        Vector3 loc = new Vector3(8.6f, 7f, -20.4f);
+        houseObj = Instantiate(housePrefab, Vector3.zero, housePrefab.transform.rotation, cubeObject.transform);
+        houseObj.transform.localPosition = loc;
+
+        //GameObject rootsPrefab = rootsPrefabs[i];
+        //float rootsY = settings.RootsYOffsetFactor;
+        //Vector3 rootLocation = new Vector3(firLocations[treeID].x, firLocations[treeID].y + rootsY, firLocations[treeID].z);
+        //GameObject newRoots = Instantiate(rootsPrefab, rootLocation, rootsPrefab.transform.rotation, parent);       // Create root object from prefab
     }
 
     /// <summary>
