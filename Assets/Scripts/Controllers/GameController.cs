@@ -76,7 +76,7 @@ public class GameController : MonoBehaviour
     private bool landscapeIsSetup = false;          // Landscape data prepared state
     private bool endSimulation = false;             // End simulation flag
     private bool exitGame = false;                  // Exit game flag
-    //private bool showResumeButton = false;          // Show resume button when paused 
+    private bool showResumeButton = false;          // Show resume button when paused 
 
     [Header("Messages")]
     public TextAsset messagesFile;                  // UI Messages text file
@@ -165,8 +165,8 @@ public class GameController : MonoBehaviour
     public GameObject cube5Object;                            // Cube 5 Object 
     public GameObject cube5Object_Side;                       // Side Cube 5 Object 
 
-    public GameObject cube1Stats;                             // Side-by-Side Mode Cube #1 statistics
-    public GameObject cube2Stats;                             // Side-by-Side Mode Cube #2 statistics
+    public GameObject cubeLStats;                             // Side-by-Side Mode Cube #1 statistics
+    public GameObject cubeRStats;                             // Side-by-Side Mode Cube #2 statistics
     public GameObject warmingLevelText;                       // Side-by-Side Mode Warming Level Text
 
     /* Controllers */
@@ -235,7 +235,7 @@ public class GameController : MonoBehaviour
 
     /* UI Text */
     private bool showControls = true;                         // Show controls setting
-    private bool displayModel = false;                        // Display model data setting
+    public bool displayModel = false;                        // Display model data setting
     private bool storyMode = true;                            // Show "story" messages
 
     #endregion
@@ -1218,14 +1218,14 @@ public class GameController : MonoBehaviour
         CubeController cube = cubes[idx];
         CubeController sideCube = sideCubes[idx];
 
-        cube.EnterSideBySide(cube1Stats);
+        cube.EnterSideBySide(timeIdx, cubeLStats);
 
         sideCube.gameObject.SetActive(true);
 
         sideCube.StartSimulation(timeIdx, timeStep);
         sideCube.messageManager = messageManager;
 
-        sideCube.EnterSideBySide(cube2Stats);
+        sideCube.EnterSideBySide(timeIdx, cubeRStats);
 
         warmingKnob1Object.SetActive(true);
         warmingKnob1Slider.enabled = true;
@@ -1238,13 +1238,13 @@ public class GameController : MonoBehaviour
 
         if (displayModel)
         {
-            cube1Stats.SetActive(true);
-            cube2Stats.SetActive(true);
+            cubeLStats.SetActive(true);
+            cubeRStats.SetActive(true);
         }
         else
         {
-            cube1Stats.SetActive(false);
-            cube2Stats.SetActive(false);
+            cubeLStats.SetActive(false);
+            cubeRStats.SetActive(false);
         }
         
         sideBySideCanvas.enabled = true;
@@ -1274,12 +1274,15 @@ public class GameController : MonoBehaviour
         warmingKnobObject.SetActive(true);
         //warmingKnobSlider.enabled = false;
 
-        cube1Stats.SetActive(false);
-        cube2Stats.SetActive(false);
+        cubeLStats.SetActive(false);
+        cubeRStats.SetActive(false);
         warmingLevelText.SetActive(false);
 
         foreach (CubeController cube in cubes)
         {
+            if(displayModel)
+                cube.ShowStatistics();
+
             cube.ResetStatsPanel();
         }
 
@@ -1798,19 +1801,19 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void OnGUI()
     {
-        //if (paused)
-        //{
-        //    if (gameStarted)
-        //    {
-        //        if (showResumeButton)
-        //        {
-        //            if (GUI.Button(new Rect(Screen.width / 2 - 60, Screen.height / 2, 150, 100), "Resume..."))
-        //            {
-        //                SetPaused(false);
-        //            }
-        //        }
-        //    }
-        //}
+        if (paused)
+        {
+            if (gameStarted)
+            {
+                if (showResumeButton)
+                {
+                    if (GUI.Button(new Rect(Screen.width / 2 - 60, Screen.height / 2, 150, 100), "Resume..."))
+                    {
+                        SetPaused(false);
+                    }
+                }
+            }
+        }
     }
 
     /// <summary>
@@ -2174,7 +2177,8 @@ public class GameController : MonoBehaviour
         endButtonObject.SetActive(!newState);
         seasonsToggleObject.SetActive(!newState);
         flyCameraButtonObject.SetActive(!newState);
-        cubesToggleObject.SetActive(!newState);
+        if(cubesToggleObject)
+            cubesToggleObject.SetActive(!newState);
 
         foreach (CubeController cube in cubes)
         {
@@ -2505,7 +2509,8 @@ public class GameController : MonoBehaviour
         showModelDataToggleObject.GetComponent<Toggle>().isOn = false;
         sideBySideModeToggleObject.GetComponent<Toggle>().isOn = false;
         flyCameraButtonObject.GetComponent<Toggle>().isOn = false;
-        cubesToggleObject.GetComponent<Toggle>().isOn = true;
+        if(cubesToggleObject)
+            cubesToggleObject.GetComponent<Toggle>().isOn = true;
         camControl.SetCameraFlyMode(false);
 
         ToggleModelDisplay(showModelDataToggleObject);
@@ -3029,12 +3034,13 @@ public class GameController : MonoBehaviour
         sideBySideModeToggleObject.GetComponent<Toggle>().isOn = sideBySideMode;
 
         flyCameraButtonObject.GetComponent<Toggle>().isOn = false;
-        cubesToggleObject.GetComponent<Toggle>().isOn = true;
+        if(cubesToggleObject)
+            cubesToggleObject.GetComponent<Toggle>().isOn = true;
 
         Assert.IsNotNull(endButtonObject);
         Assert.IsNotNull(seasonsToggleObject);
         Assert.IsNotNull(showModelDataToggleObject);
-        Assert.IsNotNull(showControlsToggleObject);
+        //Assert.IsNotNull(showControlsToggleObject);
         Assert.IsNotNull(sideBySideModeToggleObject);
         Assert.IsNotNull(storyModeToggleObject);
         Assert.IsNotNull(flyCameraButtonObject);
@@ -3100,10 +3106,10 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(aggregateCubeObject);
         Assert.IsNotNull(aggregateCubeObject_Side);
 
-        Assert.IsNotNull(cube1Stats);
-        Assert.IsNotNull(cube2Stats);
-        cube1Stats.SetActive(false);
-        cube2Stats.SetActive(false);
+        Assert.IsNotNull(cubeLStats);
+        Assert.IsNotNull(cubeRStats);
+        cubeLStats.SetActive(false);
+        cubeRStats.SetActive(false);
 
         Assert.IsNotNull(warmingLevelText);
 
@@ -3123,7 +3129,20 @@ public class GameController : MonoBehaviour
         sideCubes[4] = cube5Object_Side.GetComponent<CubeController>() as CubeController;
         aggregateCubeController = aggregateCubeObject.GetComponent<CubeController>() as CubeController;
         aggregateSideCubeController = aggregateCubeObject_Side.GetComponent<CubeController>() as CubeController;
-    }
+
+        //foreach (var cube in cubes)
+        //{
+        //    cube.gameObject.SetActive(false);
+        //}
+        
+        //foreach (var cube in sideCubes)
+        //{
+        //    cube.gameObject.SetActive(false);
+        //}
+
+        //aggregateCubeController.gameObject.SetActive(false);
+        //aggregateSideCubeController.gameObject.SetActive(false);
+}
 
     private void InitializeSideBySideCubes()
     {

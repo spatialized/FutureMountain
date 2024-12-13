@@ -38,11 +38,11 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     private int resolution;
     private static float widthFactor = 0.5f;                        // Timeline width factor
-    private static float xOffset = 282f;                            // Timeline x offset
-    private static float yOffset = 22f;                             // Timeline y offset
-    private static float xOffsetFactor = 0f;  //2f;                      // Timeline x offset
-    private static float yOffsetFactor = 1f;                        // Timeline y offset
-    private float dateYOffset = yOffset * 0.45f;                    // Offset of date text from bottom of screen
+    //private static float xOffset = 282f;                            // Timeline x offset
+    private static float yOffset = 50f;                             // Timeline y offset
+    //private static float xOffsetFactor = 0f;  //2f;                 // Timeline x offset factor
+    //private static float yOffsetFactor = 1f;                        // Timeline y offset factor
+    private float dateYOffset = yOffset * 0.5f;                    // Offset of date text from bottom of screen
     private float fireYOffset = yOffset * 4f;                       // Offset of event icons from bottom of screen
     private float messageYOffset = yOffset * 2.95f;                 // Offset of event icons from bottom of screen
 
@@ -87,7 +87,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         Assert.IsNotNull(uiTimelineDateTextField);
 
         Vector3 pos = transform.position;
-        pos.y = yOffset * 1.85f;
+        pos.y = yOffset;
         //pos.y = initYOffset;
         transform.position = pos;
 
@@ -640,11 +640,11 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         }
 
 
-        IEnumerator CoSetIconPosition(GameObject posObject, GameObject iconObject, float yOffset, string prefix)
+        IEnumerator CoSetIconPosition(GameObject posObject, GameObject iconObject, float vertOffset, string prefix)
         {
             yield return new WaitForEndOfFrame();
             //iconObject.transform.position = posObject.transform.position;
-            iconObject.transform.position = new Vector3(posObject.transform.position.x, yOffset);
+            iconObject.transform.position = new Vector3(posObject.transform.position.x, vertOffset);
             Debug.Log("CoSetIconPosition()... " + prefix + " Setting new position to: " + posObject.transform.position);
         }
 

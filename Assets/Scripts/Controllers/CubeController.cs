@@ -523,11 +523,8 @@ public class CubeController : MonoBehaviour
 
         cubeObject = transform.Find("CubeObject").gameObject;              // Get (cube) base object
         Assert.IsNotNull(cubeObject);
-
-        //Assert.IsNotNull(housePrefab);
-
+        
         string terrainName = "Terrain_" + name.Substring(name.Length == 5 ? name.Length - 1 : name.Length - 6);
-        //Debug.Log("" + name + ".SetupObjects()... Looking for terrainName: " + terrainName + " name: " + name);
 
         terrain = cubeObject.transform.Find(terrainName).GetComponent<Terrain>();
         fireManager = terrain.transform.GetComponentInChildren<SERI_FireManager>() as SERI_FireManager;
@@ -561,7 +558,6 @@ public class CubeController : MonoBehaviour
         snowManager = snowManagerObject.GetComponent<SnowManager>() as SnowManager;
         Assert.IsNotNull(snowManager);
 
-        //fireGridCenterLocation = new Vector3(24f, 0f, 0f);
         defaultPosition = transform.position;
 
         pooler = GetComponent<GameObjectPool>() as GameObjectPool;
@@ -569,7 +565,7 @@ public class CubeController : MonoBehaviour
     }
 
     /// <summary>
-    /// Initialize the specified newETPrefab and newFirePrefab.
+    /// Initialize this cube instance.
     /// </summary>
     /// <param name="newETPrefab">New ET prefab.</param>
     /// <param name="newShrubETPrefab">New Shrub ET prefab.</param>
@@ -671,15 +667,22 @@ public class CubeController : MonoBehaviour
     /// Enter Side-by-Side Mode
     /// </summary>
     /// <param name="sideBySideStatsPanel">Statistics panel to use for cube</param>
-    public void EnterSideBySide(GameObject sideBySideStatsPanel)
+    public void EnterSideBySide(int newTimeIdx, GameObject sideBySideStatsPanel)
     {
+        timeIdx = newTimeIdx;
+
         if (settings.DebugGame)
             Debug.Log(transform.name + ".EnterSideBySide()... Cube Name: " + name);
 
         SetupStatisticsPanel(sideBySideStatsPanel);
+        if(GameController.Instance.displayModel)
+            HideStatistics();
 
         if (isSideCube)
+        {
+            UpdateDataFromWeb(timeIdx, true, true);
             cubeObject.SetActive(true);
+        }
     }
 
     /// <summary>
@@ -710,6 +713,9 @@ public class CubeController : MonoBehaviour
 
         neCorner = transform.TransformPoint(terrain.transform.position);
         swCorner = transform.TransformPoint(new Vector3(neCorner.x + cubeWidth, neCorner.y, neCorner.z - cubeWidth));
+
+        KillAllTrees(true);
+        ClearAllLitter();
     }
 
     public void ResetStatsPanel()
@@ -1873,6 +1879,9 @@ public class CubeController : MonoBehaviour
     /// </summary>
     private void ClearAllLitter()
     {
+        if (litter == null)
+            return;
+
         List<GameObject> removeList = new List<GameObject>();
         foreach (GameObject obj in litter)
         {
@@ -2069,6 +2078,9 @@ public class CubeController : MonoBehaviour
     /// <param name="immediate">If true, create instantaneously, otherwise grow from zero scale.</param>
     private void AddGrass(Vector3 location, bool immediate)
     {
+        if (grasses == null)
+            return;
+
         Quaternion newRotation = new Quaternion(0f, 0f, 0f, 0f);
         GameObject newGrassObj = Instantiate(grassPrefab, location, newRotation, cubeObject.transform);     // Instantiate shrub
         newRotation.eulerAngles.Set(0f, Random.Range(0f, 360f), 0f);                                     // Choose random rotation
@@ -2237,6 +2249,9 @@ public class CubeController : MonoBehaviour
     {
         if (debugTrees)
             Debug.Log(transform.name + " CubeController.KillAllTrees()...");
+
+        if (firs == null)
+            return;
 
         List<FirController> removeList = new List<FirController>();
 
