@@ -16,7 +16,7 @@ public class CameraController : MonoBehaviour {
     public bool fly { get; set; } = false;
     public GamePauseState pauseState { get; set; } = GamePauseState.idle;        // Flag to unpause game state
 
-    private GameObject sideBySideModeToggleObject;
+    public GameObject sideBySideModeToggleObject;
 
     //public bool useWii = false;
 
@@ -50,7 +50,7 @@ public class CameraController : MonoBehaviour {
                                                                          //}
         fly = false;
 
-        sideBySideModeToggleObject = GameObject.Find("SideBySideToggle");
+        //sideBySideModeToggleObject = GameObject.Find("SideBySideToggle");
         Assert.IsNotNull(sideBySideModeToggleObject);
     }
 

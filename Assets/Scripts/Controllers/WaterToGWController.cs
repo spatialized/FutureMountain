@@ -48,7 +48,13 @@ public class WaterToGWController : MonoBehaviour
 
     public void Play()
     {
-        if (!playing) { 
+        if (!ps)
+        {
+            Debug.Log(name + ".WaterToGWController()... Play()... ERROR null ps!");
+            return;
+        }
+
+        if (!playing) {
             ps.Play();
             playing = true;
         }

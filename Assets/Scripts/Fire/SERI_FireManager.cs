@@ -99,7 +99,7 @@ public class SERI_FireManager : MonoBehaviour
     #region Initialization
     private void Awake()
     {
-        terrain = GetComponentInParent<Terrain>();
+        //terrain = GetComponentInParent<Terrain>();
         Assert.IsNotNull(terrain);
     }
 
@@ -108,6 +108,9 @@ public class SERI_FireManager : MonoBehaviour
     /// </summary>
     public void Initialize(GameObjectPool newPooler, GameObject newFirePrefab, Vector3 ignitionPos, Vector3 offset, List<FireDataFrame> fireDataFrames, LandscapeController newLandscapeController, bool dataControlled, bool immediateFire, bool newWebOptimized)
     {
+        //terrain = GetComponentInParent<Terrain>();
+        Assert.IsNotNull(terrain);
+
         webOptimized = newWebOptimized;
         pooler = newPooler;
         firePrefab = newFirePrefab;

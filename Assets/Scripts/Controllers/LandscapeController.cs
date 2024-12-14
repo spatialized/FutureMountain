@@ -389,6 +389,10 @@ public class LandscapeController : MonoBehaviour
             int warm = WarmingIndexToDegrees(warmingIdx);
             simulationData[warmingIdx] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
             currentSimulationData = simulationData[warmingIdx];
+            //if (debug && currentTimeIdx % 10 == 0)
+            //{
+            //    Debug.Log(("At time: "+currentTimeIdx+"... FinishUpdateFireDataFromWeb ERROR... deserialize failed"));
+            //}
         }
         else
         {
@@ -715,8 +719,8 @@ public class LandscapeController : MonoBehaviour
                 dataFormatted = true;
                 //dataInitialized = true;
 
-                if (debug)
-                    Debug.Log("LoadDataWeb()... Finished");
+                //if (debug)
+                //    Debug.Log("LoadDataWeb()... Finished");
             }
             else
             {
@@ -735,6 +739,7 @@ public class LandscapeController : MonoBehaviour
         nextFrameMonth = -1;
         nextFrameYear = -1;
 
+        Debug.Log(name+"... Data Initialized...");
         initialized = true;
         yield return null;
     }
@@ -2649,7 +2654,7 @@ public class LandscapeController : MonoBehaviour
     /// <returns><c>true</c>, if landscape simulation is on, <c>false</c> otherwise.</returns>
     public bool LandscapeWebSimulationIsOn()
     {
-        return landscapeSimulationOn;
+        return landscapeSimulationWeb;
     }
 
     ///// <summary>

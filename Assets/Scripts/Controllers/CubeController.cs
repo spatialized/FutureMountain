@@ -46,7 +46,7 @@ public class CubeController : MonoBehaviour
     public bool isSideCube = false;                          // Flag for side cube
 
     /* Objects */
-    public GameObject cubeObject { get; set; }               // Cube base containing all cube parts (except glass)
+    public GameObject cubeObject;                            // Cube base containing all cube parts (except glass)
     public GameObject cubeLabel { get; set; }                // Cube label
     private List<ParticleSystem.EmissionModule> emissions;                // List of all ET emitting objects in cube
     public GameObject housePrefab;             // House to spawn
@@ -521,7 +521,7 @@ public class CubeController : MonoBehaviour
         GameController gameController = gameControllerObject.GetComponent<GameController>() as GameController;
         Assert.IsNotNull(gameController);
 
-        cubeObject = transform.Find("CubeObject").gameObject;              // Get (cube) base object
+        //cubeObject = transform.Find("CubeObject").gameObject;              // Get (cube) base object
         Assert.IsNotNull(cubeObject);
         
         string terrainName = "Terrain_" + name.Substring(name.Length == 5 ? name.Length - 1 : name.Length - 6);

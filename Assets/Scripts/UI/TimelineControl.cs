@@ -27,8 +27,10 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     public GameObject yearTextLabelPrefab;
     public GameObject graphBarPrefab;
     public GameObject timelineLayoutGroup;
-    public GameObject fireIconsLayoutGroup;
-    public GameObject messageIconsLayoutGroup;
+    public GameObject fireIconsLayoutGroupEven;
+    public GameObject messageIconsLayoutGroupEven;
+    public GameObject fireIconsLayoutGroupOdd;
+    public GameObject messageIconsLayoutGroupOdd;
     //public GameObject iconPanel;
 
     /* Geometry */
@@ -46,13 +48,14 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     //private static float xOffsetFactor = 0f;  //2f;                 // Timeline x offset factor
     //private static float yOffsetFactor = 1f;                        // Timeline y offset factor
     //private float dateYOffset = yOffset * 0.5f;                    // Offset of date text from bottom of screen
-    private float dateYOffset = 130f;                    // Offset of date text from bottom of screen
+    private float dateYOffset = 0f;                    // Offset of date text from bottom of screen
+    private float precipYOffset = 0f;                    // Offset of date text from bottom of screen
     private float fireYOffset = 80f;                       // Offset of event icons from bottom of screen
     private float messageYOffset = 70f;                 // Offset of event icons from bottom of screen
 
     /* Text */
-    private GameObject uiTimelineDateTextObject;                    // UI Date Text Object
-    private Text uiTimelineDateTextField;                           // UI Date Text Object
+    public GameObject uiTimelineDateTextObject;                    // UI Date Text Object
+    public Text uiTimelineLabelTextField;                           // UI Date Text Object
 
     /* Time */
     private int simulationYear = -1;                                // Current year in simulation
@@ -85,26 +88,33 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         Assert.IsNotNull(fireIconPrefab);
         Assert.IsNotNull(messageIconPrefab);
 
-        uiTimelineDateTextObject = GameObject.Find("TimelineText");
+        //uiTimelineDateTextObject = GameObject.Find("TimelineText");
         Assert.IsNotNull(uiTimelineDateTextObject);
-        uiTimelineDateTextField = uiTimelineDateTextObject.GetComponent<Text>() as Text;
-        Assert.IsNotNull(uiTimelineDateTextField);
+        //uiTimelineLabelTextField = uiTimelineDateTextObject.GetComponent<Text>() as Text;
+        Assert.IsNotNull(uiTimelineLabelTextField);
 
         //Vector3 pos = transform.position;
         //xOffset = transform.position.x;
-        Vector3 pos = new Vector3();
-        pos.x = xOffset;
-        pos.y = yOffset;
-        transform.position = pos;
+        //Vector3 pos = new Vector3();
+        //pos.x = xOffset;
+        //pos.y = yOffset;
+        //transform.position = pos;
 
         raycaster = GetComponentInParent<GraphicRaycaster>();
         //eventSystem = GetComponent<EventSystem>();
 
-        pos = uiTimelineDateTextObject.transform.position;
+        Vector3 pos = uiTimelineDateTextObject.transform.position;
+        dateYOffset = uiTimelineDateTextObject.transform.position.y;
         pos.y = 30000f;
         uiTimelineDateTextObject.transform.position = pos;
+        uiTimelineDateTextObject.SetActive(true);
 
-        if(debugTimeline)
+        pos = uiTimelineLabelTextField.transform.position;
+        precipYOffset = uiTimelineLabelTextField.transform.position.y;
+        pos.y = 30000f;
+        uiTimelineLabelTextField.transform.position = pos;
+        uiTimelineLabelTextField.enabled = true;
+        if (debugTimeline)
             Debug.Log("Screen.width:" + Screen.width+ " Screen.height:" + Screen.height);
     }
 
@@ -118,9 +128,9 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        //m_PointerEventData = new PointerEventData(m_EventSystem);            // Set up the new Pointer Event
+        //m_PointerEventData = new PointerEventData(m_EventSystem);        // Set up the new Pointer Event
         pointerEventData = eventData;
-        pointerEventData.position = Input.mousePosition;                       // Set the Pointer Event Position to that of the mouse position
+        pointerEventData.position = Input.mousePosition;                 // Set the Pointer Event Position to that of the mouse position
 
         //Create a list of Raycast Results
         List<RaycastResult> results = new List<RaycastResult>();
@@ -129,7 +139,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         raycaster.Raycast(pointerEventData, results);
 
         int id = -1;
-        foreach (RaycastResult hit in results)                                  // For every result returned, output the name of the GameObject on the Canvas hit by the Ray
+        foreach (RaycastResult hit in results)                              // For every result returned, output the name of the GameObject on the Canvas hit by the Ray
         {
             string n = hit.gameObject.name;
 
@@ -306,6 +316,14 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     {
         if (simulationYear != curYear)
         {
+            if (!uiTimelineLabelTextField.enabled)
+            {
+                Vector3 pos = uiTimelineLabelTextField.transform.position;
+                pos.y = precipYOffset;
+                uiTimelineLabelTextField.transform.position = pos;
+                uiTimelineLabelTextField.enabled = true;
+            }
+
             SetColorForYear(simulationYear, defaultColor);                    // Set previous year to default color
 
             if(debugTimeline)
@@ -318,14 +336,17 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
             SetColorForYear(simulationYear, currentYearColor);
 
-            Vector3 pos = points[simulationYear - startYear].transform.position;
-            pos.y = dateYOffset;
-            uiTimelineDateTextObject.transform.position = pos;              // Update position of date
+            if (points != null)
+            {
+                Vector3 pos = points[simulationYear - startYear].transform.position;
+                pos.y = dateYOffset;
+                uiTimelineDateTextObject.transform.position = pos; // Update position of date
+            }
         }
     }
 
     /// <summary>
-    /// Creates the timeline.
+    /// Creates the timeline.       -- TO DO: UPDATE FROM CREATETIMELINEWEB
     /// </summary>
     public void CreateTimeline(List<WaterDataYear> waterData, int warmingIdx, int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
     {
@@ -418,7 +439,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             {
                 GameObject fireIcon = Instantiate(fireIconPrefab, Vector3.zero, fireIconPrefab.transform.rotation, transform);           // Instantiate fire icon at each fire year
                 fireIcon.name = "Fire_" + (i + startYear);
-                fireIcon.transform.parent = fireIconsLayoutGroup.transform;                          // Added
+                fireIcon.transform.parent = fireIconsLayoutGroupEven.transform;                          // Added
                 fireIcon.transform.localPosition = position;
                 fireIcons.Add(fireIcon);
             }
@@ -426,7 +447,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             {
                 GameObject blankIcon = Instantiate(blankIconPrefab, position, blankIconPrefab.transform.rotation, transform);           // Instantiate fire icon at each fire year
                 blankIcon.name = "Blank_" + (i + startYear);
-                blankIcon.transform.parent = fireIconsLayoutGroup.transform;                          // Added
+                blankIcon.transform.parent = fireIconsLayoutGroupEven.transform;                          // Added
                 blankIcon.transform.position = position;
             }
 
@@ -436,7 +457,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             {
                 GameObject messageIcon = Instantiate(messageIconPrefab, Vector3.zero, fireIconPrefab.transform.rotation, transform);     // Instantiate message icon at each message year
                 messageIcon.name = "Message_" + (i + startYear) + "_" + warmingDegrees;
-                messageIcon.transform.parent = messageIconsLayoutGroup.transform;                          // Added
+                messageIcon.transform.parent = messageIconsLayoutGroupEven.transform;                          // Added
                 messageIcon.transform.localPosition = position;
                 messageIcons.Add(messageIcon);
             }
@@ -444,7 +465,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             {
                 GameObject blankIcon = Instantiate(blankIconPrefab, position, blankIconPrefab.transform.rotation, transform);           // Instantiate fire icon at each fire year
                 blankIcon.name = "Blank_" + (i + startYear);
-                blankIcon.transform.parent = messageIconsLayoutGroup.transform;                          // Added
+                blankIcon.transform.parent = messageIconsLayoutGroupEven.transform;                          // Added
                 blankIcon.transform.position = position;
             }
         }
@@ -480,6 +501,11 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         Vector3 position;
         position.z = 0f;
 
+        bool carryOverFire = false;
+        bool carryOverMessage = false;
+
+        Debug.Log("CreateTimelineWeb()...");
+
         for (int i = 0; i < resolution; i++)
         {
             PrecipByYear waterYear = waterData[i];
@@ -500,67 +526,108 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             points[i] = pt.gameObject;
 
             pt.parent = timelineLayoutGroup.transform;
-            //position = pt.position;
-            Debug.Log("CreateTimelineWeb()... timelineLayoutGroup.transform.position.x:" + timelineLayoutGroup.transform.position.x + " timelineLayoutGroup.transform.position.y:" + timelineLayoutGroup.transform.position.y);
+            //Debug.Log("CreateTimelineWeb()... timelineLayoutGroup.transform.position.x:" + timelineLayoutGroup.transform.position.x + " timelineLayoutGroup.transform.position.y:" + timelineLayoutGroup.transform.position.y);
 
             Image image = points[i].GetComponent<Image>() as Image;
             image.color = defaultColor;
 
-            //position = pt.position;
-            //Debug.Log("CreateTimelineWeb()... pt.position.x:" + pt.position.x + " pt.position.y:" + pt.position.y);
-
             float step = Screen.width * widthFactor / resolution;
-            //position.x = (i + 0.5f) * step - 1f + xOffset * step;
-            //position.x = (i + 0.5f) * step - 1f + xOffsetFactor * widthFactor / resolution;
-            //position.x = xOffset + (i + 0.5f) * step - 1f;// + xOffsetFactor * widthFactor / resolution;
-            //position.y = fireYOffset;
+            
+            bool even = i % 2 == 0;
+            int iconYear = i + startYear;
 
-            Debug.Log("CreateTimelineWeb()...");
-            //Debug.Log("CreateTimelineWeb()... step: " + step + " Screen.width:" + Screen.width + " widthFactor:" + widthFactor + " resolution:" + resolution);
-            //Debug.Log("CreateTimelineWeb()... position.x:" + position.x + " position.y:" + position.y);
-
-
-            if (fireYears.Contains(i + startYear))
+            if (fireYears.Contains(iconYear) || carryOverFire)
             {
-                GameObject fireIcon = Instantiate(fireIconPrefab, position, fireIconPrefab.transform.rotation, transform);           // Instantiate fire icon at each fire year
-                fireIcon.name = "Fire_" + (i + startYear);
-                fireIcon.transform.parent = fireIconsLayoutGroup.transform;                          // Added
-                fireIcon.transform.position = position;
-                fireIcons.Add(fireIcon);
+                if (even || carryOverFire)
+                {
+                    GameObject fireParent;
+                    if (carryOverFire)
+                    {
+                        iconYear--;
+                        fireParent = fireIconsLayoutGroupOdd;
+                    }
+                    else
+                        fireParent = fireIconsLayoutGroupEven;
+
+                    GameObject fireIcon = Instantiate(fireIconPrefab, Vector3.zero, fireIconPrefab.transform.rotation,
+                    transform); // Instantiate fire icon at each fire year
+                    fireIcon.name = "Fire_" + iconYear;
+                    fireIcon.transform.parent = fireParent.transform; 
+                    fireIcons.Add(fireIcon);
+                    carryOverFire = false;
+                }
+                else
+                {
+                    carryOverFire = true;
+                }
             }
             else
             {
-                GameObject blankIcon = Instantiate(blankIconPrefab, position, blankIconPrefab.transform.rotation, transform);           // Instantiate fire icon at each fire year
-                blankIcon.name = "Blank_" + (i + startYear);
-                blankIcon.transform.parent = fireIconsLayoutGroup.transform;                          // Added
-                blankIcon.transform.position = position;
+                if (even)
+                {
+                    GameObject blankIcon = Instantiate(blankIconPrefab, Vector3.zero, blankIconPrefab.transform.rotation,
+                        transform); // Instantiate fire icon at each fire year
+                    blankIcon.name = "Blank_" + iconYear;
+                    blankIcon.transform.parent = fireIconsLayoutGroupEven.transform; // Added
+                }
+                else
+                {
+                    GameObject blankIcon = Instantiate(blankIconPrefab, Vector3.zero, blankIconPrefab.transform.rotation,
+                        transform); // Instantiate fire icon at each fire year
+                    blankIcon.name = "Blank_" + iconYear;
+                    blankIcon.transform.parent = fireIconsLayoutGroupOdd.transform; // Added
+                }
             }
 
-            position.y = messageYOffset;
+            iconYear = i + startYear;
 
-            if (messageYears.Contains(i + startYear))
+            if (messageYears.Contains(iconYear) || carryOverMessage)
             {
-                GameObject messageIcon = Instantiate(messageIconPrefab, position, fireIconPrefab.transform.rotation, transform);     // Instantiate message icon at each message year
-                messageIcon.name = "Message_" + (i + startYear) + "_" + warmingDegrees;
-                messageIcon.transform.parent = messageIconsLayoutGroup.transform;                          // Added
-                messageIcon.transform.position = position;
-                messageIcons.Add(messageIcon);
+                if (even || carryOverMessage)
+                {
+                    GameObject messageParent;
+                    if (carryOverMessage)
+                    {
+                        iconYear--;
+                        messageParent = messageIconsLayoutGroupOdd;
+                    }
+                    else
+                        messageParent = messageIconsLayoutGroupEven;
+
+                    GameObject messageIcon = Instantiate(messageIconPrefab, Vector3.zero, fireIconPrefab.transform.rotation, transform); // Instantiate message icon at each message year
+                    messageIcon.name = "Message_" + iconYear + "_" + warmingDegrees;
+                    messageIcon.transform.parent = messageParent.transform; 
+                    messageIcons.Add(messageIcon);
+                    carryOverMessage = false;
+                }
+                else
+                {
+                    carryOverMessage = true;
+                }
             }
             else
             {
-                GameObject blankIcon = Instantiate(blankIconPrefab, position, blankIconPrefab.transform.rotation, transform);           // Instantiate fire icon at each fire year
-                blankIcon.name = "Blank_" + (i + startYear);
-                blankIcon.transform.parent = messageIconsLayoutGroup.transform;                          // Added
-                blankIcon.transform.position = position;
+                if (even)
+                {
+                    GameObject blankIcon = Instantiate(blankIconPrefab, Vector3.zero, blankIconPrefab.transform.rotation,
+                        transform); // Instantiate fire icon at each fire year
+                    blankIcon.name = "Blank_" + iconYear;
+                    blankIcon.transform.parent = messageIconsLayoutGroupEven.transform; // Added
+                }
+                else
+                {
+                    GameObject blankIcon = Instantiate(blankIconPrefab, Vector3.zero, blankIconPrefab.transform.rotation,
+                        transform); // Instantiate fire icon at each fire year
+                    blankIcon.name = "Blank_" + iconYear;
+                    blankIcon.transform.parent = messageIconsLayoutGroupOdd.transform; // Added
+                }
             }
         }
-
-        //Debug.Log("AFTER fireIcons.Count:" + fireIcons.Count);
     }
 
     /// <summary>
     /// Creates the test timeline for when landscapeSimulationOn is off.
-    /// </summary>
+    /// </summary>      //  -- TO DO: UPDATE FROM CREATETIMELINEWEB
     /// <param name="startYear">Start year.</param>
     /// <param name="endYear">End year.</param>
     /// <param name="warmingIdx">Warm index.</param>
@@ -617,7 +684,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             image.color = defaultColor;
 
             //position = pt.position;
-            float step = Screen.width * widthFactor / resolution;
+            //float step = Screen.width * widthFactor / resolution;
             //position.x = (i + 0.5f) * step - 1f + xOffset;
             //position.x = (i + 0.5f) * step - 1f + xOffset * step;
             //position.x = (i + 0.5f) * step - 1f + xOffsetFactor * widthFactor / resolution;
@@ -625,10 +692,10 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             //position.y = fireYOffset;
 
             Debug.Log("CreateTestTimeline()...");
-            Debug.Log("CreateTestTimeline()... step: " + step + " Screen.width:" + Screen.width + " widthFactor:" + widthFactor + " resolution:" + resolution);
-            Debug.Log("CreateTestTimeline()... position.x:" + position.x + " position.y:" + position.y);
+            //Debug.Log("CreateTestTimeline()... step: " + step + " Screen.width:" + Screen.width + " widthFactor:" + widthFactor + " resolution:" + resolution);
+            //Debug.Log("CreateTestTimeline()... position.x:" + position.x + " position.y:" + position.y);
 
-            Vector3 iconPos = new Vector3(position.x + 30 * step, position.y);
+            //Vector3 iconPos = new Vector3(position.x + 30 * step, position.y);
 
             if (fireYears.Contains(i + startYear))
             {
@@ -636,9 +703,9 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
                 GameObject fireIcon = Instantiate(fireIconPrefab, startPos, fireIconPrefab.transform.rotation, transform);           // Instantiate fire icon at each fire year
                 fireIcon.name = "Fire_" + (i + startYear);
-                fireIcon.transform.parent = fireIconsLayoutGroup.transform;
+                fireIcon.transform.parent = fireIconsLayoutGroupEven.transform;
                 //fireIcon.transform.localScale = scale;
-                fireIcon.transform.localPosition = iconPos;
+                fireIcon.transform.localPosition = position;
                 fireIcons.Add(fireIcon);
 
                 //Debug.Log("CreateTestTimeline()... Fire Year:"+ startYear);
@@ -651,7 +718,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             {
                 GameObject blankIcon = Instantiate(blankIconPrefab, position, blankIconPrefab.transform.rotation, transform);           // Instantiate fire icon at each fire year
                 blankIcon.name = "Blank_" + (i + startYear);
-                blankIcon.transform.parent = fireIconsLayoutGroup.transform;                          // Added
+                blankIcon.transform.parent = fireIconsLayoutGroupEven.transform;                          // Added
                 blankIcon.transform.position = position;
             }
             //position.y = messageYOffset;
@@ -662,9 +729,9 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
                 GameObject messageIcon = Instantiate(messageIconPrefab, startPos, fireIconPrefab.transform.rotation, transform);     // Instantiate message icon at each message year
                 messageIcon.name = "Message_" + (i + startYear) + "_" + warmingDegrees;
-                messageIcon.transform.parent = messageIconsLayoutGroup.transform;
+                messageIcon.transform.parent = messageIconsLayoutGroupEven.transform;
                 //messageIcon.transform.localScale = scale;
-                messageIcon.transform.localPosition = iconPos;
+                messageIcon.transform.localPosition = position;
                 messageIcons.Add(messageIcon);
 
                 //Debug.Log("CreateTestTimeline()... Message Year:" + startYear);
@@ -676,7 +743,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             {
                 GameObject blankIcon = Instantiate(blankIconPrefab, position, blankIconPrefab.transform.rotation, transform);           // Instantiate fire icon at each fire year
                 blankIcon.name = "Blank_" + (i + startYear);
-                blankIcon.transform.parent = messageIconsLayoutGroup.transform;                          // Added
+                blankIcon.transform.parent = messageIconsLayoutGroupEven.transform;                          // Added
                 blankIcon.transform.position = position;
             }
         }
@@ -718,7 +785,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         }
 
         Vector3 pos = uiTimelineDateTextObject.transform.position;
-        pos.y = 30000f;
+        pos.y = dateYOffset;
         uiTimelineDateTextObject.transform.position = pos;
     }
 
@@ -728,7 +795,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     /// <param name="newText">New text.</param>
     public void SetTimelineText(string newText)
     {
-        uiTimelineDateTextField.text = newText;
+        uiTimelineLabelTextField.text = newText;
     }
 
     /// <summary>

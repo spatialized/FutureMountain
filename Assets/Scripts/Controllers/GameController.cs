@@ -476,8 +476,8 @@ public class GameController : MonoBehaviour
 
     public IEnumerator FinishStarting()
     {
-        if(debugGame)
-            Debug.Log(name+".FinishStarting()...");
+        //if(debugGame)
+        //    Debug.Log(name+".FinishStarting()...");
 
         int offset = fireCubes ? 5 : 0;                                  // Use fire or non-fire data
         int idx = offset;
@@ -531,8 +531,8 @@ public class GameController : MonoBehaviour
 
             yield return null;
 
-            if (debugGame)
-                Debug.Log(name + ".FinishStarting()... 2B");
+            //if (debugGame)
+            //    Debug.Log(name + ".FinishStarting()... 2B");
 
             // Setup side-by-side comparison cube
             sideCubes[0].SetWarmingRange(warmingRange);
@@ -1476,16 +1476,17 @@ public class GameController : MonoBehaviour
         {
             if (landscapeController.initialized)
             {
-                if(landscapeController.LandscapeWebSimulationIsOn())
-                    Debug.Log(name + ".Update()...  landscapeController.gameInitialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
-                else
-                    Debug.Log(name + ".Update()...  landscapeController.gameInitialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.patchesData null? " + (landscapeController.GetPatchesData() == null) + " landscapeController.extentsData null? " + (landscapeController.GetExtentsData() == null) + " landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
-
                 loadingDataCanvas.enabled = false;
                 setupUICanvas.enabled = true;
 
                 StopCoroutine(landscapeInitializer);
                 gameInitialized = true;
+
+                if (landscapeController.LandscapeWebSimulationIsOn())
+                    Debug.Log(name + ".Update()...  landscapeController.gameInitialized:" +
+                              landscapeController.initialized + "  Stopping coroutine landscapeInitializer...");// landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
+                else
+                    Debug.Log(name + ".Update()...  landscapeController.gameInitialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.patchesData null? " + (landscapeController.GetPatchesData() == null) + " landscapeController.extentsData null? " + (landscapeController.GetExtentsData() == null) + " landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
             }
         }
     }
@@ -2087,9 +2088,9 @@ public class GameController : MonoBehaviour
     /// <returns>The current day in month.</returns>
     private int GetCurrentDayInMonth()
     {
-        if (timeIdx > dataDates.Count)
+        if (timeIdx >= dataDates.Count)
         {
-            Debug.Log("ERROR... timeIdx > dataDates.Count");
+            Debug.Log("GetCurrentDayInMonth()... ERROR... timeIdx > dataDates.Count");
             return -1;
         }
 
@@ -2113,9 +2114,9 @@ public class GameController : MonoBehaviour
     /// <returns>The current month.</returns>
     private int GetCurrentMonth()
     {
-        if (timeIdx > dataDates.Count)
+        if (timeIdx >= dataDates.Count)
         {
-            Debug.Log("ERROR... timeIdx > dataDates.Count");
+            Debug.Log("GetCurrentMonth()... ERROR... timeIdx > dataDates.Count... timeIdx: " + timeIdx);
             return -1;
         }
 
@@ -3024,14 +3025,16 @@ public class GameController : MonoBehaviour
         cubesToggleObject = GameObject.Find("ShowCubesToggle");        //GameObject zoBtn = loadingCanvas.transform.Find("LoadingPanel").transform.Find("LoadingText").gameObject;
 
         //Assert.IsNotNull(controlsUICanvas);
-        EnableControls(false);
+        //EnableControls(false);
         //controlsUICanvas.enabled = false;
 
         Assert.IsNotNull(sideBySideCanvas);
         Assert.IsNotNull(loadingCanvas);
 
-        loadingTextObject = loadingCanvas.transform.Find("LoadingPanel").transform.Find("LoadingText").gameObject;
-        loadingTextField = loadingTextObject.GetComponent<Text>() as Text;
+        Assert.IsNotNull(loadingTextObject);
+        Assert.IsNotNull(loadingTextField);
+        //loadingTextObject = loadingCanvas.transform.Find("LoadingPanel").transform.Find("LoadingText").gameObject;
+        //loadingTextField = loadingTextObject.GetComponent<Text>() as Text;
         loadingCanvas.enabled = false;
         loadingCanvas.gameObject.SetActive(false);
         loadingTextObject.gameObject.SetActive(false);
@@ -3126,6 +3129,8 @@ public class GameController : MonoBehaviour
         debugFire = settings.DebugFire;
         debugModel = settings.DebugModel;
         debugDetailed = settings.DebugDetailed;
+
+        EnableControls(false);
     }
 
     private void InitializeSnow()
