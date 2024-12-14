@@ -240,7 +240,8 @@ public class SERI_FireManager : MonoBehaviour
 
             fireGrid.Initialize(this, firePrefab, pos, gridWidth, gridHeight, pooler, null, null, newLandscapeController, false, immediateFire);
 
-            Debug.Log(name + ".Initialize()... grid #0");
+            //if(debug)
+            //    Debug.Log(name + ".Initialize()... grid #0");
 
             fireGrids[0] = fireGrid;
         }

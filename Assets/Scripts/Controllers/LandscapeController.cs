@@ -21,7 +21,7 @@ public class LandscapeController : MonoBehaviour
     [Header("Debugging")]
     private bool debug = true;
     private bool debugFire = false;
-    private bool debugDetailed = true;
+    private bool debugDetailed = false;
 
     #region Fields
     /* Settings */
@@ -741,7 +741,8 @@ public class LandscapeController : MonoBehaviour
 
     public void LoadLandscapeDataForWarmingIdx(int warmIdx)
     {
-        int i = warmingIdx;
+        int i = warmIdx;
+        warmingIdx = warmIdx;
 
         if (loadFireDataFromFile)
         {
@@ -774,7 +775,10 @@ public class LandscapeController : MonoBehaviour
         }
         else // Load from web
         {
-            WebManager.Instance.RequestFireData(warmingIdx, this.FinishUpdateFireDataFromWeb);
+            if(WebManager.Instance)
+                WebManager.Instance.RequestFireData(warmingIdx, this.FinishUpdateFireDataFromWeb);
+            else
+                Debug.Log("LoadLandscapeDataForWarmingIdx()... ERROR... no instance of WebManager!");
         }
 
             

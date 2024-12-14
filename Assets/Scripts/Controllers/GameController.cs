@@ -187,7 +187,8 @@ public class GameController : MonoBehaviour
     public Canvas loadingDataCanvas;                          // Loading Data UI canvas
     public Canvas setupUICanvas;                              // Setup UI canvas
     public Canvas simulationUICanvas;                         // Simulation UI canvas 
-    public Canvas controlsUICanvas;                           // Show Controls Button UI canvas
+    //public Canvas controlsUICanvas;                           // Show Controls Button UI canvas
+    private List<GameObject> controlsList;                    // List of "control" buttons 
     public Canvas sideBySideCanvas;                           // Side-by-Side Mode UI Canvas
     public GameObject introPanel;                             // Intro Text Panel
     public Canvas loadingCanvas;                              // Loading Simulation UI Canvas
@@ -435,7 +436,8 @@ public class GameController : MonoBehaviour
             sceneCamera.enabled = true;
             sunLight.enabled = true;
 
-            controlsUICanvas.enabled = false;
+            EnableControls(false);
+            //controlsUICanvas.enabled = false;
             setupUICanvas.enabled = false;
             simulationUICanvas.enabled = false;
             sideBySideCanvas.enabled = false;
@@ -483,8 +485,8 @@ public class GameController : MonoBehaviour
 
         endTimeIdx = GetLastTimeIdx();
 
-        if (debugGame)
-            Debug.Log(name + ".FinishStarting()... 2");
+        //if (debugGame)
+        //    Debug.Log(name + ".FinishStarting()... 2");
 
         if (cube1Object != null)
         {
@@ -572,8 +574,8 @@ public class GameController : MonoBehaviour
 
         yield return null;
 
-        if (debugGame)
-            Debug.Log(name + ".FinishStarting()... 3");
+        //if (debugGame)
+        //    Debug.Log(name + ".FinishStarting()... 3");
 
         idx = 1 + offset;
         if (cube2Object != null)
@@ -853,8 +855,8 @@ public class GameController : MonoBehaviour
 
         yield return null;
 
-        if (debugGame)
-            Debug.Log(name + ".FinishStarting()... 4");
+        //if (debugGame)
+        //    Debug.Log(name + ".FinishStarting()... 4");
 
         offset = fireCubes ? 1 : 0;
         idx = offset;
@@ -1072,7 +1074,8 @@ public class GameController : MonoBehaviour
         loadingCanvas.enabled = false;
         loadingCanvas.gameObject.SetActive(false);
 
-        controlsUICanvas.enabled = true;
+        EnableControls(true);
+        //controlsUICanvas.enabled = true;
         simulationUICanvas.enabled = true;
     }
 
@@ -2439,6 +2442,22 @@ public class GameController : MonoBehaviour
 
         aggregateSideCubeController.cubeObject.SetActive(false);
     }
+
+    private void EnableControls(bool state)
+    {
+        //controlsUICanvas.enabled = state;
+
+        if (controlsList == null)
+            Debug.Log("EnableControls()... ERROR controlsList NULL!");
+        else foreach (GameObject obj in controlsList)
+        {
+            if (obj == null)
+                Debug.Log("EnableControls()... ERROR obj NULL!");
+            else
+                obj.SetActive(state);
+        }
+    }
+
     #endregion
 
     #region Resetting
@@ -2529,7 +2548,8 @@ public class GameController : MonoBehaviour
 
         setupUICanvas.enabled = true;
         simulationUICanvas.enabled = true;
-        controlsUICanvas.enabled = false;
+        EnableControls(false);
+        //controlsUICanvas.enabled = false;
         sideBySideCanvas.enabled = false;
         loadingCanvas.enabled = false;
         loadingCanvas.gameObject.SetActive(false);
@@ -2988,8 +3008,24 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(introPanel);
         introPanel.SetActive(true);
 
-        Assert.IsNotNull(controlsUICanvas);
-        controlsUICanvas.enabled = false;
+        //startButtonObject = GameObject.Find("StartButton");
+        //pauseButtonObject = GameObject.Find("PauseButton");
+        //zoomOutButtonObject = GameObject.Find("ZoomOutButton");           X
+        //exitSideBySideButtonObject = GameObject.Find("ExitSideBySideButton");
+        //zoomOutButtonObject.SetActive(false);
+
+        //endButtonObject = GameObject.Find("EndButton");
+        //showControlsToggleObject = GameObject.Find("ShowControlsToggle");
+        //showModelDataToggleObject = GameObject.Find("ShowModelDataToggle");
+        //storyModeToggleObject = GameObject.Find("StoryModeToggle");
+        //sideBySideModeToggleObject = GameObject.Find("SideBySideToggle");
+        //seasonsToggleObject = GameObject.Find("ShowSeasonsToggle");
+        //flyCameraButtonObject = GameObject.Find("FlyCameraToggle");
+        cubesToggleObject = GameObject.Find("ShowCubesToggle");        //GameObject zoBtn = loadingCanvas.transform.Find("LoadingPanel").transform.Find("LoadingText").gameObject;
+
+        //Assert.IsNotNull(controlsUICanvas);
+        EnableControls(false);
+        //controlsUICanvas.enabled = false;
 
         Assert.IsNotNull(sideBySideCanvas);
         Assert.IsNotNull(loadingCanvas);
@@ -3047,6 +3083,19 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(zoomOutButtonObject);
         Assert.IsNotNull(pauseButtonObject);
         Assert.IsNotNull(exitSideBySideButtonObject);
+
+        controlsList = new List<GameObject>();
+        controlsList.Add(zoomOutButtonObject);
+        controlsList.Add(endButtonObject);
+        controlsList.Add(sideBySideModeToggleObject);
+        if (showControlsToggleObject)
+            controlsList.Add(showControlsToggleObject);
+        //if (showTimelineToggleObject)
+        //    controlsList.Add(showTimelineToggleObject);
+        GameObject compass = GameObject.Find("Compass");
+        if (compass)
+            controlsList.Add(compass);
+        controlsList.Add(endButtonObject);
 
         pauseButtonObject.SetActive(false);
         exitSideBySideButtonObject.SetActive(false);
