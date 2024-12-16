@@ -1,5 +1,3 @@
-//using System;
-
 using System;
 using Assets.Scripts.Models;
 using System.Collections;

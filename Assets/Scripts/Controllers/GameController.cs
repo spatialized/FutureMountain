@@ -22,6 +22,7 @@ public class GameController : MonoBehaviour
     private bool debugWeb = true;
 
     private bool debugDetailed = true;              // Detailed debugging
+    private bool debugFrame = false;              // Detailed debugging
     private bool debugMessages = false;             // Debug messages on / off
 
     private int lastDebugMessageFrame = -1;         // Last debug message printed frame (for delayed debug messages)
@@ -206,6 +207,7 @@ public class GameController : MonoBehaviour
     /* UI Messages */
     public UI_MessageManager messageManager;                 // Message manager
 
+    public GameObject messagePanelObject;                   // Message panel object
     /* UI Buttons */
     private GameObject showControlsToggleObject;              // Toggle button for showing controls
     private GameObject showModelDataToggleObject;             // Toggle button for model data display
@@ -214,7 +216,7 @@ public class GameController : MonoBehaviour
     private GameObject exitSideBySideButtonObject;            // Exit Side-by-Side Mode button object
     private GameObject startButtonObject;                     // Start button object
     private GameObject pauseButtonObject;                     // End button object
-    private GameObject zoomOutButtonObject;                   // Zoom out button object
+    public GameObject zoomOutButtonObject;                   // Zoom out button object
     private GameObject endButtonObject;                       // End button object
 
     private GameObject cubesToggleObject;                     // Toggle button for cubes visibility     // -- UNUSED
@@ -1075,6 +1077,7 @@ public class GameController : MonoBehaviour
         loadingCanvas.gameObject.SetActive(false);
 
         EnableControls(true);
+        zoomOutButtonObject.SetActive(false);
         //controlsUICanvas.enabled = true;
         simulationUICanvas.enabled = true;
     }
@@ -1745,7 +1748,7 @@ public class GameController : MonoBehaviour
             }
         }
 
-        if (debugGame && debugDetailed)
+        if (debugGame && debugFrame)
             Debug.Log("UpdateSimulation()... Current Date:" + curDate.ToString() + " timeIdx:" + timeIdx + " endTimeIdx:" + endTimeIdx);
     }
 
@@ -3051,7 +3054,7 @@ public class GameController : MonoBehaviour
 
         startButtonObject = GameObject.Find("StartButton");
         pauseButtonObject = GameObject.Find("PauseButton");
-        zoomOutButtonObject = GameObject.Find("ZoomOutButton");
+        //zoomOutButtonObject = GameObject.Find("ZoomOutButton");
         exitSideBySideButtonObject = GameObject.Find("ExitSideBySideButton");
         zoomOutButtonObject.SetActive(false);
 
@@ -3064,7 +3067,7 @@ public class GameController : MonoBehaviour
         flyCameraButtonObject = GameObject.Find("FlyCameraToggle");
         cubesToggleObject = GameObject.Find("ShowCubesToggle");
 
-        messageManager = new UI_MessageManager();      // Create MessageManager
+        //messageManager = new UI_MessageManager(messagePanelObject);      // Create MessageManager
 
         seasonsToggleObject.GetComponent<Toggle>().isOn = displaySeasons;
         showControlsToggleObject.GetComponent<Toggle>().isOn = showControls;
@@ -3075,6 +3078,8 @@ public class GameController : MonoBehaviour
         flyCameraButtonObject.GetComponent<Toggle>().isOn = false;
         if(cubesToggleObject)
             cubesToggleObject.GetComponent<Toggle>().isOn = true;
+
+        Assert.IsNotNull(messageManager);
 
         Assert.IsNotNull(endButtonObject);
         Assert.IsNotNull(seasonsToggleObject);

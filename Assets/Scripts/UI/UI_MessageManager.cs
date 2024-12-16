@@ -1,42 +1,66 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine.UI;
 using UnityEngine.Assertions;
 
-public class UI_MessageManager
+public class UI_MessageManager : MonoBehaviour 
 {
     private List<UI_Message> messages;                             // List of messages to display
     private List<UI_Message> fireMessages;                         // List of fire messages to display
     private List<UI_Message> currentMessages;                      // List of messages currently displayed
-    private Text[] messageTexts;                                   // Message text boxes
+    //private Text[] messageTexts;                                   // Message text boxes
+    private GameObject[] messageBoxes;                             // Message text boxes
+    private TextMeshProUGUI[] messageTexts;                        // Message text fields
     private GameObject[] cubeLabels;                               // Cube labels (A-F) to hide / show
-    public GameObject messagePanel { get; set; }                   // Message panel object
+    public GameObject messagePanel;                   // Message panel object
 
     /// <summary>
     /// Constructor for UI Message Manager
     /// </summary>
-    public UI_MessageManager()
+    void Awake()
     {
-        messagePanel = GameObject.Find("MessagePanel").gameObject;
+        //messagePanel = GameObject.Find("MessagePanel").gameObject;
+        //messagePanel = newMessagePanel;
         Assert.IsNotNull(messagePanel);
         messagePanel.SetActive(false);
 
-        messageTexts = new Text[4];
+        messageBoxes = new GameObject[4];
+        messageBoxes[0] = messagePanel.transform.Find("MessageBox1").gameObject;
+        messageBoxes[1] = messagePanel.transform.Find("MessageBox2").gameObject;
+        messageBoxes[2] = messagePanel.transform.Find("MessageBox3").gameObject;
+        messageBoxes[3] = messagePanel.transform.Find("MessageBox4").gameObject;
 
-        GameObject txtObj = messagePanel.transform.Find("MessageText1").gameObject;
-        messageTexts[0] = txtObj.GetComponent<Text>() as Text;
-        txtObj = messagePanel.transform.Find("MessageText2").gameObject;
-        messageTexts[1] = txtObj.GetComponent<Text>() as Text;
-        txtObj = messagePanel.transform.Find("MessageText3").gameObject;
-        messageTexts[2] = txtObj.GetComponent<Text>() as Text;
-        txtObj = messagePanel.transform.Find("MessageText4").gameObject;
-        messageTexts[3] = txtObj.GetComponent<Text>() as Text;
+        Assert.IsNotNull(messageBoxes[0]);
+        Assert.IsNotNull(messageBoxes[1]);
+        Assert.IsNotNull(messageBoxes[2]);
+        Assert.IsNotNull(messageBoxes[3]);
+        messageBoxes[0].SetActive(false);
+        messageBoxes[1].SetActive(false);
+        messageBoxes[2].SetActive(false);
+        messageBoxes[3].SetActive(false);
+
+        messageTexts = new TextMeshProUGUI[4];
+        GameObject txtObj = messageBoxes[0].transform.Find("MessageText1").gameObject;
+        messageTexts[0] = txtObj.GetComponent<TextMeshProUGUI>() as TextMeshProUGUI;
+        txtObj = messageBoxes[1].transform.Find("MessageText2").gameObject;
+        messageTexts[1] = txtObj.GetComponent<TextMeshProUGUI>() as TextMeshProUGUI;
+        txtObj = messageBoxes[2].transform.Find("MessageText3").gameObject;
+        messageTexts[2] = txtObj.GetComponent<TextMeshProUGUI>() as TextMeshProUGUI;
+        txtObj = messageBoxes[3].transform.Find("MessageText4").gameObject;
+        messageTexts[3] = txtObj.GetComponent<TextMeshProUGUI>() as TextMeshProUGUI;
 
         Assert.IsNotNull(messageTexts[0]);
         Assert.IsNotNull(messageTexts[1]);
         Assert.IsNotNull(messageTexts[2]);
         Assert.IsNotNull(messageTexts[3]);
+
+        messageTexts[0].gameObject.SetActive(false);
+        messageTexts[1].gameObject.SetActive(false);
+        messageTexts[2].gameObject.SetActive(false);
+        messageTexts[3].gameObject.SetActive(false);
 
         // -- TESTING
         //messageTexts[0].text = "123456";
@@ -194,7 +218,26 @@ public class UI_MessageManager
             int id = message.Display(currentMessages, Time.time, curTimeIdx);
 
             if (id >= 0 && id < messageTexts.Length)
+            {
                 messageTexts[id].text = message.GetMessage();        // Set message text
+                messageTexts[id].gameObject.SetActive(true);
+                messageTexts[id].ForceMeshUpdate();
+                messageBoxes[id].gameObject.SetActive(true);
+
+                try
+                {
+                    StartCoroutine(UpdateMessageBoxScaling(messageBoxes[id], messageTexts[id]));
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log("DisplayMessage()... ex:"+ex.Message);
+                }
+                //messageBoxes[id].transform.localScale = messageTexts[id].textBounds.extents ?;
+                //messageTexts[id].textBounds.extents.x = 0;
+
+                //messageBoxes[id].transform.position = new Vector3(0, 0, 0);
+
+            }
             else
                 Debug.Log("ERROR messageTexts.Length:" + messageTexts.Length + " < id:" + id);
 
@@ -207,6 +250,31 @@ public class UI_MessageManager
         }
     }
 
+    private IEnumerator UpdateMessageBoxScaling(GameObject messageBox, TextMeshProUGUI messageText)
+    {
+        yield return null;// new WaitForEndOfFrame();
+
+        float paddingY = 56.99f;
+        //float paddingX = 58.95f;
+
+        Vector2 sizeVec = messageText.GetRenderedValues();
+
+        //SpriteRenderer spriteRenderer = messageBox.GetComponent<SpriteRenderer>();
+        //spriteRenderer.size = sizeVec;
+
+        //Rect rect = messageBox.GetComponent<RectTransform>().rect;
+        //rect.height = sizeVec.y;
+
+        RectTransform rectTransform = messageBox.GetComponent<RectTransform>();
+        //rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, sizeVec.y + paddingY);
+        rectTransform.sizeDelta = new Vector2(825f, sizeVec.y + paddingY);
+
+        //Debug.Log("messageText.GetRenderedValues():" + messageText.GetRenderedValues());
+        //Debug.Log("messageText.textBounds:" + messageText.textBounds);
+
+        //messageBox.transform ?
+    }
+
     /// <summary>
     /// Hides the message.
     /// </summary>
@@ -216,6 +284,13 @@ public class UI_MessageManager
         message.Hide();
         int id = message.GetMessageTextIdx();
         messageTexts[id].text = "";                     // Clear message text
+
+        messageTexts[id].gameObject.SetActive(false);
+        messageBoxes[id].gameObject.SetActive(false);
+        //Debug.Log("messageTexts[id].textBounds:" + messageTexts[id].textBounds);
+        //messageTexts[id].textBounds.extents.x = 0;
+
+        //messageBoxes[id].transform.position = new Vector3(0, 0, 0);
 
         if (message.cubeIdxList == null)
             return;
@@ -253,6 +328,25 @@ public class UI_MessageManager
     }
 
     /// <summary>
+    /// Hides all messages
+    /// </summary>
+    public void HideAllMessages()
+    {
+        foreach (UI_Message msg in messages)
+        {
+            msg.Hide();
+        }
+        foreach (UI_Message msg in fireMessages)
+        {
+            msg.Hide();
+        }
+        foreach (GameObject obj in messageBoxes)
+        {
+            obj.SetActive(false);
+        }
+    }
+
+    /// <summary>
     /// Get all fire messages
     /// </summary>
     /// <returns></returns>
@@ -284,10 +378,12 @@ public class UI_MessageManager
         if (messageTexts == null)
             return;
 
-        foreach (Text text in messageTexts)
+        foreach (TextMeshProUGUI text in messageTexts)
         {
             text.text = "";
         }
+
+        HideAllMessages();
     }
 
     public void ClearLabels()
