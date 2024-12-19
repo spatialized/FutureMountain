@@ -285,11 +285,6 @@ public class GameController : MonoBehaviour
         StartCoroutine(InitializeGame());
     }
 
-    void test1(string jsonString)
-    {
-        Debug.Log("jsonString:" + jsonString);
-    }
-
     /// <summary>
     /// Initializes main game objects.
     /// </summary>
@@ -1242,6 +1237,7 @@ public class GameController : MonoBehaviour
         exitSideBySideButtonObject.SetActive(true);
         zoomOutButtonObject.SetActive(false);
 
+        UpdateModelDisplayFromToggle(showModelDataToggleObject);
         if (displayModel)
         {
             cubeLStats.SetActive(true);
@@ -2260,9 +2256,9 @@ public class GameController : MonoBehaviour
     }
 
     /// <summary>
-    /// Toggles the data display.
+    /// Updates the data display based on the "Show Model" toggle state.
     /// </summary>
-    public void ToggleModelDisplay(GameObject toggleObject)
+    public void UpdateModelDisplayFromToggle(GameObject toggleObject)
     {
         Toggle toggle = toggleObject.GetComponent<Toggle>();
         bool state = toggle.isOn;
@@ -2536,7 +2532,7 @@ public class GameController : MonoBehaviour
             cubesToggleObject.GetComponent<Toggle>().isOn = true;
         camControl.SetCameraFlyMode(false);
 
-        ToggleModelDisplay(showModelDataToggleObject);
+        UpdateModelDisplayFromToggle(showModelDataToggleObject);
 
         uiTimeline.ClearTimeline();
         messageManager.ClearMessages();

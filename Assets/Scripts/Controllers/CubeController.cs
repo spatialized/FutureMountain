@@ -45,7 +45,7 @@ public class CubeController : MonoBehaviour
 
     /* Objects */
     public GameObject cubeObject;                            // Cube base containing all cube parts (except glass)
-    public GameObject cubeLabel { get; set; }                // Cube label
+    public GameObject cubeLabel;                // Cube label
     private List<ParticleSystem.EmissionModule> emissions;                // List of all ET emitting objects in cube
     public GameObject housePrefab;             // House to spawn
 
@@ -541,7 +541,7 @@ public class CubeController : MonoBehaviour
         precipToGWController = rainToGWPrefab.GetComponent<WaterToGWController>();
         Assert.IsNotNull(precipToGWController);
 
-        cubeLabel = transform.Find("CubeLabel").gameObject;              // Get (cube) base object
+        //cubeLabel = transform.Find("CubeLabel").gameObject;              // Get (cube) base object
         Assert.IsNotNull(cubeLabel);
         cubeLabel.SetActive(false);
 

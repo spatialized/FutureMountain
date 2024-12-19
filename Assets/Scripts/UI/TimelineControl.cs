@@ -54,11 +54,12 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     private float messageYOffset = 70f;                 // Offset of event icons from bottom of screen
 
     /* Text */
-    public GameObject uiTimelineDateTextObject;                    // UI Date Text Object
-    public Text uiTimelineLabelTextField;                           // UI Date Text Object
+    public GameObject uiPrecipLabelTextObject;                  // UI Precip Label Text Object
+    public GameObject uiTimelineDateTextObject;                 // UI Date Text Object
+    public Text uiTimelineLabelTextField;                       // UI Date Text Field
 
     /* Time */
-    private int simulationYear = -1;                                // Current year in simulation
+    private int simulationYear = -1;                            // Current year in simulation
     private int startYear = -1;
     private GameObject[] points;
 
@@ -88,6 +89,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         Assert.IsNotNull(fireIconPrefab);
         Assert.IsNotNull(messageIconPrefab);
 
+        Assert.IsNotNull(uiPrecipLabelTextObject);
         //uiTimelineDateTextObject = GameObject.Find("TimelineText");
         Assert.IsNotNull(uiTimelineDateTextObject);
         //uiTimelineLabelTextField = uiTimelineDateTextObject.GetComponent<Text>() as Text;
@@ -322,6 +324,11 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
                 pos.y = precipYOffset;
                 uiTimelineLabelTextField.transform.position = pos;
                 uiTimelineLabelTextField.enabled = true;
+            }
+
+            if (!uiPrecipLabelTextObject.activeSelf)
+            {
+                uiPrecipLabelTextObject.SetActive(true);
             }
 
             SetColorForYear(simulationYear, defaultColor);                    // Set previous year to default color

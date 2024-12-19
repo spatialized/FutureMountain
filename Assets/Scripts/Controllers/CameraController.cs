@@ -331,7 +331,9 @@ public class CameraController : MonoBehaviour {
         moving = false;
         zoomed = true;
         pauseState = GamePauseState.unpause;
-        zoomOutButtonObject.SetActive(true);
+
+        if(!GameController.Instance.sideBySideMode)
+            zoomOutButtonObject.SetActive(true);
     }
 
     /// <summary>
