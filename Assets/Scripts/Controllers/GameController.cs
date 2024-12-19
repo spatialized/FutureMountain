@@ -1213,6 +1213,7 @@ public class GameController : MonoBehaviour
             return;
 
         sbsIdx = idx;
+        sideBySideMode = true;
 
         HideCubes(false, idx);
 
@@ -1250,7 +1251,6 @@ public class GameController : MonoBehaviour
         }
         
         sideBySideCanvas.enabled = true;
-        sideBySideMode = true;
         sideBySideModeToggleObject.GetComponent<Toggle>().isOn = false;
     }
 
@@ -1885,7 +1885,11 @@ public class GameController : MonoBehaviour
     private void ShowStatistics()
     {
         if (sideBySideMode)
+        {
+            cubeLStats.SetActive(true);
+            cubeRStats.SetActive(true);
             return;
+        }
 
         aggregateCubeController.ShowStatistics();
         foreach (CubeController cube in cubes)
@@ -1911,7 +1915,10 @@ public class GameController : MonoBehaviour
     private void HideStatistics()
     {
         if (sideBySideMode)
-            return;
+        {
+            cubeLStats.SetActive(true);
+            cubeRStats.SetActive(true);
+        }
 
         aggregateCubeController.HideStatistics();
         foreach (CubeController cube in cubes)
