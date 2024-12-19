@@ -42,16 +42,18 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     //EventSystem eventSystem;
 
     private int resolution;
-    private static float widthFactor = 0.5f;                        // Timeline width factor
-    private static float xOffset = 750f; // 282f;                        // Timeline x offset
-    private static float yOffset = 150f;                             // Timeline y offset
-    //private static float xOffsetFactor = 0f;  //2f;                 // Timeline x offset factor
-    //private static float yOffsetFactor = 1f;                        // Timeline y offset factor
+    private static float widthFactor = 0.5f;                         // Timeline width factor
+    //private static float xOffset = 750f; // 282f;                  // Timeline x offset
+    //private static float yOffset = 150f;                           // Timeline y offset
+    //private static float xOffsetFactor = 0f;  //2f;                // Timeline x offset factor
+    //private static float yOffsetFactor = 1f;                       // Timeline y offset factor
     //private float dateYOffset = yOffset * 0.5f;                    // Offset of date text from bottom of screen
-    private float dateYOffset = 0f;                    // Offset of date text from bottom of screen
-    private float precipYOffset = 0f;                    // Offset of date text from bottom of screen
-    private float fireYOffset = 80f;                       // Offset of event icons from bottom of screen
-    private float messageYOffset = 70f;                 // Offset of event icons from bottom of screen
+    private float dateYOffset = 0f;                         // Offset of date text from bottom of screen
+    private float initDateXOffset = 0f;                     // Initial X offset of date text
+    private float initDateYOffset = 0f;                     // Initial Y offset of date text
+    private float precipYOffset = 0f;                       // Offset of date text from bottom of screen
+    //private float fireYOffset = 80f;                      // Offset of event icons from bottom of screen
+    //private float messageYOffset = 70f;                   // Offset of event icons from bottom of screen
 
     /* Text */
     public GameObject uiPrecipLabelTextObject;                  // UI Precip Label Text Object
@@ -111,6 +113,9 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         uiTimelineDateTextObject.transform.position = pos;
         uiTimelineDateTextObject.SetActive(true);
 
+        initDateXOffset = pos.x;
+        initDateYOffset = dateYOffset;
+
         pos = uiTimelineLabelTextField.transform.position;
         precipYOffset = uiTimelineLabelTextField.transform.position.y;
         pos.y = 30000f;
@@ -126,6 +131,15 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             Debug.Log("TimelineControl.Initialize()");
         gameController = newGameController;
         //messageManager = gameController.messageManager;
+    }
+
+    public void ResetTimeline()
+    {
+        Vector3 pos = new Vector3(initDateXOffset, 30000f, 0f);
+        dateYOffset = initDateYOffset;
+        //pos.y = 30000f;
+        uiTimelineDateTextObject.transform.position = pos;
+        uiTimelineDateTextObject.SetActive(true);
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -538,7 +552,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             Image image = points[i].GetComponent<Image>() as Image;
             image.color = defaultColor;
 
-            float step = Screen.width * widthFactor / resolution;
+            //float step = Screen.width * widthFactor / resolution;
             
             bool even = i % 2 == 0;
             int iconYear = i + startYear;
@@ -790,10 +804,25 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         {
             Destroy(obj);
         }
-
-        Vector3 pos = uiTimelineDateTextObject.transform.position;
-        pos.y = dateYOffset;
-        uiTimelineDateTextObject.transform.position = pos;
+        foreach (Transform child in fireIconsLayoutGroupEven.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach (Transform child in fireIconsLayoutGroupOdd.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach (Transform child in messageIconsLayoutGroupEven.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        foreach (Transform child in messageIconsLayoutGroupOdd.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        //Vector3 pos = uiTimelineDateTextObject.transform.position;
+        //pos.y = dateYOffset;
+        //uiTimelineDateTextObject.transform.position = pos;
     }
 
     /// <summary>

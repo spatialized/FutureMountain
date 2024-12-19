@@ -2542,6 +2542,8 @@ public class GameController : MonoBehaviour
         UpdateModelDisplayFromToggle(showModelDataToggleObject);
 
         uiTimeline.ClearTimeline();
+        uiTimeline.ResetTimeline();
+
         messageManager.ClearMessages();
         messageManager.ClearLabels();
 
