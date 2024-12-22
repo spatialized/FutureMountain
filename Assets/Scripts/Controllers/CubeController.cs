@@ -157,7 +157,7 @@ public class CubeController : MonoBehaviour
 
     public int warmingIdx;                     // Current warming index
     public int warmingDegrees;                 // Current warming degrees
-    public int warmingRange;                   // Warming range (warming idx values)
+    public int warmingRange;                   // Warming range (idx values for data -- unused in Web)
 
     /* Display + UI */
     private GameObject displayObject;           // UI Display game object
@@ -665,9 +665,10 @@ public class CubeController : MonoBehaviour
     /// Enter Side-by-Side Mode
     /// </summary>
     /// <param name="sideBySideStatsPanel">Statistics panel to use for cube</param>
-    public void EnterSideBySide(int newTimeIdx, GameObject sideBySideStatsPanel)
+    public void EnterSideBySide(int newTimeIdx, GameObject sideBySideStatsPanel, int newWarmingIdx)
     {
         timeIdx = newTimeIdx;
+        SetWarmingIdx(newWarmingIdx);
 
         if (settings.DebugGame)
             Debug.Log(transform.name + ".EnterSideBySide()... Cube Name: " + name);
@@ -903,15 +904,57 @@ public class CubeController : MonoBehaviour
     public void SetWarmingIdx(int newWarmingIdx)
     {
         warmingIdx = newWarmingIdx;
+
+        switch (warmingIdx)
+        {
+            case 0:                 // Baseline
+                SetWarmingDegrees(0, false);
+                break;
+            case 1:                 // 1 Degree
+                SetWarmingDegrees(1, false);
+                break;
+            case 2:                 // 2 Degrees
+                SetWarmingDegrees(2, false);
+                break;
+            case 4:                 // 4 Degrees
+                SetWarmingDegrees(4, false);
+                break;
+            case 6:                 // 6 Degrees
+                SetWarmingDegrees(6, false);
+                break;
+        }
     }
 
     /// <summary>
     /// Set warming degrees
     /// </summary>
-    /// <param name="newWarmingDegrees"></param>
-    public void SetWarmingDegrees(int newWarmingDegrees)
+    /// <param name="newWarmingDegrees">New warming degree amount</param>
+    /// <param name="setIndex">Flag to set index as well</param>
+    public void SetWarmingDegrees(int newWarmingDegrees, bool setIndex)
     {
         warmingDegrees = newWarmingDegrees;
+
+        if (!setIndex)
+            return;
+
+        switch (newWarmingDegrees)
+        {
+            case 0:                 // Baseline
+                warmingIdx = 0;
+                break;
+            case 1:                 // 1 Degree
+                warmingIdx = 1;
+                break;
+            case 2:                 // 2 Degrees
+                warmingIdx = 2;
+                break;
+            case 4:                 // 4 Degrees
+                warmingIdx = 3;
+                break;
+            case 6:                 // 6 Degrees
+                warmingIdx = 4;
+                break;
+        }
     }
 
     /// <summary>
@@ -2201,6 +2244,10 @@ public class CubeController : MonoBehaviour
         int randIdx = (int)Mathf.Round(Random.Range(0f, shrubPrefabs.Count - 1f));
         shrubPrefab = shrubPrefabs[randIdx];
 
+        if (shrubPrefab == null)
+        {
+            Debug.Log(name+"... ERROR shrubPrefab at idx "+randIdx+" is null!");
+        }
         Quaternion newRotation = new Quaternion(0f, 0f, 0f, 0f);
         GameObject newShrubObj = Instantiate(shrubPrefab, location, newRotation, cubeObject.transform);     // Instantiate shrub
         newRotation.eulerAngles.Set(0f, Random.Range(0f, 360f), 0f);                                     // Choose random rotation
@@ -4251,8 +4298,15 @@ public class CubeController : MonoBehaviour
 
         foreach (ShrubController shrub in shrubs)
         {
-            ParticleSystem.EmissionModule em = shrub.pSystem.emission;
-            etAmount += em.rateOverTime.constant;
+            try
+            {
+                ParticleSystem.EmissionModule em = shrub.pSystem.emission;
+                etAmount += em.rateOverTime.constant;
+            }
+            catch (Exception ex)
+            {
+                Debug.Log(name+"... ERROR ex:"+ex.Message);
+            }
         }
 
         return etAmount;

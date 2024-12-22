@@ -509,7 +509,7 @@ public class GameController : MonoBehaviour
             cubes[0].Initialize(etPrefab, shrubETPrefab, firePrefab);
             yield return null;
             cubes[0].SetWarmingIdx(warmingIdx);
-            cubes[0].SetWarmingDegrees(warmingDegrees);
+            //cubes[0].SetWarmingDegrees(warmingDegrees);
             yield return null;
 
             if (!settings.BuildForWeb)
@@ -556,7 +556,7 @@ public class GameController : MonoBehaviour
             sideCubes[0].Initialize(etPrefab, shrubETPrefab, firePrefab);
             yield return null;
             sideCubes[0].SetWarmingIdx(warmingIdx);
-            sideCubes[0].SetWarmingDegrees(warmingDegrees);
+            //sideCubes[0].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[0].FindParameterRanges();
             sideCubes[0].SetModelDebugMode(debugModel);
@@ -600,7 +600,7 @@ public class GameController : MonoBehaviour
             cubes[1].Initialize(etPrefab, shrubETPrefab, firePrefab);
             yield return null;
             cubes[1].SetWarmingIdx(warmingIdx);
-            cubes[1].SetWarmingDegrees(warmingDegrees);
+            //cubes[1].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 cubes[1].FindParameterRanges();
             cubes[1].SetModelDebugMode(debugModel);
@@ -630,7 +630,7 @@ public class GameController : MonoBehaviour
             sideCubes[1].Initialize(etPrefab, shrubETPrefab, firePrefab);
             yield return null;
             sideCubes[1].SetWarmingIdx(warmingIdx);
-            sideCubes[1].SetWarmingDegrees(warmingDegrees);
+            //sideCubes[1].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[1].FindParameterRanges();
             sideCubes[1].SetModelDebugMode(debugModel);
@@ -670,7 +670,7 @@ public class GameController : MonoBehaviour
             cubes[2].Initialize(etPrefab, shrubETPrefab, firePrefab);
             yield return null;
             cubes[2].SetWarmingIdx(warmingIdx);
-            cubes[2].SetWarmingDegrees(warmingDegrees);
+            //cubes[2].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 cubes[2].FindParameterRanges();
             cubes[2].SetModelDebugMode(debugModel);
@@ -699,7 +699,7 @@ public class GameController : MonoBehaviour
             sideCubes[2].Initialize(etPrefab, shrubETPrefab, firePrefab);
             yield return null;
             sideCubes[2].SetWarmingIdx(warmingIdx);
-            sideCubes[2].SetWarmingDegrees(warmingDegrees);
+            //sideCubes[2].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[2].FindParameterRanges();
             sideCubes[2].SetModelDebugMode(debugModel);
@@ -739,7 +739,7 @@ public class GameController : MonoBehaviour
             cubes[3].Initialize(etPrefab, shrubETPrefab, firePrefab);
             yield return null;
             cubes[3].SetWarmingIdx(warmingIdx);
-            cubes[3].SetWarmingDegrees(warmingDegrees);
+            //cubes[3].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 cubes[3].FindParameterRanges();
             cubes[3].SetModelDebugMode(debugModel);
@@ -768,7 +768,7 @@ public class GameController : MonoBehaviour
             sideCubes[3].Initialize(etPrefab, shrubETPrefab, firePrefab);
             yield return null;
             sideCubes[3].SetWarmingIdx(warmingIdx);
-            sideCubes[3].SetWarmingDegrees(warmingDegrees);
+            //sideCubes[3].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[3].FindParameterRanges();
             sideCubes[3].SetModelDebugMode(debugModel);
@@ -808,7 +808,7 @@ public class GameController : MonoBehaviour
             cubes[4].Initialize(etPrefab, shrubETPrefab, firePrefab);
             yield return null;
             cubes[4].SetWarmingIdx(warmingIdx);
-            cubes[4].SetWarmingDegrees(warmingDegrees);
+            //cubes[4].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 cubes[4].FindParameterRanges();
             cubes[4].SetModelDebugMode(debugModel);
@@ -837,7 +837,7 @@ public class GameController : MonoBehaviour
             sideCubes[4].Initialize(etPrefab, shrubETPrefab, firePrefab);
             yield return null;
             sideCubes[4].SetWarmingIdx(warmingIdx);
-            sideCubes[4].SetWarmingDegrees(warmingDegrees);
+            //sideCubes[4].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[4].FindParameterRanges();
             sideCubes[4].SetModelDebugMode(debugModel);
@@ -882,7 +882,7 @@ public class GameController : MonoBehaviour
             aggregateCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
             yield return null;
             aggregateCubeController.SetWarmingIdx(warmingIdx);
-            aggregateCubeController.SetWarmingDegrees(warmingDegrees);
+            //aggregateCubeController.SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 aggregateCubeController.FindParameterRanges();
             aggregateCubeController.SetModelDebugMode(debugModel);
@@ -910,7 +910,7 @@ public class GameController : MonoBehaviour
             aggregateSideCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
             yield return null;
             aggregateSideCubeController.SetWarmingIdx(warmingIdx);
-            aggregateSideCubeController.SetWarmingDegrees(warmingDegrees);
+            //aggregateSideCubeController.SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 aggregateSideCubeController.FindParameterRanges();
             aggregateSideCubeController.SetModelDebugMode(debugModel);
@@ -1220,19 +1220,21 @@ public class GameController : MonoBehaviour
         CubeController cube = cubes[idx];
         CubeController sideCube = sideCubes[idx];
 
-        cube.EnterSideBySide(timeIdx, cubeLStats);
+        cube.EnterSideBySide(timeIdx, cubeLStats, warmingIdx);
+        warmingKnob1Slider.enabled = true;
+        warmingKnob1Object.SetActive(true);
+        //warmingKnob1Slider.SetToWarmingIdx(warmingIdx);
+        StartCoroutine(SetSliderToWarmingIdxNextFrame(warmingKnob1Slider, warmingIdx));
 
         sideCube.gameObject.SetActive(true);
-
         sideCube.StartSimulation(timeIdx, timeStep);
         sideCube.messageManager = messageManager;
+        sideCube.EnterSideBySide(timeIdx, cubeRStats, warmingIdx == 0 ? 1 : 0);
 
-        sideCube.EnterSideBySide(timeIdx, cubeRStats);
-
-        warmingKnob1Object.SetActive(true);
-        warmingKnob1Slider.enabled = true;
-        warmingKnob2Object.SetActive(true);
         warmingKnob2Slider.enabled = true;
+        warmingKnob2Object.SetActive(true);
+        StartCoroutine(SetSliderToWarmingIdxNextFrame(warmingKnob2Slider, warmingIdx == 0 ? 1 : 0));
+        //warmingKnob2Slider.SetToWarmingIdx(warmingIdx == 0 ? 1 : 0);
         warmingKnobObject.SetActive(false);
 
         exitSideBySideButtonObject.SetActive(true);
@@ -1254,6 +1256,13 @@ public class GameController : MonoBehaviour
         sideBySideModeToggleObject.GetComponent<Toggle>().isOn = false;
     }
 
+    private IEnumerator SetSliderToWarmingIdxNextFrame(WarmingKnobSlider slider, int idx)
+    {
+        yield return null;
+        slider.SetToWarmingIdx(idx);
+    }
+
+
     /// <summary>
     /// Exit Side-by-Side Mode
     /// </summary>
@@ -1274,6 +1283,15 @@ public class GameController : MonoBehaviour
         warmingKnob2Object.SetActive(false);
         warmingKnob2Slider.enabled = false;
         warmingKnobObject.SetActive(true);
+
+        foreach (var cube in cubes)
+        {
+            cube.SetWarmingIdx(warmingIdx);
+        }
+        foreach (var cube in sideCubes)
+        {
+            cube.SetWarmingIdx(0);
+        }
         //warmingKnobSlider.enabled = false;
 
         cubeLStats.SetActive(false);
@@ -1916,8 +1934,8 @@ public class GameController : MonoBehaviour
     {
         if (sideBySideMode)
         {
-            cubeLStats.SetActive(true);
-            cubeRStats.SetActive(true);
+            cubeLStats.SetActive(false);
+            cubeRStats.SetActive(false);
         }
 
         aggregateCubeController.HideStatistics();
@@ -2607,7 +2625,7 @@ public class GameController : MonoBehaviour
 
             sideCubes[sbsIdx].ResetCube();
             sideCubes[sbsIdx].SetWarmingIdx(newIdx);
-            sideCubes[sbsIdx].SetWarmingDegrees(newDegrees);
+            //sideCubes[sbsIdx].SetWarmingDegrees(newDegrees);
             sideCubes[sbsIdx].StartSimulation(timeIdx, timeStep);
         }
         else
@@ -2617,7 +2635,7 @@ public class GameController : MonoBehaviour
 
             cubes[sbsIdx].ResetCube();
             cubes[sbsIdx].SetWarmingIdx(newIdx);
-            cubes[sbsIdx].SetWarmingDegrees(newDegrees);
+            //cubes[sbsIdx].SetWarmingDegrees(newDegrees);
             cubes[sbsIdx].StartSimulation(timeIdx, timeStep);
         }
     }

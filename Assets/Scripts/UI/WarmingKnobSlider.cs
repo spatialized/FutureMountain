@@ -64,13 +64,37 @@ public class WarmingKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler,
     /// <param name="newAngle">New angle.</param>
     public void SetAngle(float newAngle)
     {
-        angle_Z = newAngle;
+        angle_Z = -newAngle;
         this.thumbSign.transform.rotation = Quaternion.Euler(0, 0, angle_Z);
         warmingValue = GetValueFromAngle();
 
         //Debug.Log(name + ".SetAngle()... Chose warmingValue:" + warmingValue+ " newAngle:"+ newAngle);
 
-        if (this.label != null) this.label.text = string.Format(this.format, warmingValue);
+        //if (this.label != null) this.label.text = string.Format(this.format, warmingValue);
+    }
+
+    public void SetToWarmingIdx(int idx)
+    {
+        switch (idx)
+        {
+            case 0:
+                SetAngle(zeroAngle);
+                break;
+            case 1:
+                SetAngle(oneAngle);
+                break;
+            case 2:
+                SetAngle(twoAngle);
+                break;
+            case 3:
+                SetAngle(fourAngle);
+                break;
+            case 4:
+                SetAngle(sixAngle);
+                break;
+            default:
+                break;
+        }
     }
 
     /// <summary>
@@ -281,7 +305,7 @@ public class WarmingKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler,
         angle_Z = GetCircleValue(angle_Z);
         angle_Z = DiscretizeAngle(angle_Z) + angleAdjustAmt;
 
-        angle_Z *= -1f;
+        //angle_Z *= -1f;
 
         SetAngle(angle_Z);
 

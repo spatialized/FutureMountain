@@ -14,6 +14,12 @@ public class ShrubController : MonoBehaviour
         rend = newRend;
         pSystem = newPSystem;
 
+        if (pSystem == null)
+        {
+            Debug.Log(name+"... ERROR... Prefab has no particle system!");
+            return;
+        }
+
         mainModule = pSystem.main;
         emissionModule = pSystem.emission;
 
