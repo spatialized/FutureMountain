@@ -1313,6 +1313,13 @@ public class CubeController : MonoBehaviour
             }
 
             snowManager.snowValue = snowValue;
+            //if (name.Equals("CubeD") || name.Equals("CubeD_Side"))
+            //{
+            //    if (GameController.Instance.sideBySideMode)
+            //    {
+            //        Debug.Log(name+".snowManager.snowValue: " + snowManager.snowValue);
+            //    }
+            //}
 
             if (!terrainBurning)
             {
@@ -1605,7 +1612,7 @@ public class CubeController : MonoBehaviour
     {
         if (full)  // Always true
         {
-            //Debug.Log("UpdateDataFromWeb()...");
+            //Debug.Log(name+".UpdateDataFromWeb()... warmingIdx: "+warmingIdx);
             WebManager.Instance.RequestCubeData(patchID, warmingIdx, this.FinishUpdateDataFromWeb);
         }
         //else       // Unused
@@ -1665,8 +1672,8 @@ public class CubeController : MonoBehaviour
         CubeData[] rows = rowsObj.rows;
 
         //Debug.Log(name + ".UpdateDataRowsFromJSON()... rows.Length: " + rows.Length);
-        //Debug.Log("UpdateDataRowsFromJSON()... rows[0].DateIdx: " + rows[0].dateIdx + " rows[0].VegAccessWater" + rows[0].vegAccessWater + " rows[0].Evap: " + rows[0].evap + " rows[0].DepthToGW: " + rows[0].depthToGW);
-        //Debug.Log("UpdateDataRowsFromJSON()... rows[5].DateIdx: " + rows[5].dateIdx + " rows[5].VegAccessWater" + rows[5].vegAccessWater + " rows[5].Evap: " + rows[5].evap + " rows[5].DepthToGW: " + rows[5].depthToGW);
+        //Debug.Log(name + ".UpdateDataRowsFromJSON()... rows[0].DateIdx: " + rows[0].dateIdx + " rows[0].VegAccessWater" + rows[0].vegAccessWater + " rows[0].Evap: " + rows[0].evap + " rows[0].DepthToGW: " + rows[0].depthToGW);
+        //Debug.Log(name + ".UpdateDataRowsFromJSON()... rows[5].DateIdx: " + rows[5].dateIdx + " rows[5].VegAccessWater" + rows[5].vegAccessWater + " rows[5].Evap: " + rows[5].evap + " rows[5].DepthToGW: " + rows[5].depthToGW);
 
         dataRows = rows;
 
@@ -1686,6 +1693,8 @@ public class CubeController : MonoBehaviour
 
     private void FinishUpdateDataFromWeb(string jsonString) // -- TO DO: OPTIMIZE THIS!!!  CALCULATE PARAMETERS ON BACKEND!!!
     {
+        //Debug.Log(name + ".FinishUpdateDataFromWeb()... jsonString: "+jsonString.Substring(0, 500));
+
         UpdateDataRowsFromJSON(jsonString);     // Update data for parameter range finding
         FindParameterRanges();
         UpdateDataFromJSON(jsonString);         // Update data for simulation

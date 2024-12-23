@@ -199,13 +199,13 @@ public class CameraController : MonoBehaviour {
             else
                 animTriggerName = "SBS_Cube" + (cubeIdx + 1);
 
-            Debug.Log("Calling EnterSideBySideMode()... cubeIdx: "+cubeIdx);
+            //Debug.Log("Calling EnterSideBySideMode()... cubeIdx: "+cubeIdx);
             GameController.Instance.EnterSideBySideMode(cubeIdx);
 
             pauseState = GamePauseState.pause;
             moving = true;
 
-            Debug.Log("StartZoomIntoCube()... In Side-by-Side Mode... animTriggerName: " + animTriggerName);
+            //Debug.Log("StartZoomIntoCube()... In Side-by-Side Mode... animTriggerName: " + animTriggerName);
 
             animator.SetTrigger(animTriggerName);
             StartCoroutine(ZoomingIn());

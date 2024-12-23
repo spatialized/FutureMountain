@@ -699,9 +699,9 @@ public class LandscapeController : MonoBehaviour
 
                         TextAsset patchExtTextAsset = (TextAsset)Resources.Load("WaterData/WaterData");
                         waterData = JsonConvert.DeserializeObject<List<WaterDataYear>>(patchExtTextAsset.text);
-                    }
 
-                    CalculateWaterRanges(); // Calculate streamflow range
+                        CalculateWaterRanges(); // Calculate streamflow range
+                    }
                 }
                 catch (Exception ex)
                 {

@@ -50,7 +50,7 @@ public class WaterToGWController : MonoBehaviour
     {
         if (!ps)
         {
-            Debug.Log(name + ".WaterToGWController()... Play()... ERROR null ps!");
+            Debug.Log(transform.parent.name+"."+name + ".WaterToGWController()... Play()... ERROR null ps!");
             return;
         }
 

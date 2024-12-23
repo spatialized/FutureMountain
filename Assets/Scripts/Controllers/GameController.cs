@@ -1206,7 +1206,7 @@ public class GameController : MonoBehaviour
     {
         if(idx == -1)
         {
-            // TO DO: Aggregeate Cube
+            // TO DO: Aggregate Cube
         }
 
         if (idx < 0 || idx > 4)
@@ -1220,20 +1220,20 @@ public class GameController : MonoBehaviour
         CubeController cube = cubes[idx];
         CubeController sideCube = sideCubes[idx];
 
-        cube.EnterSideBySide(timeIdx, cubeLStats, warmingIdx);
+        //cube.EnterSideBySide(timeIdx, cubeLStats, warmingIdx);
         warmingKnob1Slider.enabled = true;
         warmingKnob1Object.SetActive(true);
         //warmingKnob1Slider.SetToWarmingIdx(warmingIdx);
-        StartCoroutine(SetSliderToWarmingIdxNextFrame(warmingKnob1Slider, warmingIdx));
+        StartCoroutine(FinishEnteringSideBySideMode(cube, cubeLStats, warmingKnob1Slider, warmingIdx));
 
-        sideCube.gameObject.SetActive(true);
-        sideCube.StartSimulation(timeIdx, timeStep);
-        sideCube.messageManager = messageManager;
-        sideCube.EnterSideBySide(timeIdx, cubeRStats, warmingIdx == 0 ? 1 : 0);
+        //sideCube.gameObject.SetActive(true);
+        //sideCube.StartSimulation(timeIdx, timeStep);
+        //sideCube.messageManager = messageManager;
+        //sideCube.EnterSideBySide(timeIdx, cubeRStats, warmingIdx == 0 ? 1 : 0);
 
         warmingKnob2Slider.enabled = true;
         warmingKnob2Object.SetActive(true);
-        StartCoroutine(SetSliderToWarmingIdxNextFrame(warmingKnob2Slider, warmingIdx == 0 ? 1 : 0));
+        StartCoroutine(FinishEnteringSideBySideMode(sideCube, cubeRStats, warmingKnob2Slider, warmingIdx == 0 ? 1 : 0));
         //warmingKnob2Slider.SetToWarmingIdx(warmingIdx == 0 ? 1 : 0);
         warmingKnobObject.SetActive(false);
 
@@ -1241,25 +1241,39 @@ public class GameController : MonoBehaviour
         zoomOutButtonObject.SetActive(false);
 
         UpdateModelDisplayFromToggle(showModelDataToggleObject);
-        if (displayModel)
-        {
-            cubeLStats.SetActive(true);
-            cubeRStats.SetActive(true);
-        }
-        else
-        {
-            cubeLStats.SetActive(false);
-            cubeRStats.SetActive(false);
-        }
+        //if (displayModel)
+        //{
+        //    cubeLStats.SetActive(true);
+        //    cubeRStats.SetActive(true);
+        //}
+        //else
+        //{
+        //    cubeLStats.SetActive(false);
+        //    cubeRStats.SetActive(false);
+        //}
         
         sideBySideCanvas.enabled = true;
         sideBySideModeToggleObject.GetComponent<Toggle>().isOn = false;
     }
 
-    private IEnumerator SetSliderToWarmingIdxNextFrame(WarmingKnobSlider slider, int idx)
+    private IEnumerator FinishEnteringSideBySideMode(CubeController cube, GameObject statsObj, WarmingKnobSlider slider, int warmIdx)
     {
         yield return null;
-        slider.SetToWarmingIdx(idx);
+        slider.SetToWarmingIdx(warmIdx);
+
+        yield return null;
+        cube.gameObject.SetActive(true);
+        cube.StartSimulation(timeIdx, timeStep);
+        cube.messageManager = messageManager;
+        cube.EnterSideBySide(timeIdx, statsObj, warmIdx);
+
+        if (displayModel)
+            statsObj.SetActive(true);
+        else
+            statsObj.SetActive(false);
+
+        if (debugGame && debugDetailed)
+            Debug.Log(name+".FinishEnteringSideBySideMode()... cube.name:"+ cube.name+"... slider.name: "+slider.name+" warmIdx:"+ warmIdx);
     }
 
 
@@ -1318,6 +1332,8 @@ public class GameController : MonoBehaviour
 
         exitSideBySideButtonObject.SetActive(false);
         zoomOutButtonObject.SetActive(false);
+        endButtonObject.SetActive(false);
+        StartCoroutine(ShowEndButtonInSeconds(3f));
 
         sideBySideCanvas.enabled = true;
         sideBySideMode = false;
@@ -1895,6 +1911,12 @@ public class GameController : MonoBehaviour
     {
         simulationUICanvas.enabled = value;
         simulationUICanvas.gameObject.SetActive(value);
+    }
+
+    private IEnumerator ShowEndButtonInSeconds(float sec)
+    {
+        yield return new WaitForSeconds(sec);
+        endButtonObject.SetActive(true);
     }
 
     /// <summary>
