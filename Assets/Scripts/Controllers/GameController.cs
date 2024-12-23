@@ -15,14 +15,15 @@ using Newtonsoft.Json;
 public class GameController : MonoBehaviour
 {
     #region Debug
+
     /* Debugging */
     private bool debugGame = false;                 // Debug messages on / off
     private bool debugModel = false;                // Debug model (graph) display
-    private bool debugFire = true;                  // Debug fire
-    private bool debugWeb = true;
+    private bool debugFire = false;                 // Debug fire
+    private bool debugWeb = false;                  // Debug web
 
-    private bool debugDetailed = true;              // Detailed debugging
-    private bool debugFrame = false;              // Detailed debugging
+    private bool debugDetailed = false;             // Detailed debugging
+    private bool debugFrame = false;                // Frame-by-frame debugging
     private bool debugMessages = false;             // Debug messages on / off
 
     private int lastDebugMessageFrame = -1;         // Last debug message printed frame (for delayed debug messages)
@@ -1224,7 +1225,7 @@ public class GameController : MonoBehaviour
         warmingKnob1Slider.enabled = true;
         warmingKnob1Object.SetActive(true);
         //warmingKnob1Slider.SetToWarmingIdx(warmingIdx);
-        StartCoroutine(FinishEnteringSideBySideMode(cube, cubeLStats, warmingKnob1Slider, warmingIdx));
+        StartCoroutine(FinishEnteringSideBySideMode(cube, cubeLStats, warmingKnob1Slider, warmingIdx, false));
 
         //sideCube.gameObject.SetActive(true);
         //sideCube.StartSimulation(timeIdx, timeStep);
@@ -1233,7 +1234,7 @@ public class GameController : MonoBehaviour
 
         warmingKnob2Slider.enabled = true;
         warmingKnob2Object.SetActive(true);
-        StartCoroutine(FinishEnteringSideBySideMode(sideCube, cubeRStats, warmingKnob2Slider, warmingIdx == 0 ? 1 : 0));
+        StartCoroutine(FinishEnteringSideBySideMode(sideCube, cubeRStats, warmingKnob2Slider, warmingIdx == 0 ? 1 : 0, true));
         //warmingKnob2Slider.SetToWarmingIdx(warmingIdx == 0 ? 1 : 0);
         warmingKnobObject.SetActive(false);
 
@@ -1256,7 +1257,7 @@ public class GameController : MonoBehaviour
         sideBySideModeToggleObject.GetComponent<Toggle>().isOn = false;
     }
 
-    private IEnumerator FinishEnteringSideBySideMode(CubeController cube, GameObject statsObj, WarmingKnobSlider slider, int warmIdx)
+    private IEnumerator FinishEnteringSideBySideMode(CubeController cube, GameObject statsObj, WarmingKnobSlider slider, int warmIdx, bool initVegetation)
     {
         yield return null;
         slider.SetToWarmingIdx(warmIdx);
@@ -1272,8 +1273,17 @@ public class GameController : MonoBehaviour
         else
             statsObj.SetActive(false);
 
-        if (debugGame && debugDetailed)
-            Debug.Log(name+".FinishEnteringSideBySideMode()... cube.name:"+ cube.name+"... slider.name: "+slider.name+" warmIdx:"+ warmIdx);
+        yield return null;
+
+        if (initVegetation)
+        {
+            cube.StartSimulation(timeIdx, timeStep);
+            cube.UpdateVegetationFromData();            // Initialize vegetation
+            Debug.Log(name + ".FinishEnteringSideBySideMode()... cube.name:" + cube.name + "... UpdateVegetationFromData: TRUE... warmIdx:" + warmIdx);
+        }
+        else
+        //if (debugGame && debugDetailed)
+            Debug.Log(name+".FinishEnteringSideBySideMode()... cube.name:"+ cube.name+ "... UpdateVegetationFromData: FALSE... warmIdx:" + warmIdx);
     }
 
 
@@ -2219,8 +2229,8 @@ public class GameController : MonoBehaviour
     /// <param name="newState">If set to <c>true</c> new state.</param>
     public void SetPaused(bool newState)
     {
-        if (debugDetailed)
-            Debug.Log("SetPaused()... " + newState);
+        //if (debugDetailed)
+        //    Debug.Log("SetPaused()... " + newState);
 
         paused = newState;
 

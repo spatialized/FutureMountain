@@ -327,7 +327,7 @@ public class CameraController : MonoBehaviour {
     {
         yield return new WaitForSeconds(moveLength);
 
-        Debug.Log("ZoomingIn() finished... setting moving to false");
+        //Debug.Log("ZoomingIn() finished... setting moving to false");
         moving = false;
         zoomed = true;
         pauseState = GamePauseState.unpause;

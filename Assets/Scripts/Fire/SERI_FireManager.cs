@@ -221,7 +221,7 @@ public class SERI_FireManager : MonoBehaviour
                 fireGrid.Initialize(this, firePrefab, pos, gridWidth, gridHeight, pooler, fdf.GetDataList(), fdf.GetDataGrid(), newLandscapeController, true, false);
                 fireGrids[count] = fireGrid;
 
-                Debug.Log(name + ".Initialize()... grid #" + count);
+                //Debug.Log(name + ".Initialize()... grid #" + count);
 
                 count++;
             }

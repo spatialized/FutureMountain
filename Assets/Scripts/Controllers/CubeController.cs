@@ -112,8 +112,8 @@ public class CubeController : MonoBehaviour
     private int shrubCount;                       // Current number of grown shrubs in cube
     private float minShrubFullSize = 1.5f;        // Min. shrub grown size (m.)
     private float maxShrubFullSize = 2.5f;        // Max. shrub grown size (m.)
-    private float minGrassFullSize = 4f;        // Max. shrub grown size (m.)
-    private float maxGrassFullSize = 12f;        // Max. shrub grown size (m.)
+    private float minGrassFullSize = 1f;          // Max. shrub grown size (m.)
+    private float maxGrassFullSize = 3f;          // Max. shrub grown size (m.)
     private float shrubGrowthIncrement = 0.01f;   // Shrub growth increment per frame
 
     /* Timing */
@@ -409,6 +409,9 @@ public class CubeController : MonoBehaviour
 
         simulationOn = true;
 
+        if(debugCubes && debugDetailed)
+            Debug.Log(name+".StartSimulation()... simulationOn: "+simulationOn);
+
         timeIdx = startTimeIdx;
         timeStep = curTimeStep;
 
@@ -462,8 +465,9 @@ public class CubeController : MonoBehaviour
             combinedCarbonOver = StemCarbonOver + LeafCarbonOver;
 
             int treesToGrow = (int)Mathf.Round(combinedCarbonOver / treeAverageCarbonAmount);           // Use Overstory Data for Trees
-            if (debugTrees)
-                Debug.Log(transform.name + ".GrowInitialVegetation()... treeAverageCarbonAmount:" + treeAverageCarbonAmount + " combinedStemLeafCarbon:" + combinedCarbonOver + " treesToGrow:" + treesToGrow);
+            
+            if (debugTrees && debugDetailed)
+                Debug.Log(transform.name + ".GrowInitialVegetation()... treeAverageCarbonAmount:" + treeAverageCarbonAmount + " combinedCarbonOver:" + combinedCarbonOver + " treesToGrow:" + treesToGrow);
 
             for (int i = 0; i < treesToGrow; i++)            /* Grow Initial Trees */
             {
@@ -487,7 +491,9 @@ public class CubeController : MonoBehaviour
             //UpdateShrubRenderers();
         }
 
-        GrowInitialGrass(50);
+        GrowInitialGrass(60);
+
+        //Debug.Log(name + ".GrowInitialVegetation()... dataType: "+ dataType);
     }
 
     /// <summary>
@@ -1092,6 +1098,8 @@ public class CubeController : MonoBehaviour
             return;
 
         ResetCube();
+        //Debug.Log(name + ".UpdateVegetationFromData()... ");
+        UpdateCurrentData(timeIdx);         // Added 12/23/24
         GrowInitialVegetation();
     }
 
@@ -1313,13 +1321,15 @@ public class CubeController : MonoBehaviour
             }
 
             snowManager.snowValue = snowValue;
-            //if (name.Equals("CubeD") || name.Equals("CubeD_Side"))
-            //{
-            //    if (GameController.Instance.sideBySideMode)
-            //    {
-            //        Debug.Log(name+".snowManager.snowValue: " + snowManager.snowValue);
-            //    }
-            //}
+            if (name.Equals("CubeC") || name.Equals("CubeC_Side"))
+            {
+                if (GameController.Instance.sideBySideMode)
+                {
+                    Debug.Log(name + ".snowManager.snowValue: " + snowManager.snowValue+ " from SnowAmount:"+ SnowAmount);
+                    CubeData row = GetDataRow(timeIdx);
+                    Debug.Log(name+">>> row.snow: "+ row.snow);
+                }
+            }
 
             if (!terrainBurning)
             {
@@ -1699,7 +1709,8 @@ public class CubeController : MonoBehaviour
         FindParameterRanges();
         UpdateDataFromJSON(jsonString);         // Update data for simulation
 
-        GrowInitialVegetation();        // TESTING
+        UpdateVegetationFromData();     // TESTING -- ADDED 12/23/24
+        //GrowInitialVegetation();        // TESTING
     }
 
     /// <summary>
@@ -1814,6 +1825,15 @@ public class CubeController : MonoBehaviour
 
     CubeData GetDataRow(int timeIdx)
     {
+        if (!cubeData.ContainsKey(timeIdx))
+        {
+            if (timeIdx == 0)
+            {
+                timeIdx = 1;
+                Debug.Log(name+".GetDataRow()... WARNING: Fixed 0 timeIdx reference...");
+            }
+        }
+
         //return dataRows[timeIdx - currentDataTimeIdx];
         if (timeIdx > cubeData.Count)
         {
