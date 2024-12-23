@@ -11,14 +11,15 @@ using static CubeController;
 /// </summary>
 public class WebManager : MonoBehaviour
 {
-    private static bool runOnLocal = false;                 // Run on local (true) or remote (false) server
+    private static bool runOnLocal = true;                 // Run on local (true) or remote (false) server
     private static bool debug = false;
     private static bool debugDetailed = false;
 
     private static WebManager _instance;
     public static WebManager Instance { get { return _instance; } }
-
-    private static string connectionStringBase = runOnLocal ? "https://localhost:7273/api/" : "https://data.futuremtn.org/api/";
+    private static string connectionStringBase = runOnLocal ? "http://localhost:5550/api/" : "https://data.futuremtn.org/api/";
+    //private static string connectionStringBase = runOnLocal ? "http://localhost:13198/api/" : "https://data.futuremtn.org/api/";
+    //private static string connectionStringBase = runOnLocal ? "https://localhost:7273/api/" : "https://data.futuremtn.org/api/";
     //private static string connectionStringBase = runOnLocal ? "http://localhost:5056/api/" : "http://192.168.0.32:5550/api/";
     private static string apiPathCubes = "cubedata/";
     private static string apiPathWater = "waterdata/";

@@ -25,15 +25,16 @@ public class LandscapeController : MonoBehaviour
 
     #region Fields
     /* Settings */
-    private bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
-    private bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
-    //public bool dataInitialized = false;                    // Data initialized flag (web version)
+    private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
+    private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
 
-    private bool loadFireDataFromFile = false;                
-    private bool loadPatchDataFromFile = false;
+    private bool loadFireDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
+    private bool loadPatchDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
+    private bool loadWaterDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
+    //private bool loadStreamflowFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
 
     private int immediateFireTimeThreshold;
-    SimulationSettings settings;
+    //SimulationSettings settings;
 
     /* States */
     public bool initialized { get; set; } = false;            // Initialized flag
@@ -362,7 +363,6 @@ public class LandscapeController : MonoBehaviour
         WaterData waterDataObj = JsonConvert.DeserializeObject<WaterData>(jsonString);
         currentWaterData = ConvertWaterDataToWaterDataFrame(waterDataObj);
 
-        //need currentWaterData
         StreamflowLevel = currentWaterData.GetStreamflowForWarmingIdx(warmingIdx);
         Precipitation = currentWaterData.precipitation;
     }
@@ -586,12 +586,12 @@ public class LandscapeController : MonoBehaviour
     /// <summary>
     /// Initialize LandscapeController with data list.
     /// </summary>
-    public IEnumerator InitializeData(SimulationSettings newSettings)
+    public IEnumerator InitializeData()//SimulationSettings newSettings)
     {
         if (debug)
             Debug.Log("LandscapeController.Initialize()...");
 
-        settings = newSettings;
+        //settings = newSettings;
 
         if (landscapeSimulationOn)
         {
@@ -619,12 +619,6 @@ public class LandscapeController : MonoBehaviour
                         Debug.Log("InitializeData()... ERROR: " + e.Message);
                     }
                 }
-                else
-                {
-                    //Debug.Log("RequestAllPatchData()...");
-                    //WebManager.Instance.RequestAllPatchData(this.FinishUpdateAllPatchDataFromWeb);
-
-                }
 
                 yield return null;
 
@@ -633,83 +627,86 @@ public class LandscapeController : MonoBehaviour
                 //LoadFireData();
                 //try
                 //{
-                //if (loadFireDataFromFile)
-                //{
-                //    TextAsset[] fireDataFrames = Resources.LoadAll<TextAsset>("FireData");
-                //    simulationData = new TerrainSimulationData[5];
+                    if (loadFireDataFromFile)
+                    {
+                        TextAsset[] fireDataFrames = Resources.LoadAll<TextAsset>("FireData");
+                        simulationData = new TerrainSimulationData[5];
 
-                //    //int i = warmingIdx;
-                //    for (int i = 0; i < 5; i++)
-                //    {
-                //        List<SnowDataFrame> sDataList = new List<SnowDataFrame>(); // Snow data frames (unused)
-                //        List<FireDataFrame> fDataList = new List<FireDataFrame>(); // Fire data frames
-                //        List<FireDataFrameRecord> fDataRecordList = new List<FireDataFrameRecord>(); // Fire data frames
+                        //int i = warmingIdx;
+                        for (int i = 0; i < 5; i++)
+                        {
+                            List<SnowDataFrame> sDataList = new List<SnowDataFrame>(); // Snow data frames (unused)
+                            List<FireDataFrame> fDataList = new List<FireDataFrame>(); // Fire data frames
+                            List<FireDataFrameRecord> fDataRecordList = new List<FireDataFrameRecord>(); // Fire data frames
 
-                //        TextAsset fireFrameTextAsset = fireDataFrames[i]; // List<FireDataFrame> 
+                            TextAsset fireFrameTextAsset = fireDataFrames[i]; // List<FireDataFrame> 
 
-                //        fDataRecordList =
-                //            JsonConvert.DeserializeObject<List<FireDataFrameRecord>>(fireFrameTextAsset.text);
+                            fDataRecordList =
+                                JsonConvert.DeserializeObject<List<FireDataFrameRecord>>(fireFrameTextAsset.text);
 
-                //        yield return null;
+                            yield return null;
 
-                //        foreach (FireDataFrameRecord rec in fDataRecordList)
-                //        {
-                //            fDataList.Add(ConvertFireDataFrameRecordToFrame(rec));
-                //            yield return null;
-                //        }
+                            foreach (FireDataFrameRecord rec in fDataRecordList)
+                            {
+                                fDataList.Add(ConvertFireDataFrameRecordToFrame(rec));
+                                yield return null;
+                            }
 
-                //        fDataRecordList.Clear();
-                //        yield return null;
+                            fDataRecordList.Clear();
+                            yield return null;
 
-                //        int warm = 0;
-                //        switch (i)
-                //        {
-                //            case 0:
-                //                warm = 0;
-                //                break;
-                //            case 1:
-                //                warm = 1;
-                //                break;
-                //            case 2:
-                //                warm = 2;
-                //                break;
-                //            case 3:
-                //                warm = 4;
-                //                break;
-                //            case 4:
-                //                warm = 6;
-                //                break;
-                //            default:
-                //                warm = 0;
-                //                break;
-                //        }
+                            int warm = 0;
+                            switch (i)
+                            {
+                                case 0:
+                                    warm = 0;
+                                    break;
+                                case 1:
+                                    warm = 1;
+                                    break;
+                                case 2:
+                                    warm = 2;
+                                    break;
+                                case 3:
+                                    warm = 4;
+                                    break;
+                                case 4:
+                                    warm = 6;
+                                    break;
+                                default:
+                                    warm = 0;
+                                    break;
+                            }
 
-                //        simulationData[i] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
-                //        currentSimulationData = simulationData[i];
+                            simulationData[i] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
+                            currentSimulationData = simulationData[i];
 
-                //        Debug.Log("Loading simulation data : " + i);
+                            Debug.Log("Loading simulation data : " + i);
 
-                //        yield return null;
-                //    }
-                //}
-                //}
+                        yield return null;
+                    }
+                }
                 //catch (Exception ex)
                 //{
                 //    Debug.Log("LoadLandscapeData()... ERROR ex: " + ex.Message);
                 //}
 
                 //ImportWaterData();
-                //try
-                //{
-                //    TextAsset patchExtTextAsset = (TextAsset)Resources.Load("WaterData/WaterData");
-                //    waterData = JsonConvert.DeserializeObject<List<WaterDataYear>>(patchExtTextAsset.text);
-                //}
-                //catch (Exception e)
-                //{
-                //    Debug.Log("InitializeData()... waterData ERROR: " + e.Message);
-                //}
+                try
+                {
+                    if (loadWaterDataFromFile)
+                    {
 
-                //CalculateWaterRanges();                       // Calculate streamflow range
+                        TextAsset patchExtTextAsset = (TextAsset)Resources.Load("WaterData/WaterData");
+                        waterData = JsonConvert.DeserializeObject<List<WaterDataYear>>(patchExtTextAsset.text);
+                    }
+
+                    CalculateWaterRanges(); // Calculate streamflow range
+                }
+                catch (Exception ex)
+                {
+                    Debug.Log("InitializeData()... waterData ERROR: " + ex.Message);
+                }
 
                 GetWaterRangesFromWeb();    // -- TO DO
                 waterStartYear = 1941;//waterData[0].GetYear();
@@ -724,8 +721,12 @@ public class LandscapeController : MonoBehaviour
             }
             else
             {
-                LoadDataDesktop();                     // Loads patches data (Desktop Version)
+
             }
+            //else
+            //{
+            //    LoadDataDesktop();                     // Loads patches data (Desktop Version)
+            //}
         }
 
         InitSplatmaps();
@@ -1832,32 +1833,32 @@ public class LandscapeController : MonoBehaviour
     /// <summary>
     /// Loads the chosen data list. (Desktop Version)
     /// </summary>
-    private void LoadDataDesktop()
-    {
-        TextAsset newPatchesFile = landscapeDataList.patches;
-        patchExtents = LoadPatchesFile(newPatchesFile);            // Load patches data file
+    //private void LoadDataDesktop()
+    //{
+    //    TextAsset newPatchesFile = landscapeDataList.patches;
+    //    patchExtents = LoadPatchesFile(newPatchesFile);            // Load patches data file
 
-        patchesData = new List<PatchDataYear[]>();                 // Initialize patchesData list
+    //    patchesData = new List<PatchDataYear[]>();                 // Initialize patchesData list
 
-        for (int i = 0; i < 5; i++)
-        {
-            TextAsset newDataFile = landscapeDataList.extents[i];
-            float[,] extentsData = LoadDataFile(newDataFile);      // Load data file
+    //    for (int i = 0; i < 5; i++)
+    //    {
+    //        TextAsset newDataFile = landscapeDataList.extents[i];
+    //        float[,] extentsData = LoadDataFile(newDataFile);      // Load data file
 
-            FormatExtentsData(extentsData);                        // Format patch extents data by date
-        }
+    //        FormatExtentsData(extentsData);                        // Format patch extents data by date
+    //    }
 
-        SetPatchDataRanges();                                      // Set data ranges
-        GenerateLandscapeData();                                   // Generate terrain alphamaps from data
+    //    SetPatchDataRanges();                                      // Set data ranges
+    //    GenerateLandscapeData();                                   // Generate terrain alphamaps from data
 
-        TextAsset newDailyFile = landscapeDataList.streamflowDaily;
-        LoadStreamflowFile(newDailyFile);             // Load daily streamflow data file
+    //    TextAsset newDailyFile = landscapeDataList.streamflowDaily;
+    //    LoadStreamflowFile(newDailyFile);             // Load daily streamflow data file
 
-        FormatWaterData(waterDataArray);              // Format water data by date
-        CalculateWaterRanges();                       // Calculate streamflow range
+    //    FormatWaterData(waterDataArray);              // Format water data by date
+    //    CalculateWaterRanges();                       // Calculate streamflow range
 
-        dataFormatted = true;
-    }
+    //    dataFormatted = true;
+    //}
 
     //private void LoadDataWeb()
     //{

@@ -333,7 +333,7 @@ public class GameController : MonoBehaviour
         {
             if (debugGame)
                 Debug.Log("StartInitializingLandscape()... All data...");
-            landscapeInitializer = landscapeController.InitializeData(settings);    // Begin initializing landscape if landscapeSimulationOn
+            landscapeInitializer = landscapeController.InitializeData();    // Begin initializing landscape if landscapeSimulationOn
             StartCoroutine(landscapeInitializer);
         }
         else
