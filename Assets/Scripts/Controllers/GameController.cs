@@ -1982,6 +1982,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void ShowMessages()
     {
+        uiTimeline.ShowMessages();
         if (messageManager == null)
             return;
         if (messageManager.messagePanel == null)
@@ -1994,6 +1995,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void HideMessages()
     {
+        uiTimeline.HideMessages();
         if (messageManager == null)
             return;
         if (messageManager.messagePanel == null)

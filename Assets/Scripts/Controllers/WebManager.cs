@@ -169,7 +169,7 @@ public class WebManager : MonoBehaviour
     }
 
 
-    //date snow evap netpsn depthtogw vegaccesswater Qout litter soil height_over trans_over height_under trans_under leafc_over stemc_over rootc_over leafc_under stemc_under rootc_under year month day
+    //date snow evap netpsn depthtogw vegaccesswater qout litter soil height_over trans_over height_under trans_under leafc_over stemc_over rootc_over leafc_under stemc_under rootc_under year month day
     /// <summary>
     /// Cube data parameter columns used in simulation
     /// </summary>
@@ -199,7 +199,7 @@ public class WebManager : MonoBehaviour
         Day = 21
     };
 
-    //  date snow evap netpsn depthtogw vegaccesswater Qout litter soil height_over trans height_under leafc_over stemc_over rootc_over leafc_under stemc_under rootc_under year month day
+    //  date snow evap netpsn depthtogw vegaccesswater qout litter soil height_over trans height_under leafc_over stemc_over rootc_over leafc_under stemc_under rootc_under year month day
     private enum AggregateDataColumnIdx
     {
         Date = 0,

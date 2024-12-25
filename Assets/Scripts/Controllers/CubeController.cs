@@ -112,8 +112,8 @@ public class CubeController : MonoBehaviour
     private int shrubCount;                       // Current number of grown shrubs in cube
     private float minShrubFullSize = 1.5f;        // Min. shrub grown size (m.)
     private float maxShrubFullSize = 2.5f;        // Max. shrub grown size (m.)
-    private float minGrassFullSize = 1f;          // Max. shrub grown size (m.)
-    private float maxGrassFullSize = 3f;          // Max. shrub grown size (m.)
+    private float minGrassFullSize = 3f;          // Max. shrub grown size (m.)
+    private float maxGrassFullSize = 5f;          // Max. shrub grown size (m.)
     private float shrubGrowthIncrement = 0.01f;   // Shrub growth increment per frame
 
     /* Timing */
@@ -217,8 +217,6 @@ public class CubeController : MonoBehaviour
     public float StreamHeight { get; set; }      // Stream height (QOut)
     public float streamFullHeight;               // Height (transform.position.y) of stream spline at full water level
     public float streamZeroHeight;               // Height (transform.position.y) of stream spline at zero water level
-    //public float streamFaceFullHeight;         // Height (transform.position.y) of stream spline at full water level
-    //public float streamFaceZeroHeight;         // Height (transform.position.y) of stream spline at zero water level
     public float streamFaceFullScale;            // Scale (transform.scale.y) of stream face at full water level
     public float streamFaceZeroScale;            // Scale of stream face for zero water level
     private float StreamHeightMin = 100000f;     // Min. stream level in current data file
@@ -313,7 +311,7 @@ public class CubeController : MonoBehaviour
         Agg                         // Aggregate cube, two vegetation levels
     }
 
-    //date snow evap netpsn depthtogw vegaccesswater Qout litter soil height trans leafc stemc rootc year month day
+    //date snow evap netpsn depthtogw vegaccesswater qout litter soil height trans leafc stemc rootc year month day
     /// <summary>
     /// Cube data parameter columns used in simulation 
     /// </summary>
@@ -338,7 +336,7 @@ public class CubeController : MonoBehaviour
     //    Day = 16
     //};
 
-    //date snow evap netpsn depthtogw vegaccesswater Qout litter soil height_over trans_over height_under trans_under leafc_over stemc_over rootc_over leafc_under stemc_under rootc_under year month day
+    //date snow evap netpsn depthtogw vegaccesswater qout litter soil height_over trans_over height_under trans_under leafc_over stemc_over rootc_over leafc_under stemc_under rootc_under year month day
     /// <summary>
     /// Cube data parameter columns used in simulation
     /// </summary>
@@ -368,7 +366,7 @@ public class CubeController : MonoBehaviour
         Day = 21
     };
 
-    //  date snow evap netpsn depthtogw vegaccesswater Qout litter soil height_over trans height_under leafc_over stemc_over rootc_over leafc_under stemc_under rootc_under year month day
+    //  date snow evap netpsn depthtogw vegaccesswater qout litter soil height_over trans height_under leafc_over stemc_over rootc_over leafc_under stemc_under rootc_under year month day
     private enum AggregateDataColumnIdx
     {
         Date = 0,
@@ -1321,21 +1319,21 @@ public class CubeController : MonoBehaviour
             }
 
             snowManager.snowValue = snowValue;
-            if (name.Equals("CubeC") || name.Equals("CubeC_Side"))
-            {
-                if (GameController.Instance.sideBySideMode)
-                {
-                    Debug.Log(name + ".snowManager.snowValue: " + snowManager.snowValue+ " from SnowAmount:"+ SnowAmount);
-                    CubeData row = GetDataRow(timeIdx);
-                    Debug.Log(name+">>> row.snow: "+ row.snow);
-                }
-            }
+            //if (name.Equals("CubeC") || name.Equals("CubeC_Side"))
+            //{
+            //    if (GameController.Instance.sideBySideMode)
+            //    {
+            //        Debug.Log(name + ".snowManager.snowValue: " + snowManager.snowValue+ " from SnowAmount:"+ SnowAmount);
+            //        CubeData row = GetDataRow(timeIdx);
+            //        Debug.Log(name+">>> row.snow: "+ row.snow);
+            //    }
+            //}
 
             if (!terrainBurning)
             {
                 UpdateVegetation();         // Update vegetation
                 UpdateLitter();             // Update litter
-
+                
                 if (terrainBurnt)
                 {
                     if (debugFire)
@@ -1684,6 +1682,7 @@ public class CubeController : MonoBehaviour
         //Debug.Log(name + ".UpdateDataRowsFromJSON()... rows.Length: " + rows.Length);
         //Debug.Log(name + ".UpdateDataRowsFromJSON()... rows[0].DateIdx: " + rows[0].dateIdx + " rows[0].VegAccessWater" + rows[0].vegAccessWater + " rows[0].Evap: " + rows[0].evap + " rows[0].DepthToGW: " + rows[0].depthToGW);
         //Debug.Log(name + ".UpdateDataRowsFromJSON()... rows[5].DateIdx: " + rows[5].dateIdx + " rows[5].VegAccessWater" + rows[5].vegAccessWater + " rows[5].Evap: " + rows[5].evap + " rows[5].DepthToGW: " + rows[5].depthToGW);
+        Debug.Log(name + ".UpdateDataRowsFromJSON()... rows[5].DateIdx: " + rows[5].dateIdx + " rows[5].qout" + rows[5].qout + " rows[5].snow: " + rows[5].snow + " rows[5].DepthToGW: " + rows[5].depthToGW);
 
         dataRows = rows;
 
@@ -1736,7 +1735,7 @@ public class CubeController : MonoBehaviour
                 SnowAmount = row.snow;
                 DepthToGW = row.depthToGW;
                 WaterAccess = row.vegAccessWater;
-                StreamHeight = row.Qout;
+                StreamHeight = (float)row.qout;
                 Litter = row.litter;
                 TransOver = row.transOver;
                 LeafCarbonOver = row.leafCOver;
@@ -1748,7 +1747,7 @@ public class CubeController : MonoBehaviour
                 SnowAmount = row.snow;
                 DepthToGW = row.depthToGW;
                 WaterAccess = row.vegAccessWater;
-                StreamHeight = row.Qout;
+                StreamHeight = row.qout;
                 Litter = row.litter;
                 TransOver = row.transOver;
                 TransUnder = row.transUnder;
@@ -1764,7 +1763,7 @@ public class CubeController : MonoBehaviour
                 SnowAmount = row.snow;
                 DepthToGW = row.depthToGW;
                 WaterAccess = row.vegAccessWater;
-                StreamHeight = row.Qout;
+                StreamHeight = row.qout;
                 Litter = row.litter;
                 NetTranspiration = row.transOver;
                 LeafCarbonOver = row.leafCOver;
@@ -1774,6 +1773,8 @@ public class CubeController : MonoBehaviour
                 RootsCarbonOver = row.rootCOver;
                 RootsCarbonUnder = row.rootCUnder;
             }
+
+            Debug.Log(name+".UpdateCurrentData()... StreamHeight:" + StreamHeight);
         }
         else
         {
@@ -3429,7 +3430,7 @@ public class CubeController : MonoBehaviour
         arr[3] = row.netpsn;
         arr[4] = row.depthToGW;
         arr[5] = row.vegAccessWater;
-        arr[6] = row.Qout;
+        arr[6] = row.qout;
         arr[7] = row.litter;
         arr[8] = row.soil;
         arr[9] = row.heightOver;
@@ -3866,7 +3867,7 @@ public class CubeController : MonoBehaviour
         int rows = dataRows.Length;
         int i = 0;                                              // Data Row
 
-        //int s = (int)DataColumnIdx.StreamLevel;             // Stream Level Column    // Qout
+        //int s = (int)DataColumnIdx.StreamLevel;             // Stream Level Column    // qout
         //int sn = (int)DataColumnIdx.Snow;                   // Root Carbon Column     // snow
         //int t = (int)DataColumnIdx.TransOver;               // Net Transpiration Column
         //int lt = (int)DataColumnIdx.Litter;                 // Litter Column          // litter
@@ -3916,7 +3917,7 @@ public class CubeController : MonoBehaviour
 
         while (i < rows - 1)
         {
-            float val = dataRows[i].Qout;
+            float val = dataRows[i].qout;
             if (val < StreamHeightMin)
                 StreamHeightMin = val;
             if (val > StreamHeightMax)

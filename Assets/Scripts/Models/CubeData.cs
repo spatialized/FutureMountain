@@ -18,7 +18,7 @@ namespace Assets.Scripts.Models
         //public float NetPsn;
         //public float DepthToGW;
         //public float VegAccessWater;
-        //public float Qout;
+        //public float qout;
         //public float Litter;
         //public float Soil;
         //public float HeightOver;
@@ -41,7 +41,7 @@ namespace Assets.Scripts.Models
         public float netpsn;
         public float depthToGW;
         public float vegAccessWater;
-        public float Qout;
+        public float qout;
         public float litter;
         public float soil;
         public float heightOver;

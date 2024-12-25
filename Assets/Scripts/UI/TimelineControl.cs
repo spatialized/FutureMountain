@@ -834,6 +834,18 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         uiTimelineLabelTextField.text = newText;
     }
 
+    public void ShowMessages()
+    {
+        messageIconsLayoutGroupEven.SetActive(true);
+        messageIconsLayoutGroupOdd.SetActive(true);
+    }
+
+    public void HideMessages()
+    {
+        messageIconsLayoutGroupEven.SetActive(false);
+        messageIconsLayoutGroupOdd.SetActive(false);
+    }
+
     /// <summary>
     /// Sets the color.
     /// </summary>
