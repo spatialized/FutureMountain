@@ -735,26 +735,26 @@ public class CubeController : MonoBehaviour
 
         netTransSlider = statsPanel.transform.Find("NetTransSlider").GetComponent<Slider>() as Slider;
         //plantCarbonSlider = statsPanel.transform.Find("PlantCarbonSlider").GetComponent<Slider>() as Slider;
-        snowAmountSlider = statsPanel.transform.Find("SnowAmountSlider").GetComponent<Slider>() as Slider;
-        //psnSlider = statsPanel.transform.Find("PSNSlider").GetComponent<Slider>() as Slider;
-        waterAccessSlider = statsPanel.transform.Find("WaterAccessSlider").GetComponent<Slider>() as Slider;
+        //snowAmountSlider = statsPanel.transform.Find("SnowAmountSlider").GetComponent<Slider>() as Slider;
+        psnSlider = statsPanel.transform.Find("PSNSlider").GetComponent<Slider>() as Slider;
+        //waterAccessSlider = statsPanel.transform.Find("WaterAccessSlider").GetComponent<Slider>() as Slider;
 
         netTransSliderDebug = statsPanel.transform.Find("NetTransSliderDebug").GetComponent<Slider>() as Slider;
         netTransSliderDebug.gameObject.SetActive(false);
-        plantCarbonSliderDebug = statsPanel.transform.Find("PlantCarbonSliderDebug").GetComponent<Slider>() as Slider;
-        plantCarbonSliderDebug.gameObject.SetActive(false);
-        snowAmountSliderDebug = statsPanel.transform.Find("SnowAmountSliderDebug").GetComponent<Slider>() as Slider;
-        snowAmountSliderDebug.gameObject.SetActive(false);
+        //plantCarbonSliderDebug = statsPanel.transform.Find("PlantCarbonSliderDebug").GetComponent<Slider>() as Slider;
+        //plantCarbonSliderDebug.gameObject.SetActive(false);
+        //snowAmountSliderDebug = statsPanel.transform.Find("SnowAmountSliderDebug").GetComponent<Slider>() as Slider;
+        //snowAmountSliderDebug.gameObject.SetActive(false);
         psnSliderDebug = statsPanel.transform.Find("PSNSliderDebug").GetComponent<Slider>() as Slider;
         psnSliderDebug.gameObject.SetActive(false);
-        waterAccessSliderDebug = statsPanel.transform.Find("WaterAccessSliderDebug").GetComponent<Slider>() as Slider;
-        waterAccessSliderDebug.gameObject.SetActive(false);
+        //waterAccessSliderDebug = statsPanel.transform.Find("WaterAccessSliderDebug").GetComponent<Slider>() as Slider;
+        //waterAccessSliderDebug.gameObject.SetActive(false);
 
         Assert.IsNotNull(netTransSlider);
         //Assert.IsNotNull(plantCarbonSlider);
-        Assert.IsNotNull(snowAmountSlider);
-        //Assert.IsNotNull(psnSlider);
-        Assert.IsNotNull(waterAccessSlider);
+        //Assert.IsNotNull(snowAmountSlider);
+        Assert.IsNotNull(psnSlider);
+        //Assert.IsNotNull(waterAccessSlider);
     }
 
     /// <summary>
@@ -1774,7 +1774,7 @@ public class CubeController : MonoBehaviour
                 RootsCarbonUnder = row.rootCUnder;
             }
 
-            Debug.Log(name+".UpdateCurrentData()... StreamHeight:" + StreamHeight);
+            //Debug.Log(name+".UpdateCurrentData()... StreamHeight:" + StreamHeight);
         }
         else
         {
@@ -4638,25 +4638,25 @@ public class CubeController : MonoBehaviour
 
         netTransSlider.value = MapValue(netTrans, netTransMin, netTransMax, netTransSlider.minValue, netTransSlider.maxValue);
         //plantCarbonSlider.value = MapValue(stemCarbon + leafCarbon, stemCarbonMin + leafCarbonMin, stemCarbonMax + leafCarbonMax, plantCarbonSlider.minValue, plantCarbonSlider.maxValue);
-        snowAmountSlider.value = MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, snowAmountSlider.minValue, snowAmountSlider.maxValue);
-        //psnSlider.value = MapValue(NetPhotosynthesis, NetPhotosynthesisMin, NetPhotosynthesisMax, psnSlider.minValue, psnSlider.maxValue);
-        waterAccessSlider.value = MapValue(WaterAccess, soilController.WaterAccessMin, soilController.WaterAccessMax, waterAccessSlider.minValue, waterAccessSlider.maxValue);
+        //snowAmountSlider.value = MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, snowAmountSlider.minValue, snowAmountSlider.maxValue);
+        psnSlider.value = MapValue(NetPhotosynthesis, NetPhotosynthesisMin, NetPhotosynthesisMax, psnSlider.minValue, psnSlider.maxValue);
+        //waterAccessSlider.value = MapValue(WaterAccess, soilController.WaterAccessMin, soilController.WaterAccessMax, waterAccessSlider.minValue, waterAccessSlider.maxValue);
 
         //Debug.Log(name + ".UpdateModelDisplay() dataType:"+ dataType+" netTrans:" + netTrans + " netTransMin:" + netTransMin + " netTransMax:" + netTransMax + " DataColumnIdx.TransOver:" + ReadData((int)DataColumnIdx.TransOver, timeIdx));
         //Debug.Log(name + ".UpdateModelDisplay() netTrans:" + netTrans + " plantCarbon:" + (stemCarbon + leafCarbon) + " plantCarbonMin:" + (leafCarbonMin+ stemCarbonMin)
         //    + " plantCarbonMax:" + (leafCarbonMax + stemCarbonMax) + " DataColumnIdx.LeafCarbonOver:" + ReadData((int)DataColumnIdx.LeafCarbonOver, timeIdx));
 
         float netTransInViz = GetNetTranspirationVisualized();
-        float plantCarbonInViz = GetTreeCarbonAmountVisualized() + GetShrubCarbonAmountVisualized();
+        //float plantCarbonInViz = GetTreeCarbonAmountVisualized() + GetShrubCarbonAmountVisualized();
         //float snowAmountInViz = GetSnowAmountVisualized();
-        //float netPhotosynthesisInViz = GetNetPsnAmountVisualized();
+        float netPhotosynthesisInViz = GetNetPsnAmountVisualized();
         //float waterAccessInViz = GetWaterAccessVisualized();
 
         netTransSliderDebug.value = MapValue(netTransInViz, netTransMin, netTransMax, netTransSlider.minValue, netTransSlider.maxValue);
         //plantCarbonSliderDebug.value = MapValue(plantCarbonInViz, stemCarbonMin + leafCarbonMin, stemCarbonMax + leafCarbonMax, plantCarbonSlider.minValue, plantCarbonSlider.maxValue);
 
         //snowAmountSliderDebug.value = MapValue(snowAmountInViz, SnowAmountMin, SnowAmountMax, snowAmountSlider.minValue, snowAmountSlider.maxValue);
-        //psnSliderDebug.value = MapValue(netPhotosynthesisInViz, NetPhotosynthesisMin, NetPhotosynthesisMax, psnSlider.minValue, psnSlider.maxValue);
+        psnSliderDebug.value = MapValue(netPhotosynthesisInViz, NetPhotosynthesisMin, NetPhotosynthesisMax, psnSlider.minValue, psnSlider.maxValue);
         //waterAccessSliderDebug.value = MapValue(waterAccessInViz, soilController.WaterAccessMin, soilController.WaterAccessMax, waterAccessSlider.minValue, waterAccessSlider.maxValue);
         //dtgSlider.value = MapValue(DepthToGW, soilController.DepthToGWMin, soilController.DepthToGWMax, psnSlider.minValue, psnSlider.maxValue);
     }

@@ -281,6 +281,7 @@ public class SERI_FireManager : MonoBehaviour
         if (burning)
         {
             CurrentFireGrid().UpdateGrid();
+            //Debug.Log("FireManager.Update()...");
         }
 	}
     #endregion
@@ -305,6 +306,8 @@ public class SERI_FireManager : MonoBehaviour
             CurrentFireGrid().Ignite(new Vector3(0,0,0), timeStep, fireLengthInSec);
         //}
         StartBurning();
+
+        StartCoroutine(WaitToStopBurning(fireLengthInSec)); // Added 12/24/24 to fix bug in SBS cube where fire keeps going
     }
 
     private void StartBurning()
@@ -316,13 +319,23 @@ public class SERI_FireManager : MonoBehaviour
     {
         burning = false;
     }
+    private void StopBurningInSec(float time)
+    {
+        StartCoroutine(WaitToStopBurning(time));
+    }
+
+    private IEnumerator WaitToStopBurning(float time)
+    {
+        yield return new WaitForSeconds(time);
+        burning = false;
+    }
 
     public void StopAllGridFires()
     {
-        StopBurning();
+        StopBurningInSec(2f);
         foreach (var grid in fireGrids)
         {
-            StartCoroutine(grid.WaitToStopAllFires(3f));
+            StartCoroutine(grid.WaitToStopAllFires(2f));
         }
     }
     #endregion

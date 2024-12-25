@@ -532,7 +532,7 @@ public class SERI_FireGrid : MonoBehaviour
     /// Update this instance.
     /// </summary>
     //void Update()
-    public bool UpdateGrid()
+    public void UpdateGrid()
     {
         if (ignited && !waitingToDeactivate)
         {
@@ -551,13 +551,13 @@ public class SERI_FireGrid : MonoBehaviour
 
                 if (fireStarted && burningCells.Count == 0)      // Ensure grid is deleted after no more fires are currently lit
                 {
-                    StopBurning(false);
-                    return false;
+                    //StopBurning(false);           // TESTING OFF
+                    //return false;
                 }
             }
         }
 
-        return true;
+        //return true;
     }
 
     /// <summary>

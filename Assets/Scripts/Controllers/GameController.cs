@@ -1630,7 +1630,7 @@ public class GameController : MonoBehaviour
         }
 
         bool fireBurning = FireBurning();
-        if (!fireBurning)
+        if (!fireBurning && pausedAuto)
             pausedAuto = false;
 
         /* Update Screen Messages */
