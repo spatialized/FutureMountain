@@ -1458,6 +1458,8 @@ public class GameController : MonoBehaviour
                             if (displayModel || sideBySideMode)
                             {
                                 aggregateCubeController.UpdateStatistics();
+                                aggregateSideCubeController.UpdateStatistics();
+
                                 foreach (CubeController cube in cubes)
                                 {
                                     cube.UpdateStatistics();

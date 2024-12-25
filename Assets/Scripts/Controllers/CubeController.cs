@@ -4056,6 +4056,17 @@ public class CubeController : MonoBehaviour
                     //l_u = (int)AggregateDataColumnIdx.LeafCarbonUnder;          // Leaf Carbon (Overstory) Column
                     //stC_u = (int)AggregateDataColumnIdx.StemCarbonUnder;        // Stem Carbon (Overstory) Column
                     //r_u = (int)AggregateDataColumnIdx.RootCarbonUnder;          // Root Carbon (Overstory) Column
+                    val = dataRows[i].transOver;
+                    if (val < TransOverMin)
+                        TransOverMin = val;
+                    if (val > TransOverMax)
+                        TransOverMax = val;
+
+                    val = dataRows[i].transUnder;
+                    if (val < TransUnderMin)
+                        TransUnderMin = val;
+                    if (val > TransUnderMax)
+                        TransUnderMax = val;
 
                     val = dataRows[i].transOver;
                     if (val < NetTranspirationMin)
