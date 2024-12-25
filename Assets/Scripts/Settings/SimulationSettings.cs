@@ -94,6 +94,7 @@ public class SimulationSettings : MonoBehaviour
 
     /* Side-by-Side Mode Settings*/
     [Header("Side-by-Side Mode")]
+    public float SideBySideModeXOffsetAggregate = 100f;            // Spacing between Side-by-Side Cubes
     public float SideBySideModeXOffset = 80f;            // Spacing between Side-by-Side Cubes
     /* UI */
     [Header("UI")]

@@ -242,10 +242,13 @@ public class UI_MessageManager : MonoBehaviour
                 Debug.Log("ERROR messageTexts.Length:" + messageTexts.Length + " < id:" + id);
 
             currentMessages.Add(message);
-            foreach (int i in message.cubeIdxList)
+            if (!GameController.Instance.sideBySideMode)
             {
-                if(i >= 0 && i < 6)
-                    cubeLabels[i].SetActive(true);
+                foreach (int i in message.cubeIdxList)
+                {
+                    if (i >= 0 && i < 6)
+                        cubeLabels[i].SetActive(true);
+                }
             }
         }
     }

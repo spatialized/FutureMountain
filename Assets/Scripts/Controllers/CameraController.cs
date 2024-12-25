@@ -195,7 +195,10 @@ public class CameraController : MonoBehaviour {
         if (ShouldEnterSideBySideMode())
         {
             if (cubeIdx == -1)
-                return;
+            {
+                animTriggerName = "SBS_Cube0";
+                //return;
+            }
             else
                 animTriggerName = "SBS_Cube" + (cubeIdx + 1);
 

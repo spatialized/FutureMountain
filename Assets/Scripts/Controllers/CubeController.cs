@@ -1682,7 +1682,7 @@ public class CubeController : MonoBehaviour
         //Debug.Log(name + ".UpdateDataRowsFromJSON()... rows.Length: " + rows.Length);
         //Debug.Log(name + ".UpdateDataRowsFromJSON()... rows[0].DateIdx: " + rows[0].dateIdx + " rows[0].VegAccessWater" + rows[0].vegAccessWater + " rows[0].Evap: " + rows[0].evap + " rows[0].DepthToGW: " + rows[0].depthToGW);
         //Debug.Log(name + ".UpdateDataRowsFromJSON()... rows[5].DateIdx: " + rows[5].dateIdx + " rows[5].VegAccessWater" + rows[5].vegAccessWater + " rows[5].Evap: " + rows[5].evap + " rows[5].DepthToGW: " + rows[5].depthToGW);
-        Debug.Log(name + ".UpdateDataRowsFromJSON()... rows[5].DateIdx: " + rows[5].dateIdx + " rows[5].qout" + rows[5].qout + " rows[5].snow: " + rows[5].snow + " rows[5].DepthToGW: " + rows[5].depthToGW);
+        //Debug.Log(name + ".UpdateDataRowsFromJSON()... rows[5].DateIdx: " + rows[5].dateIdx + " rows[5].qout" + rows[5].qout + " rows[5].snow: " + rows[5].snow + " rows[5].DepthToGW: " + rows[5].depthToGW);
 
         dataRows = rows;
 
@@ -1700,16 +1700,17 @@ public class CubeController : MonoBehaviour
         return result;
     }
 
-    private void FinishUpdateDataFromWeb(string jsonString) // -- TO DO: OPTIMIZE THIS!!!  CALCULATE PARAMETERS ON BACKEND!!!
+    /// <summary>
+    /// Finish cube data update data from web 
+    /// </summary>
+    /// <param name="jsonString">Cube data JSON string returned by API</param>
+    private void FinishUpdateDataFromWeb(string jsonString) 
     {
-        //Debug.Log(name + ".FinishUpdateDataFromWeb()... jsonString: "+jsonString.Substring(0, 500));
-
         UpdateDataRowsFromJSON(jsonString);     // Update data for parameter range finding
         FindParameterRanges();
         UpdateDataFromJSON(jsonString);         // Update data for simulation
 
-        UpdateVegetationFromData();     // TESTING -- ADDED 12/23/24
-        //GrowInitialVegetation();        // TESTING
+        UpdateVegetationFromData();    
     }
 
     /// <summary>
@@ -1737,6 +1738,7 @@ public class CubeController : MonoBehaviour
                 WaterAccess = row.vegAccessWater;
                 StreamHeight = (float)row.qout;
                 Litter = row.litter;
+                NetPhotosynthesis = row.netpsn;
                 TransOver = row.transOver;
                 LeafCarbonOver = row.leafCOver;
                 StemCarbonOver = row.stemCOver;
@@ -1749,6 +1751,7 @@ public class CubeController : MonoBehaviour
                 WaterAccess = row.vegAccessWater;
                 StreamHeight = row.qout;
                 Litter = row.litter;
+                NetPhotosynthesis = row.netpsn;
                 TransOver = row.transOver;
                 TransUnder = row.transUnder;
                 LeafCarbonOver = row.leafCOver;
@@ -1765,6 +1768,7 @@ public class CubeController : MonoBehaviour
                 WaterAccess = row.vegAccessWater;
                 StreamHeight = row.qout;
                 Litter = row.litter;
+                NetPhotosynthesis = row.netpsn;
                 NetTranspiration = row.transOver;
                 LeafCarbonOver = row.leafCOver;
                 LeafCarbonUnder = row.leafCUnder;
@@ -1774,7 +1778,8 @@ public class CubeController : MonoBehaviour
                 RootsCarbonUnder = row.rootCUnder;
             }
 
-            //Debug.Log(name+".UpdateCurrentData()... StreamHeight:" + StreamHeight);
+            if(name.Contains("CubeA"))
+                Debug.Log(name + ".UpdateCurrentData()... StreamHeight:" + StreamHeight);
         }
         else
         {
@@ -1785,6 +1790,7 @@ public class CubeController : MonoBehaviour
                 WaterAccess = ReadData((int)DataColumnIdx.WaterAccess, timeIdx);
                 StreamHeight = ReadData((int)DataColumnIdx.StreamLevel, timeIdx);
                 Litter = ReadData((int)DataColumnIdx.Litter, timeIdx);
+                NetPhotosynthesis = ReadData((int)DataColumnIdx.NetPsn, timeIdx);
                 TransOver = ReadData((int)DataColumnIdx.TransOver, timeIdx);
                 LeafCarbonOver = ReadData((int)DataColumnIdx.LeafCarbonOver, timeIdx);
                 StemCarbonOver = ReadData((int)DataColumnIdx.StemCarbonOver, timeIdx);
@@ -1797,6 +1803,7 @@ public class CubeController : MonoBehaviour
                 WaterAccess = ReadData((int)DataColumnIdx.WaterAccess, timeIdx);
                 StreamHeight = ReadData((int)DataColumnIdx.StreamLevel, timeIdx);
                 Litter = ReadData((int)DataColumnIdx.Litter, timeIdx);
+                NetPhotosynthesis = ReadData((int)DataColumnIdx.NetPsn, timeIdx);
                 TransOver = ReadData((int)DataColumnIdx.TransOver, timeIdx);
                 TransUnder = ReadData((int)DataColumnIdx.TransUnder, timeIdx);
                 LeafCarbonOver = ReadData((int)DataColumnIdx.LeafCarbonOver, timeIdx);
@@ -1813,6 +1820,7 @@ public class CubeController : MonoBehaviour
                 WaterAccess = ReadData((int)AggregateDataColumnIdx.WaterAccess, timeIdx);
                 StreamHeight = ReadData((int)AggregateDataColumnIdx.StreamLevel, timeIdx);
                 Litter = ReadData((int)AggregateDataColumnIdx.Litter, timeIdx);
+                NetPhotosynthesis = ReadData((int)DataColumnIdx.NetPsn, timeIdx);
                 NetTranspiration = ReadData((int)AggregateDataColumnIdx.Trans, timeIdx);
                 LeafCarbonOver = ReadData((int)AggregateDataColumnIdx.LeafCarbonOver, timeIdx);
                 LeafCarbonUnder = ReadData((int)AggregateDataColumnIdx.LeafCarbonUnder, timeIdx);
