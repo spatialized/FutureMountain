@@ -27,6 +27,31 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
+--- !u!1101 &-9077470111439585231
+AnimatorStateTransition:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_Conditions:
+  - m_ConditionMode: 1
+    m_ConditionEvent: ResetZoom
+    m_EventTreshold: 0
+  m_DstStateMachine: {fileID: 0}
+  m_DstState: {fileID: 1102165616814031730}
+  m_Solo: 0
+  m_Mute: 0
+  m_IsExit: 0
+  serializedVersion: 3
+  m_TransitionDuration: 0.43747038
+  m_TransitionOffset: 0.014420878
+  m_ExitTime: 0.5625296
+  m_HasExitTime: 1
+  m_HasFixedDuration: 1
+  m_InterruptionSource: 0
+  m_OrderedInterruption: 1
+  m_CanTransitionToSelf: 1
 --- !u!1102 &-8905732846872678053
 AnimatorState:
   serializedVersion: 6
@@ -427,9 +452,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
-  m_ExitTime: 0.75938964
+  m_TransitionDuration: 0.5393616
+  m_TransitionOffset: 0.022695197
+  m_ExitTime: 0.5664818
   m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -538,30 +563,6 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
-  - m_Name: Param2
-    m_Type: 9
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
-  - m_Name: Param3
-    m_Type: 9
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
-  - m_Name: Param4
-    m_Type: 9
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
-  - m_Name: Param5
-    m_Type: 9
-    m_DefaultFloat: 0
-    m_DefaultInt: 0
-    m_DefaultBool: 0
-    m_Controller: {fileID: 9100000}
   - m_Name: SBS_Cube1
     m_Type: 9
     m_DefaultFloat: 0
@@ -587,6 +588,12 @@ AnimatorController:
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
   - m_Name: SBS_Cube5
+    m_Type: 9
+    m_DefaultFloat: 0
+    m_DefaultInt: 0
+    m_DefaultBool: 0
+    m_Controller: {fileID: 9100000}
+  - m_Name: SBS_Cube0
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -1045,13 +1052,14 @@ AnimatorState:
   - {fileID: 1101825504970890200}
   - {fileID: 1101373539492405704}
   - {fileID: 1101796164334744534}
-  - {fileID: 1101039544743799456}
   - {fileID: 1101601171637460938}
+  - {fileID: 1101039544743799456}
   - {fileID: 3545388237813964676}
   - {fileID: 6135461656895218028}
   - {fileID: 6980897682774916379}
   - {fileID: 2402028455706717245}
   - {fileID: -1462834813489399181}
+  - {fileID: 8815230313072812693}
   m_StateMachineBehaviours: []
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
@@ -1234,19 +1242,22 @@ AnimatorStateMachine:
     m_Position: {x: 170, y: -50, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 5639173072170799551}
-    m_Position: {x: -220, y: 190, z: 0}
+    m_Position: {x: -150, y: 320, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -1903377567207958612}
-    m_Position: {x: -180, y: 260, z: 0}
+    m_Position: {x: -110, y: 390, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -5835425605305407113}
-    m_Position: {x: -120, y: 330, z: 0}
+    m_Position: {x: -50, y: 460, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -456874748281723110}
-    m_Position: {x: -20, y: 390, z: 0}
+    m_Position: {x: 50, y: 520, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 5355787606112281688}
-    m_Position: {x: 120, y: 440, z: 0}
+    m_Position: {x: 190, y: 570, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: 8239321894535022707}
+    m_Position: {x: -200, y: 230, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions:
   - {fileID: 1101767974911871496}
@@ -1731,9 +1742,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
-  m_ExitTime: 0.75938964
+  m_TransitionDuration: 0.5790779
+  m_TransitionOffset: 0.017021367
+  m_ExitTime: 0.54000443
   m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -1810,9 +1821,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.25
-  m_TransitionOffset: 0
-  m_ExitTime: 0.7544601
+  m_TransitionDuration: 0.58475167
+  m_TransitionOffset: 0.00567383
+  m_ExitTime: 0.5312924
   m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -2049,6 +2060,33 @@ AnimatorStateTransition:
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
+--- !u!1102 &8239321894535022707
+AnimatorState:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SBS_Cube0
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions:
+  - {fileID: -9077470111439585231}
+  m_StateMachineBehaviours: []
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 0
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: 7400000, guid: ba8e301eb89826947858cab6e11e4bb5, type: 2}
+  m_Tag: 
+  m_SpeedParameter: 
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
 --- !u!1101 &8409903319543854913
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -2066,10 +2104,35 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.24999988
-  m_TransitionOffset: 0
-  m_ExitTime: 0.76924884
+  m_TransitionDuration: 0.4951535
+  m_TransitionOffset: 0.033648603
+  m_ExitTime: 0.52409524
   m_HasExitTime: 1
+  m_HasFixedDuration: 1
+  m_InterruptionSource: 0
+  m_OrderedInterruption: 1
+  m_CanTransitionToSelf: 1
+--- !u!1101 &8815230313072812693
+AnimatorStateTransition:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_Conditions:
+  - m_ConditionMode: 1
+    m_ConditionEvent: SBS_Cube0
+    m_EventTreshold: 0
+  m_DstStateMachine: {fileID: 0}
+  m_DstState: {fileID: 8239321894535022707}
+  m_Solo: 0
+  m_Mute: 0
+  m_IsExit: 0
+  serializedVersion: 3
+  m_TransitionDuration: 0.38940108
+  m_TransitionOffset: 0.024034701
+  m_ExitTime: 0.6105989
+  m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
@@ -2091,9 +2154,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.24999994
-  m_TransitionOffset: 0
-  m_ExitTime: 0.76431924
+  m_TransitionDuration: 0.5109926
+  m_TransitionOffset: 0.0113476
+  m_ExitTime: 0.5903241
   m_HasExitTime: 1
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
