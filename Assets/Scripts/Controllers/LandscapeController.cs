@@ -380,13 +380,11 @@ public class LandscapeController : MonoBehaviour
 
     private void ExportTerrainData(float[,,] grid, string path)
     {
-
         //Debug.Log(" grid[10,10,0]: " + grid[10, 10, 0]);
-
         //Debug.Log("Exporting splat data to path: "+path);
+
         float[] flatArray = Flatten3DArrayTo1D(grid);
 
-        //string json = JsonUtility.ToJson(flatArray);
         string json = JsonConvert.SerializeObject(flatArray);
         File.WriteAllText(path, json);
 
