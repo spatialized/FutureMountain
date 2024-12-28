@@ -102,13 +102,13 @@ public class CameraController : MonoBehaviour {
                     else if(hit.transform.tag != "Untagged")
                     {
                         string cubeTag = hit.transform.tag;
-                        Debug.Log("GetMouseInput()... Will zoom in... cubeTag: " + cubeTag + " cubeTag.Substring(cubeTag.Length - 1): " + cubeTag.Substring(cubeTag.Length - 1));
+                        //Debug.Log("GetMouseInput()... Will zoom in... cubeTag: " + cubeTag + " cubeTag.Substring(cubeTag.Length - 1): " + cubeTag.Substring(cubeTag.Length - 1));
 
                         string strIdx = cubeTag.Substring(cubeTag.Length - 1);
                         string animName = "ZoomCube" + strIdx;
                         int idx = int.Parse(strIdx) - 1;
 
-                        Debug.Log("GetMouseInput()... Zooming in... animName: " + animName + " strIdx: " + strIdx);
+                        //Debug.Log("GetMouseInput()... Zooming in... animName: " + animName + " strIdx: " + strIdx);
 
                         if (!moving)
                         {
@@ -220,7 +220,7 @@ public class CameraController : MonoBehaviour {
             else
                 animTriggerName = "ZoomCube" + (cubeIdx + 1);
 
-            Debug.Log("EnterSideBySideMode()... animTriggerName: " + animTriggerName);
+            //Debug.Log("EnterSideBySideMode()... animTriggerName: " + animTriggerName);
 
             pauseState = GamePauseState.pause;
             moving = true;

@@ -280,8 +280,8 @@ public abstract class TreeController : MonoBehaviour
         newWidthScale = GetRootsWidthScale() + widthGrowthAmount;
         newWidthScale = Mathf.Clamp(newWidthScale, 0f, treeFullWidthScale);
 
-        //if (debugRoots)
-        //Debug.Log(transform.name + "      GrowRoots()...   oldHeight:" + GetRootsHeightScale() + "    GrowRoots()... oldWidth:"+ GetRootsWidthScale() + " newHeightScale:" + newHeightScale+ "  newWidthScale:" + newWidthScale);
+        if (debugRoots)
+            Debug.Log(transform.name + "      GrowRoots()...   oldHeight:" + GetRootsHeightScale() + "    GrowRoots()... oldWidth:" + GetRootsWidthScale() + " newHeightScale:" + newHeightScale + "  newWidthScale:" + newWidthScale);
 
         SetRootsScale(newHeightScale, newWidthScale, false);
     }
@@ -638,8 +638,8 @@ public abstract class TreeController : MonoBehaviour
 
         //GameObject lod0 = curRootsObject.transform.GetChild(0).gameObject as GameObject;
         //float value = lod0.transform.GetComponent<Renderer>().bounds.size.y;                                   // Get height of prefab (m.)
-
-        //Debug.Log(transform.name + " UpdateRootsLODsScale()...  newHeightScale:" + newHeightScale + " newWidthScale:" + newWidthScale+ " hFactor:"+ hFactor+" wFactor:"+wFactor+" rDepth:"+ rootsPrefabDepths[rootsPrefabDepths.Length - 1]);
+        if(debugRoots)
+            Debug.Log(transform.name + " UpdateRootsLODsScale()...  newHeightScale:" + newHeightScale + " newWidthScale:" + newWidthScale + " hFactor:" + hFactor + " wFactor:" + wFactor + " rDepth:" + rootsPrefabDepths[rootsPrefabDepths.Length - 1]);
     }
 
     /// <summary>

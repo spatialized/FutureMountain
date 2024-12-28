@@ -214,10 +214,10 @@ public class CubeController : MonoBehaviour
     public GameObject streamObject;              // Stream object
     public GameObject streamFaceObject;          // Stream face object
     public float StreamHeight { get; set; }      // Stream height (QOut)
-    public float streamFullHeight;               // Height (transform.position.y) of stream spline at full water level
-    public float streamZeroHeight;               // Height (transform.position.y) of stream spline at zero water level
-    public float streamFaceFullScale;            // Scale (transform.scale.y) of stream face at full water level
-    public float streamFaceZeroScale;            // Scale of stream face for zero water level
+    public float streamFullHeight = 8.3f;        // Height (transform.position.y) of stream spline at full water level
+    public float streamZeroHeight = 6.5f;        // Height (transform.position.y) of stream spline at zero water level
+    public float streamFaceFullScale = 2.6f;     // Scale (transform.scale.y) of stream face at full water level
+    public float streamFaceZeroScale = 0f;       // Scale of stream face for zero water level
     private float StreamHeightMin = 100000f;     // Min. stream level in current data file
     private float StreamHeightMax = -100000f;    // Max. stream level in current data file
 
