@@ -27,6 +27,7 @@ public class LandscapeController : MonoBehaviour
     /* Settings */
     private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
     private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
+    private static bool landscapeSimulationLocal = true;             // Local landscape simulation
 
     private bool loadFireDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
     private bool loadPatchDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
@@ -141,6 +142,9 @@ public class LandscapeController : MonoBehaviour
     private PatchDataMonth nextPatchData;              // Next patch data frame
     private WaterDataFrame currentWaterData;                    // Current water data frame
     private Dictionary<int, PatchPointCollection> patchExtents; // Extents (bounds) of each patch in simulation
+    
+    //private List<List<float[,,]>> terrainSplatmaps;     // Terrain splatmap data for each frame
+    private List<float[,,]> currentSplatmaps;           // Current terrain splatmap data
 
     public int simulationStartYear, simulationStartMonth, simulationStartDay = 1;    // Start year, month, day of extents / streamflow data, whichever begins later
     public int extentsStartYear, waterStartYear;                // Start year for water and extents data
@@ -214,29 +218,7 @@ public class LandscapeController : MonoBehaviour
 
         if (landscapeSimulationOn)
         {
-            //if (waterData != null)
-            //{
-            //    if (!landscapeSimulationWeb && patchesData == null)
-            //    {
-            //        Debug.Log(name + ".UpdateLandscape()... ERROR: Turning off landscape simulation... patchData == null:" + (patchesData == null) + " waterData == null: " + (waterData == null) + " curYear:" + curYear + " curMonth:" + " curDay:" + curDay + " dataFormatted:" + dataFormatted);
-            //        return;
-            //    }
-
-            //    if (!pausedDuringFire)
-            //        UpdateData(curTimeIdx, curYear, curMonth, curDay, timeStep);
-
-            //    UpdateTerrain(curYear, curMonth, curDay, timeStep);
-
-            //    if (!pausedDuringFire)
-            //        UpdateRiver(curYear, curMonth, curDay, timeStep);
-            //}
-            //else
-            //{
-            //    Debug.Log(name + ".UpdateLandscape()... ERROR: Turning off landscape simulation... patchData == null:" + (patchesData == null) + " waterData == null: " + (waterData == null) + " curYear:" + curYear + " curMonth:" + " curDay:" + curDay + " dataFormatted:" + dataFormatted);
-            //    landscapeSimulationOn = false;
-            //}
-
-            if (!landscapeSimulationWeb && patchesData == null)
+            if (!landscapeSimulationWeb && !landscapeSimulationLocal && patchesData == null)
             {
                 Debug.Log(name + ".UpdateLandscape()... ERROR: Turning off landscape simulation... patchData == null:" + (patchesData == null) + " waterData == null: " + (waterData == null) + " curYear:" + curYear + " curMonth:" + " curDay:" + curDay + " dataFormatted:" + dataFormatted);
                 return;
@@ -471,7 +453,7 @@ public class LandscapeController : MonoBehaviour
             }
         }
 
-        if (landscapeSimulationWeb)
+        if (landscapeSimulationWeb && !landscapeSimulationLocal)
         {
             ResetTerrainSplatmap();
             ResetSnow(false);
@@ -480,6 +462,12 @@ public class LandscapeController : MonoBehaviour
             //    terrain.terrainData.SetAlphamaps(0, 0, sdf.GetData());
 
             // -- TO DO: Is this possible for web?
+        }
+        else if (landscapeSimulationWeb && landscapeSimulationLocal)
+        {
+            int monthIdx = curMonth + curYear * 12 - 1;
+            // -- TO DO: Interpolation for days
+            terrain.terrainData.SetAlphamaps(0, 0, currentSplatmaps[monthIdx]);
         }
         else
         {
@@ -595,7 +583,7 @@ public class LandscapeController : MonoBehaviour
 
         if (landscapeSimulationOn)
         {
-            if (landscapeSimulationWeb)
+            if (landscapeSimulationWeb && !landscapeSimulationLocal)
             {
                 //LoadDataWeb();                         // Loads snow and fire data frames (Web Version)
                 if (debug)
@@ -686,10 +674,6 @@ public class LandscapeController : MonoBehaviour
                         yield return null;
                     }
                 }
-                //catch (Exception ex)
-                //{
-                //    Debug.Log("LoadLandscapeData()... ERROR ex: " + ex.Message);
-                //}
 
                 //ImportWaterData();
                 try
@@ -719,9 +703,9 @@ public class LandscapeController : MonoBehaviour
                 //if (debug)
                 //    Debug.Log("LoadDataWeb()... Finished");
             }
-            else
+            else if(landscapeSimulationWeb && landscapeSimulationLocal)
             {
-
+                //LoadSplatMapsFromFilesForWarmingIdx(warmingIdx);
             }
             //else
             //{
@@ -789,6 +773,10 @@ public class LandscapeController : MonoBehaviour
 
             
         Debug.Log("LoadLandscapeDataForWarmingIdx()... Loading simulation data : " + i);
+
+        // Local background snow data
+        if (landscapeSimulationLocal)
+            LoadSplatMapsFromFilesForWarmingIdx(warmIdx);
     }
 
 
@@ -1892,6 +1880,158 @@ public class LandscapeController : MonoBehaviour
     //    gridWidth = newGridWidth;
     //}
 
+    public void LoadSplatMapsFromFilesForWarmingIdx(int warmIdx)
+    {
+        TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>("SplatData_" + warmIdx);
+
+        currentSplatmaps = new List<float[,,]>();
+
+        int currWarmIdx = 0;
+        foreach (var textAsset in splatDataArr)
+        {
+            // Ex. terrain_warm0_1942_10.json
+            string[] parts = textAsset.name.Split('_');
+            int warmingIdx = int.Parse(parts[1].Substring(4));
+
+            if (warmingIdx != warmIdx)
+                continue;
+
+            int year = int.Parse(parts[2]);
+            int month = int.Parse(parts[3].Split('.')[0]);
+
+            float[,,] splatmap = new float[0, 0, 0];
+
+            //float[,,] splatmap = new float[terrain.terrainData.alphamapWidth,
+            //    terrain.terrainData.alphamapHeight,
+            //    terrain.terrainData.alphamapLayers];
+
+            Debug.Log(" splatmap 0: " + splatmap.GetLength(0)
+                                         + " splatmap 1: " + splatmap.GetLength(1)
+                                         + " splatmap 2: " + splatmap.GetLength(2));
+
+            try
+            {
+                float[,,] unflattened = ImportSplatData(textAsset.text); // -- TO TEST
+
+                Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
+                                 + " unflattened 1: " + unflattened.GetLength(1)
+                                 + " unflattened 2: " + unflattened.GetLength(2));
+
+
+                Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
+
+                splatmap = unflattened;
+            }
+            catch (Exception ex)
+            {
+                Debug.Log("ExportTerrainData ERROR ex: " + ex.Message);
+            }
+
+            //if (warmIdx > currWarmIdx)
+            //{
+                //terrainSplatmaps.Add(currentSplatmaps);
+                //currentSplatmaps = new List<float[,,]>();
+                //currWarmIdx = warmIdx;
+            //}
+
+            //float[,,] splatmap = new float[terrain.terrainData.alphamapWidth, 
+            //    terrain.terrainData.alphamapHeight, 
+            //    terrain.terrainData.alphamapLayers];
+
+            currentSplatmaps.Add(splatmap);
+        }
+    }
+
+    //public void LoadSplatMapsFromFiles()
+    //{
+    //    TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>("TerrainData");
+
+    //    terrainSplatmaps = new List<List<float[,,]>>();
+    //    currentSplatmaps = new List<float[,,]>();
+
+    //    int currWarmIdx = 0;
+    //    foreach (var textAsset in splatDataArr)
+    //    {
+    //        // Ex. terrain_warm0_1942_10.json
+    //        string[] parts = textAsset.name.Split('_');
+    //        int warmingIdx = int.Parse(parts[1].Substring(4));
+    //        int year = int.Parse(parts[2]);
+    //        int month = int.Parse(parts[3].Split('.')[0]);
+    //        //float[,,] splatmap = new float[0,0,0];
+
+    //        float[,,] splatmap = new float[terrain.terrainData.alphamapWidth,
+    //            terrain.terrainData.alphamapHeight,
+    //            terrain.terrainData.alphamapLayers];
+
+    //        Debug.Log(" splatmap 0: " + splatmap.GetLength(0)
+    //                                     + " splatmap 1: " + splatmap.GetLength(1)
+    //                                     + " splatmap 2: " + splatmap.GetLength(2));
+
+    //        try
+    //        {
+    //            float[,,] unflattened = ImportSplatData(textAsset.text); // -- TO TEST
+
+    //            Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
+    //                             + " unflattened 1: " + unflattened.GetLength(1)
+    //                             + " unflattened 2: " + unflattened.GetLength(2));
+
+
+    //            Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
+
+    //            splatmap = unflattened;
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            Debug.Log("ExportTerrainData ERROR ex: " + ex.Message);
+    //        }
+
+    //        if (warmIdx > currWarmIdx)
+    //        {
+    //            terrainSplatmaps.Add(currentSplatmaps);
+    //            currentSplatmaps = new List<float[,,]>();
+    //            currWarmIdx = warmIdx;
+    //        }
+
+    //        //float[,,] splatmap = new float[terrain.terrainData.alphamapWidth, 
+    //        //    terrain.terrainData.alphamapHeight, 
+    //        //    terrain.terrainData.alphamapLayers];
+
+    //        currentSplatmaps.Add(splatmap);
+    //    }
+    //}
+
+    private float[,,] ImportSplatData(string inputStr)
+    {
+        Debug.Log("ImportSplatData()... ");
+
+        //if (File.Exists(path))
+        //{
+            //string inputStr = File.ReadAllText(path);
+            //float[] flatArray = JsonUtility.FromJson<float[]>(inputStr);
+            float[] flatArray = JsonConvert.DeserializeObject<float[]>(inputStr);
+            float[,,] unflattened = Unflatten1DArrayTo3D(flatArray);
+            return unflattened;
+        //}
+
+        return null;
+    }
+
+
+    private float[,,] Unflatten1DArrayTo3D(float[] array)
+    {
+        int xCount = 512;
+        int yCount = 512;
+        int zCount = 4;
+
+        var output = new float[xCount, yCount, zCount];
+        var index = 0;
+        for (var x = 0; x < xCount; x++)
+        for (var y = 0; y < yCount; y++)
+        for (var z = 0; z < zCount; z++)
+            output[x, y, z] = array[index++];
+
+        return output;
+    }
 
 
     /// <summary>

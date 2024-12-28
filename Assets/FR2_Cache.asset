@@ -56522,6 +56522,11 @@ MonoBehaviour:
     stamp: 0
     type: 5
     UseGUIDsList: []
+  - guid: 9850ef45c82bb2942a9df15e129dc5bd
+    loadInfoTS: 0
+    stamp: 0
+    type: 5
+    UseGUIDsList: []
   priority: 1
   setting:
     alternateColor: 1
