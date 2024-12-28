@@ -4,11 +4,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 using Unity.VisualScripting.Antlr3.Runtime.Tree;
+using Quaternion = UnityEngine.Quaternion;
+using Vector3 = UnityEngine.Vector3;
 
 /// <summary>
 /// Cube controller.
@@ -48,6 +51,7 @@ public class CubeController : MonoBehaviour
     public GameObject cubeLabel;                // Cube label
     private List<ParticleSystem.EmissionModule> emissions;                // List of all ET emitting objects in cube
     public GameObject housePrefab;             // House to spawn
+    public GameObject drivewayPrefab;          // Driveway to spawn
 
     private GameObject houseObj;
 
@@ -82,6 +86,9 @@ public class CubeController : MonoBehaviour
     private float fireDetectionThreshold = 0.2f; // Ratio of (tree) carbon in data to visualized carbon under which fire is detected (ignited)  -- OBSOLETE
     private float fireDetectionMinCarbon = 10f;  // Ratio of (tree) carbon in data to visualized carbon under which fire is detected (ignited)  -- OBSOLETE
     public int fireRegrowthLength = 160;    // Frames to regrow grass   -- TEMP.
+    private int riverFireGapWidth = 6;
+    private int houseDefensibleWidth = 10;
+
     [SerializeField]
     private bool terrainBurning = false;         // Cube terrain is currently burning
     [SerializeField]
@@ -110,8 +117,8 @@ public class CubeController : MonoBehaviour
     /* Settings */
     private SimulationSettings settings;          // Simulation settings
     private int shrubCount;                       // Current number of grown shrubs in cube
-    private float minShrubFullSize = 1.5f;        // Min. shrub grown size (m.)
-    private float maxShrubFullSize = 2.5f;        // Max. shrub grown size (m.)
+    private float minShrubFullSize = 0.8f;        // Min. shrub grown size (m.)
+    private float maxShrubFullSize = 2f;        // Max. shrub grown size (m.)
     private float minGrassFullSize = 3f;          // Max. shrub grown size (m.)
     private float maxGrassFullSize = 5f;          // Max. shrub grown size (m.)
     private float shrubGrowthIncrement = 0.01f;   // Shrub growth increment per frame
@@ -141,19 +148,10 @@ public class CubeController : MonoBehaviour
     private float[][,] dataArray;               // Data arrays by [warming idx][row, col] in desktop version OR [time idx offset][row, col] in web version
     private float[][,] nextDataArray;           // Used for pre-loading data in web version
     private Dictionary<int, CubeData> cubeData;              // Data access for web loaded data
-    //private Dictionary<int, CubeDataRow> nextCubeData;          // Used for pre-loading data in web version  
     private CubeData[] dataRows;             // Data rows for calculating paramater ranges
-    //private CubeDataRow[] nextDataRows;         // Used for pre-loading data in web version
-    //private int firstCurrentDataIdx = -1;        
-    //private int lastCurrentDataIdx = -1;
-    //private int firstNextDataIdx = -1;
-    //private int lastNextDataIdx = -1;
     private int dataBuffer = 500;                 // Frames of cube data to preload
 
     private int dataLength;                     // Data file line count
-
-    //private string[] dataHeadings;              // Data headings
-    //private List<DateModel> dataDates;          // Dates by time index
 
     public int warmingIdx;                     // Current warming index
     public int warmingDegrees;                 // Current warming degrees
@@ -230,6 +228,9 @@ public class CubeController : MonoBehaviour
 
     public float streamCenter = 25f;             // Stream center position in cube (0f-50f)
     public float streamWidth = 10f;              // Stream width (m.)
+    public float houseCenter = 25f;             // House center position in cube (0f-50f)
+    public float houseWidth = 10f;              // House width (m.)
+    public float drivewayWidth = 5f;              // Driveway width (m.)
 
     /* Vegetation */
     private List<FirController> firs;                // Array of all fir controllers
@@ -580,7 +581,7 @@ public class CubeController : MonoBehaviour
         firePrefab = newFirePrefab;
 
         SetFirePrefab(firePrefab);
-        if(housePrefab)
+        if(housePrefab && drivewayPrefab)
             SetupHouse();
         SetupCube();
 
@@ -672,9 +673,9 @@ public class CubeController : MonoBehaviour
     {
         fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true, settings.BuildForWeb);
         if (hasStream)
-            fireManager.DisableFireCells(true, 6);
+            fireManager.DisableFireCells(true, riverFireGapWidth);
         else if (hasHouse)
-            fireManager.DisableFireCells(false, 8);
+            fireManager.DisableFireCells(false, houseDefensibleWidth);
     }
 
     /// <summary>
@@ -705,9 +706,48 @@ public class CubeController : MonoBehaviour
     /// </summary>
     private void SetupHouse()
     {
-        Vector3 loc = new Vector3(8.6f, 7f, -20.4f);
-        houseObj = Instantiate(housePrefab, Vector3.zero, housePrefab.transform.rotation, cubeObject.transform);
+        // Create house
+        //Vector3 loc = new Vector3(8.6f, 7f, -20.4f);
+        //Vector3 loc = new Vector3(0f, 7f, -30f);
+        Vector3 loc = new Vector3(5f, 5.3f, -25f);
+        Vector3 rot = housePrefab.transform.rotation.eulerAngles;
+        rot.y = -90f;
+        houseObj = Instantiate(housePrefab, Vector3.zero, Quaternion.Euler(rot), cubeObject.transform);
         houseObj.transform.localPosition = loc;
+
+        // Create defensible spaces
+        float startX = 1f;
+        float startZ = -20f;
+        float drivewayWidth = 4f;
+        float drivewayHeight = 8f;
+
+        for (int y = 0; y < 3; y++)
+        {
+            for (int x = 0; x < 6; x++)
+            {
+                loc = new Vector3(startX + y * drivewayHeight, 5.3f, startZ - x * drivewayWidth);
+                rot = drivewayPrefab.transform.rotation.eulerAngles;
+                rot.y = 0f;
+                houseObj = Instantiate(drivewayPrefab, Vector3.zero, Quaternion.Euler(rot), cubeObject.transform);
+                houseObj.transform.localPosition = loc;
+            }
+        }
+
+        // Create driveway
+        loc = new Vector3(startX + 3f * drivewayHeight, 5.3f, startZ - 1f * drivewayWidth);
+        rot = drivewayPrefab.transform.rotation.eulerAngles;
+        rot.y = 0f;
+        houseObj = Instantiate(drivewayPrefab, Vector3.zero, Quaternion.Euler(rot), cubeObject.transform);
+        houseObj.transform.localPosition = loc;
+
+
+        //loc = new Vector3(5f, 5.3f, -20f);
+        //rot = drivewayPrefab.transform.rotation.eulerAngles;
+        //rot.y = 0f;
+        //houseObj = Instantiate(drivewayPrefab, Vector3.zero, Quaternion.Euler(rot), cubeObject.transform);
+        //houseObj.transform.localPosition = loc;
+
+        //houseObj.transform.rotation = Quaternion.Euler(rot);
 
         //GameObject rootsPrefab = rootsPrefabs[i];
         //float rootsY = settings.RootsYOffsetFactor;
@@ -863,7 +903,80 @@ public class CubeController : MonoBehaviour
                 firLocations[i].y = terrain.SampleHeight(firLocations[i]) + terrain.GetPosition().y;
             }
         }
-        else                     // Create trees for cube without stream
+        else if (hasHouse)                  // Create trees for cube with house
+        {
+            switch (settings.MinFrontTrees)
+            {
+                case 1:
+                    goto default;
+
+                case 2:
+                    randX = GetRandomExcludingMiddle(cubeXMin, cubeXMax, houseCenter - houseWidth * 0.5f, houseCenter + houseWidth * 0.5f);
+                    firLocations[0] = new Vector3(randX, 0, cubeFront);        //  Front tree 1
+                    firLocations[0].y = terrain.SampleHeight(firLocations[0]) + terrain.GetPosition().y;
+
+                    randX = GetRandomExcludingMiddle(cubeXMin, cubeXMax, houseCenter - houseWidth * 0.5f, houseCenter + houseWidth * 0.5f);
+                    firLocations[1] = new Vector3(randX, 0, cubeFront);        //  Front tree 2
+                    firLocations[1].y = terrain.SampleHeight(firLocations[1]) + terrain.GetPosition().y;
+
+                    firLocations[0].x += offsetX;
+                    firLocations[0].z += offsetZ;
+                    firLocations[1].x += offsetX;
+                    firLocations[1].z += offsetZ;
+
+                    start = 2;
+                    break;
+
+                default:
+                    randX = GetRandomExcludingMiddle(cubeXMin, cubeXMax, houseCenter - houseWidth * 0.5f, houseCenter + (houseWidth * 0.5f));
+                    firLocations[0] = new Vector3(randX, 0, cubeFront);        //  Front tree 
+                    firLocations[0].y = terrain.SampleHeight(firLocations[0]) + terrain.GetPosition().y;
+                    firLocations[0].x += offsetX;
+                    firLocations[0].z += offsetZ;
+
+                    start = 1;
+                    break;
+            }
+
+            for (int i = start; i < settings.MaxTrees; i++)
+            {
+                randX = GetRandomExcludingMiddle(cubeXMin, cubeXMax, houseCenter - houseWidth * 0.5f, houseCenter + houseWidth * 0.5f);
+                float randZ = Random.Range(cubeZMin, cubeZMax);
+                randX += offsetX;
+                randZ += offsetZ;
+
+                int count = 0;
+                bool found = false;
+                while (!found)
+                {
+                    Vector3 testLoc;                                                                     // Location to compare
+
+                    found = true;
+                    for (int x = start; x < i; x++)
+                    {
+                        testLoc = new Vector3(randX, 0f, randZ);                                         // Get random location for testing
+                        if (Mathf.Abs(Vector3.Distance(testLoc, firLocations[x])) < settings.TreeMinSpacing)
+                            found = false;                                                               // Too close to another tree, try again
+                    }
+                    if (!found)                                                                          // Choose new location
+                    {
+                        randX = GetRandomExcludingMiddle(cubeXMin, cubeXMax, houseCenter - houseWidth * 0.5f, houseCenter + houseWidth * 0.5f);
+                        randZ = Random.Range(cubeZMin, cubeZMax);
+                        randX += offsetX;
+                        randZ += offsetZ;
+                    }
+                    if (++count > whileLoopMaxCount)
+                    {
+                        Debug.Log(transform.name + ".CreateTrees()... Tried 100 tree locations and none found within min spacing distance!");
+                        throw new System.Exception();     
+                    }
+                }
+
+                firLocations[i] = new Vector3(randX, 0f, randZ);
+                firLocations[i].y = terrain.SampleHeight(firLocations[i]) + terrain.GetPosition().y;
+            }
+        }
+        else                     // Create trees for cube without stream or house
         {
             switch (settings.MinFrontTrees)
             {
@@ -2142,7 +2255,17 @@ public class CubeController : MonoBehaviour
             grassLocation.y = terrain.SampleHeight(grassLocation) + terrain.GetPosition().y;
             AddGrass(grassLocation, immediate);
         }
-        else                                              // Set shrub locations without stream
+        else if (hasHouse)                                   // Set shrub locations based on house
+        {
+            float randX = GetRandomExcludingMiddle(cubeXMin, cubeXMax, houseCenter - houseWidth * 0.5f, houseCenter + houseWidth * 0.5f);
+            float randZ = Random.Range(cubeZMin, cubeZMax);
+            randX += offsetX;
+            randZ += offsetZ;
+            grassLocation = new Vector3(randX, 0f, randZ);
+            grassLocation.y = terrain.SampleHeight(grassLocation) + terrain.GetPosition().y;
+            AddGrass(grassLocation, immediate);
+        }
+        else                                              // Set shrub locations without stream or house
         {
             float randX = Random.Range(cubeXMin, cubeXMax);
             float randZ = Random.Range(cubeZMin, cubeZMax);
@@ -2794,7 +2917,7 @@ public class CubeController : MonoBehaviour
         }
         else
         {
-            Debug.Log(name + ".IgniteFire()... ERROR Couldn't ignite since already burning / burnt!");
+            Debug.Log(name + ".IgniteTerrain()... ERROR Couldn't ignite since already burning / burnt!");
         }
     }
 
