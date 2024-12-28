@@ -240,6 +240,7 @@ public class GameController : MonoBehaviour
     /* UI Text */
     private bool showControls = true;                         // Show controls setting
     public bool displayModel = false;                        // Display model data setting
+    private bool forceHideModel = false;                      // Force hide model data setting
     private bool storyMode = true;                            // Show "story" messages
 
     #endregion
@@ -1252,7 +1253,7 @@ public class GameController : MonoBehaviour
         exitSideBySideButtonObject.SetActive(true);
         zoomOutButtonObject.SetActive(false);
 
-        UpdateModelDisplayFromToggle(showModelDataToggleObject);
+        UpdateModelDisplayFromToggle();
         //if (displayModel)
         //{
         //    cubeLStats.SetActive(true);
@@ -1359,7 +1360,9 @@ public class GameController : MonoBehaviour
         exitSideBySideButtonObject.SetActive(false);
         zoomOutButtonObject.SetActive(false);
         endButtonObject.SetActive(false);
-        StartCoroutine(ShowEndButtonInSeconds(3f));
+
+        if(!immediate)                  // During simulation, show end button once zoomed back out
+            StartCoroutine(ShowEndButtonInSeconds(3f));
 
         sideBySideCanvas.enabled = true;
         sideBySideMode = false;
@@ -2347,12 +2350,16 @@ public class GameController : MonoBehaviour
     /// <summary>
     /// Updates the data display based on the "Show Model" toggle state.
     /// </summary>
-    public void UpdateModelDisplayFromToggle(GameObject toggleObject)
+    public void UpdateModelDisplayFromToggle()
     {
+        GameObject toggleObject = showModelDataToggleObject;
+
         Toggle toggle = toggleObject.GetComponent<Toggle>();
         bool state = toggle.isOn;
-
         displayModel = state;
+
+        if (forceHideModel)
+            return;
 
         if (displayModel)
             ShowStatistics();
@@ -2559,6 +2566,8 @@ public class GameController : MonoBehaviour
         zoomOutButtonObject.SetActive(false);
         CameraController camControl = sceneCamera.GetComponent<CameraController>() as CameraController;
         camControl.StartResetZoom();
+
+        UpdateModelDisplayFromToggle();
     }
 
     public void SetSideByToggleActive(bool state)
@@ -2569,6 +2578,16 @@ public class GameController : MonoBehaviour
     public void SetZoomOutButtonActive(bool state)
     {
         zoomOutButtonObject.SetActive(state);
+    }
+
+    public void ForceHideModel(bool state)
+    {
+        forceHideModel = state;
+
+        if (forceHideModel)
+            HideStatistics();
+        else if(displayModel)
+            ShowStatistics();
     }
 
     /// <summary>
@@ -2621,7 +2640,7 @@ public class GameController : MonoBehaviour
             cubesToggleObject.GetComponent<Toggle>().isOn = true;
         camControl.SetCameraFlyMode(false);
 
-        UpdateModelDisplayFromToggle(showModelDataToggleObject);
+        UpdateModelDisplayFromToggle();
 
         uiTimeline.ClearTimeline();
         uiTimeline.ResetTimeline();

@@ -191,6 +191,7 @@ public class CameraController : MonoBehaviour {
     {
         string animTriggerName;
         GameController.Instance.SetSideByToggleActive(false);
+        GameController.Instance.ForceHideModel(true);
 
         if (ShouldEnterSideBySideMode())
         {
@@ -236,6 +237,7 @@ public class CameraController : MonoBehaviour {
     {
         GameController.Instance.SetSideByToggleActive(true);
         GameController.Instance.SetZoomOutButtonActive(false);
+        GameController.Instance.ForceHideModel(false);
 
         pauseState = GamePauseState.pause;
         moving = true;
