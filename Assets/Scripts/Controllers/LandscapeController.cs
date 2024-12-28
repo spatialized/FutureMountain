@@ -75,7 +75,7 @@ public class LandscapeController : MonoBehaviour
 
     private Dictionary<Vector3, List<int>> patchesToBurnDict;
 
-    public int fireRegrowthLength = 200;       // Frames to regrow grass
+    public int fireRegrowthLength = 240;       // Frames to regrow grass
     //private float fireStartTime = -1f;    // Fire start time
 
     private int fireRegrowthStartTimeIdx;           // Time idx when last fire ended
@@ -459,7 +459,7 @@ public class LandscapeController : MonoBehaviour
             regrowthAmount = Mathf.Clamp(MapValue(currentTimeIdx - fireRegrowthStartTimeIdx, 0, fireRegrowthLength, 0f, 1f), 0f, 1f);
 
             if(debugFire)
-                Debug.Log(name + ".UpdateTerrain()... recentFire: true...  regrowthAmount:" + regrowthAmount + " currentTimeIdx:" + currentTimeIdx + " fireRegrowthStartTimeIdx: " + fireRegrowthStartTimeIdx + " fireGrassRegrowthLength: " + fireRegrowthLength);
+                Debug.Log(name + ".UpdateTerrain()... recentFire: true...  regrowthAmount:" + regrowthAmount + " currentTimeIdx:" + currentTimeIdx + " fireRegrowthStartTimeIdx: " + fireRegrowthStartTimeIdx + " fireRegrowthLength: " + fireRegrowthLength);
 
             if (Mathf.Abs(regrowthAmount - 1f) < 0.0001f)           // Check if finished
             {

@@ -242,15 +242,19 @@ public class SERI_FireManager : MonoBehaviour
             pos.z += offset.z;
 
             fireGrid.Initialize(this, firePrefab, pos, gridWidth, gridHeight, pooler, null, null, newLandscapeController, false, immediateFire);
-
-            //if(debug)
-            //    Debug.Log(name + ".Initialize()... grid #0");
-
             fireGrids[0] = fireGrid;
         }
 
         //initialized = true;
         gridIdx = 0;
+    }
+
+    public void DisableFireCells(bool isRiver, int gapCellWidth)
+    {
+        foreach(SERI_FireGrid grid in fireGrids)
+        {
+            grid.DisableFireCells(isRiver, gapCellWidth);
+        }
     }
 
     /// <summary>
@@ -332,10 +336,10 @@ public class SERI_FireManager : MonoBehaviour
 
     public void StopAllGridFires()
     {
-        StopBurningInSec(2f);
+        StopBurningInSec(3f);
         foreach (var grid in fireGrids)
         {
-            StartCoroutine(grid.WaitToStopAllFires(2f));
+            StartCoroutine(grid.WaitToStopAllFires(3f));
         }
     }
     #endregion

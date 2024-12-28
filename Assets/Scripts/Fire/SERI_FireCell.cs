@@ -38,6 +38,9 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
     private GameObject firePrefab;              // Fire prefab 
     private GameObject[] fireList;              // Fires in cell
     private Vector2[] firePositions;
+    [SerializeField]
+    private bool isDisabled = false;            // Disabled flag (won't burn during fire) 
+
     //private SERI_FireBox m_fireBox = null;      // used to detect collision with GameObjects that have colliders
 
     /* Data */
@@ -390,6 +393,16 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
         //        visualMgr.Initialize();
         //    }
         //}
+    }
+
+    public void SetDisabled(bool disabled)
+    {
+        isDisabled = disabled;
+    }
+
+    public bool IsDisabled()
+    {
+        return isDisabled;
     }
     #endregion
 

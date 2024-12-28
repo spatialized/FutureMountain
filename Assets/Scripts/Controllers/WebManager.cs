@@ -11,7 +11,7 @@ using static CubeController;
 /// </summary>
 public class WebManager : MonoBehaviour
 {
-    private static bool runOnLocal = false;                 // Run on local (true) or remote (false) server
+    public static bool runOnLocal = true;                 // Run on local (true) or remote (false) server
     private static bool debug = false;
     private static bool debugDetailed = false;
 

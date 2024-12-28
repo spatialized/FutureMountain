@@ -40,7 +40,7 @@ public class SERI_FireGrid : MonoBehaviour
 
     private Vector2 startPoint;                                 // Fire start point
 
-    List<SERI_FireCell> fireCellsList = new List<SERI_FireCell>();
+    List<SERI_FireCell> fireCellsList = new List<SERI_FireCell>();  // List of cells in fire
     List<FireDataPoint> activePointsList;
     FireDataPointCollection[,] activePointsGrid;                // Used in data-controlled fire
 
@@ -55,7 +55,7 @@ public class SERI_FireGrid : MonoBehaviour
     private Terrain terrain;
 
     private GameObject[,] fireGrid;
-    private Vector3[,] fireGridPositions;
+    //private Vector3[,] fireGridPositions;
     private SERI_FireCell[,] fireCells;
 
     private SortedList<int, Vector2> burningCells;
@@ -198,7 +198,6 @@ public class SERI_FireGrid : MonoBehaviour
         {
             for (int y = 0; y < gridHeight; y++)
             {
-                //gridPosition = new Vector2(x, y);
                 index = new Vector2((transform.position.x - offsetX) + (x * cellSize), (transform.position.z - offsetY) + (y * cellSize));
                 worldPosition = GridToWorldPosition(index);
                 worldPosition.y += terrain.SampleHeight(worldPosition) + 0.001f;
@@ -232,27 +231,9 @@ public class SERI_FireGrid : MonoBehaviour
 
                 if (immediateFire)                                                      // Ignite cells immediately
                 {
-                    //bool ignite = true;
-                    //if (dataControlled)                                                 // Only true for large landscape fires
-                    //{
-                    //    //FireDataPoint point = activePointsList[x, y];
-                    //    //if (point != null)
-                    //    //    ignite = true;
-
-                    //    foreach (FireDataPoint point in gridActivePoints[x, y].GetPoints())
-                    //    {
-                    //        ignite = true;
-                    //        break;
-                    //    }
-
-                    //}
-
-                    //if (ignite)
-                    //{
-                        cell.SetFireSize(1f);
-                        fireCellsList.Add(cell);
-                        cellBurnCount++;
-                    //}
+                    cell.SetFireSize(1f);
+                    fireCellsList.Add(cell);
+                    cellBurnCount++;
                 }
                 else
                 {
@@ -290,12 +271,7 @@ public class SERI_FireGrid : MonoBehaviour
                                 avgIter += iter;
                             }
                         }
-
-                        //if (ptList.Count == 0)
-                        //    avgFireSize = 0;
-                        //if (ptList.Count == 0)
-                        //    avgIter = 0;
-
+                        
                         if (ptList.Count > 0)
                         {
                             avgFireSize /= ptList.Count;
@@ -362,7 +338,49 @@ public class SERI_FireGrid : MonoBehaviour
         foreach (SERI_FireCell cell in fireCells)
         {
             cell.Extinguish();
-            cell.gameObject.SetActive(false);       // TESTING
+            cell.gameObject.SetActive(false);   
+        }
+    }
+
+    /// <summary>
+    /// Remove fire cells from grid in shape of river or house
+    /// </summary>
+    /// <param name="isRiver">If true, remove a line along Y axis of gapWidth; if false, remove a square from center of grid</param>
+    /// <param name="gapCellWidth">Width of area to remove</param>
+    public void DisableFireCells(bool isRiver, int gapCellWidth)
+    {
+        List<SERI_FireCell> disableList = new List<SERI_FireCell>();
+        int startX = 0;
+        int endX = fireGrid.GetLength(0);
+        int startY = 0;
+        int endY = fireGrid.GetLength(1);
+
+        if (isRiver)
+        {
+            startY = (int)(fireGrid.GetLength(1) / 2) - gapCellWidth / 2;
+            endY = (int)(fireGrid.GetLength(1) / 2) + gapCellWidth / 2;
+        }
+        else
+        {
+            startX = (int)(fireGrid.GetLength(0) / 2) - gapCellWidth / 2;
+            endX = (int)(fireGrid.GetLength(0) / 2) + gapCellWidth / 2;
+            startY = (int)(fireGrid.GetLength(1) / 2) - gapCellWidth / 2;
+            endY = (int)(fireGrid.GetLength(1) / 2) + gapCellWidth / 2;
+        }
+
+        for (int x = startX; x < endX; x++)
+        {
+            for (int y = startY; y < endY; y++)
+            {
+                SERI_FireCell cell = fireCells[x, y];
+                cell.gameObject.SetActive(false);
+                disableList.Add(cell);
+            }
+        }
+
+        foreach (SERI_FireCell cell in disableList)
+        {
+            cell.SetDisabled(true);
         }
     }
     #endregion
@@ -442,13 +460,13 @@ public class SERI_FireGrid : MonoBehaviour
 
         foreach (SERI_FireCell cell in fireCellsList)
         {
+            if (cell.IsDisabled())
+                continue;
+
             cell.gameObject.SetActive(true);       // TESTING
 
             if (immediateFire)
             {
-                //if (debug && count % 10 == 0)
-                //    Debug.Log(transform.parent.transform.parent.transform.parent.name + "." + name + ".IgniteGrid()... immediateFire   Will ignite cell:" + cell + " fuelAmount:" + fuelAmount + " combustionRate:" + combustionRate + " activeCells.Count:" + fireCellsList.Count);
-
                 cell.Ignite(pooler, false, fuelAmount, combustionRate);
             }
             else
@@ -457,17 +475,12 @@ public class SERI_FireGrid : MonoBehaviour
                 {
                     StartCoroutine(WaitToBurnCell(cell, cellBurnWaitTime * count, fuelAmount, combustionRate));
                     landscapeController.AddBurnedCellAfterTime(cell, cellBurnWaitTime * count);
-
-                    //if (debug && count % 100 == 0)
-                    //    Debug.Log(transform.parent.transform.parent.transform.parent.name + "." + name + ".IgniteGrid()... Will ignite cell:" + cell + " after " + (cellBurnWaitTime * count) + " sec.. cellBurnWaitTime:" + cellBurnWaitTime + "  fuelAmount:" + fuelAmount + " combustionRate:" + combustionRate + " activeCells.Count:" + fireCellsList.Count);
                 }
                 else
                     Debug.Log(transform.parent.transform.parent.transform.parent.name + "." + name + ".IgniteGrid()... Non-immediate non-data controlled fire!!");
             }
             count++;
         }
-
-        //gridIgnited = true;
     }
 
     /// <summary>
@@ -518,7 +531,6 @@ public class SERI_FireGrid : MonoBehaviour
             foreach (SERI_FireCell cell in resetList)
             {
                 cell.ResetCell();
-                //cell.DeleteCellAfterTime(0f);
             }
         }
 

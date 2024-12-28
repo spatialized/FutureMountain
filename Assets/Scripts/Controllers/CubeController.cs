@@ -81,7 +81,7 @@ public class CubeController : MonoBehaviour
 
     private float fireDetectionThreshold = 0.2f; // Ratio of (tree) carbon in data to visualized carbon under which fire is detected (ignited)  -- OBSOLETE
     private float fireDetectionMinCarbon = 10f;  // Ratio of (tree) carbon in data to visualized carbon under which fire is detected (ignited)  -- OBSOLETE
-    public int fireGrassRegrowthLength = 120;    // Frames to regrow grass   -- TEMP.
+    public int fireRegrowthLength = 160;    // Frames to regrow grass   -- TEMP.
     [SerializeField]
     private bool terrainBurning = false;         // Cube terrain is currently burning
     [SerializeField]
@@ -211,7 +211,8 @@ public class CubeController : MonoBehaviour
 
     /* Stream */
     [Header("Stream")]
-    public bool hasStream;                       // Whether cube has a stream
+    public bool hasStream = false;               // Whether cube has a stream
+    public bool hasHouse = false;                // Whether cube has a stream
     public GameObject streamObject;              // Stream object
     public GameObject streamFaceObject;          // Stream face object
     public float StreamHeight { get; set; }      // Stream height (QOut)
@@ -637,9 +638,6 @@ public class CubeController : MonoBehaviour
         unburntSplatmap = CreateUnburntSplatmap();
         ResetTerrainSplatmap();
 
-        //fireGridCenterLocation = new Vector3(24f, 0f, 0f);
-        //defaultPosition = transform.position;
-
         if (hasStream)
         {
             streamObject = cubeObject.transform.Find("StreamSpline").gameObject;
@@ -654,7 +652,12 @@ public class CubeController : MonoBehaviour
         grasses = new List<GameObject>();
         litter = new List<GameObject>();
 
-        fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true, settings.BuildForWeb);
+        ResetFireManager();
+        //fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true, settings.BuildForWeb);
+        //if(hasStream)
+        //    fireManager.DisableFireCells(true, 5);
+        //else if(hasHouse)
+        //    fireManager.DisableFireCells(false, 5);
 
         HideStatistics();
 
@@ -663,6 +666,15 @@ public class CubeController : MonoBehaviour
 
         firstRun = false;
         //Debug.Log(name+".Initialize()... firePrefab == null? " + (firePrefab == null));
+    }
+
+    public void ResetFireManager()
+    {
+        fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true, settings.BuildForWeb);
+        if (hasStream)
+            fireManager.DisableFireCells(true, 6);
+        else if (hasHouse)
+            fireManager.DisableFireCells(false, 8);
     }
 
     /// <summary>
@@ -1395,6 +1407,8 @@ public class CubeController : MonoBehaviour
                 fireRegrowthStartTimeIdx = timeIdx;                         // Time idx when last fire ended
                 terrainBurning = false;
                 terrainBurnt = true;
+
+                ResetFireManager();         // Added 12-27-24
             }
         }
     }
@@ -3199,7 +3213,7 @@ public class CubeController : MonoBehaviour
         // Splatmap data is stored internally as a 3d array of floats, so declare a new empty array ready for your custom splatmap data:
         float[,,] splatmapData = new float[terrainData.alphamapWidth, terrainData.alphamapHeight, terrainData.alphamapLayers];
 
-        float pos = MapValue(timeIdx - fireRegrowthStartTimeIdx, 0, fireGrassRegrowthLength, 0f, 1f);
+        float pos = MapValue(timeIdx - fireRegrowthStartTimeIdx, 0, fireRegrowthLength, 0f, 1f);
 
         if (pos >= 1f)                   // Check if burn finished
         {
