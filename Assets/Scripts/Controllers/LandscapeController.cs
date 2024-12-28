@@ -465,9 +465,23 @@ public class LandscapeController : MonoBehaviour
         }
         else if (landscapeSimulationWeb && landscapeSimulationLocal)
         {
-            int monthIdx = curMonth + curYear * 12 - 1;
-            // -- TO DO: Interpolation for days
-            terrain.terrainData.SetAlphamaps(0, 0, currentSplatmaps[monthIdx]);
+            int startYear = 1942;
+            int monthIdx = curMonth + (curYear- startYear) * 12 - 10;
+
+            if (currentSplatmaps != null && monthIdx < currentSplatmaps.Count)
+            {
+                if (monthIdx + 1 >= currentSplatmaps.Count)
+                {
+                    terrain.terrainData.SetAlphamaps(0, 0, currentSplatmaps[monthIdx]);
+                }
+                else
+                {
+                    float[,,] interpolated = InterpolateTerrainSplatmaps(currentSplatmaps[monthIdx], currentSplatmaps[monthIdx + 1], curDay, curMonth, curYear);
+                    terrain.terrainData.SetAlphamaps(0, 0, interpolated);
+                }
+            }
+            else
+                Debug.Log("ERROR: currentSplatmaps.Count >= monthIdx");
         }
         else
         {
@@ -1882,14 +1896,16 @@ public class LandscapeController : MonoBehaviour
 
     public void LoadSplatMapsFromFilesForWarmingIdx(int warmIdx)
     {
-        TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>("SplatData_" + warmIdx);
+        string path = "SplatData_" + warmIdx;
+        TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>(path);
 
         currentSplatmaps = new List<float[,,]>();
 
+        int ct = 0;
         int currWarmIdx = 0;
         foreach (var textAsset in splatDataArr)
         {
-            // Ex. terrain_warm0_1942_10.json
+            // Ex. terrain_warm0_1942_10.json    NOW terrain_warm0_1942_10_4.json where e.g. last val "4" means res is 512/4 = 128        
             string[] parts = textAsset.name.Split('_');
             int warmingIdx = int.Parse(parts[1].Substring(4));
 
@@ -1927,16 +1943,8 @@ public class LandscapeController : MonoBehaviour
                 Debug.Log("ExportTerrainData ERROR ex: " + ex.Message);
             }
 
-            //if (warmIdx > currWarmIdx)
-            //{
-                //terrainSplatmaps.Add(currentSplatmaps);
-                //currentSplatmaps = new List<float[,,]>();
-                //currWarmIdx = warmIdx;
-            //}
-
-            //float[,,] splatmap = new float[terrain.terrainData.alphamapWidth, 
-            //    terrain.terrainData.alphamapHeight, 
-            //    terrain.terrainData.alphamapLayers];
+            if (ct++ >= 24)
+                return;
 
             currentSplatmaps.Add(splatmap);
         }
@@ -2556,7 +2564,209 @@ public class LandscapeController : MonoBehaviour
 
         return sdf;
     }
-    
+
+    /// <summary>
+    /// Interpolates two terrain data splatmaps for day position (0.0-1.0) in given month.       
+    /// </summary>
+    /// <param name="firstMonth">First month splatmap</param>
+    /// <param name="secondMonth">Second month splatmap</param>
+    /// <param name="day">Day in month</param>
+    /// <param name="month">Month in year</param>
+    /// <param name="year">Year</param>
+    /// <returns></returns>
+    private float[,,] InterpolateTerrainSplatmaps(float[,,] firstMonth, float[,,] secondMonth, int day, int month, int year)
+    {
+        Terrain t = terrain;
+
+        if (firstMonth == null)
+            return null;
+
+        if (secondMonth == null)
+            return firstMonth;
+
+        float[,,] lastSplatmap = t.terrainData.GetAlphamaps(0, 0, t.terrainData.alphamapWidth, t.terrainData.alphamapHeight);
+        float[,,] splatmapData = new float[t.terrainData.alphamapWidth, t.terrainData.alphamapHeight, t.terrainData.alphamapLayers];
+
+        float pos = MapValue(day, 1, DateTime.DaysInMonth(year, month) + 1, 0f, 1f);     // Find position between current month and next month
+
+        for(int x=0; x < t.terrainData.alphamapWidth; x++)
+        {
+            for (int y = 0; y < t.terrainData.alphamapHeight; y++)
+            {
+                for (int i = 0; i < t.terrainData.alphamapLayers; i++)
+                {
+                    float firstVal = firstMonth[x, y, i];
+                    float secondVal = secondMonth[x, y, i];
+                    float val = Mathf.Lerp(firstVal, secondVal, pos);
+                    splatmapData[x, y, i] = val;
+                }
+            }
+        }
+
+        //float[] splatWeights = new float[t.terrainData.alphamapLayers];            // Array to record mix of texture weights 
+        //float[] splatWeightsBurned = new float[t.terrainData.alphamapLayers];      // Array to record mix of texture weights 
+
+        //foreach (PatchDataFrame frame in frames)                                   // Visualize each frame
+        //{
+        //    int patchID = frame.GetPatchID();
+
+        //    int ct = 0;                                                            // Patch counter
+        //    float tempSnow = 0f;                                                   // Snow amount used for calculating average
+
+        //    var patchCollection = patchExtents[patchID];
+        //    PatchDataFrame nextFrame = nextFrames[frameCt];
+
+        //    float snowValue = Mathf.Clamp(MapValue(frame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
+        //    float nextSnowValue = Mathf.Clamp(MapValue(nextFrame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
+        //    float snowWeight = Mathf.Lerp(snowValue, nextSnowValue, pos);              // Find interpolated snow value
+
+        //    snowValue *= snowWeightFactor;
+
+        //    if (terrainBurning)
+        //    {
+        //        splatWeightsBurned[0] = 0f;                               // Unburnt, zero snow
+        //        splatWeightsBurned[1] = 0f;                               // Unburnt, full snow   
+        //        splatWeightsBurned[2] = 0f;                               // Burnt, full snow
+        //        splatWeightsBurned[3] = 1f;                               // Burnt, zero snow
+        //    }
+        //    else
+        //    {
+        //        snowWeight = Mathf.Clamp(MapValue(snowValue, 0f, snowWeightMax, 0f, 1f), 0f, 1f);
+
+        //        if (snowWeight > 0.0001f)                           // Some snow
+        //        {
+        //            if (recentFire)
+        //            {
+        //                splatWeightsBurned[0] = (1f - snowWeight) * regrowthAmount;               // Fully recovered, zero snow
+        //                splatWeightsBurned[1] = snowWeight * regrowthAmount;                      // Fully recovered, full snow
+        //                splatWeightsBurned[2] = snowWeight * (1f - regrowthAmount);               // Burnt, full snow
+        //                splatWeightsBurned[3] = (1f - snowWeight) * (1f - regrowthAmount);        // Burnt, zero snow
+        //            }
+
+        //            splatWeights[0] = 1f - snowWeight;              // Unburnt, zero snow
+        //            splatWeights[1] = snowWeight;                   // Unburnt, full snow   
+        //            splatWeights[2] = 0f;                           // Burnt, full snow   
+        //            splatWeights[3] = 0f;                           // Burnt, zero snow
+        //        }
+        //        else                                                // No snow
+        //        {
+        //            if (recentFire)
+        //            {
+        //                splatWeightsBurned[0] = regrowthAmount;            // Fully recovered, zero snow
+        //                splatWeightsBurned[1] = 0f;                        // Fully recovered, full snow
+        //                splatWeightsBurned[2] = 0f;                        // Burnt, full snow
+        //                splatWeightsBurned[3] = 1f - regrowthAmount;       // Burnt, zero snow
+        //            }
+
+        //            splatWeights[0] = 1f;                           // Unburnt, zero snow
+        //            splatWeights[1] = 0f;                           // Unburnt, full snow
+        //            splatWeights[2] = 0f;                           // Burnt, full snow
+        //            splatWeights[3] = 0f;                           // Burnt, zero snow
+        //        }
+
+        //        float s = splatWeights.Sum();                                             // Calculate normalization factor from sum of weights (Sum of all textures weights must be 1)
+        //        for (int i = 0; i < t.terrainData.alphamapLayers; i++)                    // Loop through each terrain texture
+        //        {
+        //            if (s > 0f)
+        //                splatWeights[i] /= s;                                             // Normalize to make sum of all texture weights = 1
+        //        }
+        //    }
+
+        //    float z = splatWeightsBurned.Sum();                                           // Calculate normalization factor from sum of weights (Sum of all textures weights must be 1)
+        //    for (int i = 0; i < t.terrainData.alphamapLayers; i++)                        // Loop through each terrain texture
+        //    {
+        //        if (z > 0f)
+        //            splatWeightsBurned[i] /= z;                                           // Normalize to make sum of all texture weights = 1
+        //    }
+
+        //    float[] weights;
+
+        //    foreach (PatchPoint point in patchCollection.GetPoints())                     // Loop over points in collection
+        //    {
+        //        Vector2 loc = point.GetAlphamapLocation();                                // -- TO DO: Optimize by skipping duplicates (if any)
+        //        bool pointBurned = false;
+
+        //        if (burnedAlphamapGrid != null)
+        //            pointBurned = burnedAlphamapGrid[(int)loc.x, (int)loc.y];
+
+        //        if (terrainBurning && !pointBurned)                                        // If terrain burning and point didn't burn, keep current texture
+        //        {
+        //            for (int i = 0; i < t.terrainData.alphamapLayers; i++)                // Loop through each terrain texture
+        //            {
+        //                splatmapData[(int)loc.x, (int)loc.y, i] = lastSplatmap[(int)loc.x, (int)loc.y, i];
+
+        //                if (!gridMode)                                                    // Remove grid
+        //                {
+        //                    if ((int)loc.x + 1 < splatmapData.GetLength(0))
+        //                    {
+        //                        splatmapData[(int)loc.x + 1, (int)loc.y, i] = lastSplatmap[(int)loc.x + 1, (int)loc.y, i];
+        //                    }
+        //                    if ((int)loc.y + 1 < splatmapData.GetLength(1))
+        //                    {
+        //                        splatmapData[(int)loc.x, (int)loc.y + 1, i] = lastSplatmap[(int)loc.x, (int)loc.y + 1, i];
+        //                    }
+        //                    if ((int)loc.x + 1 < splatmapData.GetLength(0) && (int)loc.y + 1 < splatmapData.GetLength(1))
+        //                    {
+        //                        splatmapData[(int)loc.x + 1, (int)loc.y + 1, i] = lastSplatmap[(int)loc.x + 1, (int)loc.y + 1, i];
+        //                    }
+        //                }
+        //            }
+
+        //            ct++;
+        //            continue;
+        //        }
+
+        //        if (recentFire && pointBurned)
+        //        {
+        //            weights = splatWeightsBurned;
+        //        }
+        //        else
+        //        {
+        //            weights = splatWeights;
+        //        }
+
+        //        //if (count == 0)
+        //        //    Debug.Log(name + "   patchID:" + patchID + " regrowthAmount:"+ regrowthAmount+" snowWeight:" + snowWeight + " >> s[0]:" + weights[0] + " s[1]:" + weights[1] + " s[2]:" + weights[2] + " s[3]:" + weights[3]);
+
+        //        for (int i = 0; i < t.terrainData.alphamapLayers; i++)          // Loop through each terrain texture
+        //        {
+        //            splatmapData[(int)loc.x, (int)loc.y, i] = weights[i];       // Assign this point to the splatmap array
+
+        //            if (!gridMode)                                              // Remove grid   -- OPTIMIZE?? ONLY APPLY TO EDGES OF COLLECTION
+        //            {
+        //                if ((int)loc.x + 1 < splatmapData.GetLength(0))
+        //                {
+        //                    splatmapData[(int)loc.x + 1, (int)loc.y, i] = weights[i];
+        //                }
+        //                if ((int)loc.y + 1 < splatmapData.GetLength(1))
+        //                {
+        //                    splatmapData[(int)loc.x, (int)loc.y + 1, i] = weights[i];
+        //                }
+        //                if ((int)loc.x + 1 < splatmapData.GetLength(0) && (int)loc.y + 1 < splatmapData.GetLength(1))
+        //                {
+        //                    splatmapData[(int)loc.x + 1, (int)loc.y + 1, i] = weights[i];
+        //                }
+        //            }
+        //        }
+
+        //        tempSnow += snowValue;
+        //        ct++;
+        //    }
+
+        //    count += ct;
+        //    averageSnowAmount += tempSnow;
+
+        //    frameCt++;
+        //}
+
+        //averageSnowAmount /= frameCt;
+        //SnowDataFrame sdf = new SnowDataFrame(day, month, year, splatmapData, averageSnowAmount);
+
+        //return sdf;
+
+        return splatmapData;
+    }
+
     /// <summary>
     /// Creates the default splatmap.
     /// </summary>
