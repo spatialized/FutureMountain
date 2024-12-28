@@ -229,7 +229,7 @@ public class CubeController : MonoBehaviour
     public float streamCenter = 25f;             // Stream center position in cube (0f-50f)
     public float streamWidth = 10f;              // Stream width (m.)
     public float houseCenter = 25f;             // House center position in cube (0f-50f)
-    public float houseWidth = 10f;              // House width (m.)
+    public float houseWidth = 25f;              // House width (m.)
     public float drivewayWidth = 5f;              // Driveway width (m.)
 
     /* Vegetation */
@@ -2393,7 +2393,17 @@ public class CubeController : MonoBehaviour
             shrubLocation.y = terrain.SampleHeight(shrubLocation) + terrain.GetPosition().y;
             AddShrub(shrubLocation, immediate);
         }
-        else                                              // Set shrub locations without stream
+        else if (hasHouse)                                   // Set shrub locations based on house
+        {
+            float randX = GetRandomExcludingMiddle(cubeXMin, cubeXMax, houseCenter - houseWidth * 0.5f, houseCenter + houseWidth * 0.5f);
+            float randZ = Random.Range(cubeZMin, cubeZMax);
+            randX += offsetX;
+            randZ += offsetZ;
+            shrubLocation = new Vector3(randX, 0f, randZ);
+            shrubLocation.y = terrain.SampleHeight(shrubLocation) + terrain.GetPosition().y;
+            AddShrub(shrubLocation, immediate);
+        }
+        else                                              // Set shrub locations without stream or house
         {
             float randX = Random.Range(cubeXMin, cubeXMax);
             float randZ = Random.Range(cubeZMin, cubeZMax);
