@@ -25,14 +25,12 @@ public class LandscapeController : MonoBehaviour
     public bool debugDetailed = true;
 
     /* Optimization */
-    public bool saveSnowVegData = false;
-    public bool saveFireData = true;
+    public bool saveSnowVegData = true;
+    public bool saveFireData = false;
     public bool saveWaterData = false;
     public bool savePatchExtentsData = false;
 
-    public bool ignoreWater = true;
-
-    //public bool saveBurnData = false;
+    public bool ignoreWater = false;
     private string dataPath = "";
 
     #region Fields
@@ -368,9 +366,10 @@ public class LandscapeController : MonoBehaviour
                 if (dataPath.Equals(""))
                     dataPath = EditorUtility.SaveFolderPanel("Choose a directory to save the background landscape data:", "", "");
 
-                //string fileName = "snow_warm" + warmingIdx + "_" + curYear + "_" + curMonth;// + "_" + curDay;
-                //dataPath = SplatmapHelper.Export(terrain, fileName, dataPath);
-                ExportTerrainData(grid, dataPath + "/"+"terrain_warm"+warmingIdx+"_" + curYear + "_" + curMonth + ".json");
+                //ExportTerrainData(grid, dataPath + "/" + "terrain_warm" + warmingIdx + "_" + curYear + "_" + curMonth + ".json");
+                int pixelGrainSize = 4;
+                int decimalPrecision = 3;
+                ExportTerrainDataAtResolution(grid, dataPath + "/" + "terrain_warm" + warmingIdx + "_" + curYear + "_" + curMonth + ".json", pixelGrainSize, decimalPrecision);
                 savedMonth = curMonth;
             }
         }
@@ -380,33 +379,86 @@ public class LandscapeController : MonoBehaviour
 
     private void ExportTerrainData(float[,,] grid, string path)
     {
-        //Debug.Log(" grid[10,10,0]: " + grid[10, 10, 0]);
-        //Debug.Log("Exporting splat data to path: "+path);
-
         float[] flatArray = Flatten3DArrayTo1D(grid);
 
         string json = JsonConvert.SerializeObject(flatArray);
         File.WriteAllText(path, json);
+    }
 
-        // TESTING -- USE IN WEB VERSION
-        //try
-        //{
-        //    float[,,] unflattened = ImportSplatData(path); // -- TO TEST
+    private void ExportTerrainDataAtResolution(float[,,] grid, string path, int pixelGrainSize, int decimalPrecision)
+    {
+        float[,,] reducedGrid = ReduceTerrainDataResolution(grid, pixelGrainSize, decimalPrecision);
+        float[] flatArray = Flatten3DArrayTo1D(reducedGrid);
 
-        //    Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
-        //                     + " unflattened 1: " + unflattened.GetLength(1)
-        //                     + " unflattened 2: " + unflattened.GetLength(2));
+        string json = JsonConvert.SerializeObject(flatArray);
+        File.WriteAllText(path, json);
+    }
 
+    /// <summary>
+    /// Reduces the resolution of the terrain data by a factor of 2.
+    /// </summary>
+    /// <param name="grid">Grid data</param>
+    /// <param name="pixelGrainSize">Factor</param>
+    /// <param name="decimalPrecision">Decimal precision (e.g. 2 = two decimal points)</param>
+    /// <returns></returns>
+    private float[,,] ReduceTerrainDataResolution(float[,,] grid, int pixelGrainSize, int decimalPrecision)
+    {
+        if (grid.GetLength(0) % 2 != 0)
+        {
+            throw new Exception(name + ".ReduceTerrainDataResolution()... Grid X dim must be a multiple of 2");
+        }
+        if (grid.GetLength(1) % 2 != 0)
+        {
+            throw new Exception(name + ".ReduceTerrainDataResolution()... Grid Y dim must be a multiple of 2");
+        }
+        if (pixelGrainSize % 2 != 0)
+        {
+            throw new Exception(name+".ReduceTerrainDataResolution()... pixelGrainSize must be a multiple of 2");
+            //return grid;
+        }
 
-        //    Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
-        //}
-        //catch (Exception ex)
-        //{
-        //    Debug.Log("ExportTerrainData ERROR ex: " + ex.Message);
-        //}
-        // END TESTING
+        float[,,] reducedGrid = new float[grid.GetLength(0) / pixelGrainSize, 
+                                          grid.GetLength(1) / pixelGrainSize, 
+                                          grid.GetLength(2)];
 
-        //return path;
+        // Sum values for each "pixel"
+        for (int x=0; x < grid.GetLength(0); x++)
+        {
+            for(int y=0; y < grid.GetLength(1); y++)
+            {
+                for (int z = 0; z < grid.GetLength(2); z++)
+                {
+                    int xCoord = x / pixelGrainSize;
+                    int yCoord = y / pixelGrainSize;
+
+                    float cur = reducedGrid[xCoord, yCoord, z];
+                    float sum = cur + grid[x, y, z];
+                    reducedGrid[xCoord, yCoord, z] = sum;
+                }
+            }
+        }
+
+        // Average values for each "pixel"
+        for (int x = 0; x < grid.GetLength(0); x++)
+        {
+            for (int y = 0; y < grid.GetLength(1); y++)
+            {
+                for (int z = 0; z < grid.GetLength(2); z++)
+                {
+                    int xCoord = x / pixelGrainSize;
+                    int yCoord = y / pixelGrainSize;
+
+                    //reducedGrid[xCoord, yCoord, z] /= (pixelGrainSize * pixelGrainSize);
+                    float cur = reducedGrid[xCoord, yCoord, z];
+                    float result = cur / (pixelGrainSize * pixelGrainSize);
+                    result = (float)Math.Round(result * 10f * decimalPrecision) / (10f * decimalPrecision);
+
+                    reducedGrid[xCoord, yCoord, z] = (pixelGrainSize * pixelGrainSize);
+                }
+            }
+        }
+
+        return reducedGrid;
     }
 
     private float[,,] ImportSplatData(string path)
@@ -1659,13 +1711,13 @@ public class LandscapeController : MonoBehaviour
         SetPatchDataRanges();                                      // Set data ranges
         GenerateLandscapeData();                                   // Generate terrain alphamaps from data
 
-        if (ignoreWater)
+        if (!ignoreWater)
         {
             TextAsset newDailyFile = landscapeDataList.streamflowDaily;
-            LoadStreamflowFile(newDailyFile); // Load daily streamflow data file
+            LoadStreamflowFile(newDailyFile);   // Load daily streamflow data file
 
-            FormatWaterData(waterDataArray); // Format water data by date
-            CalculateWaterRanges(); // Calculate streamflow range
+            FormatWaterData(waterDataArray);    // Format water data by date
+            CalculateWaterRanges();             // Calculate streamflow range
 
             //if(saveWaterData)
             //    dataPath = ExportWaterGrid("waterDataGrid", dataPath);

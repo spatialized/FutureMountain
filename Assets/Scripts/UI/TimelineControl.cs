@@ -303,6 +303,9 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
             SetColorForYear(simulationYear, currentYearColor);
 
+            if (points == null)
+                return;
+
             Vector3 pos = points[simulationYear - startYear].transform.position;
             pos.y = dateYOffset;
             uiTimelineDateTextObject.transform.position = pos;              // Update position of date
@@ -315,6 +318,12 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     public void CreateTimeline(List<WaterDataYear> waterData, int warmingIdx, int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
     {
         messageManager = gameController.messageManager;
+
+        if(waterData == null)
+        {
+            Debug.Log("ERROR: waterData is null!");
+            return;
+        }
 
         resolution = waterData.Count;                      // Set resolution to number of years of water data
         startYear = waterData[0].GetYear();
@@ -532,6 +541,12 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     /// <param name="color">Color.</param>
     private void SetColorForYear(int yearIdx, Color32 color)
     {
+        if (points == null)
+        {
+            Debug.Log("SetColorForYear()... ERROR... points == null");
+            return;
+        }
+
         int idx = yearIdx - startYear;
         if (idx < 0 || idx >= points.Length)
         {
