@@ -1102,9 +1102,12 @@ public class GameController : MonoBehaviour
             messageYears);
     }
 
-    private void SetupFires()                     // -- TO DO: Get from web!
+
+    private void SetupFires()
     {
-        fireDates = new Vector3[2];
+        landscapeController.ResetFire();
+
+        fireDates = new Vector3[2];                         // -- TO DO: Get from web!
         fireDates[0] = new Vector3(7, 15, 1969);
         fireDates[1] = new Vector3(11, 20, 1988);
 
