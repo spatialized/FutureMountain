@@ -29,8 +29,9 @@ public class SoilController : MonoBehaviour {
     /* Color */
     //private Vector4 gwWet = new Vector4(0.6f, 0.75f, 0.6f, 0.5f);           // H S V A
     //private Vector4 gwDry = new Vector4(1f, 0.3f, 0.2f, 1f);
-    private Vector4 gwWet = new Vector4(0.6f, 0.75f, 0.425f, 0.5f);   // H S V A
-    private Vector4 gwDry = new Vector4(0.1f, 0.3f, 0.75f, 1f);
+    private Vector4 gwWet = new Vector4(0.6f, 0.85f, 0.75f, 0.5f);  // H S V A
+    private Vector4 gwDry = new Vector4(0.1f, 0.3f, 0.33f, 1f);
+    //private Vector4 gwDry = new Vector4(0.583f, 0.404f, 0.426f, 1f);
 
     private Color gwDryColor;             // Groundwater wet color
     private Color gwWetColor;             // Groundwater dry color
