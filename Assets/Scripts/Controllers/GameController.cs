@@ -1093,10 +1093,19 @@ public class GameController : MonoBehaviour
 
     }
 
+    public void SetTimelineWaterData(string jsonString)
+    {
+        TimelineWaterData timelineWaterData = JsonConvert.DeserializeObject<TimelineWaterData>("{\"years\":" + jsonString + "}");
+        PrecipByYear[] precipByYears = timelineWaterData.years;
+
+        uiTimeline.CreateTimelineWeb(precipByYears, warmingIdx, warmingDegrees, fireYears,
+            messageYears);
+    }
+
     private void SetupFires()                     // -- TO DO: Get from web!
     {
         fireDates = new Vector3[2];
-        fireDates[0] = new Vector3(7, 15, 1969);      
+        fireDates[0] = new Vector3(7, 15, 1969);
         fireDates[1] = new Vector3(11, 20, 1988);
 
         fireFrames = new List<int>();
@@ -1114,15 +1123,6 @@ public class GameController : MonoBehaviour
             Assert.IsNotNull(landscapeDataList);
 
         landscapeController.SetupFires(fireDates, warmingIdx);
-    }
-
-    public void SetTimelineWaterData(string jsonString)
-    {
-        TimelineWaterData timelineWaterData = JsonConvert.DeserializeObject<TimelineWaterData>("{\"years\":" + jsonString + "}");
-        PrecipByYear[] precipByYears = timelineWaterData.years;
-
-        uiTimeline.CreateTimelineWeb(precipByYears, warmingIdx, warmingDegrees, fireYears,
-            messageYears);
     }
 
     public void SetDatesAndFinishStarting(string jsonString)
