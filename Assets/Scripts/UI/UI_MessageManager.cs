@@ -111,7 +111,6 @@ public class UI_MessageManager : MonoBehaviour
                     {
                         if (i == message.GetTimeIdx())
                         {
-                            //Debug.Log("2 Current warmingIdx:" + warmingIdx);
                             if (message.AppliesToWarmingDegrees(warmingDegrees))
                                 DisplayMessage(message, curTimeIdx);
                         }
@@ -162,15 +161,6 @@ public class UI_MessageManager : MonoBehaviour
                     removeList.Add(message);
                 }
             }
-
-            //if (!paused)
-            //{
-            //    if(Time.time >= end)
-            //    {
-            //        HideMessage(message);
-            //        removeList.Add(message);
-            //    }
-            //}
         }
 
         if (removeList.Count == 0)

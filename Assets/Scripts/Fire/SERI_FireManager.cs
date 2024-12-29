@@ -399,6 +399,12 @@ public class SERI_FireManager : MonoBehaviour
     /// </summary>
     public void Reset()
     {
+        if(fireGrids == null)
+        {
+            Debug.Log(name + ".Reset()... ERROR fireGrids is null");
+            return;
+        }
+
         foreach (SERI_FireGrid grid in fireGrids)
         {
             if (grid.ignited)
