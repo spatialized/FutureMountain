@@ -370,7 +370,7 @@ public class LandscapeController : MonoBehaviour
                 int pixelGrainSize = 4;
                 int decimalPrecision = 4;
                 ExportTerrainDataAtResolution(grid, dataPath + "/" + "terrain_warm" + warmingIdx + "_" + curYear + "_" 
-                                                    + curMonth + "_" + decimalPrecision + ".json", 
+                                                    + curMonth + "_" + pixelGrainSize + "_" + decimalPrecision + ".json", 
                                                     pixelGrainSize, decimalPrecision);
                 savedMonth = curMonth;
             }
