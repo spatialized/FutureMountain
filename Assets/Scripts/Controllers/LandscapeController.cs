@@ -481,8 +481,9 @@ public class LandscapeController : MonoBehaviour
                 else
                 {
                     interpolated = InterpolateTerrainSplatmaps(currentSplatmaps[monthIdx], currentSplatmaps[monthIdx + 1], curDay, curMonth, curYear, pixelGrainSize);
-                    terrain.terrainData.SetAlphamaps(0, 0, interpolated);
+                    //terrain.terrainData.SetAlphamaps(0, 0, interpolated);
                 }
+                terrain.terrainData.SetAlphamaps(0, 0, interpolated);
             }
             else
                 Debug.Log("ERROR: currentSplatmaps.Count >= monthIdx");
@@ -938,6 +939,16 @@ public class LandscapeController : MonoBehaviour
         recentFire = false;
     }
 
+    //public void ResetFireManager()
+    //{
+    //    //fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true, settings.BuildForWeb);
+    //    //if (hasStream)
+    //    //    fireManager.DisableFireCells(true, riverFireGapWidth);
+    //    //else if (hasHouse)
+    //    //    fireManager.DisableFireCells(false, houseDefensibleWidth);
+    //}
+
+
     /// <summary>
     /// Add burned cell at given time after fire start.
     /// </summary>
@@ -1207,7 +1218,8 @@ public class LandscapeController : MonoBehaviour
 
                     if (fireMonth == fire.GetMonth() && fireYear == fire.GetYear())
                     {
-                        Debug.Log(name + ".SetupFires()... Found day for fire at month:" + fire.GetMonth() + " year:" + fire.GetYear() + " Day = " + fireDay + " warmIdx:" + warmIdx);
+                        if (debugFire)
+                            Debug.Log(name + ".SetupFires()... Found day for fire at month:" + fire.GetMonth() + " year:" + fire.GetYear() + " Day = " + fireDay + " warmIdx:" + warmIdx);
                         //firePoints = fire.GetDataList();
                         day = fireDay;
                     }
@@ -1218,20 +1230,6 @@ public class LandscapeController : MonoBehaviour
                     count++;
                 }
             }
-
-            //if (landscapeSimulationWeb)         // Load burn data from Resources 
-            //{
-            //    patchesToBurnDictList = new List<Dictionary<Vector3, List<int>>>();
-
-            //    //burn_warm0_1969_7_15.json
-
-            //    TextAsset[] burnDataFrames = Resources.LoadAll<TextAsset>("BurnData");
-            //    foreach (TextAsset textAsset in burnDataFrames)
-            //    {
-            //        Dictionary<Vector3, List<int>> bDataList = JsonConvert.DeserializeObject<Dictionary<Vector3, List<int>>>(textAsset.text);
-            //        patchesToBurnDictList.Add(bDataList);
-            //    }
-            //}
 
             fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, terrain.transform.position, frames, this, true, false, false);
 
@@ -1905,11 +1903,18 @@ public class LandscapeController : MonoBehaviour
 
         currentSplatmaps = new List<float[,,]>();
 
+        Debug.Log(name+ ".LoadSplatMapsFromFilesForWarmingIdx()... warmIdx:"+warmIdx);
+
+        int startTime = DateTime.Now.Millisecond;
         int ct = 0;
         int currWarmIdx = 0;
         foreach (var textAsset in splatDataArr)
         {
-            // Ex. terrain_warm0_1942_10.json    NOW terrain_warm0_1942_10_4.json where e.g. last val "4" means res is 512/4 = 128        
+            // Ex. terrain_warm0_1942_10.json    NOW terrain_warm0_1942_10_4_4.json
+            //      where 2nd to last val "4" means pixelGrainSize is 4, i.e. 512 terrain size / 4 => 128 grid size
+            //      and last val "4" is decimalPrecision,
+            //      i.e. means int[,,] grid in text asset should be multiplied by 10E-4 to get real values
+
             string[] parts = textAsset.name.Split('_');
             int warmingIdx = int.Parse(parts[1].Substring(4));
 
@@ -1917,28 +1922,25 @@ public class LandscapeController : MonoBehaviour
                 continue;
 
             int year = int.Parse(parts[2]);
-            int month = int.Parse(parts[3].Split('.')[0]);
+            int month = int.Parse(parts[3]);
+            int pixelGrainSize = int.Parse(parts[4]);
+            int decimalPrecision = int.Parse(parts[5].Split('.')[0]);
 
             float[,,] splatmap = new float[0, 0, 0];
 
-            //float[,,] splatmap = new float[terrain.terrainData.alphamapWidth,
-            //    terrain.terrainData.alphamapHeight,
-            //    terrain.terrainData.alphamapLayers];
-
-            Debug.Log(" splatmap 0: " + splatmap.GetLength(0)
-                                         + " splatmap 1: " + splatmap.GetLength(1)
-                                         + " splatmap 2: " + splatmap.GetLength(2));
+            //Debug.Log(" splatmap 0: " + splatmap.GetLength(0)
+            //                             + " splatmap 1: " + splatmap.GetLength(1)
+            //                             + " splatmap 2: " + splatmap.GetLength(2));
 
             try
             {
-                float[,,] unflattened = ImportSplatData(textAsset.text); // -- TO TEST
+                float[,,] unflattened = ImportSplatData(textAsset.text, pixelGrainSize, decimalPrecision);
 
-                Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
-                                 + " unflattened 1: " + unflattened.GetLength(1)
-                                 + " unflattened 2: " + unflattened.GetLength(2));
+                //Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
+                //                 + " unflattened 1: " + unflattened.GetLength(1)
+                //                 + " unflattened 2: " + unflattened.GetLength(2));
 
-
-                Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
+                //Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
 
                 splatmap = unflattened;
             }
@@ -1947,11 +1949,14 @@ public class LandscapeController : MonoBehaviour
                 Debug.Log("ExportTerrainData ERROR ex: " + ex.Message);
             }
 
-            if (ct++ >= 24)
-                return;
+            //if (ct++ >= 24)
+            //    return;
 
             currentSplatmaps.Add(splatmap);
         }
+
+        int elapsed = (int) ((DateTime.Now.Millisecond - startTime) * 0.001f);
+        Debug.Log(name + ".LoadSplatMapsFromFilesForWarmingIdx()... Finished loading in:" + elapsed + "sec.");
     }
 
     //public void LoadSplatMapsFromFiles()
@@ -2012,30 +2017,102 @@ public class LandscapeController : MonoBehaviour
     //    }
     //}
 
-    private float[,,] ImportSplatData(string inputStr)
+    private float[,,] ImportSplatData(string inputStr, int pixelGrainSize, int decimalPrecision)
     {
-        Debug.Log("ImportSplatData()... ");
+        int terrainWidth = terrain.terrainData.alphamapWidth;       // 512
+        int inputWidth = terrainWidth / pixelGrainSize;             // 128
 
-        //if (File.Exists(path))
-        //{
-            //string inputStr = File.ReadAllText(path);
-            //float[] flatArray = JsonUtility.FromJson<float[]>(inputStr);
-            float[] flatArray = JsonConvert.DeserializeObject<float[]>(inputStr);
-            float[,,] unflattened = Unflatten1DArrayTo3D(flatArray);
-            return unflattened;
-        //}
+        int[] flatArray = JsonConvert.DeserializeObject<int[]>(inputStr);
+        int[,,] unflattened = Unflatten1DIntArrayTo3D(flatArray, inputWidth, 4);
+        float[,,] result = new float[terrainWidth, terrainWidth, 4];
 
-        return null;
+        for (int x=0; x<unflattened.GetLength(0); x++)
+        {
+            for (int y = 0; y < unflattened.GetLength(1); y++)
+            {
+                for (int z = 0; z < unflattened.GetLength(2); z++)
+                {
+                    float val = unflattened[x, y, z] * (float)Math.Pow(10, -decimalPrecision);
+
+                    //FillInArea(result, x, y, z, pixelGrainSize, val);
+                    //result[x, y, z] = val;
+
+                    // Fill in area of pixelGrainSize x pixelGrainSize in result array
+                    int xStart = x * pixelGrainSize;
+                    int yStart = y * pixelGrainSize;
+                    for (int a = 0; a < pixelGrainSize; a++)
+                    {
+                        int xCoord = xStart + a;
+                        for (int b = 0; b < pixelGrainSize; b++)
+                        {
+                            int yCoord = yStart + b;
+                            result[xCoord, yCoord, z] = val;
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    //private void FillInArea(float[,,] arr, int x, int y, int z, int pixelGrainSize, float val)
+    //{
+    //    int xStart = x * pixelGrainSize;
+    //    int yStart = y * pixelGrainSize;
+    //    for (int a = 0; a < pixelGrainSize; a++)
+    //    {
+    //        int xCoord = xStart + a;
+    //        for (int b = 0; b < pixelGrainSize; b++)
+    //        {
+    //            int yCoord = yStart + b;
+    //            arr[xCoord, yCoord, z] = val;
+    //        }
+    //    }
+    //}
+
+    //private float[,,] ImportSplatData(string inputStr)
+    //{
+    //    Debug.Log("ImportSplatData()... ");
+
+    //    //if (File.Exists(path))
+    //    //{
+    //        //string inputStr = File.ReadAllText(path);
+    //        //float[] flatArray = JsonUtility.FromJson<float[]>(inputStr);
+    //        float[] flatArray = JsonConvert.DeserializeObject<float[]>(inputStr);
+    //        float[,,] unflattened = Unflatten1DFloatArrayTo3D(flatArray);
+    //        return unflattened;
+    //    //}
+
+    //    return null;
+    //}
+
+
+    private float[,,] Unflatten1DFloatArrayTo3D(float[] array, int terrainWidth, int zCount)
+    {
+        int xCount = terrainWidth;
+        int yCount = terrainWidth;
+        //int zCount = 4;
+
+        var output = new float[xCount, yCount, zCount];
+        var index = 0;
+        for (var x = 0; x < xCount; x++)
+        for (var y = 0; y < yCount; y++)
+        for (var z = 0; z < zCount; z++)
+            output[x, y, z] = array[index++];
+
+        return output;
     }
 
 
-    private float[,,] Unflatten1DArrayTo3D(float[] array)
-    {
-        int xCount = 512;
-        int yCount = 512;
-        int zCount = 4;
 
-        var output = new float[xCount, yCount, zCount];
+    private int[,,] Unflatten1DIntArrayTo3D(int[] array, int terrainWidth, int zCount)
+    {
+        int xCount = terrainWidth;
+        int yCount = terrainWidth;
+        //int zCount = 4;
+
+        var output = new int[xCount, yCount, zCount];
         var index = 0;
         for (var x = 0; x < xCount; x++)
         for (var y = 0; y < yCount; y++)
@@ -2589,7 +2666,7 @@ public class LandscapeController : MonoBehaviour
         if (secondMonth == null)
             return firstMonth;
 
-        float[,,] lastSplatmap = t.terrainData.GetAlphamaps(0, 0, t.terrainData.alphamapWidth, t.terrainData.alphamapHeight);
+        //float[,,] lastSplatmap = t.terrainData.GetAlphamaps(0, 0, t.terrainData.alphamapWidth, t.terrainData.alphamapHeight);
         float[,,] splatmapData = new float[t.terrainData.alphamapWidth, t.terrainData.alphamapHeight, t.terrainData.alphamapLayers];
 
         float pos = MapValue(day, 1, DateTime.DaysInMonth(year, month) + 1, 0f, 1f);     // Find position between current month and next month
@@ -2599,7 +2676,10 @@ public class LandscapeController : MonoBehaviour
             for (int y = 0; y < t.terrainData.alphamapHeight; y++)
             {
                 for (int i = 0; i < t.terrainData.alphamapLayers; i++)
+                //for (int j = 0; j < t.terrainData.alphamapLayers; j++)
                 {
+                    //int i = t.terrainData.alphamapLayers - j - 1;           // TESTING
+
                     int offsetX = x % pixelGrainSize;
                     int offsetY = y % pixelGrainSize;
                     int xCoord = x / pixelGrainSize;

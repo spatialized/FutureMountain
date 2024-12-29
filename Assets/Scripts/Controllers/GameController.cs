@@ -977,27 +977,31 @@ public class GameController : MonoBehaviour
 
         yield return null;
 
-        /* Set Fire Dates for CAW Installation */
-        fireDates = new Vector3[2];
-        fireDates[0] = new Vector3(7, 15, 1969);        // -- TO DO: Get from web!
-        fireDates[1] = new Vector3(11, 20, 1988);
-
-        fireFrames = new List<int>();
-        fireYears = new List<int>();
-
         int ct = 0;
-        foreach (Vector3 date in fireDates)
-        {
-            fireFrames.Add(GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z));
-            fireYears.Add((int)date.z);
-            ct++;
-        }
 
-        yield return null;
+        /* Set Fire Dates for 2024 Westmont + 2019 CAW Installations */
+        SetupFires();
 
-        if(landscapeController.LandscapeSimulationIsOn() && landscapeController.LandscapeWebSimulationIsOn())
-            Assert.IsNotNull(landscapeDataList);
-        landscapeController.SetupFires(fireDates, warmingIdx);
+        //fireDates = new Vector3[2];
+        //fireDates[0] = new Vector3(7, 15, 1969);        // -- TO DO: Get from web!
+        //fireDates[1] = new Vector3(11, 20, 1988);
+
+        //fireFrames = new List<int>();
+        //fireYears = new List<int>();
+
+        //int ct = 0;
+        //foreach (Vector3 date in fireDates)
+        //{
+        //    fireFrames.Add(GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z));
+        //    fireYears.Add((int)date.z);
+        //    ct++;
+        //}
+
+        //yield return null;
+
+        //if(landscapeController.LandscapeSimulationIsOn() && landscapeController.LandscapeWebSimulationIsOn())
+        //    Assert.IsNotNull(landscapeDataList);
+        //landscapeController.SetupFires(fireDates, warmingIdx);
 
         yield return null;
 
@@ -1087,6 +1091,29 @@ public class GameController : MonoBehaviour
 
         WebManager.Instance.GetTimelineWaterData(this.SetTimelineWaterData);
 
+    }
+
+    private void SetupFires()                     // -- TO DO: Get from web!
+    {
+        fireDates = new Vector3[2];
+        fireDates[0] = new Vector3(7, 15, 1969);      
+        fireDates[1] = new Vector3(11, 20, 1988);
+
+        fireFrames = new List<int>();
+        fireYears = new List<int>();
+
+        int ct = 0;
+        foreach (Vector3 date in fireDates)
+        {
+            fireFrames.Add(GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z));
+            fireYears.Add((int)date.z);
+            ct++;
+        }
+
+        if (landscapeController.LandscapeSimulationIsOn() && landscapeController.LandscapeWebSimulationIsOn())
+            Assert.IsNotNull(landscapeDataList);
+
+        landscapeController.SetupFires(fireDates, warmingIdx);
     }
 
     public void SetTimelineWaterData(string jsonString)
@@ -2057,8 +2084,9 @@ public class GameController : MonoBehaviour
                 cube.UpdateVegetationFromData();
             }
         }
-        
+
         aggregateCubeController.UpdateVegetationFromData();
+        aggregateSideCubeController.UpdateVegetationFromData();
         landscapeController.ResetBurntState();
         landscapeController.UpdateLandscape(timeIdx, GetCurrentYear(), GetCurrentMonth(), GetCurrentDayInMonth(), timeStep, pausedAuto);
     }
@@ -2595,7 +2623,9 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void ResetFireManagers()
     {
-        landscapeController.GetFireManager().Reset();
+        //landscapeController.GetFireManager().Reset();
+        //landscapeController.ResetFireManager();
+        SetupFires();
 
         //if (settings.BuildForWeb)
         //    return;
@@ -2603,11 +2633,13 @@ public class GameController : MonoBehaviour
         aggregateCubeController.GetFireManager().Reset();
         foreach (CubeController cube in cubes)
         {
-            cube.GetFireManager().Reset();
+            //cube.GetFireManager().Reset();
+            cube.ResetFireManager();
         }
         foreach (CubeController cube in sideCubes)
         {
-            cube.GetFireManager().Reset();
+            //cube.GetFireManager().Reset();
+            cube.ResetFireManager();
         }
 
     }
