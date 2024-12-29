@@ -662,8 +662,14 @@ public class SERI_FireGrid : MonoBehaviour
     public void DestroyGrid()
     {
         ReturnAllCellsToPool();
-        if(gameObject)
+        try
+        {
             Destroy(gameObject, 0.1f);
+        }
+        catch(MissingReferenceException ex)
+        {
+            Debug.Log("DestroyGrid()... WARNING... ex: " + ex.Message);
+        }
     }
 
     /// <summary>

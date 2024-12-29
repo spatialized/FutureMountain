@@ -1908,68 +1908,68 @@ public class LandscapeController : MonoBehaviour
     //    gridWidth = newGridWidth;
     //}
 
-    public void LoadSplatMapsFromFilesForWarmingIdx(int warmIdx)
-    {
-        string path = "SplatData_" + warmIdx;
-        TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>(path);
+    //public void LoadSplatMapsFromFilesForWarmingIdx(int warmIdx)
+    //{
+    //    string path = "SplatData_" + warmIdx;
+    //    TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>(path);
 
-        currentSplatmaps = new List<float[,,]>();
+    //    currentSplatmaps = new List<float[,,]>();
 
-        Debug.Log(name+ ".LoadSplatMapsFromFilesForWarmingIdx()... warmIdx:"+warmIdx);
+    //    Debug.Log(name+ ".LoadSplatMapsFromFilesForWarmingIdx()... warmIdx:"+warmIdx);
 
-        int startTime = DateTime.Now.Millisecond;
-        int ct = 0;
-        int currWarmIdx = 0;
-        foreach (var textAsset in splatDataArr)
-        {
-            // Ex. terrain_warm0_1942_10.json    NOW terrain_warm0_1942_10_4_4.json
-            //      where 2nd to last val "4" means pixelGrainSize is 4, i.e. 512 terrain size / 4 => 128 grid size
-            //      and last val "4" is decimalPrecision,
-            //      i.e. means int[,,] grid in text asset should be multiplied by 10E-4 to get real values
+    //    int startTime = DateTime.Now.Millisecond;
+    //    int ct = 0;
+    //    int currWarmIdx = 0;
+    //    foreach (var textAsset in splatDataArr)
+    //    {
+    //        // Ex. terrain_warm0_1942_10.json    NOW terrain_warm0_1942_10_4_4.json
+    //        //      where 2nd to last val "4" means pixelGrainSize is 4, i.e. 512 terrain size / 4 => 128 grid size
+    //        //      and last val "4" is decimalPrecision,
+    //        //      i.e. means int[,,] grid in text asset should be multiplied by 10E-4 to get real values
 
-            string[] parts = textAsset.name.Split('_');
-            int warmingIdx = int.Parse(parts[1].Substring(4));
+    //        string[] parts = textAsset.name.Split('_');
+    //        int warmingIdx = int.Parse(parts[1].Substring(4));
 
-            if (warmingIdx != warmIdx)
-                continue;
+    //        if (warmingIdx != warmIdx)
+    //            continue;
 
-            int year = int.Parse(parts[2]);
-            int month = int.Parse(parts[3]);
-            int pixelGrainSize = int.Parse(parts[4]);
-            int decimalPrecision = int.Parse(parts[5].Split('.')[0]);
+    //        int year = int.Parse(parts[2]);
+    //        int month = int.Parse(parts[3]);
+    //        int pixelGrainSize = int.Parse(parts[4]);
+    //        int decimalPrecision = int.Parse(parts[5].Split('.')[0]);
 
-            float[,,] splatmap = new float[0, 0, 0];
+    //        float[,,] splatmap = new float[0, 0, 0];
 
-            //Debug.Log(" splatmap 0: " + splatmap.GetLength(0)
-            //                             + " splatmap 1: " + splatmap.GetLength(1)
-            //                             + " splatmap 2: " + splatmap.GetLength(2));
+    //        //Debug.Log(" splatmap 0: " + splatmap.GetLength(0)
+    //        //                             + " splatmap 1: " + splatmap.GetLength(1)
+    //        //                             + " splatmap 2: " + splatmap.GetLength(2));
 
-            try
-            {
-                float[,,] unflattened = ImportSplatData(textAsset.text, pixelGrainSize, decimalPrecision);
+    //        try
+    //        {
+    //            float[,,] unflattened = ImportSplatData(textAsset.text, pixelGrainSize, decimalPrecision);
 
-                //Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
-                //                 + " unflattened 1: " + unflattened.GetLength(1)
-                //                 + " unflattened 2: " + unflattened.GetLength(2));
+    //            //Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
+    //            //                 + " unflattened 1: " + unflattened.GetLength(1)
+    //            //                 + " unflattened 2: " + unflattened.GetLength(2));
 
-                //Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
+    //            //Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
 
-                splatmap = unflattened;
-            }
-            catch (Exception ex)
-            {
-                Debug.Log("ExportTerrainData ERROR ex: " + ex.Message);
-            }
+    //            splatmap = unflattened;
+    //        }
+    //        catch (Exception ex)
+    //        {
+    //            Debug.Log("ExportTerrainData ERROR ex: " + ex.Message);
+    //        }
 
-            //if (ct++ >= 24)
-            //    return;
+    //        //if (ct++ >= 24)
+    //        //    return;
 
-            currentSplatmaps.Add(splatmap);
-        }
+    //        currentSplatmaps.Add(splatmap);
+    //    }
 
-        int elapsed = (int) ((DateTime.Now.Millisecond - startTime) * 0.001f);
-        Debug.Log(name + ".LoadSplatMapsFromFilesForWarmingIdx()... Finished loading in:" + elapsed + "sec.");
-    }
+    //    int elapsed = (int) ((DateTime.Now.Millisecond - startTime) * 0.001f);
+    //    Debug.Log(name + ".LoadSplatMapsFromFilesForWarmingIdx()... Finished loading in:" + elapsed + "sec.");
+    //}
 
     //public void LoadSplatMapsFromFiles()
     //{
