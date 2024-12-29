@@ -123,6 +123,8 @@ public class CubeController : MonoBehaviour
     private float maxGrassFullSize = 5f;          // Max. shrub grown size (m.)
     private float shrubGrowthIncrement = 0.01f;   // Shrub growth increment per frame
 
+    private float maxETSpeed = 12f;
+
     /* Timing */
     private int timeIdx = 0;                    // Current index of simulation in data time series
     private int firGrowthWaitTime = 30;         // Frames to wait between tree instantiations (avoid spawning too many all at once)
@@ -1202,13 +1204,13 @@ public class CubeController : MonoBehaviour
 
         foreach (FirController fir in firs)
         {
-            fir.UpdateETSimulationSpeed(Mathf.Clamp(timeStep, 0f, 16f));
+            fir.UpdateETSimulationSpeed(Mathf.Clamp(timeStep, 0f, maxETSpeed));
         }
 
         foreach (ShrubController shrub in shrubs)
         {
             if (shrub != null)
-                shrub.UpdateETSimulationSpeed(Mathf.Clamp(timeStep, 0f, 16f));
+                shrub.UpdateETSimulationSpeed(Mathf.Clamp(timeStep, 0f, maxETSpeed));
         }
     }
 
