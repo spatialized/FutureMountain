@@ -368,8 +368,10 @@ public class LandscapeController : MonoBehaviour
 
                 //ExportTerrainData(grid, dataPath + "/" + "terrain_warm" + warmingIdx + "_" + curYear + "_" + curMonth + ".json");
                 int pixelGrainSize = 4;
-                int decimalPrecision = 3;
-                ExportTerrainDataAtResolution(grid, dataPath + "/" + "terrain_warm" + warmingIdx + "_" + curYear + "_" + curMonth + ".json", pixelGrainSize, decimalPrecision);
+                int decimalPrecision = 4;
+                ExportTerrainDataAtResolution(grid, dataPath + "/" + "terrain_warm" + warmingIdx + "_" + curYear + "_" 
+                                                    + curMonth + "_" + decimalPrecision + ".json", 
+                                                    pixelGrainSize, decimalPrecision);
                 savedMonth = curMonth;
             }
         }
@@ -379,7 +381,7 @@ public class LandscapeController : MonoBehaviour
 
     private void ExportTerrainData(float[,,] grid, string path)
     {
-        float[] flatArray = Flatten3DArrayTo1D(grid);
+        float[] flatArray = Flatten3DFloatArrayTo1D(grid);
 
         string json = JsonConvert.SerializeObject(flatArray);
         File.WriteAllText(path, json);
@@ -387,12 +389,21 @@ public class LandscapeController : MonoBehaviour
 
     private void ExportTerrainDataAtResolution(float[,,] grid, string path, int pixelGrainSize, int decimalPrecision)
     {
-        float[,,] reducedGrid = ReduceTerrainDataResolution(grid, pixelGrainSize, decimalPrecision);
-        float[] flatArray = Flatten3DArrayTo1D(reducedGrid);
+        int[,,] reducedGrid = ReduceTerrainDataResolution(grid, pixelGrainSize, decimalPrecision);
+        int[] flatArray = Flatten3DIntArrayTo1D(reducedGrid);
 
         string json = JsonConvert.SerializeObject(flatArray);
         File.WriteAllText(path, json);
     }
+
+    //private void ExportTerrainDataAtResolution(float[,,] grid, string path, int pixelGrainSize, int decimalPrecision)
+    //{
+    //    float[,,] reducedGrid = ReduceTerrainDataResolution(grid, pixelGrainSize, decimalPrecision);
+    //    float[] flatArray = Flatten3DFloatArrayTo1D(reducedGrid);
+
+    //    string json = JsonConvert.SerializeObject(flatArray);
+    //    File.WriteAllText(path, json);
+    //}
 
     /// <summary>
     /// Reduces the resolution of the terrain data by a factor of 2.
@@ -401,7 +412,7 @@ public class LandscapeController : MonoBehaviour
     /// <param name="pixelGrainSize">Factor</param>
     /// <param name="decimalPrecision">Decimal precision (e.g. 2 = two decimal points)</param>
     /// <returns></returns>
-    private float[,,] ReduceTerrainDataResolution(float[,,] grid, int pixelGrainSize, int decimalPrecision)
+    private int[,,] ReduceTerrainDataResolution(float[,,] grid, int pixelGrainSize, int decimalPrecision)
     {
         if (grid.GetLength(0) % 2 != 0)
         {
@@ -413,32 +424,18 @@ public class LandscapeController : MonoBehaviour
         }
         if (pixelGrainSize % 2 != 0)
         {
-            throw new Exception(name+".ReduceTerrainDataResolution()... pixelGrainSize must be a multiple of 2");
+            throw new Exception(name + ".ReduceTerrainDataResolution()... pixelGrainSize must be a multiple of 2");
             //return grid;
         }
 
-        float[,,] reducedGrid = new float[grid.GetLength(0) / pixelGrainSize, 
-                                          grid.GetLength(1) / pixelGrainSize, 
-                                          grid.GetLength(2)];
+        float[,,] reducedGridFloats = new float[grid.GetLength(0) / pixelGrainSize,
+            grid.GetLength(1) / pixelGrainSize,
+            grid.GetLength(2)];
+        int[,,] reducedGrid = new int[grid.GetLength(0) / pixelGrainSize,
+            grid.GetLength(1) / pixelGrainSize,
+            grid.GetLength(2)];
 
         // Sum values for each "pixel"
-        for (int x=0; x < grid.GetLength(0); x++)
-        {
-            for(int y=0; y < grid.GetLength(1); y++)
-            {
-                for (int z = 0; z < grid.GetLength(2); z++)
-                {
-                    int xCoord = x / pixelGrainSize;
-                    int yCoord = y / pixelGrainSize;
-
-                    float cur = reducedGrid[xCoord, yCoord, z];
-                    float sum = cur + grid[x, y, z];
-                    reducedGrid[xCoord, yCoord, z] = sum;
-                }
-            }
-        }
-
-        // Average values for each "pixel"
         for (int x = 0; x < grid.GetLength(0); x++)
         {
             for (int y = 0; y < grid.GetLength(1); y++)
@@ -448,18 +445,100 @@ public class LandscapeController : MonoBehaviour
                     int xCoord = x / pixelGrainSize;
                     int yCoord = y / pixelGrainSize;
 
-                    //reducedGrid[xCoord, yCoord, z] /= (pixelGrainSize * pixelGrainSize);
                     float cur = reducedGrid[xCoord, yCoord, z];
-                    float result = cur / (pixelGrainSize * pixelGrainSize);
-                    result = (float)Math.Round(result * 10f * decimalPrecision) / (10f * decimalPrecision);
+                    float sum = cur + grid[x, y, z];
+                    reducedGridFloats[xCoord, yCoord, z] = sum;
+                }
+            }
+        }
 
-                    reducedGrid[xCoord, yCoord, z] = (pixelGrainSize * pixelGrainSize);
+        // Average values for each "pixel"
+        for (int x = 0; x < reducedGridFloats.GetLength(0); x++)
+        {
+            for (int y = 0; y < reducedGridFloats.GetLength(1); y++)
+            {
+                for (int z = 0; z < reducedGridFloats.GetLength(2); z++)
+                {
+                    //int xCoord = x / pixelGrainSize;
+                    //int yCoord = y / pixelGrainSize;
+
+                    //reducedGrid[x, y, z] /= (pixelGrainSize * pixelGrainSize);
+                    float cur = reducedGridFloats[x, y, z];
+                    float result = cur / (pixelGrainSize * pixelGrainSize);
+                    int res = (int)Math.Round(result * Math.Pow(10f, decimalPrecision));// / (10f * decimalPrecision);
+                    reducedGrid[x, y, z] = res;
                 }
             }
         }
 
         return reducedGrid;
     }
+
+    ///// <summary>
+    ///// Reduces the resolution of the terrain data by a factor of 2.
+    ///// </summary>
+    ///// <param name="grid">Grid data</param>
+    ///// <param name="pixelGrainSize">Factor</param>
+    ///// <param name="decimalPrecision">Decimal precision (e.g. 2 = two decimal points)</param>
+    ///// <returns></returns>
+    //private float[,,] ReduceTerrainDataResolution(float[,,] grid, int pixelGrainSize, int decimalPrecision)
+    //{
+    //    if (grid.GetLength(0) % 2 != 0)
+    //    {
+    //        throw new Exception(name + ".ReduceTerrainDataResolution()... Grid X dim must be a multiple of 2");
+    //    }
+    //    if (grid.GetLength(1) % 2 != 0)
+    //    {
+    //        throw new Exception(name + ".ReduceTerrainDataResolution()... Grid Y dim must be a multiple of 2");
+    //    }
+    //    if (pixelGrainSize % 2 != 0)
+    //    {
+    //        throw new Exception(name+".ReduceTerrainDataResolution()... pixelGrainSize must be a multiple of 2");
+    //        //return grid;
+    //    }
+
+    //    float[,,] reducedGrid = new float[grid.GetLength(0) / pixelGrainSize, 
+    //                                      grid.GetLength(1) / pixelGrainSize, 
+    //                                      grid.GetLength(2)];
+
+    //    // Sum values for each "pixel"
+    //    for (int x=0; x < grid.GetLength(0); x++)
+    //    {
+    //        for(int y=0; y < grid.GetLength(1); y++)
+    //        {
+    //            for (int z = 0; z < grid.GetLength(2); z++)
+    //            {
+    //                int xCoord = x / pixelGrainSize;
+    //                int yCoord = y / pixelGrainSize;
+
+    //                float cur = reducedGrid[xCoord, yCoord, z];
+    //                float sum = cur + grid[x, y, z];
+    //                reducedGrid[xCoord, yCoord, z] = sum;
+    //            }
+    //        }
+    //    }
+
+    //    // Average values for each "pixel"
+    //    for (int x = 0; x < reducedGrid.GetLength(0); x++)
+    //    {
+    //        for (int y = 0; y < reducedGrid.GetLength(1); y++)
+    //        {
+    //            for (int z = 0; z < reducedGrid.GetLength(2); z++)
+    //            {
+    //                //int xCoord = x / pixelGrainSize;
+    //                //int yCoord = y / pixelGrainSize;
+
+    //                //reducedGrid[x, y, z] /= (pixelGrainSize * pixelGrainSize);
+    //                float cur = reducedGrid[x, y, z];
+    //                float result = cur / (pixelGrainSize * pixelGrainSize);
+    //                result = (float)Math.Round(result * 10f * decimalPrecision) / (10f * decimalPrecision);
+    //                reducedGrid[x, y, z] = result;
+    //            }
+    //        }
+    //    }
+
+    //    return reducedGrid;
+    //}
 
     private float[,,] ImportSplatData(string path)
     {
@@ -477,7 +556,7 @@ public class LandscapeController : MonoBehaviour
         return null;
     }
 
-    private float[] Flatten3DArrayTo1D(float[,,] grid)
+    private float[] Flatten3DFloatArrayTo1D(float[,,] grid)
     {
         float[] flatArray = new float[grid.GetLength(0) * grid.GetLength(1) * grid.GetLength(2)];
 
@@ -493,12 +572,31 @@ public class LandscapeController : MonoBehaviour
             }
         }
 
-        //Debug.Log("Flatten3DArrayTo1D()... flatArray length:" + flatArray.Length);
+        //Debug.Log("Flatten3DFloatArrayTo1D()... flatArray length:" + flatArray.Length);
 
         return flatArray;
     }
 
+    private int[] Flatten3DIntArrayTo1D(int[,,] grid)
+    {
+        int[] flatArray = new int[grid.GetLength(0) * grid.GetLength(1) * grid.GetLength(2)];
 
+        int i = 0;
+        for (int a = 0; a < grid.GetLength(0); a++)
+        {
+            for (int b = 0; b < grid.GetLength(1); b++)
+            {
+                for (int c = 0; c < grid.GetLength(2); c++)
+                {
+                    flatArray[i++] = grid[a, b, c];
+                }
+            }
+        }
+
+        //Debug.Log("Flatten3DFloatArrayTo1D()... flatArray length:" + flatArray.Length);
+
+        return flatArray;
+    }
     private float[,,] Unflatten1DArrayTo3D(float[] array)
     {
         int xCount = 512;
