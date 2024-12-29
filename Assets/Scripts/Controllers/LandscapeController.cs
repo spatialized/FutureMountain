@@ -470,13 +470,17 @@ public class LandscapeController : MonoBehaviour
 
             if (currentSplatmaps != null && monthIdx < currentSplatmaps.Count)
             {
+                int pixelGrainSize = 4;
+                float[,,] interpolated = new float[0, 0, 0];
+
                 if (monthIdx + 1 >= currentSplatmaps.Count)
                 {
-                    terrain.terrainData.SetAlphamaps(0, 0, currentSplatmaps[monthIdx]);
+                    interpolated = InterpolateTerrainSplatmaps(currentSplatmaps[monthIdx], null, curDay, curMonth, curYear, pixelGrainSize);
+                    //terrain.terrainData.SetAlphamaps(0, 0, currentSplatmaps[monthIdx]);
                 }
                 else
                 {
-                    float[,,] interpolated = InterpolateTerrainSplatmaps(currentSplatmaps[monthIdx], currentSplatmaps[monthIdx + 1], curDay, curMonth, curYear);
+                    interpolated = InterpolateTerrainSplatmaps(currentSplatmaps[monthIdx], currentSplatmaps[monthIdx + 1], curDay, curMonth, curYear, pixelGrainSize);
                     terrain.terrainData.SetAlphamaps(0, 0, interpolated);
                 }
             }
@@ -2573,8 +2577,9 @@ public class LandscapeController : MonoBehaviour
     /// <param name="day">Day in month</param>
     /// <param name="month">Month in year</param>
     /// <param name="year">Year</param>
+    /// <param name="pixelGrainSize">Pixel grain size (e.g. 4 means 512/4 = 128x128 grid)</param>
     /// <returns></returns>
-    private float[,,] InterpolateTerrainSplatmaps(float[,,] firstMonth, float[,,] secondMonth, int day, int month, int year)
+    private float[,,] InterpolateTerrainSplatmaps(float[,,] firstMonth, float[,,] secondMonth, int day, int month, int year, int pixelGrainSize)
     {
         Terrain t = terrain;
 
@@ -2595,10 +2600,21 @@ public class LandscapeController : MonoBehaviour
             {
                 for (int i = 0; i < t.terrainData.alphamapLayers; i++)
                 {
-                    float firstVal = firstMonth[x, y, i];
-                    float secondVal = secondMonth[x, y, i];
-                    float val = Mathf.Lerp(firstVal, secondVal, pos);
-                    splatmapData[x, y, i] = val;
+                    int offsetX = x % pixelGrainSize;
+                    int offsetY = y % pixelGrainSize;
+                    int xCoord = x / pixelGrainSize;
+                    int yCoord = y / pixelGrainSize;
+                    if (offsetX != 0 || offsetY != 0)
+                    {
+                        splatmapData[x, y, i] = firstMonth[xCoord, yCoord, i];
+                    }
+                    else
+                    {
+                        float firstVal = firstMonth[xCoord, yCoord, i];
+                        float secondVal = secondMonth[xCoord, yCoord, i];
+                        float val = Mathf.Lerp(firstVal, secondVal, pos);
+                        splatmapData[x, y, i] = val;
+                    }
                 }
             }
         }
