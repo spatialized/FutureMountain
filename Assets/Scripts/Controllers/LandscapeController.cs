@@ -262,10 +262,11 @@ public class LandscapeController : MonoBehaviour
     }
 
     /// <summary>
-    /// Update fire simulation
+    /// Update fire simulation.
     /// </summary>
     /// <param name="timeStep"></param>
-    public void UpdateFire(int timeStep)
+    /// <returns></returns>
+    public bool UpdateFire(int timeStep)
     {
         if (terrainBurning)
         {
@@ -274,13 +275,27 @@ public class LandscapeController : MonoBehaviour
                 if (debugFire)
                     Debug.Log(name + " Stopped burning...");
 
-                fireRegrowthStartTimeIdx = currentTimeIdx;                  // Time idx when last fire ended
-                terrainBurning = false;
-                terrainBurnt = true;
+                SetToBurnt();
+                //fireRegrowthStartTimeIdx = currentTimeIdx;                  // Time idx when last fire ended
+                //terrainBurning = false;
+                //terrainBurnt = true;
 
-                fireManager.StopAllGridFires();
+                //fireManager.StopAllGridFires();
+
+                return true;
             }
         }
+
+        return false;
+    }
+
+    public void SetToBurnt()
+    {
+        fireRegrowthStartTimeIdx = currentTimeIdx;                  // Time idx when last fire ended
+        terrainBurning = false;
+        terrainBurnt = true;
+
+        fireManager.StopAllGridFires();
     }
 
     /// <summary>
@@ -1002,6 +1017,10 @@ public class LandscapeController : MonoBehaviour
         }
     }
 
+    public void ResetFire()
+    {
+        activeBurnCells = new List<SERI_FireCell>();
+    }
 
     /// <summary>
     /// Checks if fire still burning.

@@ -1518,15 +1518,27 @@ public class CubeController : MonoBehaviour
                 if (debugFire)
                     Debug.Log(name + ".UpdateSimulation()... Stopped burning... set terrainBurnt to true   time:" + Time.time);
 
-                terrain.terrainData.SetAlphamaps(0, 0, burntSplatmap);      // Reset terrain splatmap
+                SetToBurnt();
+                //terrain.terrainData.SetAlphamaps(0, 0, burntSplatmap);      // Set burnt terrain splatmap
 
-                fireRegrowthStartTimeIdx = timeIdx;                         // Time idx when last fire ended
-                terrainBurning = false;
-                terrainBurnt = true;
+                //fireRegrowthStartTimeIdx = timeIdx;                         // Time idx when last fire ended
+                //terrainBurning = false;
+                //terrainBurnt = true;
 
-                ResetFireManager();         // Added 12-27-24
+                //ResetFireManager();         // Added 12-27-24
             }
         }
+    }
+
+    public void SetToBurnt()
+    {
+        terrain.terrainData.SetAlphamaps(0, 0, burntSplatmap);      // Set burnt terrain splatmap
+
+        fireRegrowthStartTimeIdx = timeIdx;                         // Time idx when last fire ended
+        terrainBurning = false;
+        terrainBurnt = true;
+
+        ResetFireManager();         // Added 12-27-24
     }
 
     /// <summary>

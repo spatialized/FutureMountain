@@ -1125,6 +1125,40 @@ public class GameController : MonoBehaviour
         landscapeController.SetupFires(fireDates, warmingIdx);
     }
 
+    public void SetTimelineWaterData(string jsonString)
+    {
+        TimelineWaterData timelineWaterData = JsonConvert.DeserializeObject<TimelineWaterData>("{\"years\":" + jsonString + "}");
+        PrecipByYear[] precipByYears = timelineWaterData.years;
+
+        uiTimeline.CreateTimelineWeb(precipByYears, warmingIdx, warmingDegrees, fireYears,
+            messageYears);
+    }
+
+    private void SetupFires()                    
+    {
+        landscapeController.ResetFire();
+
+        fireDates = new Vector3[2];                         // -- TO DO: Get from web!
+        fireDates[0] = new Vector3(7, 15, 1969);
+        fireDates[1] = new Vector3(11, 20, 1988);
+
+        fireFrames = new List<int>();
+        fireYears = new List<int>();
+
+        int ct = 0;
+        foreach (Vector3 date in fireDates)
+        {
+            fireFrames.Add(GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z));
+            fireYears.Add((int)date.z);
+            ct++;
+        }
+
+        if (landscapeController.LandscapeSimulationIsOn() && landscapeController.LandscapeWebSimulationIsOn())
+            Assert.IsNotNull(landscapeDataList);
+
+        landscapeController.SetupFires(fireDates, warmingIdx);
+    }
+
     public void SetDatesAndFinishStarting(string jsonString)
     {
         if (debugWeb)
@@ -1616,7 +1650,7 @@ public class GameController : MonoBehaviour
                     DebugMessage(name + ".UpdateSimulation()... ERROR... curDate: " + curDate.ToString() + "... timeIdx:" + timeIdx + " out of dataDates range, Count:" + dataDates.Count, false);
             }
 
-            if (!FireBurning() && !pausedAuto)
+            if (!FireBurningOnAnyTerrain() && !pausedAuto)
             {
                 UpdateFireIgnition();
             }
@@ -1635,14 +1669,18 @@ public class GameController : MonoBehaviour
             return;
         }
 
-        bool burning = FireBurning();
+        bool burningOnCubes = FireBurningOnCubes();
 
         /* Update Landscape */
         if (!paused)
         {
             landscapeController.UpdateLandscape(timeIdx, year, month, day, timeStep, pausedAuto);
-            if (burning)
-                landscapeController.UpdateFire(timeStep);
+            if (FireBurningOnLandscape())
+            {
+                bool ended = landscapeController.UpdateFire(timeStep);
+                if (ended)
+                    EndFire();
+            }
         }
 
         /* Update Cubes */
@@ -1652,7 +1690,7 @@ public class GameController : MonoBehaviour
             {
                 if (!paused && !pausedAuto)
                     cube.UpdateVegetationBehavior(timeIdx, timeStep);
-                if (burning)
+                if (burningOnCubes)
                     cube.UpdateFire(timeStep);
             }
         }
@@ -1663,7 +1701,7 @@ public class GameController : MonoBehaviour
             {
                 if (!paused && !pausedAuto)
                     cube.UpdateVegetationBehavior(timeIdx, timeStep);
-                if (burning)
+                if (burningOnCubes)
                     cube.UpdateFire(timeStep);
             }
         }
@@ -1683,7 +1721,7 @@ public class GameController : MonoBehaviour
                 UpdateETSpeed();
         }
 
-        bool fireBurning = FireBurning();
+        bool fireBurning = FireBurningOnAnyTerrain();
         if (!fireBurning && pausedAuto)
             pausedAuto = false;
 
@@ -1704,6 +1742,23 @@ public class GameController : MonoBehaviour
             aggregateSideCubeController.UpdateFire(timeStep);
 
         lastSimulationUpdate = Time.time;                                 // Set last simulation update time
+    }
+
+    private void EndFire()
+    {
+        foreach(CubeController cube in cubes)
+        {
+            if(cube.IsBurning())
+                cube.SetToBurnt();
+        }
+        foreach (CubeController cube in sideCubes)
+        {
+            if (cube.IsBurning())
+                cube.SetToBurnt();
+        }
+
+        landscapeController.SetToBurnt();
+        ResetFireManagers();           // Added 12-29-24
     }
 
     /// <summary>
@@ -1730,7 +1785,7 @@ public class GameController : MonoBehaviour
                 {
                     fireFrameIdx = fireFrames.IndexOf(i);
                     if (debugFire)
-                        Debug.Log(name + ".UpdateSimulation()... Will ignite fire at index:" + fireFrameIdx + " FireBurning():" + FireBurning() + " ==> timeIdx:" + timeIdx + " Time.time:" + Time.time);
+                        Debug.Log(name + ".UpdateSimulation()... Will ignite fire at index:" + fireFrameIdx + " FireBurningOnAnyTerrain():" + FireBurningOnAnyTerrain() + " ==> timeIdx:" + timeIdx + " Time.time:" + Time.time);
 
                     igniteFire = true;
                 }
@@ -2805,10 +2860,10 @@ public class GameController : MonoBehaviour
 
     #region Fire
     /// <summary>
-    /// Checks whether a fire is burning.
+    /// Checks whether a fire is burning on cubes or large landscape.
     /// </summary>
     /// <returns><c>true</c>, if fire is burning, <c>false</c> otherwise.</returns>
-    private bool FireBurning()
+    private bool FireBurningOnAnyTerrain()
     {
         foreach (CubeController cube in cubes)              // Check if cube(s) are still burning
         {
@@ -2827,6 +2882,44 @@ public class GameController : MonoBehaviour
         if (aggregateSideCubeController.IsBurning())
             return true;
 
+        if (landscapeController.IsBurning())
+            return true;
+
+        return false;
+    }
+
+    /// <summary>
+    /// Checks whether a fire is burning on cubes or large landscape.
+    /// </summary>
+    /// <returns><c>true</c>, if fire is burning, <c>false</c> otherwise.</returns>
+    private bool FireBurningOnCubes()
+    {
+        foreach (CubeController cube in cubes)              // Check if cube(s) are still burning
+        {
+            if (cube.IsBurning())
+                return true;
+        }
+
+        foreach (CubeController cube in sideCubes)
+        {
+            if (cube.IsBurning())
+                return true;
+        }
+
+        if (aggregateCubeController.IsBurning())
+            return true;
+        if (aggregateSideCubeController.IsBurning())
+            return true;
+        
+        return false;
+    }
+
+    /// <summary>
+    /// Checks whether a fire is burning on large landscape.
+    /// </summary>
+    /// <returns><c>true</c>, if fire is burning, <c>false</c> otherwise.</returns>
+    private bool FireBurningOnLandscape()
+    {
         if (landscapeController.IsBurning())
             return true;
 
