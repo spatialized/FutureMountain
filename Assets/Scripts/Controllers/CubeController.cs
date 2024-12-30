@@ -1920,8 +1920,8 @@ public class CubeController : MonoBehaviour
                 RootsCarbonUnder = row.rootCUnder;
             }
 
-            if(name.Contains("CubeA"))
-                Debug.Log(name + ".UpdateCurrentData()... StreamHeight:" + StreamHeight);
+            //if(name.Contains("CubeA"))
+            //    Debug.Log(name + ".UpdateCurrentData()... StreamHeight:" + StreamHeight);
         }
         else
         {

@@ -26,6 +26,7 @@ public class WebManager : MonoBehaviour
     private static string apiPathFire = "firedata/";
     private static string apiPathPatch = "patchdata/";
     private static string apiPathDates = "dates/";
+    private static string apiPathTerrain = "terraindata/";
 
     private void Awake()
     {
@@ -94,6 +95,21 @@ public class WebManager : MonoBehaviour
 
         return this.StartCoroutine(this.GetRequest(uri, callback));
     }
+
+
+
+    // Gets fire data for given warming warmingIdx
+    public Coroutine RequestTerrainData(int warmingIdx, Action<string> callback)
+    {
+        //https://data.futuremtn.org/api/TerrainData/1
+        string uri = connectionStringBase + apiPathTerrain + warmingIdx;
+
+        if (debug)
+            Debug.Log("RequestTerrainData()... uri:  " + uri);
+
+        return this.StartCoroutine(this.GetRequest(uri, callback));
+    }
+
 
 
     // Gets all patch extents data 
