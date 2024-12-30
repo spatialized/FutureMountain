@@ -27,11 +27,16 @@ public class LandscapeController : MonoBehaviour
     /* Settings */
     private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
     private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
-    private static bool landscapeSimulationLocal = true;             // Local landscape simulation
+    private static bool landscapeSimulationLocal = false;             // Local landscape simulation
+    private static bool loadTerrainDataFromFile = false;
 
     private bool loadFireDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
     private bool loadPatchDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
     private bool loadWaterDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
+
+    private bool loadTerrainDataFromDb = landscapeSimulationOn && landscapeSimulationWeb
+                                                               && landscapeSimulationLocal
+                                                               && !loadTerrainDataFromFile;
     //private bool loadStreamflowFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
 
     private int immediateFireTimeThreshold;
@@ -80,7 +85,7 @@ public class LandscapeController : MonoBehaviour
     //private float fireStartTime = -1f;    // Fire start time
 
     private int fireRegrowthStartTimeIdx;           // Time idx when last fire ended
-    private List<SERI_FireCell> activeBurnCells;    // Active burning / burned cells
+    private List<SERI_FireCell> activeBurnCells;    // Active burning / burned cells    -- UNUSED
 
     private Vector3 fireGridCenterLocation = new Vector3(250f, 0f, 250f);             // Fire grid center location
     private int fireGridCols;                       // Fire grid column count
@@ -142,7 +147,7 @@ public class LandscapeController : MonoBehaviour
     private PatchDataMonth nextPatchData;              // Next patch data frame
     private WaterDataFrame currentWaterData;                    // Current water data frame
     private Dictionary<int, PatchPointCollection> patchExtents; // Extents (bounds) of each patch in simulation
-    
+
     //private List<List<float[,,]>> terrainSplatmaps;     // Terrain splatmap data for each frame
     private List<float[,,]> currentSplatmaps;           // Current terrain splatmap data
 
@@ -397,6 +402,40 @@ public class LandscapeController : MonoBehaviour
         }
     }
 
+    private void FinishUpdateTerrainDataFromWeb(string jsonString)
+    {
+        //simulationData = new TerrainSimulationData[5];
+        List<Assets.Scripts.Models.TerrainDataFrame> tDataList = new List<Assets.Scripts.Models.TerrainDataFrame>(); // Terrain data frames for curr. warming idx
+
+        TimelineTerrainData timelineTerrainData = JsonConvert.DeserializeObject<TimelineTerrainData>("{\"months\":" + jsonString + "}");
+
+        if (timelineTerrainData != null)
+        {
+            TerrainDataFrameJSONRecord[] jDataArr = timelineTerrainData.months;
+
+            foreach (TerrainDataFrameJSONRecord jsonRecord in jDataArr)
+            {
+                Assets.Scripts.Models.TerrainDataFrame frame = ConvertTerrainDataJsonToRecord(jsonRecord);
+                //FireDataFrame frame = ConvertTerrainDataFrameRecordToFrame(frameRecord);
+                tDataList.Add(frame);
+            }
+
+            LoadSplatMapsFromTerrainDataList(tDataList, warmingIdx);
+
+            //int warm = WarmingIndexToDegrees(warmingIdx);
+            //simulationData[warmingIdx] = new TerrainSimulationData(sDataList, tDataList, "Thin_0_Warm_" + warm);
+            //currentSimulationData = simulationData[warmingIdx];
+            //if (debug && currentTimeIdx % 10 == 0)
+            //{
+            //    Debug.Log(("At time: "+currentTimeIdx+"... FinishUpdateFireDataFromWeb ERROR... deserialize failed"));
+            //}
+        }
+        else
+        {
+            Debug.Log(("FinishUpdateFireDataFromWeb ERROR... deserialize failed"));
+        }
+    }
+
     // Unused
     private void FinishUpdateAllPatchDataFromWeb(string jsonString)
     {
@@ -417,7 +456,7 @@ public class LandscapeController : MonoBehaviour
         }
 
         //if(debug && debugDetailed)
-            Debug.Log("FinishUpdateAllPatchDataFromWeb finished... patchExtents.Count:"+patchExtents.Count);
+        Debug.Log("FinishUpdateAllPatchDataFromWeb finished... patchExtents.Count:" + patchExtents.Count);
     }
 
     private WaterDataFrame ConvertWaterDataToWaterDataFrame(WaterData wd)
@@ -432,6 +471,14 @@ public class LandscapeController : MonoBehaviour
         FireDataFrameRecord frameRecord = new FireDataFrameRecord(fdjr.day, fdjr.month, fdjr.year,
             fdjr.gridHeight, fdjr.gridWidth, fdjr.DataList);
         return frameRecord;
+    }
+
+    private Assets.Scripts.Models.TerrainDataFrame ConvertTerrainDataJsonToRecord(TerrainDataFrameJSONRecord tdjr)
+    {
+        Assets.Scripts.Models.TerrainDataFrame record = new Assets.Scripts.Models.TerrainDataFrame(tdjr.month, tdjr.year,
+            tdjr.gridHeight, tdjr.gridWidth, tdjr.pixelGrainSize,
+            tdjr.decimalPrecision, tdjr.DataList);
+        return record;
     }
 
     /// <summary>
@@ -455,7 +502,7 @@ public class LandscapeController : MonoBehaviour
         {
             regrowthAmount = Mathf.Clamp(MapValue(currentTimeIdx - fireRegrowthStartTimeIdx, 0, fireRegrowthLength, 0f, 1f), 0f, 1f);
 
-            if(debugFire)
+            if (debugFire)
                 Debug.Log(name + ".UpdateTerrain()... recentFire: true...  regrowthAmount:" + regrowthAmount + " currentTimeIdx:" + currentTimeIdx + " fireRegrowthStartTimeIdx: " + fireRegrowthStartTimeIdx + " fireRegrowthLength: " + fireRegrowthLength);
 
             if (Mathf.Abs(regrowthAmount - 1f) < 0.0001f)           // Check if finished
@@ -463,7 +510,7 @@ public class LandscapeController : MonoBehaviour
                 ResetBurntState();
                 activeBurnCells = new List<SERI_FireCell>();
 
-                if(debugFire)
+                if (debugFire)
                     Debug.Log(name + ".UpdateTerrain()... Finished post-fire regrowth");
             }
         }
@@ -481,7 +528,7 @@ public class LandscapeController : MonoBehaviour
         else if (landscapeSimulationWeb && landscapeSimulationLocal)
         {
             int startYear = 1942;
-            int monthIdx = curMonth + (curYear- startYear) * 12 - 10;
+            int monthIdx = curMonth + (curYear - startYear) * 12 - 10;
 
             if (currentSplatmaps != null && monthIdx < currentSplatmaps.Count)
             {
@@ -521,17 +568,17 @@ public class LandscapeController : MonoBehaviour
     /// </summary>
     private void UpdateRiver(int curYear, int curMonth, int curDay, int timeStep)
     {
-        riverObject.transform.localPosition = new Vector3( riverObject.transform.localPosition.x,
+        riverObject.transform.localPosition = new Vector3(riverObject.transform.localPosition.x,
                                                            Mathf.Clamp(MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverMinHeight, riverFullHeight), riverMinHeight, riverFullHeight),
-                                                           riverObject.transform.localPosition.z );
+                                                           riverObject.transform.localPosition.z);
 
-        riverFaceObject.transform.localPosition = new Vector3( riverFaceObject.transform.localPosition.x,
+        riverFaceObject.transform.localPosition = new Vector3(riverFaceObject.transform.localPosition.x,
                                                                Mathf.Clamp(MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverFaceMinHeight, riverFaceFullHeight), riverFaceMinHeight, riverFaceFullHeight),
-                                                               riverObject.transform.localPosition.z );
+                                                               riverObject.transform.localPosition.z);
 
-        riverFaceObject.transform.localScale = new Vector3( riverFaceObject.transform.localScale.x,
+        riverFaceObject.transform.localScale = new Vector3(riverFaceObject.transform.localScale.x,
                                                             Mathf.Clamp(MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverFaceMinScale, riverFaceFullScale), riverFaceMinScale, riverFaceFullScale),
-                                                            riverObject.transform.localScale.z );
+                                                            riverObject.transform.localScale.z);
     }
     #endregion
 
@@ -649,61 +696,61 @@ public class LandscapeController : MonoBehaviour
                 //LoadFireData();
                 //try
                 //{
-                    if (loadFireDataFromFile)
+                if (loadFireDataFromFile)
+                {
+                    TextAsset[] fireDataFrames = Resources.LoadAll<TextAsset>("FireData");
+                    simulationData = new TerrainSimulationData[5];
+
+                    //int i = warmingIdx;
+                    for (int i = 0; i < 5; i++)
                     {
-                        TextAsset[] fireDataFrames = Resources.LoadAll<TextAsset>("FireData");
-                        simulationData = new TerrainSimulationData[5];
+                        List<SnowDataFrame> sDataList = new List<SnowDataFrame>(); // Snow data frames (unused)
+                        List<FireDataFrame> fDataList = new List<FireDataFrame>(); // Fire data frames
+                        List<FireDataFrameRecord> fDataRecordList = new List<FireDataFrameRecord>(); // Fire data frames
 
-                        //int i = warmingIdx;
-                        for (int i = 0; i < 5; i++)
+                        TextAsset fireFrameTextAsset = fireDataFrames[i]; // List<FireDataFrame> 
+
+                        fDataRecordList =
+                            JsonConvert.DeserializeObject<List<FireDataFrameRecord>>(fireFrameTextAsset.text);
+
+                        yield return null;
+
+                        foreach (FireDataFrameRecord rec in fDataRecordList)
                         {
-                            List<SnowDataFrame> sDataList = new List<SnowDataFrame>(); // Snow data frames (unused)
-                            List<FireDataFrame> fDataList = new List<FireDataFrame>(); // Fire data frames
-                            List<FireDataFrameRecord> fDataRecordList = new List<FireDataFrameRecord>(); // Fire data frames
-
-                            TextAsset fireFrameTextAsset = fireDataFrames[i]; // List<FireDataFrame> 
-
-                            fDataRecordList =
-                                JsonConvert.DeserializeObject<List<FireDataFrameRecord>>(fireFrameTextAsset.text);
-
+                            fDataList.Add(ConvertFireDataFrameRecordToFrame(rec));
                             yield return null;
+                        }
 
-                            foreach (FireDataFrameRecord rec in fDataRecordList)
-                            {
-                                fDataList.Add(ConvertFireDataFrameRecordToFrame(rec));
-                                yield return null;
-                            }
+                        fDataRecordList.Clear();
+                        yield return null;
 
-                            fDataRecordList.Clear();
-                            yield return null;
+                        int warm = 0;
+                        switch (i)
+                        {
+                            case 0:
+                                warm = 0;
+                                break;
+                            case 1:
+                                warm = 1;
+                                break;
+                            case 2:
+                                warm = 2;
+                                break;
+                            case 3:
+                                warm = 4;
+                                break;
+                            case 4:
+                                warm = 6;
+                                break;
+                            default:
+                                warm = 0;
+                                break;
+                        }
 
-                            int warm = 0;
-                            switch (i)
-                            {
-                                case 0:
-                                    warm = 0;
-                                    break;
-                                case 1:
-                                    warm = 1;
-                                    break;
-                                case 2:
-                                    warm = 2;
-                                    break;
-                                case 3:
-                                    warm = 4;
-                                    break;
-                                case 4:
-                                    warm = 6;
-                                    break;
-                                default:
-                                    warm = 0;
-                                    break;
-                            }
+                        simulationData[i] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
+                        currentSimulationData = simulationData[i];
 
-                            simulationData[i] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
-                            currentSimulationData = simulationData[i];
-
-                            Debug.Log("Loading simulation data : " + i);
+                        Debug.Log("Loading simulation data : " + i);
 
                         yield return null;
                     }
@@ -737,7 +784,7 @@ public class LandscapeController : MonoBehaviour
                 //if (debug)
                 //    Debug.Log("LoadDataWeb()... Finished");
             }
-            else if(landscapeSimulationWeb && landscapeSimulationLocal)
+            else if (landscapeSimulationWeb && landscapeSimulationLocal)
             {
                 //LoadSplatMapsFromFilesForWarmingIdx(warmingIdx);
             }
@@ -758,7 +805,7 @@ public class LandscapeController : MonoBehaviour
         nextFrameMonth = -1;
         nextFrameYear = -1;
 
-        Debug.Log(name+"... Data Initialized...");
+        Debug.Log(name + "... Data Initialized...");
         initialized = true;
         yield return null;
     }
@@ -790,27 +837,40 @@ public class LandscapeController : MonoBehaviour
             }
 
             fDataRecordList.Clear();
-            
+
             int warm = WarmingIndexToDegrees(i);
-            
+
 
             simulationData[i] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
             currentSimulationData = simulationData[i];
         }
         else // Load from web
         {
-            if(WebManager.Instance)
+            if (WebManager.Instance)
                 WebManager.Instance.RequestFireData(warmingIdx, this.FinishUpdateFireDataFromWeb);
             else
                 Debug.Log("LoadLandscapeDataForWarmingIdx()... ERROR... no instance of WebManager!");
         }
 
-            
+        if (loadTerrainDataFromFile)
+        {
+            // Local background snow data
+            //if (landscapeSimulationLocal)
+            LoadSplatMapsFromFilesForWarmingIdx(warmIdx);
+        }
+        else if (loadTerrainDataFromDb) // Load terrain data from local api 
+        {
+            if (WebManager.Instance)
+                WebManager.Instance.RequestTerrainData(warmingIdx, this.FinishUpdateTerrainDataFromWeb);
+            else
+                Debug.Log("LoadLandscapeDataForWarmingIdx()... ERROR... no instance of WebManager!");
+        }
+
         Debug.Log("LoadLandscapeDataForWarmingIdx()... Loading simulation data : " + i);
 
-        // Local background snow data
-        if (landscapeSimulationLocal)
-            LoadSplatMapsFromFilesForWarmingIdx(warmIdx);
+        //// Local background snow data
+        //if (landscapeSimulationLocal)
+        //    LoadSplatMapsFromFilesForWarmingIdx(warmIdx);
     }
 
 
@@ -877,13 +937,13 @@ public class LandscapeController : MonoBehaviour
         if (!terrainBurning)
         {
             bool immediateFire = !landscapeSimulationOn;
-            if(landscapeSimulationOn && !pauseDuringFire && timeStep > immediateFireTimeThreshold)
+            if (landscapeSimulationOn && !pauseDuringFire && timeStep > immediateFireTimeThreshold)
                 immediateFire = true;
 
             int frameRate, maxFireFrameLength;
             float fireLengthInSec;
 
-            if(pauseDuringFire)
+            if (pauseDuringFire)
             {
                 fireLengthInSec = newFireLengthInSec;
             }
@@ -896,10 +956,10 @@ public class LandscapeController : MonoBehaviour
                 fireLengthInSec = fireFrameCount / frameRate;                               // Calculate fire length in seconds
             }
 
-            if(debugFire)
-                Debug.Log(name+ ".IgniteTerrain()... parent:" + transform.parent.name + " setting terrainBurning to true... timeStep:" + timeStep + " fireLengthInSec:" + fireLengthInSec+" time:" + Time.time);
+            if (debugFire)
+                Debug.Log(name + ".IgniteTerrain()... parent:" + transform.parent.name + " setting terrainBurning to true... timeStep:" + timeStep + " fireLengthInSec:" + fireLengthInSec + " time:" + Time.time);
 
-            fireManager.IgniteTerrain( terrain, timeStep, fireLengthInSec, fireIdx );
+            fireManager.IgniteTerrain(terrain, timeStep, fireLengthInSec, fireIdx);
 
             //fireStartTime = Time.time;
             terrainBurning = true;
@@ -915,7 +975,7 @@ public class LandscapeController : MonoBehaviour
             }
         }
         else
-            Debug.Log(transform.parent.name+ "." + name + ".IgniteTerrain()... ERROR Can't ignite fire... already burning! time:" + Time.time);
+            Debug.Log(transform.parent.name + "." + name + ".IgniteTerrain()... ERROR Can't ignite fire... already burning! time:" + Time.time);
     }
 
     /// <summary>
@@ -971,7 +1031,7 @@ public class LandscapeController : MonoBehaviour
     /// <param name="waitTime">Time after start when patch IDs associated with cell will burn</param>
     public void AddBurnedCellAfterTime(SERI_FireCell cell, float waitTime)
     {
-        StartCoroutine( AddBurnedCell(cell, waitTime + burnedTerrainCellDelay) );
+        StartCoroutine(AddBurnedCell(cell, waitTime + burnedTerrainCellDelay));
     }
 
     /// <summary>
@@ -984,7 +1044,7 @@ public class LandscapeController : MonoBehaviour
     {
         yield return new WaitForSeconds(waitTime);
 
-        foreach(int patchID in cell.patchIDList)
+        foreach (int patchID in cell.patchIDList)
         {
             if (patchID == -1)
             {
@@ -1109,7 +1169,7 @@ public class LandscapeController : MonoBehaviour
 
     //    //    //Debug.Log(name + ".CalculatePatchesToBurn().. Found fire at month:" + month + " day:" + day + " year:" + year + " cellLocations.Count:" + burnedPatches.Count+ " points.Count:"+ points.Count + " warmingIdx:" + warmingIdx);
     //    //}
-        
+
 
     //    ////burn_warm0_1969_7_15.json
     //    //List<Dictionary<Vector3, List<int>>> burnDictList = new List<Dictionary<Vector3, List<int>>>();
@@ -1210,12 +1270,12 @@ public class LandscapeController : MonoBehaviour
         {
             fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, terrain.transform.position, null, this, false, true, false);
         }
-        else 
+        else
         {
             //firePointLists = new List<FireDataPoint>[fireDates.Length];
 
-            List<FireDataFrame> frames; 
-            if(landscapeSimulationWeb)
+            List<FireDataFrame> frames;
+            if (landscapeSimulationWeb)
                 frames = currentSimulationData.GetFireData();
             else
                 frames = simulationData[warmIdx].GetFireData();
@@ -1223,7 +1283,7 @@ public class LandscapeController : MonoBehaviour
             foreach (FireDataFrame fire in frames)
             {
                 /* Find day fire occurred */
-                Assert.IsNotNull(fire); 
+                Assert.IsNotNull(fire);
 
                 int day = 1;
                 int count = 0;
@@ -1774,7 +1834,7 @@ public class LandscapeController : MonoBehaviour
             //currentSimulationData = simulationData[i];
         }
     }
-    
+
     /// <summary>
     /// Gets the terrain data frame from patch data for month.
     /// </summary>
@@ -1915,72 +1975,135 @@ public class LandscapeController : MonoBehaviour
     //    gridWidth = newGridWidth;
     //}
 
-    //public void LoadSplatMapsFromFilesForWarmingIdx(int warmIdx)
-    //{
-    //    string path = "SplatData_" + warmIdx;
-    //    TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>(path);
+    public void LoadSplatMapsFromFilesForWarmingIdx(int warmIdx)
+    {
+        string path = "SplatData_" + warmIdx;
+        TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>(path);
 
-    //    currentSplatmaps = new List<float[,,]>();
+        currentSplatmaps = new List<float[,,]>();
 
-    //    Debug.Log(name+ ".LoadSplatMapsFromFilesForWarmingIdx()... warmIdx:"+warmIdx);
+        Debug.Log(name + ".LoadSplatMapsFromFilesForWarmingIdx()... warmIdx:" + warmIdx);
 
-    //    int startTime = DateTime.Now.Millisecond;
-    //    int ct = 0;
-    //    int currWarmIdx = 0;
-    //    foreach (var textAsset in splatDataArr)
-    //    {
-    //        // Ex. terrain_warm0_1942_10.json    NOW terrain_warm0_1942_10_4_4.json
-    //        //      where 2nd to last val "4" means pixelGrainSize is 4, i.e. 512 terrain size / 4 => 128 grid size
-    //        //      and last val "4" is decimalPrecision,
-    //        //      i.e. means int[,,] grid in text asset should be multiplied by 10E-4 to get real values
+        int startTime = DateTime.Now.Millisecond;
+        int ct = 0;
+        int currWarmIdx = 0;
+        foreach (var textAsset in splatDataArr)
+        {
+            // Ex. terrain_warm0_1942_10.json    NOW terrain_warm0_1942_10_4_4.json
+            //      where 2nd to last val "4" means pixelGrainSize is 4, i.e. 512 terrain size / 4 => 128 grid size
+            //      and last val "4" is decimalPrecision,
+            //      i.e. means int[,,] grid in text asset should be multiplied by 10E-4 to get real values
 
-    //        string[] parts = textAsset.name.Split('_');
-    //        int warmingIdx = int.Parse(parts[1].Substring(4));
+            string[] parts = textAsset.name.Split('_');
+            int warmingIdx = int.Parse(parts[1].Substring(4));
 
-    //        if (warmingIdx != warmIdx)
-    //            continue;
+            if (warmingIdx != warmIdx)
+                continue;
 
-    //        int year = int.Parse(parts[2]);
-    //        int month = int.Parse(parts[3]);
-    //        int pixelGrainSize = int.Parse(parts[4]);
-    //        int decimalPrecision = int.Parse(parts[5].Split('.')[0]);
+            int year = int.Parse(parts[2]);
+            int month = int.Parse(parts[3]);
+            int pixelGrainSize = int.Parse(parts[4]);
+            int decimalPrecision = int.Parse(parts[5].Split('.')[0]);
 
-    //        float[,,] splatmap = new float[0, 0, 0];
+            float[,,] splatmap = new float[0, 0, 0];
 
-    //        //Debug.Log(" splatmap 0: " + splatmap.GetLength(0)
-    //        //                             + " splatmap 1: " + splatmap.GetLength(1)
-    //        //                             + " splatmap 2: " + splatmap.GetLength(2));
+            //Debug.Log(" splatmap 0: " + splatmap.GetLength(0)
+            //                             + " splatmap 1: " + splatmap.GetLength(1)
+            //                             + " splatmap 2: " + splatmap.GetLength(2));
 
-    //        try
-    //        {
-    //            float[,,] unflattened = ImportSplatData(textAsset.text, pixelGrainSize, decimalPrecision);
+            try
+            {
+                float[,,] unflattened = ImportSplatData(textAsset.text, pixelGrainSize, decimalPrecision);
 
-    //            //Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
-    //            //                 + " unflattened 1: " + unflattened.GetLength(1)
-    //            //                 + " unflattened 2: " + unflattened.GetLength(2));
+                //Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
+                //                 + " unflattened 1: " + unflattened.GetLength(1)
+                //                 + " unflattened 2: " + unflattened.GetLength(2));
 
-    //            //Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
+                //Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
 
-    //            splatmap = unflattened;
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            Debug.Log("ExportTerrainData ERROR ex: " + ex.Message);
-    //        }
+                splatmap = unflattened;
+            }
+            catch (Exception ex)
+            {
+                Debug.Log("ExportTerrainData ERROR ex: " + ex.Message);
+            }
 
-    //        //if (ct++ >= 24)
-    //        //    return;
+            //if (ct++ >= 24)
+            //    return;
 
-    //        currentSplatmaps.Add(splatmap);
-    //    }
+            currentSplatmaps.Add(splatmap);
+        }
 
-    //    int elapsed = (int) ((DateTime.Now.Millisecond - startTime) * 0.001f);
-    //    Debug.Log(name + ".LoadSplatMapsFromFilesForWarmingIdx()... Finished loading in:" + elapsed + "sec.");
-    //}
+        int elapsed = (int)((DateTime.Now.Millisecond - startTime) * 0.001f);
+        Debug.Log(name + ".LoadSplatMapsFromFilesForWarmingIdx()... Finished loading in:" + elapsed + "sec.");
+    }
+
+    public void LoadSplatMapsFromTerrainDataList(List<Assets.Scripts.Models.TerrainDataFrame> tdList, int warmIdx)
+    {
+        //string path = "SplatData_" + warmIdx;
+        //TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>(path);
+
+        currentSplatmaps = new List<float[,,]>();
+
+        Debug.Log(name + ".LoadSplatMapsFromTerrainDataList()... warmIdx:" + warmIdx);
+
+        int startTime = DateTime.Now.Millisecond;
+        int ct = 0;
+        int currWarmIdx = 0;
+        foreach (var td in tdList)
+        {
+            // Ex. terrain_warm0_1942_10.json    NOW terrain_warm0_1942_10_4_4.json
+            //      where 2nd to last val "4" means pixelGrainSize is 4, i.e. 512 terrain size / 4 => 128 grid size
+            //      and last val "4" is decimalPrecision,
+            //      i.e. means int[,,] grid in text asset should be multiplied by 10E-4 to get real values
+
+            //string[] parts = textAsset.name.Split('_');
+            //int warmingIdx = td.
+
+            //if (warmingIdx != warmIdx)
+            //    continue;
+
+            int year = td.year;
+            int month = td.month;
+            int pixelGrainSize = td.pixelGrainSize;
+            int decimalPrecision = td.decimalPrecision;
+            int gridHeight = td.gridHeight;
+            int gridWidth = td.gridWidth;
+            int[] flattened = td.dataList;
+
+            float[,,] splatmap = new float[0, 0, 0];
+
+            //Debug.Log(" splatmap 0: " + splatmap.GetLength(0)
+            //                             + " splatmap 1: " + splatmap.GetLength(1)
+            //                             + " splatmap 2: " + splatmap.GetLength(2));
+
+            try
+            {
+                float[,,] unflattened = ImportSplatData(flattened, pixelGrainSize, decimalPrecision, gridWidth,
+                    gridWidth * pixelGrainSize);
+
+                //Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
+                //                 + " unflattened 1: " + unflattened.GetLength(1)
+                //                 + " unflattened 2: " + unflattened.GetLength(2));
+
+                //Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
+
+                splatmap = unflattened;
+                currentSplatmaps.Add(splatmap);
+            }
+            catch (Exception ex)
+            {
+                Debug.Log("ExportTerrainData ERROR ex: " + ex.Message);
+            }
+        }
+
+        int elapsed = (int)((DateTime.Now.Millisecond - startTime) * 0.001f);
+        Debug.Log(name + ".LoadSplatMapsFromTerrainDataList()... Finished loading in:" + elapsed + "sec.");
+    }
 
     //public void LoadSplatMapsFromFiles()
     //{
-    //    TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>("TerrainData");
+    //    TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>("TerrainDataFrame");
 
     //    terrainSplatmaps = new List<List<float[,,]>>();
     //    currentSplatmaps = new List<float[,,]>();
@@ -2042,10 +2165,51 @@ public class LandscapeController : MonoBehaviour
         int inputWidth = terrainWidth / pixelGrainSize;             // 128
 
         int[] flatArray = JsonConvert.DeserializeObject<int[]>(inputStr);
+
+        return ImportSplatData(flatArray, pixelGrainSize, decimalPrecision, inputWidth, terrainWidth);
+        //int[,,] unflattened = Unflatten1DIntArrayTo3D(flatArray, inputWidth, 4);
+        //float[,,] result = new float[terrainWidth, terrainWidth, 4];
+
+        //for (int x = 0; x < unflattened.GetLength(0); x++)
+        //{
+        //    for (int y = 0; y < unflattened.GetLength(1); y++)
+        //    {
+        //        for (int z = 0; z < unflattened.GetLength(2); z++)
+        //        {
+        //            float val = unflattened[x, y, z] * (float)Math.Pow(10, -decimalPrecision);
+
+        //            //FillInArea(result, x, y, z, pixelGrainSize, val);
+        //            //result[x, y, z] = val;
+
+        //            // Fill in area of pixelGrainSize x pixelGrainSize in result array
+        //            int xStart = x * pixelGrainSize;
+        //            int yStart = y * pixelGrainSize;
+        //            for (int a = 0; a < pixelGrainSize; a++)
+        //            {
+        //                int xCoord = xStart + a;
+        //                for (int b = 0; b < pixelGrainSize; b++)
+        //                {
+        //                    int yCoord = yStart + b;
+        //                    result[xCoord, yCoord, z] = val;
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+
+        //return result;
+    }
+
+    private float[,,] ImportSplatData(int[] flatArray, int pixelGrainSize, int decimalPrecision, int inputWidth, int terrainWidth)
+    {
+        //int terrainWidth = terrain.terrainData.alphamapWidth;       // 512
+        //int inputWidth = terrainWidth / pixelGrainSize;             // 128
+
+        //int[] flatArray = JsonConvert.DeserializeObject<int[]>(inputStr);
         int[,,] unflattened = Unflatten1DIntArrayTo3D(flatArray, inputWidth, 4);
         float[,,] result = new float[terrainWidth, terrainWidth, 4];
 
-        for (int x=0; x<unflattened.GetLength(0); x++)
+        for (int x = 0; x < unflattened.GetLength(0); x++)
         {
             for (int y = 0; y < unflattened.GetLength(1); y++)
             {
@@ -2116,9 +2280,9 @@ public class LandscapeController : MonoBehaviour
         var output = new float[xCount, yCount, zCount];
         var index = 0;
         for (var x = 0; x < xCount; x++)
-        for (var y = 0; y < yCount; y++)
-        for (var z = 0; z < zCount; z++)
-            output[x, y, z] = array[index++];
+            for (var y = 0; y < yCount; y++)
+                for (var z = 0; z < zCount; z++)
+                    output[x, y, z] = array[index++];
 
         return output;
     }
@@ -2134,9 +2298,9 @@ public class LandscapeController : MonoBehaviour
         var output = new int[xCount, yCount, zCount];
         var index = 0;
         for (var x = 0; x < xCount; x++)
-        for (var y = 0; y < yCount; y++)
-        for (var z = 0; z < zCount; z++)
-            output[x, y, z] = array[index++];
+            for (var y = 0; y < yCount; y++)
+                for (var z = 0; z < zCount; z++)
+                    output[x, y, z] = array[index++];
 
         return output;
     }
@@ -2391,7 +2555,7 @@ public class LandscapeController : MonoBehaviour
         }
         if (warmingIdx < 0 || warmingIdx >= patchesData.Count)
         {
-            Debug.Log("GetPatchesData()... ERROR warmingIdx out of range... patchesData.Count:"+patchesData.Count+" warmingIdx:"+warmingIdx);
+            Debug.Log("GetPatchesData()... ERROR warmingIdx out of range... patchesData.Count:" + patchesData.Count + " warmingIdx:" + warmingIdx);
             return null;
         }
         return patchesData[warmingIdx];
@@ -2690,7 +2854,7 @@ public class LandscapeController : MonoBehaviour
 
         float pos = MapValue(day, 1, DateTime.DaysInMonth(year, month) + 1, 0f, 1f);     // Find position between current month and next month
 
-        for(int x=0; x < t.terrainData.alphamapWidth; x++)
+        for (int x = 0; x < t.terrainData.alphamapWidth; x++)
         {
             for (int y = 0; y < t.terrainData.alphamapHeight; y++)
             {
@@ -2887,7 +3051,7 @@ public class LandscapeController : MonoBehaviour
     /// </summary>
     public float[,,] CreateUnburntSplatmap()
     {
-        TerrainData terrainData = terrain.terrainData;        // Get a reference to the terrain data
+        UnityEngine.TerrainData terrainData = terrain.terrainData;        // Get a reference to the terrain data
 
         // Splatmap data is stored internally as a 3d array of floats, so declare a new empty array ready for your custom splatmap data:
         float[,,] splatmapData = new float[terrainData.alphamapWidth, terrainData.alphamapHeight, terrainData.alphamapLayers];
@@ -2957,8 +3121,8 @@ public class LandscapeController : MonoBehaviour
     public void ResetSnow(bool backgroundOnly)
     {
         snowManagerBkgd.snowValue = 0f;
-        if(!backgroundOnly)
-           snowManager.snowValue = 0f;
+        if (!backgroundOnly)
+            snowManager.snowValue = 0f;
     }
 
     /// <summary>
@@ -3479,7 +3643,7 @@ public class LandscapeController : MonoBehaviour
     //private float[] GetTextureMix(Vector3 worldPos)
     //{
     //    Vector3 terrainPos = terrain.transform.position;
-    //    TerrainData terrainData = terrain.terrainData;
+    //    TerrainDataFrame terrainData = terrain.terrainData;
 
     //    // calculate which splat map cell the worldPos falls within (ignoring y)
     //    int mapX = (int)(((worldPos.x - terrainPos.x) / terrainData.size.x) * terrainData.alphamapWidth);
@@ -3537,11 +3701,28 @@ public class LandscapeController : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Debug.Log("ConvertFireDataFrameRecordToFrame()... ERROR ex:"+ex.Message);
+            Debug.Log("ConvertFireDataFrameRecordToFrame()... ERROR ex:" + ex.Message);
         }
 
         return null;
     }
+
+    //private FireDataFrame ConvertTerrainDataFrameRecordToFrame(FireDataFrameRecord record)
+    //{
+    //    try
+    //    {
+    //        FireDataFrame fdf = new FireDataFrame(record.GetDay(), record.GetMonth(), record.GetYear(),
+    //            record.GetGridHeight(),
+    //            record.GetGridWidth(), record.GetDataList(), record.GetDataGrid());
+    //        return fdf;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.Log("ConvertFireDataFrameRecordToFrame()... ERROR ex:"+ex.Message);
+    //    }
+
+    //    return null;
+    //}
 
     #endregion
 }
@@ -3621,7 +3802,7 @@ public class LandscapeController : MonoBehaviour
 //    private Vector2 fireLocation;       // Fire grid location
 //    private Vector2 alphamapLoc;        // Alphamap grid location
 //    private Vector3 utm;                // UTM location
-        
+
 //    /// <summary>
 //    /// Initializes a new instance of the <see cref="T:LandscapeController.PatchPoint"/> class.
 //    /// </summary>
@@ -3982,7 +4163,7 @@ public class FireDataFrame
 [Serializable]
 public class FireDataFrameRecord
 {
-    public List<FireDataPoint> dataList;              
+    public List<FireDataPoint> dataList;
     public int year, month, day;
     public int gridHeight;
     public int gridWidth;
