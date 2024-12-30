@@ -5,6 +5,7 @@
 // date  : 04/04/2017
 */
 
+using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -488,15 +489,22 @@ public class SERI_FireGrid : MonoBehaviour
     /// </summary>
     public void StopBurning(bool immediate)
     {
-        Debug.Log(transform.parent.name + "." + name + ".StopBurning()... Time: " + Time.time);
+        //Debug.Log(transform.parent.name + "." + name + ".StopBurning()... Time: " + Time.time);
 
-        ResetCellsAfterFire();
-        fireManager.StopBurning();
+        try
+        {
+            ResetCellsAfterFire();
+            fireManager.StopBurning();
 
-        if (gameObject.activeInHierarchy)
-            StartCoroutine(WaitToDeactivate(immediate ? 0f : fireGridDestroyWaitTime));
-        else
-            Deactivate();
+            if (gameObject.activeInHierarchy)
+                StartCoroutine(WaitToDeactivate(immediate ? 0f : fireGridDestroyWaitTime));
+            else
+                Deactivate();
+        }
+        catch (Exception ex)
+        {
+            Debug.Log("ERROR... ex: "+ex.Message);
+        }
     }
 
 

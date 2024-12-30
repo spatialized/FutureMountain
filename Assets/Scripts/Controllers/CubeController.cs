@@ -123,6 +123,8 @@ public class CubeController : MonoBehaviour
     private float maxGrassFullSize = 5f;          // Max. shrub grown size (m.)
     private float shrubGrowthIncrement = 0.01f;   // Shrub growth increment per frame
 
+    private float maxETSpeed = 12f;
+
     /* Timing */
     private int timeIdx = 0;                    // Current index of simulation in data time series
     private int firGrowthWaitTime = 30;         // Frames to wait between tree instantiations (avoid spawning too many all at once)
@@ -1203,13 +1205,13 @@ public class CubeController : MonoBehaviour
 
         foreach (FirController fir in firs)
         {
-            fir.UpdateETSimulationSpeed(Mathf.Clamp(timeStep, 0f, 16f));
+            fir.UpdateETSimulationSpeed(Mathf.Clamp(timeStep, 0f, maxETSpeed));
         }
 
         foreach (ShrubController shrub in shrubs)
         {
             if (shrub != null)
-                shrub.UpdateETSimulationSpeed(Mathf.Clamp(timeStep, 0f, 16f));
+                shrub.UpdateETSimulationSpeed(Mathf.Clamp(timeStep, 0f, maxETSpeed));
         }
     }
 
@@ -1516,15 +1518,27 @@ public class CubeController : MonoBehaviour
                 if (debugFire)
                     Debug.Log(name + ".UpdateSimulation()... Stopped burning... set terrainBurnt to true   time:" + Time.time);
 
-                terrain.terrainData.SetAlphamaps(0, 0, burntSplatmap);      // Reset terrain splatmap
+                SetToBurnt();
+                //terrain.terrainData.SetAlphamaps(0, 0, burntSplatmap);      // Set burnt terrain splatmap
 
-                fireRegrowthStartTimeIdx = timeIdx;                         // Time idx when last fire ended
-                terrainBurning = false;
-                terrainBurnt = true;
+                //fireRegrowthStartTimeIdx = timeIdx;                         // Time idx when last fire ended
+                //terrainBurning = false;
+                //terrainBurnt = true;
 
-                ResetFireManager();         // Added 12-27-24
+                //ResetFireManager();         // Added 12-27-24
             }
         }
+    }
+
+    public void SetToBurnt()
+    {
+        terrain.terrainData.SetAlphamaps(0, 0, burntSplatmap);      // Set burnt terrain splatmap
+
+        fireRegrowthStartTimeIdx = timeIdx;                         // Time idx when last fire ended
+        terrainBurning = false;
+        terrainBurnt = true;
+
+        ResetFireManager();         // Added 12-27-24
     }
 
     /// <summary>
