@@ -47,13 +47,37 @@ var serverVersion = ServerVersion.AutoDetect(connectionString);
 // Replace 'YourDbContext' with the name of your own DbContext derived class.
 builder.Services.AddDbContext<CubeDataDbContext>(
     dbContextOptions => dbContextOptions
+        .UseMySql(connectionString, serverVersion) );
+        // The following three options help with debugging, but should
+        // be changed or removed for production.
+        //.LogTo(Console.WriteLine, LogLevel.Information)
+        //.EnableSensitiveDataLogging()
+        //.EnableDetailedErrors());
+builder.Services.AddDbContext<WaterDataDbContext>(
+    dbContextOptions => dbContextOptions
+        .UseMySql(connectionString, serverVersion) );
+        // The following three options help with debugging, but should
+        // be changed or removed for production.
+        //.LogTo(Console.WriteLine, LogLevel.Information)
+        //.EnableSensitiveDataLogging()
+        //.EnableDetailedErrors());
+builder.Services.AddDbContext<FireDataDbContext>(
+    dbContextOptions => dbContextOptions
+        .UseMySql(connectionString, serverVersion) );
+        // The following three options help with debugging, but should
+        // be changed or removed for production.
+        //.LogTo(Console.WriteLine, LogLevel.Information)
+        //.EnableSensitiveDataLogging()
+        //.EnableDetailedErrors());
+builder.Services.AddDbContext<TerrainDataDbContext>(
+    dbContextOptions => dbContextOptions
         .UseMySql(connectionString, serverVersion)
         // The following three options help with debugging, but should
         // be changed or removed for production.
         .LogTo(Console.WriteLine, LogLevel.Information)
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors());
-builder.Services.AddDbContext<WaterDataDbContext>(
+builder.Services.AddDbContext<PatchDataDbContext>(
     dbContextOptions => dbContextOptions
         .UseMySql(connectionString, serverVersion)
         // The following three options help with debugging, but should
@@ -63,12 +87,12 @@ builder.Services.AddDbContext<WaterDataDbContext>(
         .EnableDetailedErrors());
 builder.Services.AddDbContext<DateDbContext>(
     dbContextOptions => dbContextOptions
-        .UseMySql(connectionString, serverVersion)
+        .UseMySql(connectionString, serverVersion) );
         // The following three options help with debugging, but should
         // be changed or removed for production.
-        .LogTo(Console.WriteLine, LogLevel.Information)
-        .EnableSensitiveDataLogging()
-        .EnableDetailedErrors());
+        //.LogTo(Console.WriteLine, LogLevel.Information)
+        //.EnableSensitiveDataLogging()
+        //.EnableDetailedErrors());
 
 //builder.Services.AddDbContext<CubeDataDbContext>(options => options.UseMySql(connectionString, serverVersion).EnableDetailedErrors(true));
 //builder.Services.AddDbContext<DateDbContext>(options => options.UseMySql(connectionString, serverVersion).EnableDetailedErrors(true));
