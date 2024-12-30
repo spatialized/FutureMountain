@@ -27,6 +27,7 @@ public class LandscapeController : MonoBehaviour
     /* Settings */
     private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
     private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
+    private static bool landscapeSimulationLocal = true;             // Local landscape simulation
 
     private bool loadFireDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
     private bool loadPatchDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
@@ -141,6 +142,9 @@ public class LandscapeController : MonoBehaviour
     private PatchDataMonth nextPatchData;              // Next patch data frame
     private WaterDataFrame currentWaterData;                    // Current water data frame
     private Dictionary<int, PatchPointCollection> patchExtents; // Extents (bounds) of each patch in simulation
+    
+    //private List<List<float[,,]>> terrainSplatmaps;     // Terrain splatmap data for each frame
+    private List<float[,,]> currentSplatmaps;           // Current terrain splatmap data
 
     public int simulationStartYear, simulationStartMonth, simulationStartDay = 1;    // Start year, month, day of extents / streamflow data, whichever begins later
     public int extentsStartYear, waterStartYear;                // Start year for water and extents data
@@ -214,29 +218,7 @@ public class LandscapeController : MonoBehaviour
 
         if (landscapeSimulationOn)
         {
-            //if (waterData != null)
-            //{
-            //    if (!landscapeSimulationWeb && patchesData == null)
-            //    {
-            //        Debug.Log(name + ".UpdateLandscape()... ERROR: Turning off landscape simulation... patchData == null:" + (patchesData == null) + " waterData == null: " + (waterData == null) + " curYear:" + curYear + " curMonth:" + " curDay:" + curDay + " dataFormatted:" + dataFormatted);
-            //        return;
-            //    }
-
-            //    if (!pausedDuringFire)
-            //        UpdateData(curTimeIdx, curYear, curMonth, curDay, timeStep);
-
-            //    UpdateTerrain(curYear, curMonth, curDay, timeStep);
-
-            //    if (!pausedDuringFire)
-            //        UpdateRiver(curYear, curMonth, curDay, timeStep);
-            //}
-            //else
-            //{
-            //    Debug.Log(name + ".UpdateLandscape()... ERROR: Turning off landscape simulation... patchData == null:" + (patchesData == null) + " waterData == null: " + (waterData == null) + " curYear:" + curYear + " curMonth:" + " curDay:" + curDay + " dataFormatted:" + dataFormatted);
-            //    landscapeSimulationOn = false;
-            //}
-
-            if (!landscapeSimulationWeb && patchesData == null)
+            if (!landscapeSimulationWeb && !landscapeSimulationLocal && patchesData == null)
             {
                 Debug.Log(name + ".UpdateLandscape()... ERROR: Turning off landscape simulation... patchData == null:" + (patchesData == null) + " waterData == null: " + (waterData == null) + " curYear:" + curYear + " curMonth:" + " curDay:" + curDay + " dataFormatted:" + dataFormatted);
                 return;
@@ -486,7 +468,7 @@ public class LandscapeController : MonoBehaviour
             }
         }
 
-        if (landscapeSimulationWeb)
+        if (landscapeSimulationWeb && !landscapeSimulationLocal)
         {
             ResetTerrainSplatmap();
             ResetSnow(false);
@@ -495,6 +477,31 @@ public class LandscapeController : MonoBehaviour
             //    terrain.terrainData.SetAlphamaps(0, 0, sdf.GetData());
 
             // -- TO DO: Is this possible for web?
+        }
+        else if (landscapeSimulationWeb && landscapeSimulationLocal)
+        {
+            int startYear = 1942;
+            int monthIdx = curMonth + (curYear- startYear) * 12 - 10;
+
+            if (currentSplatmaps != null && monthIdx < currentSplatmaps.Count)
+            {
+                int pixelGrainSize = 4;
+                float[,,] interpolated = new float[0, 0, 0];
+
+                if (monthIdx + 1 >= currentSplatmaps.Count)
+                {
+                    interpolated = InterpolateTerrainSplatmaps(currentSplatmaps[monthIdx], null, curDay, curMonth, curYear, pixelGrainSize);
+                    //terrain.terrainData.SetAlphamaps(0, 0, currentSplatmaps[monthIdx]);
+                }
+                else
+                {
+                    interpolated = InterpolateTerrainSplatmaps(currentSplatmaps[monthIdx], currentSplatmaps[monthIdx + 1], curDay, curMonth, curYear, pixelGrainSize);
+                    //terrain.terrainData.SetAlphamaps(0, 0, interpolated);
+                }
+                terrain.terrainData.SetAlphamaps(0, 0, interpolated);
+            }
+            else
+                Debug.Log("ERROR: currentSplatmaps.Count >= monthIdx");
         }
         else
         {
@@ -610,7 +617,7 @@ public class LandscapeController : MonoBehaviour
 
         if (landscapeSimulationOn)
         {
-            if (landscapeSimulationWeb)
+            if (landscapeSimulationWeb && !landscapeSimulationLocal)
             {
                 //LoadDataWeb();                         // Loads snow and fire data frames (Web Version)
                 if (debug)
@@ -701,10 +708,6 @@ public class LandscapeController : MonoBehaviour
                         yield return null;
                     }
                 }
-                //catch (Exception ex)
-                //{
-                //    Debug.Log("LoadLandscapeData()... ERROR ex: " + ex.Message);
-                //}
 
                 //ImportWaterData();
                 try
@@ -734,9 +737,9 @@ public class LandscapeController : MonoBehaviour
                 //if (debug)
                 //    Debug.Log("LoadDataWeb()... Finished");
             }
-            else
+            else if(landscapeSimulationWeb && landscapeSimulationLocal)
             {
-
+                //LoadSplatMapsFromFilesForWarmingIdx(warmingIdx);
             }
             //else
             //{
@@ -804,6 +807,10 @@ public class LandscapeController : MonoBehaviour
 
             
         Debug.Log("LoadLandscapeDataForWarmingIdx()... Loading simulation data : " + i);
+
+        // Local background snow data
+        if (landscapeSimulationLocal)
+            LoadSplatMapsFromFilesForWarmingIdx(warmIdx);
     }
 
 
