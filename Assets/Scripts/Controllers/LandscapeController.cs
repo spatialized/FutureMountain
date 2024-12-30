@@ -405,7 +405,7 @@ public class LandscapeController : MonoBehaviour
     private void FinishUpdateTerrainDataFromWeb(string jsonString)
     {
         //simulationData = new TerrainSimulationData[5];
-        List<Assets.Scripts.Models.TerrainDataFrame> tDataList = new List<Assets.Scripts.Models.TerrainDataFrame>(); // Terrain data frames for curr. warming idx
+        List<TerrainDataFrame> tDataList = new List<TerrainDataFrame>(); // Terrain data frames for curr. warming idx
 
         TimelineTerrainData timelineTerrainData = JsonConvert.DeserializeObject<TimelineTerrainData>("{\"months\":" + jsonString + "}");
 
@@ -415,7 +415,7 @@ public class LandscapeController : MonoBehaviour
 
             foreach (TerrainDataFrameJSONRecord jsonRecord in jDataArr)
             {
-                Assets.Scripts.Models.TerrainDataFrame frame = ConvertTerrainDataJsonToRecord(jsonRecord);
+                TerrainDataFrame frame = ConvertTerrainDataJsonToRecord(jsonRecord);
                 //FireDataFrame frame = ConvertTerrainDataFrameRecordToFrame(frameRecord);
                 tDataList.Add(frame);
             }
@@ -473,10 +473,10 @@ public class LandscapeController : MonoBehaviour
         return frameRecord;
     }
 
-    private Assets.Scripts.Models.TerrainDataFrame ConvertTerrainDataJsonToRecord(TerrainDataFrameJSONRecord tdjr)
+    private TerrainDataFrame ConvertTerrainDataJsonToRecord(TerrainDataFrameJSONRecord tdjr)
     {
-        Assets.Scripts.Models.TerrainDataFrame record = new Assets.Scripts.Models.TerrainDataFrame(tdjr.month, tdjr.year,
-            tdjr.gridHeight, tdjr.gridWidth, tdjr.pixelGrainSize, 
+        TerrainDataFrame record = new TerrainDataFrame(tdjr.month, tdjr.year,
+            tdjr.gridSize, tdjr.pixelGrainSize, 
             tdjr.decimalPrecision, tdjr.DataList);
         return record;
     }
@@ -1971,7 +1971,7 @@ public class LandscapeController : MonoBehaviour
     //    day = newDay;
     //    dataGrid = newDataGrid;
     //    dataList = newDataList;
-    //    gridHeight = newGridHeight;
+    //    gridSize = newGridHeight;
     //    gridWidth = newGridWidth;
     //}
 
@@ -2038,7 +2038,7 @@ public class LandscapeController : MonoBehaviour
         Debug.Log(name + ".LoadSplatMapsFromFilesForWarmingIdx()... Finished loading in:" + elapsed + "sec.");
     }
 
-    public void LoadSplatMapsFromTerrainDataList(List<Assets.Scripts.Models.TerrainDataFrame> tdList, int warmIdx)
+    public void LoadSplatMapsFromTerrainDataList(List<TerrainDataFrame> tdList, int warmIdx)
     {
         //string path = "SplatData_" + warmIdx;
         //TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>(path);
@@ -2067,8 +2067,7 @@ public class LandscapeController : MonoBehaviour
             int month = td.month;
             int pixelGrainSize = td.pixelGrainSize;
             int decimalPrecision = td.decimalPrecision;
-            int gridHeight = td.gridHeight;
-            int gridWidth = td.gridWidth;
+            int gridSize = td.gridSize;
             int[] flattened = td.dataList;
 
             float[,,] splatmap = new float[0, 0, 0];
@@ -2079,8 +2078,9 @@ public class LandscapeController : MonoBehaviour
 
             try
             {
-                float[,,] unflattened = ImportSplatData(flattened, pixelGrainSize, decimalPrecision, gridWidth,
-                    gridWidth * pixelGrainSize);
+                float[,,] unflattened = ImportSplatData(flattened, pixelGrainSize, decimalPrecision,
+                    gridSize,
+                    gridSize * pixelGrainSize);
 
                 //Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
                 //                 + " unflattened 1: " + unflattened.GetLength(1)
