@@ -29,7 +29,7 @@ public class LandscapeController : MonoBehaviour
     private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
     private static bool landscapeSimulationLocal = false;             // Local landscape simulation
     private static bool loadTerrainDataFromFile = false;
-    private static bool backgroundSnowOn = true;
+    private static bool backgroundSnowOn = false;
 
     private bool loadFireDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
     private bool loadPatchDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
