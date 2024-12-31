@@ -29,6 +29,7 @@ public class LandscapeController : MonoBehaviour
     private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
     private static bool landscapeSimulationLocal = false;             // Local landscape simulation
     private static bool loadTerrainDataFromFile = false;
+    private static bool backgroundSnowOn = true;
 
     private bool loadFireDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
     private bool loadPatchDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
@@ -645,7 +646,8 @@ public class LandscapeController : MonoBehaviour
 
         activeBurnCells = new List<SERI_FireCell>();
 
-        if (landscapeSimulationOn && !landscapeSimulationWeb)
+        //if (landscapeSimulationOn && !landscapeSimulationWeb)
+        if(backgroundSnowOn)
             SetSnowVisibility(true);
 
         UpdateLandscape(curTimeIdx, curYear, curMonth, curDay, timeStep, false);
