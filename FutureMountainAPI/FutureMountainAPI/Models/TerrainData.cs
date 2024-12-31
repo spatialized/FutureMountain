@@ -28,12 +28,12 @@ namespace FutureMountainAPI.Models
 
         public string _dataList { get; set; } //Contains int[] dataList;
 
-        [NotMapped]
-        public int[] DataList
-        {
-            get { return JsonConvert.DeserializeObject<int[]>(string.IsNullOrEmpty(_dataList) ? "{}" : _dataList); }
-            set { _dataList = value.ToString(); }
-        }
+        //[NotMapped]
+        //public int[] DataList
+        //{
+        //    get { return JsonConvert.DeserializeObject<int[]>(string.IsNullOrEmpty(_dataList) ? "{}" : _dataList); }
+        //    set { _dataList = value.ToString(); }
+        //}
 
         public void SetDataList(int[] newDataList)
         {

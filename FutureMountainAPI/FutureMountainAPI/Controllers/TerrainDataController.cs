@@ -60,26 +60,26 @@ namespace FutureMountainAPI.Controllers
         }
 
         // GET: api/TerrainData/5/15
-        //[HttpGet("{startIdx}/{endIdx}")]
-        //public async Task<ActionResult<IEnumerable<TerrainDataFrameJSONRecord>>> GetTerrainDataRange(int startIdx, int endIdx)
-        //{
-        //    if (_context.TerrainData == null)
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpGet("{startIdx}/{endIdx}")]
+        public async Task<ActionResult<IEnumerable<TerrainDataFrameJSONRecord>>> GetTerrainDataRange(int startIdx, int endIdx)
+        {
+            if (_context.TerrainData == null)
+            {
+                return NotFound();
+            }
 
-        //    var terrainData = await _context.TerrainData.Where(x => x.warmingIdx >= startIdx &&
-        //                                                        x.warmingIdx <= endIdx).ToListAsync();
+            var terrainData = await _context.TerrainData.Where(x => x.id >= startIdx &&
+                                                                x.id <= endIdx).ToListAsync();
 
-        //    if (terrainData == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (terrainData == null)
+            {
+                return NotFound();
+            }
 
-        //    return terrainData;
-        //}
+            return terrainData;
+        }
 
-        
+
         private bool TerrainDataExists(int id)
         {
             return (_context.TerrainData?.Any(e => e.id == id)).GetValueOrDefault();

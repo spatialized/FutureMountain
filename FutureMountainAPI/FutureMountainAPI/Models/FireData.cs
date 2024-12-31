@@ -22,7 +22,8 @@ namespace FutureMountainAPI.Models
         public int year { get; set; }
         public int month { get; set; }
         public int day { get; set; }
-        public int gridSize { get; set; }
+        public int gridHeight { get; set; }
+        public int gridWidth { get; set; }
 
         public string _dataList { get; set; } //Contains List<FireDataPoint> dataList;
 
