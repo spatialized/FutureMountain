@@ -68,6 +68,7 @@ public class GameController : MonoBehaviour
     private bool gameInitialized = false;           // Simulation initialized state
     private bool gameStarted = false;               // Simulation gameStarted state
     private bool gameStarting = false;              // Starting simulation
+    private bool finishingStarting = false;         // Finishing starting simulation
 
     [SerializeField]
     private bool paused = false;                    // User-driven Paused state
@@ -459,7 +460,7 @@ public class GameController : MonoBehaviour
             if (settings.BuildForWeb)
             {
                 landscapeController.LoadLandscapeDataForWarmingIdx(warmingIdx);
-                WebManager.Instance.GetDataDates(this.SetDatesAndFinishStarting);
+                WebManager.Instance.GetDataDates(this.FinishSettingDates);
             }
             else
             {
@@ -475,17 +476,16 @@ public class GameController : MonoBehaviour
 
     public IEnumerator FinishStarting()
     {
-        //if(debugGame)
-        //    Debug.Log(name+".FinishStarting()...");
+        finishingStarting = true;
+
+        if (debugGame)
+            Debug.Log(name + ".FinishStarting()...");
 
         int offset = fireCubes ? 5 : 0;                                  // Use fire or non-fire data
         int idx = offset;
         int warmingRange = 5;//cubeDataList.data[idx].list.Count;           // Find warming range
 
         endTimeIdx = GetLastTimeIdx();
-
-        //if (debugGame)
-        //    Debug.Log(name + ".FinishStarting()... 2");
 
         if (cube1Object != null)
         {
@@ -1073,6 +1073,7 @@ public class GameController : MonoBehaviour
             HideStatistics();
 
         gameStarting = false;
+        finishingStarting = false;
 
         loadingCanvas.enabled = false;
         loadingCanvas.gameObject.SetActive(false);
@@ -1128,7 +1129,7 @@ public class GameController : MonoBehaviour
         landscapeController.SetupFires(fireDates, warmingIdx);
     }
 
-    public void SetDatesAndFinishStarting(string jsonString)
+    public void FinishSettingDates(string jsonString)
     {
         if (debugWeb)
             Debug.Log(name+".SetDatesAndFinishStarting()...");
@@ -1155,7 +1156,7 @@ public class GameController : MonoBehaviour
         if (debugGame)
             Debug.Log(name + ".SetDatesAndFinishStarting()... ");
 
-        StartCoroutine(FinishStarting());
+        //StartCoroutine(FinishStarting());     // Now triggered by FinishUpdateTerrainDataFromWeb()
     }
 
     /// <summary>
@@ -1414,7 +1415,11 @@ public class GameController : MonoBehaviour
     void Update()
     {
         if (gameStarting)
+        {
+            if(!finishingStarting && landscapeController.IsLandscapeDataLoaded()) // Triggered by FinishUpdateTerrainDataFromWeb()
+                StartCoroutine(FinishStarting());    
             return;
+        }
 
         if (timeIdx - lastDebugMessageFrame >= 30)
         {
@@ -2647,25 +2652,17 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void ResetFireManagers()
     {
-        //landscapeController.GetFireManager().Reset();
-        //landscapeController.ResetFireManager();
-        SetupFires();
-
-        //if (settings.BuildForWeb)
-        //    return;
-
         aggregateCubeController.GetFireManager().Reset();
         foreach (CubeController cube in cubes)
         {
-            //cube.GetFireManager().Reset();
             cube.ResetFireManager();
         }
         foreach (CubeController cube in sideCubes)
         {
-            //cube.GetFireManager().Reset();
             cube.ResetFireManager();
         }
 
+        SetupFires();
     }
 
     /// <summary>
