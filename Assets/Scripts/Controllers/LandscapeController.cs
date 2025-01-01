@@ -11,6 +11,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
+using Unity.VisualScripting;
 
 /// <summary>
 /// Landscape controller.
@@ -422,14 +423,6 @@ public class LandscapeController : MonoBehaviour
             }
 
             LoadSplatMapsFromTerrainDataList(tDataList, warmingIdx);
-
-            //int warm = WarmingIndexToDegrees(warmingIdx);
-            //simulationData[warmingIdx] = new TerrainSimulationData(sDataList, tDataList, "Thin_0_Warm_" + warm);
-            //currentSimulationData = simulationData[warmingIdx];
-            //if (debug && currentTimeIdx % 10 == 0)
-            //{
-            //    Debug.Log(("At time: "+currentTimeIdx+"... FinishUpdateFireDataFromWeb ERROR... deserialize failed"));
-            //}
         }
         else
         {
@@ -856,9 +849,7 @@ public class LandscapeController : MonoBehaviour
 
         if (loadTerrainDataFromFile)
         {
-            // Local background snow data
-            //if (landscapeSimulationLocal)
-                LoadSplatMapsFromFilesForWarmingIdx(warmIdx);
+            LoadSplatMapsFromFilesForWarmingIdx(warmIdx);
         }
         else if (loadTerrainDataFromDb) // Load terrain data from local api 
         {
@@ -2042,9 +2033,6 @@ public class LandscapeController : MonoBehaviour
 
     public void LoadSplatMapsFromTerrainDataList(List<TerrainDataFrame> tdList, int warmIdx)
     {
-        //string path = "SplatData_" + warmIdx;
-        //TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>(path);
-
         currentSplatmaps = new List<float[,,]>();
 
         Debug.Log(name + ".LoadSplatMapsFromTerrainDataList()... warmIdx:" + warmIdx);
@@ -2054,17 +2042,6 @@ public class LandscapeController : MonoBehaviour
         int currWarmIdx = 0;
         foreach (var td in tdList)
         {
-            // Ex. terrain_warm0_1942_10.json    NOW terrain_warm0_1942_10_4_4.json
-            //      where 2nd to last val "4" means pixelGrainSize is 4, i.e. 512 terrain size / 4 => 128 grid size
-            //      and last val "4" is decimalPrecision,
-            //      i.e. means int[,,] grid in text asset should be multiplied by 10E-4 to get real values
-
-            //string[] parts = textAsset.name.Split('_');
-            //int warmingIdx = td.
-
-            //if (warmingIdx != warmIdx)
-            //    continue;
-
             int year = td.year;
             int month = td.month;
             int pixelGrainSize = td.pixelGrainSize;
@@ -2073,10 +2050,6 @@ public class LandscapeController : MonoBehaviour
             int[] flattened = td.dataList;
 
             float[,,] splatmap = new float[0, 0, 0];
-
-            //Debug.Log(" splatmap 0: " + splatmap.GetLength(0)
-            //                             + " splatmap 1: " + splatmap.GetLength(1)
-            //                             + " splatmap 2: " + splatmap.GetLength(2));
 
             try
             {
@@ -2207,24 +2180,27 @@ public class LandscapeController : MonoBehaviour
         //int terrainWidth = terrain.terrainData.alphamapWidth;       // 512
         //int inputWidth = terrainWidth / pixelGrainSize;             // 128
 
-        //int[] flatArray = JsonConvert.DeserializeObject<int[]>(inputStr);
-        int[,,] unflattened = Unflatten1DIntArrayTo3D(flatArray, inputWidth, 4);
+        int[,,] reducedGrid = Unflatten1DIntArrayTo3D(flatArray, inputWidth, 4);
         float[,,] result = new float[terrainWidth, terrainWidth, 4];
 
-        for (int x = 0; x < unflattened.GetLength(0); x++)
+        // Iterate over reduced size array and fill in full-size array
+        for (int x = 0; x < reducedGrid.GetLength(0); x++)
         {
-            for (int y = 0; y < unflattened.GetLength(1); y++)
+            for (int y = 0; y < reducedGrid.GetLength(1); y++)
             {
-                for (int z = 0; z < unflattened.GetLength(2); z++)
+                for (int z = 0; z < reducedGrid.GetLength(2); z++)
                 {
-                    float val = unflattened[x, y, z] * (float)Math.Pow(10, -decimalPrecision);
-
-                    //FillInArea(result, x, y, z, pixelGrainSize, val);
-                    //result[x, y, z] = val;
+                    float val = reducedGrid[x, y, z] * (float)Math.Pow(10f, -decimalPrecision);
 
                     // Fill in area of pixelGrainSize x pixelGrainSize in result array
                     int xStart = x * pixelGrainSize;
                     int yStart = y * pixelGrainSize;
+
+                    //if (val > 0.0f && val < 1.0f && x == 10 && y == 10)
+                    //{
+                    //    Debug.Log("xStart:" + xStart + " yStart:" + yStart + " x:" + x + " y:" + y + " val:" + val);
+                    //}
+
                     for (int a = 0; a < pixelGrainSize; a++)
                     {
                         int xCoord = xStart + a;
@@ -2232,6 +2208,12 @@ public class LandscapeController : MonoBehaviour
                         {
                             int yCoord = yStart + b;
                             result[xCoord, yCoord, z] = val;
+
+                            //if (val > 0.0f && val < 1.0f && x == 10 && y == 10)
+                            //{
+                            //    Debug.Log("xCoord:" + xCoord + " yCoord:" + yCoord + " a:" + a + 
+                            //              " b:" + b + " result[xCoord, yCoord, z]:" + result[xCoord, yCoord, z]);
+                            //}
                         }
                     }
                 }
@@ -2865,24 +2847,81 @@ public class LandscapeController : MonoBehaviour
                 {
                     //int i = t.terrainData.alphamapLayers - j - 1;           // TESTING
 
-                    int offsetX = x % pixelGrainSize;
-                    int offsetY = y % pixelGrainSize;
-                    int xCoord = x / pixelGrainSize;
-                    int yCoord = y / pixelGrainSize;
-                    if (offsetX != 0 || offsetY != 0)
+                    //int offsetX = x % pixelGrainSize;
+                    //int offsetY = y % pixelGrainSize;
+                    //int x = x;// / pixelGrainSize;
+                    //int y = y;// / pixelGrainSize;
+                    if (pos == 0f)
                     {
-                        splatmapData[x, y, i] = firstMonth[xCoord, yCoord, i];
+                        splatmapData[x, y, i] = firstMonth[x, y, i];
+                    }
+                    else if (pos == 1f)
+                    {
+                        splatmapData[x, y, i] = secondMonth[x, y, i];
                     }
                     else
                     {
-                        float firstVal = firstMonth[xCoord, yCoord, i];
-                        float secondVal = secondMonth[xCoord, yCoord, i];
+                        float firstVal = firstMonth[x, y, i];
+                        float secondVal = secondMonth[x, y, i];
                         float val = Mathf.Lerp(firstVal, secondVal, pos);
                         splatmapData[x, y, i] = val;
                     }
                 }
             }
         }
+
+        ///// <summary>
+        ///// Interpolates two terrain data splatmaps for day position (0.0-1.0) in given month.       
+        ///// </summary>
+        ///// <param name="firstMonth">First month splatmap</param>
+        ///// <param name="secondMonth">Second month splatmap</param>
+        ///// <param name="day">Day in month</param>
+        ///// <param name="month">Month in year</param>
+        ///// <param name="year">Year</param>
+        ///// <param name="pixelGrainSize">Pixel grain size (e.g. 4 means 512/4 = 128x128 grid)</param>
+        ///// <returns></returns>
+        //private float[,,] InterpolateTerrainSplatmaps(float[,,] firstMonth, float[,,] secondMonth, int day, int month, int year, int pixelGrainSize)
+        //{
+        //    Terrain t = terrain;
+
+        //    if (firstMonth == null)
+        //        return null;
+
+        //    if (secondMonth == null)
+        //        return firstMonth;
+
+        //    //float[,,] lastSplatmap = t.terrainData.GetAlphamaps(0, 0, t.terrainData.alphamapWidth, t.terrainData.alphamapHeight);
+        //    float[,,] splatmapData = new float[t.terrainData.alphamapWidth, t.terrainData.alphamapHeight, t.terrainData.alphamapLayers];
+
+        //    float pos = MapValue(day, 1, DateTime.DaysInMonth(year, month) + 1, 0f, 1f);     // Find position between current month and next month
+
+        //    for (int x = 0; x < t.terrainData.alphamapWidth; x++)
+        //    {
+        //        for (int y = 0; y < t.terrainData.alphamapHeight; y++)
+        //        {
+        //            for (int i = 0; i < t.terrainData.alphamapLayers; i++)
+        //            //for (int j = 0; j < t.terrainData.alphamapLayers; j++)
+        //            {
+        //                //int i = t.terrainData.alphamapLayers - j - 1;           // TESTING
+
+        //                int offsetX = x % pixelGrainSize;
+        //                int offsetY = y % pixelGrainSize;
+        //                int xCoord = x / pixelGrainSize;
+        //                int yCoord = y / pixelGrainSize;
+        //                if (offsetX != 0 || offsetY != 0)
+        //                {
+        //                    splatmapData[x, y, i] = firstMonth[xCoord, yCoord, i];
+        //                }
+        //                else
+        //                {
+        //                    float firstVal = firstMonth[xCoord, yCoord, i];
+        //                    float secondVal = secondMonth[xCoord, yCoord, i];
+        //                    float val = Mathf.Lerp(firstVal, secondVal, pos);
+        //                    splatmapData[x, y, i] = val;
+        //                }
+        //            }
+        //        }
+        //    }
 
         //float[] splatWeights = new float[t.terrainData.alphamapLayers];            // Array to record mix of texture weights 
         //float[] splatWeightsBurned = new float[t.terrainData.alphamapLayers];      // Array to record mix of texture weights 
