@@ -8,6 +8,7 @@
 /[Bb]uild/
 /[Bb]uilds/
 /Assets/Resources/SERI_Data*
+/Assets/Resources/SplatData*
 /Assets/AssetStoreTools*
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
