@@ -2034,12 +2034,39 @@ public class LandscapeController : MonoBehaviour
 
             //if (ct++ >= 24)
             //    return;
+            //splatmap = AddBorderToSplatmap(splatmap, 15);
 
             currentSplatmaps.Add(splatmap);
         }
 
         int elapsed = (int)((DateTime.Now.Millisecond - startTime) * 0.001f);
         Debug.Log(name + ".LoadSplatMapsFromFilesForWarmingIdx()... Finished loading in:" + elapsed + "sec.");
+    }
+
+    private float[,,] AddBorderToSplatmap(float[,,] splatmap, int border)
+    {
+        //int border = 15;
+        //float val = 1f;
+        int width = splatmap.GetLength(0);
+        int height = splatmap.GetLength(1);
+        int layers = splatmap.GetLength(2);
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                for (int z = 0; z < layers; z++)
+                {
+                    if (x < border || x > width - border || y < border || y > height - border)
+                    {
+                        //float val = unburntSplatmap[x, y, z];
+                        splatmap[x, y, z] = 1f;
+                    }
+                }
+            }
+        }
+
+        return splatmap;
     }
 
     public void LoadSplatMapsFromTerrainDataList(List<TerrainDataFrame> tdList, int warmIdx)
@@ -2856,19 +2883,41 @@ public class LandscapeController : MonoBehaviour
                 for (int i = 0; i < t.terrainData.alphamapLayers; i++)
                 //for (int j = 0; j < t.terrainData.alphamapLayers; j++)
                 {
-                    //int i = t.terrainData.alphamapLayers - j - 1;           // TESTING
+                    int testBorderFixWidth = 5;         // 0, 511; 511, 511
 
-                    //int offsetX = x % pixelGrainSize;
-                    //int offsetY = y % pixelGrainSize;
-                    //int x = x;// / pixelGrainSize;
-                    //int y = y;// / pixelGrainSize;
+                    
+
                     if (pos == 0f)
                     {
                         splatmapData[x, y, i] = firstMonth[x, y, i];
+
+                        // TESTING
+                        if (y >= t.terrainData.alphamapHeight - testBorderFixWidth)
+                        {
+                            for (int j = 0; j < testBorderFixWidth; j++)
+                            {
+                                splatmapData[x, y, i] = firstMonth[x, y-j, i];
+                            }
+                        }
+                        //
+
                     }
                     else if (pos == 1f)
                     {
                         splatmapData[x, y, i] = secondMonth[x, y, i];
+
+
+                        // TESTING
+                        if (y >= t.terrainData.alphamapHeight - testBorderFixWidth)
+                        {
+                            for (int j = 0; j < testBorderFixWidth; j++)
+                            {
+                                splatmapData[x, y, i] = secondMonth[x, y - j, i];
+                            }
+                        }
+                        //
+
+
                     }
                     else
                     {
@@ -2876,6 +2925,18 @@ public class LandscapeController : MonoBehaviour
                         float secondVal = secondMonth[x, y, i];
                         float val = Mathf.Lerp(firstVal, secondVal, pos);
                         splatmapData[x, y, i] = val;
+
+                        // TESTING
+                        if (y >= t.terrainData.alphamapHeight - testBorderFixWidth)
+                        {
+                            for (int j = 0; j < testBorderFixWidth; j++)
+                            {
+                                 firstVal = firstMonth[x, y-j, i];
+                                 secondVal = secondMonth[x, y-j, i];
+                                 val = Mathf.Lerp(firstVal, secondVal, pos);
+                                splatmapData[x, y, i] = val;
+                            }
+                        }
                     }
                 }
             }
