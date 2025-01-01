@@ -30,14 +30,14 @@ public class LandscapeController : MonoBehaviour
     private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
     private static bool landscapeSimulationLocal = false;             // Local landscape simulation
     private static bool loadTerrainDataFromFile = false;
-    private static bool backgroundSnowOn = false;
+    private static bool backgroundSnowOn = true;                // -- TESTING ON WEB
 
     private bool loadFireDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
     private bool loadPatchDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
     private bool loadWaterDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
 
     private bool loadTerrainDataFromDb = landscapeSimulationOn && landscapeSimulationWeb
-                                                               && landscapeSimulationLocal
+                                                               && backgroundSnowOn
                                                                && !loadTerrainDataFromFile;
     //private bool loadStreamflowFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
 
@@ -51,6 +51,8 @@ public class LandscapeController : MonoBehaviour
     public bool pauseGameState { get; set; }                  // Pause game flag
     public bool unpauseGameState { get; set; }                // Unpause game flag
     public bool updateDate { get; set; }                      // Update date flag
+
+    private bool landscapeDataLoadedFromWebAPI;               // Landscape data loaded from web API flag
 
     /* Pooling */
     private GameObjectPool pooler;                            // Pooler script
@@ -428,6 +430,8 @@ public class LandscapeController : MonoBehaviour
         {
             Debug.Log(("FinishUpdateFireDataFromWeb ERROR... deserialize failed"));
         }
+
+        landscapeDataLoadedFromWebAPI = true;
     }
 
     // Unused
@@ -509,7 +513,7 @@ public class LandscapeController : MonoBehaviour
             }
         }
 
-        if (landscapeSimulationWeb && !landscapeSimulationLocal)
+        if (landscapeSimulationWeb && !backgroundSnowOn)
         {
             ResetTerrainSplatmap();
             ResetSnow(false);
@@ -519,7 +523,7 @@ public class LandscapeController : MonoBehaviour
 
             // -- TO DO: Is this possible for web?
         }
-        else if (landscapeSimulationWeb && landscapeSimulationLocal)
+        else if (landscapeSimulationWeb && backgroundSnowOn)
         {
             int startYear = 1942;
             int monthIdx = curMonth + (curYear - startYear) * 12 - 10;
@@ -864,6 +868,13 @@ public class LandscapeController : MonoBehaviour
         //// Local background snow data
         //if (landscapeSimulationLocal)
         //    LoadSplatMapsFromFilesForWarmingIdx(warmIdx);
+
+        //landscapeDataLoadedFromWebAPI = true;
+    }
+
+    public bool IsLandscapeDataLoaded()
+    {
+        return landscapeDataLoadedFromWebAPI;
     }
 
 
