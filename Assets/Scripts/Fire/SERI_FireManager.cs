@@ -401,7 +401,7 @@ public class SERI_FireManager : MonoBehaviour
     {
         if(fireGrids == null)
         {
-            Debug.Log(name + ".Reset()... ERROR fireGrids is null");
+            Debug.Log(name + ".Reset()... WARNING fireGrids is null");
             return;
         }
 

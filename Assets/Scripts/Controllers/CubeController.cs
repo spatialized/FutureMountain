@@ -195,8 +195,8 @@ public class CubeController : MonoBehaviour
     /* Snow */
     private SnowManager snowManager;
     private float snowValue = 0f;                   // Amount of snow currently being visualized
-    private float snowMeltRate = 0.04f;            // Snow melt rate
-    private float snowScalingFactor = 1.8f;           // Snow scaling factor
+    private float snowMeltRate = 0.055f;            // Snow melt rate
+    private float snowScalingFactor = 1.8f;         // Snow scaling factor
 
     public float SnowAmount { get; set; } = 0f;     // Snow amount in simulation
     private float SnowAmountMin = 100000f;          // Snow amount max. 
