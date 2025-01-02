@@ -575,6 +575,11 @@ public class LandscapeController : MonoBehaviour
         //UpdateBackgroundSnow();
     }
 
+    public bool IsBackgroundSnowOn()
+    {
+        return backgroundSnowOn;
+    }
+
     /// <summary>
     /// Updates the stream from simulation data.
     /// </summary>

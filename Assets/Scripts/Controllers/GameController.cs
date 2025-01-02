@@ -1170,7 +1170,8 @@ public class GameController : MonoBehaviour
         if (debugGame)
             Debug.Log(name + ".SetDatesAndFinishStarting()... ");
 
-        //StartCoroutine(FinishStarting());     // Now triggered by FinishUpdateTerrainDataFromWeb()
+        if(!landscapeController.IsBackgroundSnowOn())  // FinishStarting() will be triggered by FinishUpdateTerrainDataFromWeb() if snow is on
+            StartCoroutine(FinishStarting());         
     }
 
     /// <summary>
@@ -1430,7 +1431,7 @@ public class GameController : MonoBehaviour
     {
         if (gameStarting)
         {
-            if(!finishingStarting && landscapeController.IsLandscapeDataLoaded()) // Triggered by FinishUpdateTerrainDataFromWeb()
+            if(ShouldFinishStarting()) // Triggered by FinishUpdateTerrainDataFromWeb()
                 StartCoroutine(FinishStarting());    
             return;
         }
@@ -1468,6 +1469,14 @@ public class GameController : MonoBehaviour
                 FinishInitialization();
             }
         }
+    }
+
+    private bool ShouldFinishStarting()
+    {
+        if(landscapeController.IsBackgroundSnowOn())
+            return !finishingStarting;
+        else
+            return !finishingStarting && landscapeController.IsLandscapeDataLoaded();
     }
 
     private bool RunAnimations()
