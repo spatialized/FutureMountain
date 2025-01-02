@@ -18,7 +18,7 @@ public class SERI_FireManager : MonoBehaviour
     #region Fields
     /* State */
     public bool burning = false;
-    public bool webOptimized = false;
+    //public bool webOptimized = false;
 
     /* Ignition */
     [SerializeField]
@@ -47,7 +47,7 @@ public class SERI_FireManager : MonoBehaviour
     public float maxCombustionRate = 1.1f;
     [Tooltip("How fast fuel is used in the combustion step with FireNode's, higher the value the faster fuels are used up.")]
     public float maxNodeCombustionRate = 1.1f;
-    [Tooltip("The textured used on the terrain are fuels, can set fuel values for each texture.")]
+    //[Tooltip("The textured used on the terrain are fuels, can set fuel values for each texture.")]
     public SERI_FireTerrainTexture[] terrainTextures;
     [SerializeField][Tooltip("The index of the terrain grass texture to replace grass with once burnt, this is used only if 'Remove Grass Once Burnt' is disabled.")]
     private int burntGrassTextureIndex = 0;
@@ -99,19 +99,17 @@ public class SERI_FireManager : MonoBehaviour
     #region Initialization
     private void Awake()
     {
-        //terrain = GetComponentInParent<Terrain>();
         Assert.IsNotNull(terrain);
+        Assert.IsNotNull(terrainTextures);
     }
 
     /// <summary>
     /// Initialize this instance.
     /// </summary>
-    public void Initialize(GameObjectPool newPooler, GameObject newFirePrefab, Vector3 ignitionPos, Vector3 offset, List<FireDataFrame> fireDataFrames, LandscapeController newLandscapeController, bool dataControlled, bool immediateFire, bool newWebOptimized)
+    public void Initialize(GameObjectPool newPooler, GameObject newFirePrefab, Vector3 ignitionPos, Vector3 offset, List<FireDataFrame> fireDataFrames, LandscapeController newLandscapeController, bool dataControlled, bool immediateFire)
     {
-        //terrain = GetComponentInParent<Terrain>();
         Assert.IsNotNull(terrain);
 
-        webOptimized = newWebOptimized;
         pooler = newPooler;
         firePrefab = newFirePrefab;
 
@@ -164,15 +162,22 @@ public class SERI_FireManager : MonoBehaviour
             int TerrainDetailMapSize = terrain.terrainData.detailResolution;
             if (terrain.terrainData.size.x != terrain.terrainData.size.z)
             {
-                Debug.Log("X and Y size of terrain have to be the same.");
+                Debug.LogError("X and Y size of terrain have to be the same.");
                 return;
             }
 
-            // Need to have at least one terrain texture defined
-            if (terrainTextures.Length != terrainAlpha.GetLength(2))
-            {
-                Debug.LogError("A different number of Terrain Textures are set in Fire Manager compared with the Terrain... terrainTextures.Length:"+ terrainTextures.Length+ " terrainAlpha.GetLength(2):"+ terrainAlpha.GetLength(2));
-            }
+            //// Need to have at least one terrain texture defined
+            //if (terrainTextures != null && terrainAlpha != null && terrainTextures.Length != terrainAlpha.GetLength(2))
+            //{
+            //    Debug.LogError("A different number of Terrain Textures are set in Fire Manager compared with the Terrain... terrainTextures.Length:"+ terrainTextures.Length+ " terrainAlpha.GetLength(2):"+ terrainAlpha.GetLength(2));
+            //}
+            //else
+            //{
+            //    if (terrainTextures == null)
+            //        Debug.LogError("terrainTextures == null!");
+            //    if (terrainAlpha == null)
+            //        Debug.LogError("terrainAlpha == null!");
+            //}
 
             terrainDetailSize = TerrainDetailMapSize / terrain.terrainData.size.x;
 
@@ -300,15 +305,8 @@ public class SERI_FireManager : MonoBehaviour
     /// <param name="fireIdx">Fire index</param>
     public void IgniteTerrain(Terrain terrain, int timeStep, float fireLengthInSec, int fireIdx)
     {
-        //if (webOptimized)
-        //{
-        //    // TO DO
-        //}
-        //else
-        //{
-            SetFireGrid(fireIdx);
-            CurrentFireGrid().Ignite(new Vector3(0,0,0), timeStep, fireLengthInSec);
-        //}
+        SetFireGrid(fireIdx);
+        CurrentFireGrid().Ignite(new Vector3(0,0,0), timeStep, fireLengthInSec);
         StartBurning();
 
         StartCoroutine(WaitToStopBurning(fireLengthInSec)); // Added 12/24/24 to fix bug in SBS cube where fire keeps going
