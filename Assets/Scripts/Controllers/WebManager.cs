@@ -11,7 +11,12 @@ using static CubeController;
 /// </summary>
 public class WebManager : MonoBehaviour
 {
-    public static bool runOnLocal = false;                 // Run on local (true) or remote (false) server
+#if LOCAL_VERSION
+    public static bool runOnLocal = false;                // Run on local (true) or remote (false) server
+#else
+    public static bool runOnLocal = true;                 // Run on local (true) or remote (false) server
+#endif
+
     private static bool debug = false;
     private static bool debugDetailed = false;
 
@@ -84,7 +89,7 @@ public class WebManager : MonoBehaviour
     }
 
 
-    // Gets fire data for given warming warmingIdx
+    // Gets fire data for given warmingIdx
     public Coroutine RequestFireData(int warmingIdx, Action<string> callback)
     {
         //https://data.futuremtn.org/api/FireData/2
@@ -98,8 +103,9 @@ public class WebManager : MonoBehaviour
 
 
 
-    // Gets fire data for given warming warmingIdx
-    public Coroutine RequestTerrainData(int warmingIdx, Action<string> callback)
+    // Gets fire data for given warmingIdx
+    publ
+        ic Coroutine RequestTerrainData(int warmingIdx, Action<string> callback)
     {
         //https://data.futuremtn.org/api/TerrainData/1
         string uri = connectionStringBase + apiPathTerrain + warmingIdx;
