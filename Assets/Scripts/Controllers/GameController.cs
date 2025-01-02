@@ -501,7 +501,7 @@ public class GameController : MonoBehaviour
         int warmingRange = 5;//cubeDataList.data[idx].list.Count;           // Find warming range
 
         endTimeIdx = GetLastTimeIdx();
-
+        
         if (cube1Object != null)
         {
             cubes[0].SetWarmingRange(warmingRange);
@@ -1473,7 +1473,7 @@ public class GameController : MonoBehaviour
 
     private bool ShouldFinishStarting()
     {
-        if(landscapeController.IsBackgroundSnowOn())
+        if(landscapeController.IsBackgroundSnowOn() && dataDates != null && dataDates.Count > 0)
             return !finishingStarting;
         else
             return !finishingStarting && landscapeController.IsLandscapeDataLoaded();
