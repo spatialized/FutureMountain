@@ -94,3 +94,8 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 Logs/shadercompiler-AssetImportWorker0.log
 Logs/AssetImportWorker0.log
+Assets/Resources/SplatData_0.meta
+Assets/Resources/SplatData_1.meta
+Assets/Resources/SplatData_2.meta
+Assets/Resources/SplatData_3.meta
+Assets/Resources/SplatData_4.meta
