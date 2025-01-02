@@ -26,7 +26,7 @@ public class LandscapeController : MonoBehaviour
 
     #region Fields
     /* Settings */
-#if LOCAL_VERSION
+#if LOCAL_VERSION                                           // Edit under Player > Other Settings > Scripting Define Symbols
     private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
     private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
     private static bool landscapeSimulationLocal = true;            // Local landscape simulation
