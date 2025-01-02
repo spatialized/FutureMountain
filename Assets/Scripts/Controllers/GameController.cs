@@ -168,8 +168,8 @@ public class GameController : MonoBehaviour
     public GameObject cube5Object;                            // Cube 5 Object 
     public GameObject cube5Object_Side;                       // Side Cube 5 Object 
 
-    public GameObject cubeLStats;                             // Side-by-Side Mode Cube #1 statistics
-    public GameObject cubeRStats;                             // Side-by-Side Mode Cube #2 statistics
+    public GameObject cubeSBSModeStatsLeft;                   // Side-by-Side Mode Cube #1 statistics
+    public GameObject cubeSBSModeStatsRight;                  // Side-by-Side Mode Cube #2 statistics
     public GameObject warmingLevelText;                       // Side-by-Side Mode Warming Level Text
 
     /* Controllers */
@@ -181,9 +181,9 @@ public class GameController : MonoBehaviour
 
     /* Layers Settings */
     private bool displayET = true;                            // Display evap./trans. flag
-    private bool displaySoils = true;                         // Display soils flag
-    private bool displayStreams = true;                       // Display streams flag
     private bool displayCubes = true;                         // Display cubes flag
+    //private bool displaySoils = true;                         // Display soils flag
+    //private bool displayStreams = true;                       // Display streams flag
 
     /* UI */
     [Header("UI")]
@@ -1283,7 +1283,7 @@ public class GameController : MonoBehaviour
         warmingKnob1Slider.enabled = true;
         warmingKnob1Object.SetActive(true);
         //warmingKnob1Slider.SetToWarmingIdx(warmingIdx);
-        StartCoroutine(FinishEnteringSideBySideMode(cube, cubeLStats, warmingKnob1Slider, warmingIdx, false));
+        StartCoroutine(FinishEnteringSideBySideMode(cube, cubeSBSModeStatsLeft, warmingKnob1Slider, warmingIdx, false));
 
         //sideCube.gameObject.SetActive(true);
         //sideCube.StartSimulation(timeIdx, timeStep);
@@ -1292,7 +1292,7 @@ public class GameController : MonoBehaviour
 
         warmingKnob2Slider.enabled = true;
         warmingKnob2Object.SetActive(true);
-        StartCoroutine(FinishEnteringSideBySideMode(sideCube, cubeRStats, warmingKnob2Slider, warmingIdx == 0 ? 1 : 0, true));
+        StartCoroutine(FinishEnteringSideBySideMode(sideCube, cubeSBSModeStatsRight, warmingKnob2Slider, warmingIdx == 0 ? 1 : 0, true));
         //warmingKnob2Slider.SetToWarmingIdx(warmingIdx == 0 ? 1 : 0);
         warmingKnobObject.SetActive(false);
 
@@ -1354,6 +1354,8 @@ public class GameController : MonoBehaviour
         if (debugGame)
             Debug.Log("ExitSideBySideMode()");
 
+        sideBySideMode = false;
+
         CubeController sideCube;
         if (sbsIdx == -1)
             sideCube = aggregateSideCubeController;
@@ -1381,8 +1383,8 @@ public class GameController : MonoBehaviour
         }
         //warmingKnobSlider.enabled = false;
 
-        cubeLStats.SetActive(false);
-        cubeRStats.SetActive(false);
+        cubeSBSModeStatsLeft.SetActive(false);
+        cubeSBSModeStatsRight.SetActive(false);
         warmingLevelText.SetActive(false);
 
         foreach (CubeController cube in cubes)
@@ -1411,7 +1413,6 @@ public class GameController : MonoBehaviour
             StartCoroutine(ShowEndButtonInSeconds(3f));
 
         sideBySideCanvas.enabled = true;
-        sideBySideMode = false;
 
         SetSideByToggleActive(true);
         sideBySideModeToggleObject.GetComponent<Toggle>().isOn = false;
@@ -2053,8 +2054,8 @@ public class GameController : MonoBehaviour
     {
         if (sideBySideMode)
         {
-            cubeLStats.SetActive(true);
-            cubeRStats.SetActive(true);
+            cubeSBSModeStatsLeft.SetActive(true);
+            cubeSBSModeStatsRight.SetActive(true);
             return;
         }
 
@@ -2083,8 +2084,8 @@ public class GameController : MonoBehaviour
     {
         if (sideBySideMode)
         {
-            cubeLStats.SetActive(false);
-            cubeRStats.SetActive(false);
+            cubeSBSModeStatsLeft.SetActive(false);
+            cubeSBSModeStatsRight.SetActive(false);
         }
 
         aggregateCubeController.HideStatistics();
@@ -3400,10 +3401,10 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(aggregateCubeObject);
         Assert.IsNotNull(aggregateCubeObject_Side);
 
-        Assert.IsNotNull(cubeLStats);
-        Assert.IsNotNull(cubeRStats);
-        cubeLStats.SetActive(false);
-        cubeRStats.SetActive(false);
+        Assert.IsNotNull(cubeSBSModeStatsLeft);
+        Assert.IsNotNull(cubeSBSModeStatsRight);
+        cubeSBSModeStatsLeft.SetActive(false);
+        cubeSBSModeStatsRight.SetActive(false);
 
         Assert.IsNotNull(warmingLevelText);
 
