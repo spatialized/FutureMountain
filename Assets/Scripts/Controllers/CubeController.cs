@@ -421,7 +421,7 @@ public class CubeController : MonoBehaviour
 
         // Initial update of data parameters
         if (settings.BuildForWeb)
-            UpdateDataFromWeb(timeIdx, true, true);
+            UpdateDataFromWeb(timeIdx, true, true);         
         else
             UpdateCurrentData(timeIdx);
 
@@ -674,7 +674,7 @@ public class CubeController : MonoBehaviour
     public void ResetFireManager()
     {
         fireManager.Reset();
-        fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true, settings.BuildForWeb);
+        fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true);
         if (hasStream)
             fireManager.DisableFireCells(true, riverFireGapWidth);
         else if (hasHouse)
@@ -1136,10 +1136,10 @@ public class CubeController : MonoBehaviour
     /// Initializes cube data arrays from data file.
     /// </summary>
     /// <param name="dataFile">Data file.</param>
-    public void InitializeData(TextAsset dataFile)
+    public void InitializeDataFile(TextAsset dataFile)
     {
-        if (settings.BuildForWeb)
-            return;
+        //if (settings.BuildForWeb)
+        //    return;
         
         List<string> rawData = TextAssetToList(dataFile);
 
@@ -1974,6 +1974,11 @@ public class CubeController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Get current cube data by time index
+    /// </summary>
+    /// <param name="timeIdx"></param>
+    /// <returns></returns>
     CubeData GetDataRow(int timeIdx)
     {
         if (!cubeData.ContainsKey(timeIdx))

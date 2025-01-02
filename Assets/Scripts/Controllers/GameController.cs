@@ -324,6 +324,21 @@ public class GameController : MonoBehaviour
         StartInitializingLandscape();
     }
 
+    private void FinishInitialization()
+    {
+        loadingDataCanvas.enabled = false;
+        setupUICanvas.enabled = true;
+
+        StopCoroutine(landscapeInitializer);
+        gameInitialized = true;
+
+        if (landscapeController.LandscapeWebSimulationIsOn())
+            Debug.Log(name + ".FinishInitialization()...  landscapeController.gameInitialized:" +
+                      landscapeController.initialized + "  Stopping coroutine landscapeInitializer...");// landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
+        else
+            Debug.Log(name + ".FinishInitialization()...  landscapeController.gameInitialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.patchesData null? " + (landscapeController.GetPatchesData() == null) + " landscapeController.extentsData null? " + (landscapeController.GetExtentsData() == null) + " landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
+    }
+
     /// <summary>
     /// Setups the landscape.
     /// </summary>
@@ -447,7 +462,7 @@ public class GameController : MonoBehaviour
 
             introPanel.SetActive(false);
 
-            int idx = fireCubes ? 5 : 0;
+            //int idx = fireCubes ? 5 : 0;
             //int warmingRange = cubeDataList.data[idx].list.Count;           // Find warming range
 
             warmingIdx = warmingKnobSlider.GetWarmingIndex();               // Get current warming index from knob
@@ -490,7 +505,6 @@ public class GameController : MonoBehaviour
         if (cube1Object != null)
         {
             cubes[0].SetWarmingRange(warmingRange);
-            cubes[0].InitializeData(cubeDataList.data[idx].list[0]);
             yield return null;
 
             if (settings.BuildForWeb)
@@ -500,6 +514,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
+                cubes[0].InitializeDataFile(cubeDataList.data[idx].list[0]);
                 int count = 0;
                 foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
                 {
@@ -519,7 +534,6 @@ public class GameController : MonoBehaviour
 
             cubes[0].SetModelDebugMode(debugModel);
             
-            //Debug.Log("Set dataDates... length: " + dataDates.Length);
             cubeStartYear = dataDates[0].year;
             cubeStartMonth = dataDates[0].month;
             cubeStartDay = dataDates[0].day;
@@ -535,7 +549,6 @@ public class GameController : MonoBehaviour
 
             // Setup side-by-side comparison cube
             sideCubes[0].SetWarmingRange(warmingRange);
-            sideCubes[0].InitializeData(cubeDataList.data[idx].list[0]);
 
             yield return null;
 
@@ -546,6 +559,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
+                sideCubes[0].InitializeDataFile(cubeDataList.data[idx].list[0]);
                 int count = 0;
                 foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
                 {
@@ -580,7 +594,6 @@ public class GameController : MonoBehaviour
         if (cube2Object != null)
         {
             cubes[1].SetWarmingRange(warmingRange);
-            cubes[1].InitializeData(cubeDataList.data[idx].list[0]);
             yield return null;
 
             if (settings.BuildForWeb)
@@ -590,6 +603,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
+                cubes[1].InitializeDataFile(cubeDataList.data[idx].list[0]);
                 int count = 0;
                 foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
                 {
@@ -610,7 +624,6 @@ public class GameController : MonoBehaviour
 
             // Setup side-by-side comparison cube
             sideCubes[1].SetWarmingRange(warmingRange);
-            sideCubes[1].InitializeData(cubeDataList.data[idx].list[0]);
             yield return null;
             
             if (settings.BuildForWeb)
@@ -620,6 +633,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
+                sideCubes[1].InitializeDataFile(cubeDataList.data[idx].list[0]);
                 int count = 0;
                 foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
                 {
@@ -651,7 +665,6 @@ public class GameController : MonoBehaviour
         if (cube3Object != null)
         {
             cubes[2].SetWarmingRange(warmingRange);
-            cubes[2].InitializeData(cubeDataList.data[idx].list[0]);
             yield return null;
 
             if (settings.BuildForWeb)
@@ -661,6 +674,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
+                cubes[2].InitializeDataFile(cubeDataList.data[idx].list[0]);
                 int count = 0;
                 foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
                 {
@@ -680,7 +694,6 @@ public class GameController : MonoBehaviour
 
             // Setup side-by-side comparison cube
             sideCubes[2].SetWarmingRange(warmingRange);
-            sideCubes[2].InitializeData(cubeDataList.data[idx].list[0]);
             yield return null;
 
             if (settings.BuildForWeb)
@@ -689,6 +702,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
+                sideCubes[2].InitializeDataFile(cubeDataList.data[idx].list[0]);
                 int count = 0;
                 foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
                 {
@@ -720,7 +734,6 @@ public class GameController : MonoBehaviour
         if (cube4Object != null)
         {
             cubes[3].SetWarmingRange(warmingRange);
-            cubes[3].InitializeData(cubeDataList.data[idx].list[0]);
             yield return null;
 
             if (settings.BuildForWeb)
@@ -730,6 +743,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
+                cubes[3].InitializeDataFile(cubeDataList.data[idx].list[0]);
                 int count = 0;
                 foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
                 {
@@ -749,7 +763,6 @@ public class GameController : MonoBehaviour
 
             // Setup side-by-side comparison cube
             sideCubes[3].SetWarmingRange(warmingRange);
-            sideCubes[3].InitializeData(cubeDataList.data[idx].list[0]);
             yield return null;
 
             if (settings.BuildForWeb)
@@ -758,6 +771,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
+                sideCubes[3].InitializeDataFile(cubeDataList.data[idx].list[0]);
                 int count = 0;
                 foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
                 {
@@ -789,7 +803,6 @@ public class GameController : MonoBehaviour
         if (cube5Object != null)
         {
             cubes[4].SetWarmingRange(warmingRange);
-            cubes[4].InitializeData(cubeDataList.data[idx].list[0]);
             yield return null;
 
             if (settings.BuildForWeb)
@@ -799,6 +812,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
+                cubes[4].InitializeDataFile(cubeDataList.data[idx].list[0]);
                 int count = 0;
                 foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
                 {
@@ -818,7 +832,6 @@ public class GameController : MonoBehaviour
 
             // Setup side-by-side comparison cube
             sideCubes[4].SetWarmingRange(warmingRange);
-            sideCubes[4].InitializeData(cubeDataList.data[idx].list[0]);
             yield return null;
 
             if (settings.BuildForWeb)
@@ -827,6 +840,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
+                sideCubes[4].InitializeDataFile(cubeDataList.data[idx].list[0]);
                 int count = 0;
                 foreach (TextAsset cubeDataText in cubeDataList.data[idx].list)
                 {
@@ -862,7 +876,6 @@ public class GameController : MonoBehaviour
         if (aggregateCubeObject != null)
         {
             aggregateCubeController.SetWarmingRange(warmingRange);
-            aggregateCubeController.InitializeData(aggregateCubeDataList.data[idx].list[0]);
             yield return null;
 
             if (settings.BuildForWeb)
@@ -872,6 +885,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
+                aggregateCubeController.InitializeDataFile(aggregateCubeDataList.data[idx].list[0]);
                 int counter = 0;
                 foreach (TextAsset cubeDataText in aggregateCubeDataList.data[idx].list)
                 {
@@ -891,7 +905,6 @@ public class GameController : MonoBehaviour
             yield return null;
 
             aggregateSideCubeController.SetWarmingRange(warmingRange);
-            aggregateSideCubeController.InitializeData(aggregateCubeDataList.data[idx].list[0]);
             yield return null;
 
             if (settings.BuildForWeb)
@@ -900,6 +913,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
+                aggregateSideCubeController.InitializeDataFile(aggregateCubeDataList.data[idx].list[0]);
                 int counter = 0;
                 foreach (TextAsset cubeDataText in aggregateCubeDataList.data[idx].list)
                 {
@@ -1433,147 +1447,17 @@ public class GameController : MonoBehaviour
 
         if (gameInitialized)
         {
-            bool animating = false;
-            foreach (CubeController cube in cubes)                                      /* Update cube animation */
-            {
-                if (cube.animating)
-                {
-                    cube.UpdateAnimation();
-                    animating = true;
-                }
-            }
-            foreach (CubeController cube in sideCubes)                                  /* Update side cube animation */
-            {
-                if (cube.animating)
-                {
-                    cube.UpdateAnimation();
-                    animating = true;
-                }
-            }
-
-            if (aggregateCubeController.animating)
-            {
-                aggregateCubeController.UpdateAnimation();
-                animating = true;
-            }
-
-            if (aggregateSideCubeController.animating)
-            {
-                aggregateSideCubeController.UpdateAnimation();
-                animating = true;
-            }
+            bool animating = RunAnimations();
 
             if (!animating)
             {
                 if (gameStarted)                                                               /* Update Game */
                 {
-                    CameraController.GamePauseState cState = cameraController.pauseState;
-
-                    if (cState == CameraController.GamePauseState.pause)                    /* Update Pausing based on Camera */
-                    {
-                        if (!paused)
-                            SetPaused(true);
-                        cameraController.pauseState = CameraController.GamePauseState.idle;
-                    }
-                    if (cState == CameraController.GamePauseState.unpause)
-                    {
-                        if (paused)
-                            SetPaused(false);
-                        cameraController.pauseState = CameraController.GamePauseState.idle;
-                    }
-
-                    if (Time.time - lastSimulationUpdate > timeSpeed)                         /* Update Simulation */
-                    {
-                        if (!paused && !pausedAuto)
-                            timeIdx += timeStep;
-
-                        UpdateSimulation();
-
-                        if (!paused && !pausedAuto)
-                        {
-                            UpdateLighting();
-
-                            if (displayModel || sideBySideMode)
-                            {
-                                aggregateCubeController.UpdateStatistics();
-                                aggregateSideCubeController.UpdateStatistics();
-
-                                foreach (CubeController cube in cubes)
-                                {
-                                    cube.UpdateStatistics();
-                                }
-
-                                if (sideBySideMode)
-                                {
-                                    foreach (CubeController cube in sideCubes)
-                                    {
-                                        cube.UpdateStatistics();
-                                    }
-                                }
-                            }
-
-                            UpdateUIText();
-
-                            uiTimeline.UpdateSimulation( GetCurrentYear() );                  // Update timeline 
-
-                            if (uiTimeline.clickedID >= 0 && uiTimeline.clickedID < simulationEndYear - simulationStartYear)
-                            {
-                                SetTimePosition(uiTimeline.clickedID);
-                            }
-                            uiTimeline.clickedID = -1;
-                        }
-                    }
-                    else if (displaySeasons)                                                /* Update lighting between simulation frames */
-                    {
-                        if (!paused && !pausedAuto)
-                        {
-                            uiTimeline.UpdateSimulation( GetCurrentYear() );                  // Update timeline 
-                            if (uiTimeline.clickedID >= 0 && uiTimeline.clickedID < simulationEndYear - simulationStartYear)
-                            {
-                                SetTimePosition(uiTimeline.clickedID);
-                            }
-                            uiTimeline.clickedID = -1;
-
-                            UpdateLighting();                                               /* Update lighting between simulation frames */
-                        }
-                    }
-
-                    /* Handle Keyboard Input */
-                    if (Input.GetKeyDown(KeyCode.H))
-                    {
-                        SetHideUI(!uiObjectHidden);
-                    }
-                    if (Input.GetKeyDown(KeyCode.P))
-                    {
-                        SetPaused(!paused);
-                    }
-                    if (Input.GetKeyDown(KeyCode.E))
-                    {
-                        SetDisplayET(!displayET);
-                    }
+                    RunGame();
                 }
                 else if (!paused)                                               /* Call StartSimulation() for cubes */
                 {
-                    if (debugDetailed)
-                        Debug.Log("Update()... Calling StartSimulation() for Game Objects... warmingIdx:" + warmingIdx+ " warmingDegrees:" + warmingDegrees);
-
-                    landscapeController.StartSimulation(timeIdx, simulationStartYear, simulationStartMonth, simulationStartDay, timeStep, warmingIdx, settings.MinFireFrameLength, settings.ImmediateFireTimeThreshold);
-                    cubes[0].StartSimulation(timeIdx, timeStep);
-                    cubes[1].StartSimulation(timeIdx, timeStep);
-                    cubes[2].StartSimulation(timeIdx, timeStep);
-                    cubes[3].StartSimulation(timeIdx, timeStep);
-                    cubes[4].StartSimulation(timeIdx, timeStep);
-                    cubes[0].messageManager = messageManager;
-                    cubes[1].messageManager = messageManager;
-                    cubes[2].messageManager = messageManager;
-                    cubes[3].messageManager = messageManager;
-                    cubes[4].messageManager = messageManager;
-
-                    aggregateCubeController.StartSimulation(timeIdx, timeStep);
-                    aggregateCubeController.messageManager = messageManager;
-
-                    gameStarted = true;
-                    //startTime = Time.time;
+                    ResumeGame();
                 }
             }
         }
@@ -1581,19 +1465,154 @@ public class GameController : MonoBehaviour
         {
             if (landscapeController.initialized)
             {
-                loadingDataCanvas.enabled = false;
-                setupUICanvas.enabled = true;
-
-                StopCoroutine(landscapeInitializer);
-                gameInitialized = true;
-
-                if (landscapeController.LandscapeWebSimulationIsOn())
-                    Debug.Log(name + ".Update()...  landscapeController.gameInitialized:" +
-                              landscapeController.initialized + "  Stopping coroutine landscapeInitializer...");// landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
-                else
-                    Debug.Log(name + ".Update()...  landscapeController.gameInitialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.patchesData null? " + (landscapeController.GetPatchesData() == null) + " landscapeController.extentsData null? " + (landscapeController.GetExtentsData() == null) + " landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
+                FinishInitialization();
             }
         }
+    }
+
+    private bool RunAnimations()
+    {
+        bool animating = false;
+        foreach (CubeController cube in cubes)                                      /* Update cube animation */
+        {
+            if (cube.animating)
+            {
+                cube.UpdateAnimation();
+                animating = true;
+            }
+        }
+        foreach (CubeController cube in sideCubes)                                  /* Update side cube animation */
+        {
+            if (cube.animating)
+            {
+                cube.UpdateAnimation();
+                animating = true;
+            }
+        }
+
+        if (aggregateCubeController.animating)
+        {
+            aggregateCubeController.UpdateAnimation();
+            animating = true;
+        }
+
+        if (aggregateSideCubeController.animating)
+        {
+            aggregateSideCubeController.UpdateAnimation();
+            animating = true;
+        }
+        return animating;
+    }
+
+    void RunGame()
+    {
+        CameraController.GamePauseState cState = cameraController.pauseState;
+
+        if (cState == CameraController.GamePauseState.pause)                    /* Update Pausing based on Camera */
+        {
+            if (!paused)
+                SetPaused(true);
+            cameraController.pauseState = CameraController.GamePauseState.idle;
+        }
+        if (cState == CameraController.GamePauseState.unpause)
+        {
+            if (paused)
+                SetPaused(false);
+            cameraController.pauseState = CameraController.GamePauseState.idle;
+        }
+
+        if (Time.time - lastSimulationUpdate > timeSpeed)                         /* Update Simulation */
+        {
+            if (!paused && !pausedAuto)
+                timeIdx += timeStep;
+
+            UpdateSimulation();
+
+            if (!paused && !pausedAuto)
+            {
+                UpdateLighting();
+
+                if (displayModel || sideBySideMode)
+                {
+                    aggregateCubeController.UpdateStatistics();
+                    aggregateSideCubeController.UpdateStatistics();
+
+                    foreach (CubeController cube in cubes)
+                    {
+                        cube.UpdateStatistics();
+                    }
+
+                    if (sideBySideMode)
+                    {
+                        foreach (CubeController cube in sideCubes)
+                        {
+                            cube.UpdateStatistics();
+                        }
+                    }
+                }
+
+                UpdateUIText();
+
+                uiTimeline.UpdateSimulation(GetCurrentYear());                  // Update timeline 
+
+                if (uiTimeline.clickedID >= 0 && uiTimeline.clickedID < simulationEndYear - simulationStartYear)
+                {
+                    SetTimePosition(uiTimeline.clickedID);
+                }
+                uiTimeline.clickedID = -1;
+            }
+        }
+        else if (displaySeasons)                                                /* Update lighting between simulation frames */
+        {
+            if (!paused && !pausedAuto)
+            {
+                uiTimeline.UpdateSimulation(GetCurrentYear());                  // Update timeline 
+                if (uiTimeline.clickedID >= 0 && uiTimeline.clickedID < simulationEndYear - simulationStartYear)
+                {
+                    SetTimePosition(uiTimeline.clickedID);
+                }
+                uiTimeline.clickedID = -1;
+
+                UpdateLighting();                                               /* Update lighting between simulation frames */
+            }
+        }
+
+        /* Handle Keyboard Input */
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            SetHideUI(!uiObjectHidden);
+        }
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            SetPaused(!paused);
+        }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            SetDisplayET(!displayET);
+        }
+    }
+
+    void ResumeGame()
+    {
+        if (debugDetailed)
+            Debug.Log("Update()... Calling StartSimulation() for Game Objects... warmingIdx:" + warmingIdx + " warmingDegrees:" + warmingDegrees);
+
+        landscapeController.StartSimulation(timeIdx, simulationStartYear, simulationStartMonth, simulationStartDay, timeStep, warmingIdx, settings.MinFireFrameLength, settings.ImmediateFireTimeThreshold);
+        cubes[0].StartSimulation(timeIdx, timeStep);
+        cubes[1].StartSimulation(timeIdx, timeStep);
+        cubes[2].StartSimulation(timeIdx, timeStep);
+        cubes[3].StartSimulation(timeIdx, timeStep);
+        cubes[4].StartSimulation(timeIdx, timeStep);
+        cubes[0].messageManager = messageManager;
+        cubes[1].messageManager = messageManager;
+        cubes[2].messageManager = messageManager;
+        cubes[3].messageManager = messageManager;
+        cubes[4].messageManager = messageManager;
+
+        aggregateCubeController.StartSimulation(timeIdx, timeStep);
+        aggregateCubeController.messageManager = messageManager;
+
+        gameStarted = true;
     }
 
     /// <summary>

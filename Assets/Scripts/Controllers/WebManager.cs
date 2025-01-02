@@ -11,18 +11,27 @@ using static CubeController;
 /// </summary>
 public class WebManager : MonoBehaviour
 {
-#if LOCAL_VERSION
-    public static bool runOnLocal = false;                // Run on local (true) or remote (false) server
-#else
-    public static bool runOnLocal = true;                 // Run on local (true) or remote (false) server
-#endif
+//#if LOCAL_VERSION
+//    public static bool runOnLocal = false;                // Run on local (true) or remote (false) server
+//#elif WEB_VERSION
+//    public static bool runOnLocal = true;                 // Run on local (true) or remote (false) server
+//#else
+//    public static bool runOnLocal = false;                // Run on local (true) or remote (false) server
+//#endif
 
     private static bool debug = false;
     private static bool debugDetailed = false;
 
     private static WebManager _instance;
     public static WebManager Instance { get { return _instance; } }
-    private static string connectionStringBase = runOnLocal ? "http://localhost:5550/api/" : "https://data.futuremtn.org/api/";
+#if LOCAL_VERSION
+    private static string connectionStringBase = "http://localhost:5550/api/";
+#elif WEB_VERSION
+    private static string connectionStringBase = "https://data.futuremtn.org/api/";
+#else
+    private static string connectionStringBase = "https://data.futuremtn.org/api/";
+#endif
+
     //private static string connectionStringBase = runOnLocal ? "http://localhost:13198/api/" : "https://data.futuremtn.org/api/";
     //private static string connectionStringBase = runOnLocal ? "https://localhost:7273/api/" : "https://data.futuremtn.org/api/";
     //private static string connectionStringBase = runOnLocal ? "http://localhost:5056/api/" : "http://192.168.0.32:5550/api/";

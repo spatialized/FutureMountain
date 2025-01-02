@@ -26,12 +26,18 @@ public class LandscapeController : MonoBehaviour
 
     #region Fields
     /* Settings */
-#if LOCAL_VERSION                                           // Edit under Player > Other Settings > Scripting Define Symbols
+#if LOCAL_VERSION                                        // Edit under Player > Other Settings > Scripting Define Symbols
     private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
     private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
     private static bool landscapeSimulationLocal = true;            // Local landscape simulation
     private static bool loadTerrainDataFromFile = false;
-    private static bool backgroundSnowOn = false;               
+    private static bool backgroundSnowOn = true;
+#elif WEB_VERSION
+    private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
+    private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
+    private static bool landscapeSimulationLocal = false;            // Local landscape simulation
+    private static bool loadTerrainDataFromFile = false;
+    private static bool backgroundSnowOn = false;
 #else
     private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
     private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
@@ -1217,42 +1223,6 @@ public class LandscapeController : MonoBehaviour
         return patchesToBurnDict[date];
     }
 
-    /// <summary>
-    /// Gets the active fire cells for date.
-    /// </summary>
-    /// <param name="date">Date.</param>
-    //private List<FireDataPoint> GetFirePointsForDate(Vector3 date)
-    //{
-    //    int month = (int)date.x;
-    //    int day = (int)date.y;
-    //    int year = (int)date.z;
-
-    //    List<FireDataFrame> frames = GetCurrentSimulationData().GetFireData();
-    //    List<FireDataPoint> activePoints = new List<FireDataPoint>();
-
-    //    //Debug.Log(name + ".GetActiveFireCellsForDate().. Looking for fire at month:" + month + " day:" + day + " year:" + year + " frames.Count:" + frames.Count);
-
-    //    int count = 0;
-    //    foreach (FireDataFrame fire in frames)
-    //    {
-    //        //Debug.Log(name + ".GetActiveFireCellsForDate().. Checking fire frame at month:" + fire.GetMonth() + " day:" + fire.GetDay() + " year:" + fire.GetYear());
-    //        if (fire.GetMonth() == month && fire.GetDay() == day && fire.GetYear() == year)         // Get fire data frames for fire day
-    //        {
-    //            return firePointLists[count];
-    //            //activePoints = fire.GetData();
-    //            //activePoints.Sort();                 // Sort cells
-
-    //            //Debug.Log(name + ".GetActiveFireCellsForDate().. Found fire at month:" + month + " day:" + day + " year:" + year + " cellLocations.Count:" + activePoints.Count + " warmingIdx:" + warmingIdx);
-    //        }
-
-    //        count++;
-    //    }
-
-    //    Debug.Log(name + ".GetActiveFireCellsForDate().. Found cellLocations.Count:" + activePoints.Count);
-
-    //    return null;
-    //}
-
     public SERI_FireManager GetFireManager()
     {
         return fireManager;
@@ -1280,7 +1250,7 @@ public class LandscapeController : MonoBehaviour
 
         if (!landscapeSimulationOn)
         {
-            fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, terrain.transform.position, null, this, false, true, false);
+            fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, terrain.transform.position, null, this, false, true);
         }
         else
         {
@@ -1322,7 +1292,7 @@ public class LandscapeController : MonoBehaviour
                 }
             }
 
-            fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, terrain.transform.position, frames, this, true, false, false);
+            fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, terrain.transform.position, frames, this, true, false);
 
             patchesToBurnDict = new Dictionary<Vector3, List<int>>();
         }
