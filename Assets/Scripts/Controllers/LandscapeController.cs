@@ -26,11 +26,19 @@ public class LandscapeController : MonoBehaviour
 
     #region Fields
     /* Settings */
+#if LOCAL_VERSION
     private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
     private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
     private static bool landscapeSimulationLocal = true;            // Local landscape simulation
     private static bool loadTerrainDataFromFile = false;
-    private static bool backgroundSnowOn = true;               
+    private static bool backgroundSnowOn = false;               
+#else
+    private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
+    private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
+    private static bool landscapeSimulationLocal = false;            // Local landscape simulation
+    private static bool loadTerrainDataFromFile = false;
+    private static bool backgroundSnowOn = false;
+#endif
 
     private bool loadFireDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
     private bool loadPatchDataFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
@@ -176,7 +184,7 @@ public class LandscapeController : MonoBehaviour
     private float southEdge;                     // Patch file South boundary
     private float eastEdge;                      // Patch file East boundary
     private float westEdge;                      // Patch file West boundary
-    #endregion
+#endregion
 
     #region DataTypes
     /// <summary>
