@@ -113,8 +113,7 @@ public class WebManager : MonoBehaviour
 
 
     // Gets fire data for given warmingIdx
-    publ
-        ic Coroutine RequestTerrainData(int warmingIdx, Action<string> callback)
+    public Coroutine RequestTerrainData(int warmingIdx, Action<string> callback)
     {
         //https://data.futuremtn.org/api/TerrainData/1
         string uri = connectionStringBase + apiPathTerrain + warmingIdx;
