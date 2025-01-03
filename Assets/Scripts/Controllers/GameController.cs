@@ -17,12 +17,12 @@ public class GameController : MonoBehaviour
     #region Debug
 
     /* Debugging */
-    private bool debugGame = false;                 // Debug messages on / off
-    private bool debugModel = false;                // Debug model (graph) display
+    //private bool debugGame = false;                 // Debug messages on / off
+    //private bool debugModel = false;                // Debug model (graph) display
     private bool debugFire = false;                 // Debug fire
-    private bool debugWeb = false;                  // Debug web
+    //private bool debugWeb = false;                  // Debug web
 
-    private bool debugDetailed = false;             // Detailed debugging
+    //private bool debugDetailed = false;             // Detailed debugging
     private bool debugFrame = false;                // Frame-by-frame debugging
     private bool debugMessages = false;             // Debug messages on / off
 
@@ -267,9 +267,6 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            if (debugGame)
-                Debug.Log("GameController.Awake()...");
-
             _instance = this;
         }
     }
@@ -279,9 +276,6 @@ public class GameController : MonoBehaviour
     /// </summary>
     void Start()
     {
-        if (debugGame)
-            Debug.Log("GameController.Start()...");
-
         gameStarted = false;
         paused = true;
 
@@ -295,9 +289,6 @@ public class GameController : MonoBehaviour
     {
         //// Test Web API
         //WebManager.Instance.RequestData(-1, 1, 1, 10, this.test1);
-
-        if (debugGame)
-            Debug.Log("GameController.InitializeGame()...");
 
         InitializeControls();
         yield return null;
@@ -333,10 +324,32 @@ public class GameController : MonoBehaviour
         gameInitialized = true;
 
         if (landscapeController.LandscapeWebSimulationIsOn())
-            Debug.Log(name + ".FinishInitialization()...  landscapeController.gameInitialized:" +
-                      landscapeController.initialized + "  Stopping coroutine landscapeInitializer...");// landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
+        {
+            if(DebugLevel(2))
+                Debug.Log(name + ".FinishInitialization()...  landscapeController.gameInitialized:" +
+                        landscapeController.initialized + "  Stopping coroutine landscapeInitializer...");// landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
+        }
         else
-            Debug.Log(name + ".FinishInitialization()...  landscapeController.gameInitialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.patchesData null? " + (landscapeController.GetPatchesData() == null) + " landscapeController.extentsData null? " + (landscapeController.GetExtentsData() == null) + " landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
+        {
+            if (DebugLevel(2))
+                Debug.Log(name + ".FinishInitialization()...  landscapeController.gameInitialized:" + landscapeController.initialized + "  Stopping coroutine landscapeInitializer... landscapeController.patchesData null? " + (landscapeController.GetPatchesData() == null) + " landscapeController.extentsData null? " + (landscapeController.GetExtentsData() == null) + " landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
+        }
+    }
+
+    private bool DebugLevel(int level)
+    {
+        if(settings == null)
+            return true;
+ 
+        switch (level)
+        {
+            case 1:
+                return settings.DebugGame;
+            case 2:
+                return settings.DebugGame && settings.DebugDetailed;
+            default:
+                return false;
+        }
     }
 
     /// <summary>
@@ -349,14 +362,14 @@ public class GameController : MonoBehaviour
 
         if (landscapeController.LandscapeSimulationIsOn())
         {
-            if (debugGame)
+            if (DebugLevel(1))
                 Debug.Log("StartInitializingLandscape()... All data...");
             landscapeInitializer = landscapeController.InitializeData();    // Begin initializing landscape if landscapeSimulationOn
             StartCoroutine(landscapeInitializer);
         }
         else
         {
-            if (debugGame)
+            if (DebugLevel(1))
                 Debug.Log("StartInitializingLandscape()... Cube data only...");
             landscapeController.InitSplatmaps();
             landscapeController.ResetTerrainSplatmap();                // Assign default splatmap
@@ -387,7 +400,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     private IEnumerator RunStartSimulation()
     {
-        if (debugGame)
+        if (DebugLevel(1))
             Debug.Log(name + ".RunStartSimulation()... ");
 
         if (!gameStarted)
@@ -434,13 +447,10 @@ public class GameController : MonoBehaviour
 
             yield return null;
 
-            //if (debugGame)
-            //    Debug.Log(name + ".RunStartSimulation()... 2");
-
             int initTimeStep = (int)timeKnobSlider.timeScale;
             UpdateTimeStep(initTimeStep, true);              // Update time step and speed slider
 
-            if (debugGame)
+            if (DebugLevel(1))
                 Debug.Log(name + ".StartSimulationRun()...");
             if (debugMessages)
                 DebugMessage(name + ".StartSimulationRun()...", true);
@@ -484,7 +494,7 @@ public class GameController : MonoBehaviour
         }
         else
         {
-            if (debugGame)
+            if (DebugLevel(1))
                 Debug.Log("Called StartSimulationRun() while already running!");
         }
     }
@@ -493,7 +503,7 @@ public class GameController : MonoBehaviour
     {
         finishingStarting = true;
 
-        if (debugGame)
+        if (DebugLevel(1))
             Debug.Log(name + ".FinishStarting()...");
 
         int offset = fireCubes ? 5 : 0;                                  // Use fire or non-fire data
@@ -532,7 +542,7 @@ public class GameController : MonoBehaviour
             if (!settings.BuildForWeb)
                 cubes[0].FindParameterRanges();
 
-            cubes[0].SetModelDebugMode(debugModel);
+            cubes[0].SetModelDebugMode(settings.DebugModel);
             
             cubeStartYear = dataDates[0].year;
             cubeStartMonth = dataDates[0].month;
@@ -543,9 +553,6 @@ public class GameController : MonoBehaviour
             cubeEndDay = dataDates[dataDates.Count - 2].day;
 
             yield return null;
-
-            //if (debugGame)
-            //    Debug.Log(name + ".FinishStarting()... 2B");
 
             // Setup side-by-side comparison cube
             sideCubes[0].SetWarmingRange(warmingRange);
@@ -575,7 +582,7 @@ public class GameController : MonoBehaviour
             //sideCubes[0].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[0].FindParameterRanges();
-            sideCubes[0].SetModelDebugMode(debugModel);
+            sideCubes[0].SetModelDebugMode(settings.DebugModel);
             yield return null;
 
             sideCubes[0].gameObject.SetActive(false);
@@ -586,9 +593,6 @@ public class GameController : MonoBehaviour
         }
 
         yield return null;
-
-        //if (debugGame)
-        //    Debug.Log(name + ".FinishStarting()... 3");
 
         idx = 1 + offset;
         if (cube2Object != null)
@@ -619,7 +623,7 @@ public class GameController : MonoBehaviour
             //cubes[1].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 cubes[1].FindParameterRanges();
-            cubes[1].SetModelDebugMode(debugModel);
+            cubes[1].SetModelDebugMode(settings.DebugModel);
             yield return null;
 
             // Setup side-by-side comparison cube
@@ -649,7 +653,7 @@ public class GameController : MonoBehaviour
             //sideCubes[1].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[1].FindParameterRanges();
-            sideCubes[1].SetModelDebugMode(debugModel);
+            sideCubes[1].SetModelDebugMode(settings.DebugModel);
             yield return null;
 
             sideCubes[1].gameObject.SetActive(false);
@@ -689,7 +693,7 @@ public class GameController : MonoBehaviour
             //cubes[2].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 cubes[2].FindParameterRanges();
-            cubes[2].SetModelDebugMode(debugModel);
+            cubes[2].SetModelDebugMode(settings.DebugModel);
             yield return null;
 
             // Setup side-by-side comparison cube
@@ -718,7 +722,7 @@ public class GameController : MonoBehaviour
             //sideCubes[2].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[2].FindParameterRanges();
-            sideCubes[2].SetModelDebugMode(debugModel);
+            sideCubes[2].SetModelDebugMode(settings.DebugModel);
             yield return null;
 
             sideCubes[2].gameObject.SetActive(false);
@@ -758,7 +762,7 @@ public class GameController : MonoBehaviour
             //cubes[3].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 cubes[3].FindParameterRanges();
-            cubes[3].SetModelDebugMode(debugModel);
+            cubes[3].SetModelDebugMode(settings.DebugModel);
             yield return null;
 
             // Setup side-by-side comparison cube
@@ -787,7 +791,7 @@ public class GameController : MonoBehaviour
             //sideCubes[3].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[3].FindParameterRanges();
-            sideCubes[3].SetModelDebugMode(debugModel);
+            sideCubes[3].SetModelDebugMode(settings.DebugModel);
             yield return null;
 
             sideCubes[3].gameObject.SetActive(false);
@@ -827,7 +831,7 @@ public class GameController : MonoBehaviour
             //cubes[4].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 cubes[4].FindParameterRanges();
-            cubes[4].SetModelDebugMode(debugModel);
+            cubes[4].SetModelDebugMode(settings.DebugModel);
             yield return null;
 
             // Setup side-by-side comparison cube
@@ -856,7 +860,7 @@ public class GameController : MonoBehaviour
             //sideCubes[4].SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 sideCubes[4].FindParameterRanges();
-            sideCubes[4].SetModelDebugMode(debugModel);
+            sideCubes[4].SetModelDebugMode(settings.DebugModel);
             yield return null;
 
             sideCubes[4].gameObject.SetActive(false);
@@ -867,9 +871,6 @@ public class GameController : MonoBehaviour
         }
 
         yield return null;
-
-        //if (debugGame)
-        //    Debug.Log(name + ".FinishStarting()... 4");
 
         offset = fireCubes ? 1 : 0;
         idx = offset;
@@ -901,7 +902,7 @@ public class GameController : MonoBehaviour
             //aggregateCubeController.SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 aggregateCubeController.FindParameterRanges();
-            aggregateCubeController.SetModelDebugMode(debugModel);
+            aggregateCubeController.SetModelDebugMode(settings.DebugModel);
             yield return null;
 
             aggregateSideCubeController.SetWarmingRange(warmingRange);
@@ -929,7 +930,7 @@ public class GameController : MonoBehaviour
             //aggregateSideCubeController.SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 aggregateSideCubeController.FindParameterRanges();
-            aggregateSideCubeController.SetModelDebugMode(debugModel);
+            aggregateSideCubeController.SetModelDebugMode(settings.DebugModel);
             yield return null;
         }
         else
@@ -1050,9 +1051,6 @@ public class GameController : MonoBehaviour
 
         yield return null;
 
-        if (debugGame)
-            Debug.Log(name + ".FinishStarting()... 5");
-
         /* Create Timeline */
         if (landscapeController.LandscapeSimulationIsOn())
         {
@@ -1072,7 +1070,7 @@ public class GameController : MonoBehaviour
         else
             uiTimeline.CreateTestTimeline(simulationStartYear, simulationEndYear, warmingIdx, warmingDegrees, fireYears, messageYears);
 
-        if (debugGame)
+        if (DebugLevel(1))
             Debug.Log(name + ".FinishStarting()... Created timeline... ");
 
         yield return null;
@@ -1145,15 +1143,12 @@ public class GameController : MonoBehaviour
 
     public void FinishSettingDates(string jsonString)
     {
-        if (debugWeb)
-            Debug.Log(name+".SetDatesAndFinishStarting()...");
+        if (DebugLevel(1))
+            Debug.Log(name+ ".FinishSettingDates()...");
 
         DateList datesObj = JsonUtility.FromJson<DateList>("{\"dates\":" + jsonString + "}");
         DateModel[] dates = datesObj.dates;
         dataDates = new List<DateModel>(dates);
-
-        if (debugWeb)
-            Debug.Log("Set dataDates... dataDates[0].month:" + dataDates[0].month+" dataDates[10].year:" + dataDates[10].year);
 
         dateLookup = new Dictionary<Vector3, int>();
         foreach(DateModel date in dataDates)
@@ -1164,11 +1159,8 @@ public class GameController : MonoBehaviour
             dateLookup.Add(vec, id);
         }
 
-        if (debugWeb)
-            Debug.Log("Set dateLookup...");
-
-        if (debugGame)
-            Debug.Log(name + ".SetDatesAndFinishStarting()... ");
+        if (DebugLevel(1))
+            Debug.Log(name + ".FinishSettingDates()... ");
 
         if(!landscapeController.IsBackgroundSnowOn())  // FinishStarting() will be triggered by FinishUpdateTerrainDataFromWeb() if snow is on
             StartCoroutine(FinishStarting());         
@@ -1339,8 +1331,7 @@ public class GameController : MonoBehaviour
             cube.UpdateVegetationFromData();            // Initialize vegetation
             Debug.Log(name + ".FinishEnteringSideBySideMode()... cube.name:" + cube.name + "... UpdateVegetationFromData: TRUE... warmIdx:" + warmIdx);
         }
-        else
-        //if (debugGame && debugDetailed)
+        else if (DebugLevel(2))
             Debug.Log(name+".FinishEnteringSideBySideMode()... cube.name:"+ cube.name+ "... UpdateVegetationFromData: FALSE... warmIdx:" + warmIdx);
     }
 
@@ -1351,7 +1342,7 @@ public class GameController : MonoBehaviour
     /// <param name="idx">Cube index to show in Side-by-Side Mode</param>
     public void ExitSideBySideMode(bool immediate)
     {
-        if (debugGame)
+        if (DebugLevel(1))
             Debug.Log("ExitSideBySideMode()");
 
         sideBySideMode = false;
@@ -1417,7 +1408,7 @@ public class GameController : MonoBehaviour
         SetSideByToggleActive(true);
         sideBySideModeToggleObject.GetComponent<Toggle>().isOn = false;
 
-        //if (debugGame)
+        if (DebugLevel(1))
             Debug.Log("ExitSideBySideMode()... Finished");
 
     }
@@ -1604,7 +1595,7 @@ public class GameController : MonoBehaviour
 
     void ResumeGame()
     {
-        if (debugDetailed)
+        if (DebugLevel(2))
             Debug.Log("Update()... Calling StartSimulation() for Game Objects... warmingIdx:" + warmingIdx + " warmingDegrees:" + warmingDegrees);
 
         landscapeController.StartSimulation(timeIdx, simulationStartYear, simulationStartMonth, simulationStartDay, timeStep, warmingIdx, settings.MinFireFrameLength, settings.ImmediateFireTimeThreshold);
@@ -1632,9 +1623,9 @@ public class GameController : MonoBehaviour
     {
         if (timeIdx > endTimeIdx || endSimulation)
         {
-            if (debugGame)
+            if (DebugLevel(1))
                 Debug.Log("UpdateSimulation().. Ended... timeIdx:" + timeIdx + " curDate:" + curDate.ToString() + " endTimeIdx:" + endTimeIdx);
-            if (debugGame && debugMessages)
+            if (DebugLevel(1) && debugMessages)
                 DebugMessage("UpdateSimulation().. Ended... timeIdx:" + timeIdx + " curDate:" + curDate.ToString() + " endTimeIdx:" + endTimeIdx, true);
 
             EndSimulationRun();
@@ -1775,7 +1766,7 @@ public class GameController : MonoBehaviour
         if (fireFrames.Contains(timeIdx))                               // Check if fire on current day
         {
             fireFrameIdx = fireFrames.IndexOf(timeIdx);
-            if (debugFire)
+            if (settings.DebugFire)
                 Debug.Log(name + ".UpdateSimulation()... Will ignite fire at index:" + fireFrameIdx + " ==> timeIdx:" + timeIdx);
 
             igniteFire = true;
@@ -1787,7 +1778,7 @@ public class GameController : MonoBehaviour
                 if (fireFrames.Contains(i))
                 {
                     fireFrameIdx = fireFrames.IndexOf(i);
-                    if (debugFire)
+                    if (settings.DebugFire)
                         Debug.Log(name + ".UpdateSimulation()... Will ignite fire at index:" + fireFrameIdx + " FireBurningOnAnyTerrain():" + FireBurningOnAnyTerrain() + " ==> timeIdx:" + timeIdx + " Time.time:" + Time.time);
 
                     igniteFire = true;
@@ -1824,7 +1815,7 @@ public class GameController : MonoBehaviour
                             List<int> patchIDsToBurn = landscapeController.GetPatchesToBurnForDate(date);
                             if (patchIDsToBurn.Contains(cube.patchID))
                             {
-                                if (debugFire)
+                                if (settings.DebugFire)
                                     Debug.Log(name + ".Igniting fire at patchID:" + cube.patchID + " name:" + cube.name + " patchIDsToBurn.Count:" + patchIDsToBurn.Count);
 
                                 cube.IgniteTerrain(fireTimeIdx, false);
@@ -1832,13 +1823,13 @@ public class GameController : MonoBehaviour
                             }
                             else
                             {
-                                if (debugFire)
+                                if (settings.DebugFire)
                                     Debug.Log("Won't ignite fire at patchID:" + cube.patchID + " name:" + cube.name + " patchIDsToBurn.Count:" + patchIDsToBurn.Count);
                             }
                         }
                         else
                         {
-                            if (debugFire)
+                            if (settings.DebugFire)
                                 Debug.Log(cube.name + ".ShouldBurnFireAtDate()? " + cube.ShouldBurnFireOnDate(date) + " date:" + date);
                             if (cube.ShouldBurnFireOnDate(date))                // Only burn cube if in (manual) list of cubes to burn for fire
                             {
@@ -1866,7 +1857,7 @@ public class GameController : MonoBehaviour
                         }
                         else
                         {
-                            if (debugGame)
+                            if (DebugLevel(1))
                                 Debug.Log(cube.name + ".ShouldBurnFireAtDate()? " + cube.ShouldBurnFireOnDate(date) + " date:" + date);
                             if (cube.ShouldBurnFireOnDate(date))                // Only burn cube if in (manual) list of cubes to burn for fire
                             {
@@ -1906,7 +1897,7 @@ public class GameController : MonoBehaviour
             }
         }
 
-        if (debugGame && debugFrame)
+        if (DebugLevel(1) && debugFrame)
             Debug.Log("UpdateSimulation()... Current Date:" + curDate.ToString() + " timeIdx:" + timeIdx + " endTimeIdx:" + endTimeIdx);
     }
 
@@ -2015,7 +2006,7 @@ public class GameController : MonoBehaviour
     /// <param name="newState">If set to <c>true</c> new state.</param>
     public void SetHideUI(bool newState)
     {
-        if (debugDetailed)
+        if (DebugLevel(2))
             Debug.Log("SetHideUI()... " + newState);
 
         hideUI = newState;
@@ -2132,7 +2123,7 @@ public class GameController : MonoBehaviour
     {
         timeIdx = GetTimeIdxForDay(1, 1, selectedYearIdx + simulationStartYear);        // Go to selected year 
 
-        if (debugGame)
+        if (DebugLevel(1))
             Debug.Log(name+".SetTimePosition()... selectedYearIdx:" + selectedYearIdx + " new timeIdx:" + timeIdx);
         
         foreach (CubeController cube in cubes)
@@ -2350,9 +2341,6 @@ public class GameController : MonoBehaviour
     /// <param name="newState">If set to <c>true</c> new state.</param>
     public void SetPaused(bool newState)
     {
-        //if (debugDetailed)
-        //    Debug.Log("SetPaused()... " + newState);
-
         paused = newState;
 
         endButtonObject.SetActive(!newState);
@@ -2699,7 +2687,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void EndSimulationRun()
     {
-        if (debugGame)
+        if (DebugLevel(1))
             Debug.Log("EndSimulationRun()...  dailyTimeIdx: " + timeIdx + " endTimeIdx:" + endTimeIdx);
 
         timeIdx = 0;
@@ -2780,7 +2768,7 @@ public class GameController : MonoBehaviour
     /// <param name="isComparedCube"></param>
     public void SetSBSWarmingLevel(int newIdx, int newDegrees, bool isComparedCube)
     {
-        if(settings.DebugGame)
+        if(DebugLevel(1))
             Debug.Log("SetSBSWarmingLevel()... newIdx: " + newIdx + " newDegrees:" + newDegrees);
 
         CubeController cube;
@@ -3366,10 +3354,10 @@ public class GameController : MonoBehaviour
         settings = GameObject.Find("Settings").GetComponent<SimulationSettings>() as SimulationSettings;
         Assert.IsNotNull(settings);
 
-        debugGame = settings.DebugGame;
-        debugFire = settings.DebugFire;
-        debugModel = settings.DebugModel;
-        debugDetailed = settings.DebugDetailed;
+        //debugGame = settings.DebugGame;
+        //debugFire = settings.DebugFire;
+        //debugModel = settings.DebugModel;
+        //debugDetailed = settings.DebugDetailed;
 
         EnableControls(false);
     }
