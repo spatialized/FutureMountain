@@ -1740,19 +1740,26 @@ public class GameController : MonoBehaviour
 
     private void EndFire()
     {
-        foreach(CubeController cube in cubes)
+        try
         {
-            if(cube.IsBurning())
-                cube.SetToBurnt();
-        }
-        foreach (CubeController cube in sideCubes)
-        {
-            if (cube.IsBurning())
-                cube.SetToBurnt();
-        }
+            foreach (CubeController cube in cubes)
+            {
+                if (cube.IsBurning())
+                    cube.SetToBurnt();
+            }
+            foreach (CubeController cube in sideCubes)
+            {
+                if (cube.IsBurning())
+                    cube.SetToBurnt();
+            }
 
-        landscapeController.SetToBurnt();
-        ResetFireManagers();           // Added 12-29-24
+            landscapeController.SetToBurnt();
+            ResetFireManagers();           // Added 12-29-24
+        }
+        catch (Exception e)
+        {
+            Debug.Log("EndFire()... ERROR... " + e.Message);
+        }
     }
 
     /// <summary>

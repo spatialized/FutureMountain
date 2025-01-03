@@ -673,12 +673,19 @@ public class CubeController : MonoBehaviour
 
     public void ResetFireManager()
     {
-        fireManager.Reset();
-        fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true);
-        if (hasStream)
-            fireManager.DisableFireCells(true, riverFireGapWidth);
-        else if (hasHouse)
-            fireManager.DisableFireCells(false, houseDefensibleWidth);
+        try
+        {
+            fireManager.Reset();
+            fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, cubeObject.transform.position, null, null, false, true);
+            if (hasStream)
+                fireManager.DisableFireCells(true, riverFireGapWidth);
+            else if (hasHouse)
+                fireManager.DisableFireCells(false, houseDefensibleWidth);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(name + ".ResetFireManager()... " + e.Message);
+        }
     }
 
     /// <summary>
