@@ -41,6 +41,7 @@ public class GameController : MonoBehaviour
 
     /* Game Settings */
     private SimulationSettings settings;            // Game / simulation settings
+    public float loadingWaitInterval = 0.5f;        // Loading cube data wait interval per cube
 
     /* Game Objects */
     [Header("Prefabs")]
@@ -198,8 +199,8 @@ public class GameController : MonoBehaviour
     public Canvas sideBySideCanvas;                           // Side-by-Side Mode UI Canvas
     public GameObject introPanel;                             // Intro Text Panel
     public Canvas loadingCanvas;                              // Loading Simulation UI Canvas
-    public GameObject loadingTextObject;                       // Loading Text Object
-    public Text loadingTextField;                              // Loading Text 
+    public GameObject loadingTextObject;                     // Loading Text Object
+    public Text loadingTextField;                             // Loading Text 
 
     private GameObject uiObject;                              // UI Object containing canvases
     private Vector3 uiObjectDefaultPosition;
@@ -221,8 +222,9 @@ public class GameController : MonoBehaviour
     private GameObject exitSideBySideButtonObject;            // Exit Side-by-Side Mode button object
     private GameObject startButtonObject;                     // Start button object
     private GameObject pauseButtonObject;                     // End button object
-    public GameObject zoomOutButtonObject;                   // Zoom out button object
-    private GameObject endButtonObject;                       // End button object
+    public GameObject zoomOutButtonObject;                    // Zoom out button object
+    public GameObject continueButtonObject;                   // Continue button object
+    public GameObject endButtonObject;                        // End button object
 
     private GameObject cubesToggleObject;                     // Toggle button for cubes visibility     // -- UNUSED
     private GameObject seasonsToggleObject;                   // Toggle button for seasons              // -- UNUSED
@@ -328,7 +330,7 @@ public class GameController : MonoBehaviour
 
         if (landscapeController.LandscapeWebSimulationIsOn())
         {
-            if(DebugLevel(2))
+            if (DebugLevel(2))
                 Debug.Log(name + ".FinishInitialization()...  landscapeController.gameInitialized:" +
                         landscapeController.initialized + "  Stopping coroutine landscapeInitializer...");// landscapeController.landscapeData null? " + (landscapeController.GetCurrentSimulationData() == null));
         }
@@ -341,9 +343,9 @@ public class GameController : MonoBehaviour
 
     private bool DebugLevel(int level)
     {
-        if(settings == null)
+        if (settings == null)
             return true;
- 
+
         switch (level)
         {
             case 1:
@@ -469,8 +471,7 @@ public class GameController : MonoBehaviour
             setupUICanvas.enabled = false;
             simulationUICanvas.enabled = false;
             sideBySideCanvas.enabled = false;
-            loadingCanvas.enabled = true;
-            loadingCanvas.gameObject.SetActive(true);
+            ShowLoadingCanvas(true);
             loadingTextObject.gameObject.SetActive(true);
 
             introPanel.SetActive(false);
@@ -514,7 +515,7 @@ public class GameController : MonoBehaviour
         int warmingRange = 5;//cubeDataList.data[idx].list.Count;           // Find warming range
 
         endTimeIdx = GetLastTimeIdx();
-        
+
         if (cube1Object != null)
         {
             cubes[0].SetWarmingRange(warmingRange);
@@ -546,7 +547,7 @@ public class GameController : MonoBehaviour
                 cubes[0].FindParameterRanges();
 
             cubes[0].SetModelDebugMode(settings.DebugModel);
-            
+
             cubeStartYear = dataDates[0].year;
             cubeStartMonth = dataDates[0].month;
             cubeStartDay = dataDates[0].day;
@@ -595,7 +596,7 @@ public class GameController : MonoBehaviour
             Debug.Log(name + ".FinishStarting()... No Cube1!");
         }
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(loadingWaitInterval);
 
         idx = 1 + offset;
         if (cube2Object != null)
@@ -632,7 +633,7 @@ public class GameController : MonoBehaviour
             // Setup side-by-side comparison cube
             sideCubes[1].SetWarmingRange(warmingRange);
             yield return null;
-            
+
             if (settings.BuildForWeb)
             {
                 sideCubes[1].UpdateDataFromWeb(timeIdx, true, true);
@@ -666,7 +667,7 @@ public class GameController : MonoBehaviour
             Debug.Log(name + ".FinishStarting()... No Cube2!");
         }
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(loadingWaitInterval);
 
         idx = 2 + offset;
         if (cube3Object != null)
@@ -735,7 +736,7 @@ public class GameController : MonoBehaviour
             Debug.Log(name + ".FinishStarting()... No Cube3!");
         }
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(loadingWaitInterval);
 
         idx = 3 + offset;
         if (cube4Object != null)
@@ -804,7 +805,7 @@ public class GameController : MonoBehaviour
             Debug.Log(name + ".FinishStarting()... No Cube4!");
         }
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(loadingWaitInterval);
 
         idx = 4 + offset;
         if (cube5Object != null)
@@ -873,7 +874,7 @@ public class GameController : MonoBehaviour
             Debug.Log(name + ".FinishStarting()... No Cube5!");
         }
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(loadingWaitInterval);
 
         offset = fireCubes ? 1 : 0;
         idx = offset;
@@ -960,7 +961,7 @@ public class GameController : MonoBehaviour
         yield return null;
 
         Debug.Log(name + ".FinishStarting()... Initialized messageManager...");
-        
+
         if (landscapeController.updateDate)
         {
             int startIdx = 0;
@@ -1065,18 +1066,96 @@ public class GameController : MonoBehaviour
         else
             HideStatistics();
 
+        // Wait for continue button to be pressed
+        ShowContinueButton(true);
+        ShowLoadingText(false);
+
+        //gameStarting = false;
+        //finishingStarting = false;
+
+        //loadingCanvas.enabled = false;
+        //loadingCanvas.gameObject.SetActive(false);
+
+        //EnableControls(true);
+        //Assert.IsNotNull(zoomOutButtonObject);
+        //zoomOutButtonObject.SetActive(false);
+
+        //Assert.IsNotNull(continueButtonObject);
+        //continueButtonObject.SetActive(false);
+
+        ////controlsUICanvas.enabled = true;
+        //simulationUICanvas.enabled = true;
+
+        //StartCoroutine(ActivateCubes(false, true, 0f));  
+    }
+
+    private void ShowContinueButton(bool state)
+    {
+        if (state)
+        {
+            continueButtonObject.SetActive(true);
+        }
+        else
+        {
+            continueButtonObject.SetActive(false);
+        }
+    }
+
+    private void ShowLoadingCanvas(bool state)
+    {
+        if (state)
+        {
+            loadingCanvas.enabled = true;
+            loadingCanvas.gameObject.SetActive(true);
+        }
+        else
+        {
+            loadingCanvas.enabled = false;
+            loadingCanvas.gameObject.SetActive(false);
+        }
+    }
+
+    private void ShowLoadingText(bool state)
+    {
+        if (state)
+        {
+            loadingTextObject.SetActive(true);
+        }
+        else
+        {
+            loadingTextObject.SetActive(false);
+        }
+    }
+
+    public void HandleContinueButtonPressed()
+    {
+        StartCoroutine(WaitToContinueToSimulation(0.5f));
+
+        StartCoroutine(ActivateCubes(false, true, 0.5f));
+    }
+
+    private IEnumerator WaitToContinueToSimulation(float waitTime)
+    {
+        yield return new WaitForSeconds(waitTime);
+
         gameStarting = false;
         finishingStarting = false;
 
-        loadingCanvas.enabled = false;
-        loadingCanvas.gameObject.SetActive(false);
+        ShowLoadingCanvas(false);
+
+        yield return null;
 
         EnableControls(true);
+        Assert.IsNotNull(zoomOutButtonObject);
         zoomOutButtonObject.SetActive(false);
+
+        Assert.IsNotNull(continueButtonObject);
+        continueButtonObject.SetActive(false);
+
         //controlsUICanvas.enabled = true;
         simulationUICanvas.enabled = true;
 
-        StartCoroutine(ActivateCubes(false, true, 1f));  
+        ShowContinueButton(false);
     }
 
     public void GetTimelineWaterDataFromWeb()       
@@ -2743,9 +2822,8 @@ public class GameController : MonoBehaviour
         EnableControls(false);
         //controlsUICanvas.enabled = false;
         sideBySideCanvas.enabled = false;
-        loadingCanvas.enabled = false;
-        loadingCanvas.gameObject.SetActive(false);
-        loadingTextObject.SetActive(false);
+        ShowLoadingCanvas(false);
+        ShowLoadingText(false);
 
         introPanel.SetActive(true);
 
@@ -3274,8 +3352,7 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(loadingTextField);
         //loadingTextObject = loadingCanvas.transform.Find("LoadingPanel").transform.Find("LoadingText").gameObject;
         //loadingTextField = loadingTextObject.GetComponent<Text>() as Text;
-        loadingCanvas.enabled = false;
-        loadingCanvas.gameObject.SetActive(false);
+        ShowLoadingCanvas(false);
         loadingTextObject.gameObject.SetActive(false);
 
         uiObject = GameObject.FindWithTag("UI");
@@ -3294,7 +3371,7 @@ public class GameController : MonoBehaviour
         exitSideBySideButtonObject = GameObject.Find("ExitSideBySideButton");
         zoomOutButtonObject.SetActive(false);
 
-        endButtonObject = GameObject.Find("EndButton");
+        //endButtonObject = GameObject.Find("EndButton");
         showControlsToggleObject = GameObject.Find("ShowControlsToggle");
         showModelDataToggleObject = GameObject.Find("ShowModelDataToggle");
         storyModeToggleObject = GameObject.Find("StoryModeToggle");

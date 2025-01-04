@@ -9,7 +9,7 @@ public class SimulationSettings : MonoBehaviour
     /* Build Settings */
     [Header("Data")]
     [Tooltip("Load Cube Data Only (for testing)")]
-    public bool CubeDataOnly = false;                   // Only load cube data (true) or run landscape simulation (false)
+    public bool CubeDataOnly = false;                   // Only load cube data and use test precip data (true) or run full landscape simulation (false)
     public bool BuildForWeb = true;                     // Build for web (Note: always true for web or local version
 
     /* Fire Settings */
@@ -39,6 +39,10 @@ public class SimulationSettings : MonoBehaviour
     public float TreeMinSpacing = 0.5f;                 // Tree min. spacing
     [Tooltip("Distance from edge at which trees start growing")]
     public float CubeTreePadding = 5f;                  // Distance from edge at which trees start growing
+    [Tooltip("Distance from edge at which shrubs start growing")]
+    public float CubeShrubZoneDepth = 5f;               // Distance within front edge at which shrubs prefer to grow
+    [Tooltip("Distance from edge at which shrubs start growing")]
+    public float CubeShrubZonePreferencePercent = 75f;    // Percentage likelihood new shrub will grow within shrub zone
     [Tooltip("Distance from edge at which trees start growing (Aggregate Cube)")]
     public float AggregateTreePadding = 6f;             // Distance from edge at which trees start growing (Aggregate Cube)
 
@@ -46,13 +50,13 @@ public class SimulationSettings : MonoBehaviour
     [Tooltip("Stem + leaf carbon per m. of tree height (lower value means more trees)")]
     public float TreeCarbonFactor = 0.033f;              // Stem + leaf carbon per m. of tree height (lower => more trees)
     [Tooltip("Carbon per m. of root height")]
-    public float RootsCarbonFactor = 0.01f;              // Carbon per m. of root height
+    public float RootsCarbonFactor = 0.005f;              // Carbon per m. of root height
     [Tooltip("Stem + leaf carbon per m. of shrub height  (lower means more shrubs)")]
-    public float ShrubCarbonFactor = 0.01f;              // Stem + leaf carbon per m. of shrub height  (lower => more shrubs)
+    public float ShrubCarbonFactor = 0.004f;              // Stem + leaf carbon per m. of shrub height  (lower => more shrubs)
     [Tooltip("Aggregate Cube Stem + leaf carbon per m. of tree height (lower means more trees)")]
     public float CubeATreeCarbonFactor = 0.018f;         // Aggregate Cube Stem + leaf carbon per m. of tree height (lower => more trees)
     [Tooltip("Aggregate Cube Carbon per m. of root height")]
-    public float CubeARootsCarbonFactor = 0.005f;        // Aggregate Cube Carbon per m. of root height
+    public float CubeARootsCarbonFactor = 0.0033f;       // Aggregate Cube Carbon per m. of root height
     [Tooltip("Aggregate Cube Stem + leaf carbon per m. of shrub height  (lower means more shrubs)")]
     public float CubeAShrubCarbonFactor = 0.005f;        // Aggregate Cube Stem + leaf carbon per m. of shrub height  (lower => more shrubs)
     [Tooltip("Multiplier for carbon factor variables when building for web")]
@@ -70,19 +74,19 @@ public class SimulationSettings : MonoBehaviour
     [Tooltip("Shrub Height Offset (m.) from Sample Cube terrain")]
     public float ShrubHeightOffset = 0.1f;               // Shrub Height Offset (m.) from Sample Cube terrain
 
-    public float MinTreeFullHeightScale = 0.7f;          // Min. tree grown height scale
-    public float MaxTreeFullHeightScale = 0.9f;          // Max. tree grown height scale
+    public float MinTreeFullHeightScale = 0.66f;          // Min. tree grown height scale
+    public float MaxTreeFullHeightScale = 0.8f;          // Max. tree grown height scale
     public float MinTreeFullWidth = 1f;                  // Min. tree grown width scale
     public float MaxTreeFullWidth = 1.25f;               // Max. tree grown width scale
     public float TreeWidthVariability = 0.3f;            // Variability of tree width from height
 
     [Header("Roots")]
-    public float MinRootsFullHeightScale = 1.4f;         // Min. tree grown height scale
-    public float MaxRootsFullHeightScale = 1.8f;         // Max. tree grown height scale
-    public float MinRootsFullWidth = 1.4f;               // Min. tree grown width scale
-    public float MaxRootsFullWidth = 1.8f;               // Max. tree grown width scale
+    public float MinRootsFullHeightScale = 1.75f;        // Min. tree grown height scale
+    public float MaxRootsFullHeightScale = 2.5f;         // Max. tree grown height scale
+    public float MinRootsFullWidth = 1.5f;               // Min. tree grown width scale
+    public float MaxRootsFullWidth = 2f;                 // Max. tree grown width scale
 
-    public float RootsGrowthSpeedFactor = 0.0025f;       // Root Y growth increment
+    public float RootsSpreadSpeedFactor = 0.0025f;       // Root Y growth increment
     public float RootsSizeRatio = 0.8f;                  // Root height / width ratio
     public float RootsYOffsetFactor = 0f;                // Roots height to Y offset scaling
     public float RootsWidthVariability = 0.2f;           // Variability of tree width from height
@@ -90,11 +94,11 @@ public class SimulationSettings : MonoBehaviour
     [Header("Time")]
     public float TreeGrowthSpeedFactor = 0.00033f;       // Growth speed factor
     public float TreeDeathSpeed = 0.1f;                  // Death speed 
-    public float DeadTreeShrinkFactor = 0.045f;          // Percent to shrink dead tree litter by each frame
+    public float DeadTreeShrinkFactor = 0.066f;          // Percent to shrink dead tree litter by each frame
 
     /* Side-by-Side Mode Settings*/
     [Header("Side-by-Side Mode")]
-    public float SideBySideModeXOffsetAggregate = 100f;            // Spacing between Side-by-Side Cubes
+    public float SideBySideModeXOffsetAggregate = 100f;  // Spacing between Side-by-Side Cubes
     public float SideBySideModeXOffset = 80f;            // Spacing between Side-by-Side Cubes
     /* UI */
     [Header("UI")]

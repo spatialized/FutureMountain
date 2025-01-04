@@ -198,7 +198,8 @@ public class FirController : TreeController
     protected void UpdateGrowth()
     {
         GrowTree();
-        if (isFrontTree) GrowRoots();   // -- ADDED
+        if (isFrontTree) 
+            GrowRoots(); 
     }
 
     /// <summary>

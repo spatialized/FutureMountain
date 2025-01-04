@@ -257,14 +257,14 @@ public abstract class TreeController : MonoBehaviour
         float wDiff = treeFullWidthScale - GetRootsWidthScale();
 
         /* Normal Growth */
-        float heightGrowthAmount = settings.RootsGrowthSpeedFactor * timeStep;      // Slow height growth over time
-        float widthGrowthAmount = settings.RootsGrowthSpeedFactor * timeStep;       // Increase width growth over time
+        float heightGrowthAmount = settings.RootsSpreadSpeedFactor * timeStep;      // Slow height growth over time
+        float widthGrowthAmount = settings.RootsSpreadSpeedFactor * timeStep;       // Increase width growth over time
 
         /* Near-Full-Height Growth */
         if (hDiff < 0.2f)
         {
             float gFactor = MapValue(hDiff, 0f, 0.2f, 0f, 1f);
-            heightGrowthAmount = gFactor * settings.RootsGrowthSpeedFactor * timeStep;      // Slow height growth over time
+            heightGrowthAmount = gFactor * settings.RootsSpreadSpeedFactor * timeStep;      // Slow height growth over time
         }
 
         newHeightScale = GetRootsHeightScale() + heightGrowthAmount;
@@ -274,7 +274,7 @@ public abstract class TreeController : MonoBehaviour
         if (wDiff < 0.2f)
         {
             float wFactor = MapValue(wDiff, 0f, 0.2f, 0f, 1f);
-            widthGrowthAmount = wFactor * settings.RootsGrowthSpeedFactor * timeStep;     // Increase width growth over time
+            widthGrowthAmount = wFactor * settings.RootsSpreadSpeedFactor * timeStep;     // Increase width growth over time
         }
 
         newWidthScale = GetRootsWidthScale() + widthGrowthAmount;
@@ -295,16 +295,9 @@ public abstract class TreeController : MonoBehaviour
         treeHeightScale = newTreeHeightScale;
         treeWidthScale = newTreeWidthScale;
 
-        //if(alive)
-        //{
         if (treePrefabIdx >= 0 && treePrefabIdx < treePrefabs.Count - 1)        // Update tree prefab if not fully grown
             UpdateTreePrefab(init);
-        //UpdateTreeLODsScale();                                  // Update LODs size
-        //}
-        //else
-        //{
-        //    SetCurrentTreePrefab(0);
-        //}
+
         UpdateTreeLODsScale();                                  // Update LODs size
     }
 
@@ -325,14 +318,6 @@ public abstract class TreeController : MonoBehaviour
 
             SetCurrentTreePrefab(newTreePrefabIdx, init);
         }
-
-        //if (GetTreeActualHeight() >= treePrefabHeights[currentTreePrefabIdx + 1])
-        //{
-        //    if (debugTree)
-        //        Debug.Log(transform.name + "UpdateTreePrefab()...  GetTreeHeight():" + GetTreeActualHeight() + "  nextPrefabSize:" + treePrefabHeights[currentTreePrefabIdx + 1] + " Will set new prefab to:" + (currentTreePrefabIdx + 1));
-
-        //    SetCurrentTreePrefab(currentTreePrefabIdx + 1);
-        //}
     }
 
     /// <summary>
@@ -345,14 +330,9 @@ public abstract class TreeController : MonoBehaviour
         rootsHeightScale = newRootsHeightScale;
         rootsWidthScale = newRootsWidthScale;
 
-        //if (alive)
-        //{
         if (rootsPrefabIdx >= 0 && rootsPrefabIdx < rootsPrefabs.Count - 1)        // Update roots prefab if not fully grown
             UpdateRootsPrefab(init);
         UpdateRootsLODsScale();                                                   // Update LODs size
-        //}
-
-        //UpdateRootsLODsScale();                                                   // Update LODs size
     }
 
     /// <summary>
@@ -389,13 +369,6 @@ public abstract class TreeController : MonoBehaviour
     private void UpdateRootsPrefab(bool init)
     {
         float currentDepth = rootsHeightScale * GetFullRootsDepth();       // -- TESTING
-
-        //float currentDepth = GetRootsActualDepth();
-        //if (Mathf.Abs(-1f + currentDepth) < 0.0001f)
-        //{
-        //    Debug.Log(transform.name + " UpdateTreePrefab()... ERROR: Tree actual height returned -1... Setting currentDepth to:" + currentDepth + " from rootsHeightScale:" + rootsHeightScale + " for GetFullRootsDepth():" + GetFullRootsDepth());
-        //    currentDepth = rootsHeightScale * GetFullRootsDepth();
-        //}
 
         int newRootsPrefabIdx = GetClosestFloatIdxLowerThan(rootsPrefabDepths, currentDepth);
         if (newRootsPrefabIdx == -1) newRootsPrefabIdx = 0;
@@ -439,8 +412,10 @@ public abstract class TreeController : MonoBehaviour
         SetRootsPrefabForDepth(curRootsDepth, true);
         SetRootsScale(newRootsHeightScale, newRootsWidthScale, true);
 
-        //Debug.Log(name + ".InitializeScale()... newTreeHeightScale:" + newTreeHeightScale + " factor:" + factor + " startAtZero:"+ startAtZero);
-        //Debug.Log(name + ".InitializeScale()... newRootsHeightScale:" + newRootsHeightScale + " newRootsWidthScale:" + newRootsWidthScale + " curRootsDepth:" + curRootsDepth);
+        if(debugTree)
+            Debug.Log(name + ".InitializeScale()... newTreeHeightScale:" + newTreeHeightScale + " factor:" + factor + " startAtZero:" + startAtZero);
+        if(debugRoots)
+            Debug.Log(name + ".InitializeScale()... newRootsHeightScale:" + newRootsHeightScale + " newRootsWidthScale:" + newRootsWidthScale + " curRootsDepth:" + curRootsDepth);
     }
 
     /// <summary>

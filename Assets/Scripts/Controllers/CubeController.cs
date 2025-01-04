@@ -115,26 +115,28 @@ public class CubeController : MonoBehaviour
     public float RootsCarbonUnderMax { get; set; } = -100000f;  // Root carbon max. from data
 
     /* Settings */
-    private SimulationSettings settings;          // Simulation settings
-    private int shrubCount;                       // Current number of grown shrubs in cube
-    private float minShrubFullSize = 0.8f;        // Min. shrub grown size (m.)
-    private float maxShrubFullSize = 2f;        // Max. shrub grown size (m.)
-    private float minGrassFullSize = 3f;          // Max. shrub grown size (m.)
-    private float maxGrassFullSize = 5f;          // Max. shrub grown size (m.)
-    private float shrubGrowthIncrement = 0.01f;   // Shrub growth increment per frame
+    private SimulationSettings settings;            // Simulation settings
+    private int shrubCount;                         // Current number of grown shrubs in cube
+    private float minShrubFullSize = 0.8f;          // Min. shrub grown size (m.)
+    private float maxShrubFullSize = 2f;            // Max. shrub grown size (m.)
+    private float minGrassFullSize = 3f;            // Max. shrub grown size (m.)
+    private float maxGrassFullSize = 5.5f;          // Max. shrub grown size (m.)
+    private float shrubGrowthIncrement = 0.015f;    // Shrub growth increment per frame
+    private float grassGrowthIncrement = 0.01f;     // Shrub growth increment per frame
 
-    private float maxETSpeed = 12f;
+    private float maxETSpeed = 11f;
 
     /* Timing */
-    private int timeIdx = 0;                    // Current index of simulation in data time series
-    private int firGrowthWaitTime = 30;         // Frames to wait between tree instantiations (avoid spawning too many all at once)
-    private int shrubGrowthWaitTime = 10;       // Frames to wait between shrub instantiations (avoid spawning too many all at once)
-    private int lastFirGrownTimeIdx = 0;        // Time at which tree most recently started growing
-    private int lastShrubGrownTimeIdx = 0;      // Time at which tree most recently started growing
-    private int lastDataUpdate = 0;             // Time at which carbon data was most recently compared to carbon visualized in simulation
-    private int lastKilledTreeFrame = 0;        // Time at which tree most recently started dying       -- OBSOLETE
-    //private int vegetationDataWaitFrames = 2; // Frames to wait between checks whether visualized carbon amount is more than carbon in data
-    private int timeStep;                       // Simulation time step (days per frame)
+    private int timeIdx = 0;                        // Current index of simulation in data time series
+    private int firGrowthWaitTime = 30;             // Frames to wait between tree instantiations (avoid spawning too many all at once)
+    private int shrubGrowthWaitTime = 10;           // Frames to wait between shrub instantiations (avoid spawning too many all at once)
+    private float grassGrowthPercentChance = 10f;   // Likelihood (out of 100) of spawning grass patch
+    private int lastFirGrownTimeIdx = 0;            // Time at which tree most recently started growing
+    private int lastShrubGrownTimeIdx = 0;          // Time at which tree most recently started growing
+    private int lastDataUpdate = 0;                 // Time at which carbon data was most recently compared to carbon visualized in simulation
+    private int lastKilledTreeFrame = 0;            // Time at which tree most recently started dying       -- OBSOLETE
+    //private int vegetationDataWaitFrames = 2;     // Frames to wait between checks whether visualized carbon amount is more than carbon in data
+    private int timeStep;                           // Simulation time step (days per frame)
 
     /* Geometry */
     public Vector3 defaultPosition { get; set; } // Default position
@@ -292,6 +294,7 @@ public class CubeController : MonoBehaviour
     private float treeAverageRootCarbonAmount;      // Average root carbon per tree, calculated from RootsCarbonFactor
     private float shrubAverageCarbonAmount;         // Average carbon amount per shrub, calculated from ShrubCarbonFactor
     private float grassAverageCarbonAmount;         // Average grass patch carbon amount, set to 1/10 of shrubAverageCarbonAmount
+    private int cubeInitialGrassPatches = 250;      // Initial grass patches in cube
     private float litterAverageCarbonAmount;        // Average carbon amount per litter object, from GameController
 
     private float treeCarbonFactor;                 // Scaling of tree height to vegetation amount (to compare with stem+leaf carbon in data)
@@ -493,7 +496,7 @@ public class CubeController : MonoBehaviour
             //UpdateShrubRenderers();
         }
 
-        GrowInitialGrass(60);
+        GrowInitialGrass(cubeInitialGrassPatches);
 
         //Debug.Log(name + ".GrowInitialVegetation()... dataType: "+ dataType);
     }
@@ -630,7 +633,7 @@ public class CubeController : MonoBehaviour
 
         treeAverageRootCarbonAmount = (settings.MaxRootsFullHeightScale + settings.MinRootsFullHeightScale) / 2f * fullRootsDepth * GetRootsCarbonFactor();
         shrubAverageCarbonAmount = (maxShrubFullSize + minShrubFullSize) / 2f * GetShrubCarbonFactor();
-        grassAverageCarbonAmount = shrubAverageCarbonAmount * 0.1f;
+        grassAverageCarbonAmount = shrubAverageCarbonAmount * 0.01f;
 
         lodGroup = treeList[0][treeList[0].Count - 1];
         lod0 = lodGroup.transform.GetChild(0).gameObject as GameObject;
@@ -1628,7 +1631,7 @@ public class CubeController : MonoBehaviour
             {
                 if (timeIdx - lastShrubGrownTimeIdx > shrubGrowthWaitTime)
                     GrowAShrub(false);
-                else if (Random.Range(0f, 15f) <= 1f)
+                if (Random.Range(0f, 100f) <= grassGrowthPercentChance)
                     GrowAGrassPatch(false);
             }
             else if (shrubCarbonInViz > combinedCarbonUnderInData + shrubAverageCarbonAmount / 2f)    // Kill a tree or shrub if visualized carbon too high
@@ -1655,7 +1658,7 @@ public class CubeController : MonoBehaviour
                         }
                     }
                 }
-                else if (Random.Range(0f, 15f) <= 1f)
+                if (Random.Range(0f, 100f) <= grassGrowthPercentChance)
                     GrowAGrassPatch(false);
             }
             else if (treeCarbonInViz > combinedCarbonOverInData + treeAverageCarbonAmount / 2f)      // Kill a tree if visualized carbon too high
@@ -1712,7 +1715,7 @@ public class CubeController : MonoBehaviour
 
         GrowRoots();
         GrowShrubs();
-        GrowGrass();
+        GrowGrass();        
     }
 
     /// <summary>
@@ -2269,13 +2272,23 @@ public class CubeController : MonoBehaviour
 
         float cubeXMin = settings.CubeTreePadding;                    // Min. local X coord where shrubs grow
         float cubeXMax = cubeWidth - settings.CubeTreePadding;        // Max. local X coord where shrubs grow
-        float cubeZMin = settings.CubeTreePadding;                    // Min. local Z coord where shrubs grow
+        //float cubeZMin = settings.CubeTreePadding;                  // Min. local Z coord where shrubs grow
+        float cubeZMin = 0.1f;                                        // Min. local Z coord where shrubs grow
         float cubeZMax = cubeWidth - settings.CubeTreePadding;        // Max. local Z coord where shrubs grow
 
         if (hasStream)                                   // Set shrub locations based on stream
         {
             float randX = GetRandomExcludingMiddle(cubeXMin, cubeXMax, streamCenter - streamWidth * 0.5f, streamCenter + streamWidth * 0.5f);
             float randZ = Random.Range(cubeZMin, cubeZMax);
+
+            if(Random.Range(0f, 100f) < settings.CubeShrubZonePreferencePercent)
+            {
+                //cubeZMax = settings.CubeShrubZoneDepth; // TESTING
+                cubeZMin = cubeZMin += settings.CubeShrubZoneDepth; // TESTING
+                randX = GetRandomExcludingMiddle(cubeXMin, cubeXMax, streamCenter - streamWidth * 0.5f, streamCenter + streamWidth * 0.5f);
+                randZ = Random.Range(cubeZMin, cubeZMax);
+            }
+
             randX += offsetX;
             randZ += offsetZ;
             grassLocation = new Vector3(randX, 0f, randZ);
@@ -2286,6 +2299,15 @@ public class CubeController : MonoBehaviour
         {
             float randX = GetRandomExcludingMiddle(cubeXMin, cubeXMax, houseCenter - houseWidth * 0.5f, houseCenter + houseWidth * 0.5f);
             float randZ = Random.Range(cubeZMin, cubeZMax);
+
+            if (Random.Range(0f, 100f) < settings.CubeShrubZonePreferencePercent)
+            {
+                //cubeZMax = settings.CubeShrubZoneDepth; // TESTING
+                cubeZMin = cubeZMin += settings.CubeShrubZoneDepth; // TESTING
+                randX = GetRandomExcludingMiddle(cubeXMin, cubeXMax, houseCenter - houseWidth * 0.5f, houseCenter + houseWidth * 0.5f);
+                randZ = Random.Range(cubeZMin, cubeZMax);
+            }
+
             randX += offsetX;
             randZ += offsetZ;
             grassLocation = new Vector3(randX, 0f, randZ);
@@ -2296,6 +2318,15 @@ public class CubeController : MonoBehaviour
         {
             float randX = Random.Range(cubeXMin, cubeXMax);
             float randZ = Random.Range(cubeZMin, cubeZMax);
+
+            if (Random.Range(0f, 100f) < settings.CubeShrubZonePreferencePercent)
+            {
+                //cubeZMax = settings.CubeShrubZoneDepth; // TESTING
+                cubeZMin = cubeZMin += settings.CubeShrubZoneDepth; // TESTING
+                randX = Random.Range(cubeXMin, cubeXMax);
+                randZ = Random.Range(cubeZMin, cubeZMax);
+            }
+
             randX += offsetX;
             randZ += offsetZ;
             grassLocation = new Vector3(randX, 0f, randZ);
