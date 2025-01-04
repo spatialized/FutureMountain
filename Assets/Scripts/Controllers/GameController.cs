@@ -176,12 +176,15 @@ public class GameController : MonoBehaviour
     public LandscapeController landscapeController;           // Large Landscape Controller
     private CubeController aggregateCubeController;           // Aggregate Cube Controller
     private CubeController aggregateSideCubeController;       // Aggregat Side Cube Controllr
+    public GameObject cubesObject;                           // Cubes Container Object
+    private Vector3 cubesObjectOrigPosition;                 // Original position of cubes object       
     private CubeController[] cubes;                           // Cube Controllers
     private CubeController[] sideCubes;                       // Side-by-Side Cube Controllers
 
     /* Layers Settings */
     private bool displayET = true;                            // Display evap./trans. flag
     private bool displayCubes = true;                         // Display cubes flag
+    private bool cubesOutOfView = false;                      // Cubes out of view flag
     //private bool displaySoils = true;                         // Display soils flag
     //private bool displayStreams = true;                       // Display streams flag
 
@@ -592,7 +595,7 @@ public class GameController : MonoBehaviour
             Debug.Log(name + ".FinishStarting()... No Cube1!");
         }
 
-        yield return null;
+        yield return new WaitForSeconds(1f);
 
         idx = 1 + offset;
         if (cube2Object != null)
@@ -663,7 +666,7 @@ public class GameController : MonoBehaviour
             Debug.Log(name + ".FinishStarting()... No Cube2!");
         }
 
-        yield return null;
+        yield return new WaitForSeconds(1f);
 
         idx = 2 + offset;
         if (cube3Object != null)
@@ -732,7 +735,7 @@ public class GameController : MonoBehaviour
             Debug.Log(name + ".FinishStarting()... No Cube3!");
         }
 
-        yield return null;
+        yield return new WaitForSeconds(1f);
 
         idx = 3 + offset;
         if (cube4Object != null)
@@ -801,7 +804,7 @@ public class GameController : MonoBehaviour
             Debug.Log(name + ".FinishStarting()... No Cube4!");
         }
 
-        yield return null;
+        yield return new WaitForSeconds(1f);
 
         idx = 4 + offset;
         if (cube5Object != null)
@@ -870,7 +873,7 @@ public class GameController : MonoBehaviour
             Debug.Log(name + ".FinishStarting()... No Cube5!");
         }
 
-        yield return null;
+        yield return new WaitForSeconds(1f);
 
         offset = fireCubes ? 1 : 0;
         idx = offset;
@@ -994,33 +997,11 @@ public class GameController : MonoBehaviour
 
         int ct = 0;
 
-        /* Set Fire Dates for 2024 Westmont + 2019 CAW Installations */
         SetupFires();
-
-        //fireDates = new Vector3[2];
-        //fireDates[0] = new Vector3(7, 15, 1969);        // -- TO DO: Get from web!
-        //fireDates[1] = new Vector3(11, 20, 1988);
-
-        //fireFrames = new List<int>();
-        //fireYears = new List<int>();
-
-        //int ct = 0;
-        //foreach (Vector3 date in fireDates)
-        //{
-        //    fireFrames.Add(GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z));
-        //    fireYears.Add((int)date.z);
-        //    ct++;
-        //}
-
-        //yield return null;
-
-        //if(landscapeController.LandscapeSimulationIsOn() && landscapeController.LandscapeWebSimulationIsOn())
-        //    Assert.IsNotNull(landscapeDataList);
-        //landscapeController.SetupFires(fireDates, warmingIdx);
 
         yield return null;
 
-        ShowCubes(false);
+        //ShowCubes(false);                 Moved to later
 
         landscapeController.SetSnowVisibility(landscapeController.LandscapeSimulationIsOn());
         landscapeController.ResetSnow(false);
@@ -1094,6 +1075,8 @@ public class GameController : MonoBehaviour
         zoomOutButtonObject.SetActive(false);
         //controlsUICanvas.enabled = true;
         simulationUICanvas.enabled = true;
+
+        StartCoroutine(ActivateCubes(false, true, 1f));  
     }
 
     public void GetTimelineWaterDataFromWeb()       
@@ -2521,13 +2504,28 @@ public class GameController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Shows the cubes.
-    /// </summary>
     private void ShowCubes(bool immediate)
     {
+        StartCoroutine(ActivateCubes(false, true, 0f));
+    }
+
+    /// <summary>
+    /// Activates the cube objects
+    /// </summary>
+    /// <param name="immediate">Whether to activate the cubes immediately</param>
+    /// <param name="show">Whether to show cubes (true) or activate out of view (false)</param>
+    /// <param name="afterSeconds">Seconds to wait before activating cubes</param>
+    private IEnumerator ActivateCubes(bool immediate, bool show, float afterSeconds)
+    {
+        yield return new WaitForSeconds(afterSeconds);
+
         if (immediate)
         {
+            if(!show)
+                MoveCubesOutOfView();
+            else
+                MoveCubesIntoView();
+
             aggregateCubeController.cubeObject.SetActive(true);
             cubes[0].cubeObject.SetActive(true);
             cubes[1].cubeObject.SetActive(true);
@@ -2543,14 +2541,7 @@ public class GameController : MonoBehaviour
                 {
                     if (cube.patchID != -1)
                     {
-                        //Vector2 utm = landscapeController.GetPatchUTMLocation(cube.patchID);    // -- TO DO: Import from Web
-                        //if (!utm.Equals(new Vector3(0, 0, 0)))
-                        //{
-                        //    Vector3 pos = landscapeController.GetWorldPositionOfUTMLocation(utm);
-                        //    cube.StartAnimation(pos, cube.defaultPosition, CubeController.CubeAnimationType.grow);
-                        //}
-                        //else 
-                            cube.StartAnimation(new Vector3(0, 0, 0), cube.defaultPosition, CubeController.CubeAnimationType.grow);
+                        cube.StartAnimation(new Vector3(0, 0, 0), cube.defaultPosition, CubeController.CubeAnimationType.grow);
                     }
                 }
                 else
@@ -2560,7 +2551,21 @@ public class GameController : MonoBehaviour
             }
 
             aggregateCubeController.StartAnimation(aggregateCubeController.defaultPosition, aggregateCubeController.defaultPosition, CubeController.CubeAnimationType.grow);
+
+            MoveCubesIntoView();
         }
+    }
+
+    private void MoveCubesOutOfView()
+    {
+        cubesObject.transform.position = new Vector3(10000f, 10000f, 10000f);
+        cubesOutOfView = true;
+    }
+
+    private void MoveCubesIntoView()
+    {
+        cubesObject.transform.position = cubesObjectOrigPosition;
+        cubesOutOfView = false;
     }
 
     /// <summary>
@@ -3404,6 +3409,10 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(warmingLevelText);
 
         warmingLevelText.SetActive(false);
+
+        //cubesObject = GameObject.Find("Cubes");
+        Assert.IsNotNull(cubesObject);
+        cubesObjectOrigPosition = cubesObject.transform.position;
 
         cubes = new CubeController[5];
         sideCubes = new CubeController[5];

@@ -417,7 +417,7 @@ public class CubeController : MonoBehaviour
         timeIdx = startTimeIdx;
         timeStep = curTimeStep;
 
-        cubeObject.SetActive(true);
+        //cubeObject.SetActive(true);
 
         // Initial update of data parameters
         if (settings.BuildForWeb)
