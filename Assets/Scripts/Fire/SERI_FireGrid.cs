@@ -629,6 +629,9 @@ public class SERI_FireGrid : MonoBehaviour
             fireCells[x, y].RunCombustion();
             count++;
         }
+
+        //if (debug)
+        //    Debug.Log(transform.parent.transform.parent.transform.parent.name + "." + name + ".UpdateCombustion()... count:" + count + " burningCells.Count:" + burningCells.Count + " Time:" + Time.time);
     }
     #endregion
 

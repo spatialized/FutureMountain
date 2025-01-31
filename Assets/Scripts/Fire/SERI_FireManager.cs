@@ -38,7 +38,7 @@ public class SERI_FireManager : MonoBehaviour
     public Terrain terrain = null; // terrain should be the parent GameObject of this object
 
     [Tooltip("Size of the index array used to keep track of active fires in a FireGrid, if goes over array will increase.")]
-    public int preAllocatedFireIndexSize = 100;
+    public int preAllocatedFireIndexSize = 1000;
     //public float cellSize = 1.0f;
     public float cellSize = 10.0f;                      // -- TO DO: CALCULATE FROM Height / GridHeight, Width / GridWidth
     [Tooltip("Relative position of fire spawning in the cell (0 -> 1). If left empty default value is 0.5 on X and Y.")]

@@ -1900,68 +1900,6 @@ public class LandscapeController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Loads the chosen data list. (Desktop Version)
-    /// </summary>
-    //private void LoadDataDesktop()
-    //{
-    //    TextAsset newPatchesFile = landscapeDataList.patches;
-    //    patchExtents = LoadPatchesFile(newPatchesFile);            // Load patches data file
-
-    //    patchesData = new List<PatchDataYear[]>();                 // Initialize patchesData list
-
-    //    for (int i = 0; i < 5; i++)
-    //    {
-    //        TextAsset newDataFile = landscapeDataList.extents[i];
-    //        float[,] extentsData = LoadDataFile(newDataFile);      // Load data file
-
-    //        FormatExtentsData(extentsData);                        // Format patch extents data by date
-    //    }
-
-    //    SetPatchDataRanges();                                      // Set data ranges
-    //    GenerateLandscapeData();                                   // Generate terrain alphamaps from data
-
-    //    TextAsset newDailyFile = landscapeDataList.streamflowDaily;
-    //    LoadStreamflowFile(newDailyFile);             // Load daily streamflow data file
-
-    //    FormatWaterData(waterDataArray);              // Format water data by date
-    //    CalculateWaterRanges();                       // Calculate streamflow range
-
-    //    dataFormatted = true;
-    //}
-
-    //private void LoadDataWeb()
-    //{
-    //    if(debug)
-    //        Debug.Log("LoadDataWeb()...");
-
-    //    LoadPatchExtentsData();                                // Load patch extents from Resources
-    //    LoadLandscapeData();                                   // Load (terrain splatmaps +) fire data from Resources
-
-    //    TextAsset newDailyFile = landscapeDataList.streamflowDaily;
-    //    LoadStreamflowFile(newDailyFile);             // Load daily streamflow data file
-
-    //    FormatWaterData(waterDataArray);              // Format water data by date
-    //    CalculateWaterRanges();                       // Calculate streamflow range
-
-    //    dataFormatted = true;
-    //    dataInitialized = true;
-
-    //    if (debug)
-    //        Debug.Log("LoadDataWeb()... Finished");
-    //}
-
-    //public FireDataFrame(int newDay, int newMonth, int newYear, int newGridHeight, int newGridWidth, List<FireDataPoint> newDataList, FireDataPointCollection[,] newDataGrid)
-    //{
-    //    year = newYear;
-    //    month = newMonth;
-    //    day = newDay;
-    //    dataGrid = newDataGrid;
-    //    dataList = newDataList;
-    //    gridSize = newGridHeight;
-    //    gridWidth = newGridWidth;
-    //}
-
     public void LoadSplatMapsFromFilesForWarmingIdx(int warmIdx)
     {
         string path = "SplatData_" + warmIdx;
