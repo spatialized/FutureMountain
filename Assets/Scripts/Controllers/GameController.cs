@@ -1066,6 +1066,8 @@ public class GameController : MonoBehaviour
         else
             HideStatistics();
 
+        yield return new WaitForSeconds(5f);            // Testing fix for Continue button unclickable bug
+
         // Wait for continue button to be pressed
         ShowContinueButton(true);
         ShowLoadingText(false);
