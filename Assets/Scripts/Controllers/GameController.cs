@@ -1818,7 +1818,7 @@ public class GameController : MonoBehaviour
             }
 
             landscapeController.SetToBurnt();
-            ResetFireManagers();           // Added 12-29-24
+            //ResetFireManagers();           // Added 12-29-24      // TESTING: Removed 1-30-25
         }
         catch (Exception e)
         {
