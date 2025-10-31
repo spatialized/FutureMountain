@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Assertions;
 using System;
 using System.Collections.Generic;
@@ -56,6 +56,8 @@ public class GameController : MonoBehaviour
     /* SERI Data */
     private Vector3[] fireDates;                    // List of fire dates
     private List<int> fireFrames;                   // List of time indices of fires (CAW Installation Data)
+    private HashSet<int> fireFrameSet;              // Fast membership check for fire frames
+    private Dictionary<int, int> fireFrameIndexByTime; // Map timeIdx -> index in fireFrames
     private List<int> fireYears;                    // List of fire years
     private Vector3[] messageDates;                 // List of message dates
     private List<int> messageFrames;                // List of message indices of fires (CAW Installation Data)
@@ -128,6 +130,7 @@ public class GameController : MonoBehaviour
     private float lastSimulationUpdate = 0f;        // Last simulation time when daily update was called
 
     IEnumerator landscapeInitializer;               // Landscape initializer enumerator
+    private List<Coroutine> _activeCoroutines = new List<Coroutine>();
 
     /* Data */
     [Header("Data")]
@@ -276,6 +279,27 @@ public class GameController : MonoBehaviour
         }
     }
 
+    private Coroutine StartTrackedCoroutine(IEnumerator routine)
+    {
+        var c = StartCoroutine(routine);
+        _activeCoroutines.Add(c);
+        return c;
+    }
+
+    private void StopAllTrackedCoroutines()
+    {
+        if (_activeCoroutines == null)
+            return;
+        foreach (var c in _activeCoroutines)
+        {
+            if (c != null)
+            {
+                try { StopCoroutine(c); } catch { }
+            }
+        }
+        _activeCoroutines.Clear();
+    }
+
     /// <summary>
     /// Start this instance. 
     /// </summary>
@@ -284,7 +308,7 @@ public class GameController : MonoBehaviour
         gameStarted = false;
         paused = true;
 
-        StartCoroutine(InitializeGame());
+        StartTrackedCoroutine(InitializeGame());
     }
 
     /// <summary>
@@ -370,7 +394,7 @@ public class GameController : MonoBehaviour
             if (DebugLevel(1))
                 Debug.Log("StartInitializingLandscape()... All data...");
             landscapeInitializer = landscapeController.InitializeData();    // Begin initializing landscape if landscapeSimulationOn
-            StartCoroutine(landscapeInitializer);
+            StartTrackedCoroutine(landscapeInitializer);
         }
         else
         {
@@ -397,7 +421,7 @@ public class GameController : MonoBehaviour
     public void StartSimulationRun()
     {
         gameStarting = true;
-        StartCoroutine(RunStartSimulation());
+        StartTrackedCoroutine(RunStartSimulation());
     }
 
     /// <summary>
@@ -493,7 +517,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
-                StartCoroutine(FinishStarting());
+                StartTrackedCoroutine(FinishStarting());
             }
         }
         else
@@ -1088,7 +1112,7 @@ public class GameController : MonoBehaviour
         ////controlsUICanvas.enabled = true;
         //simulationUICanvas.enabled = true;
 
-        //StartCoroutine(ActivateCubes(false, true, 0f));  
+        //StartTrackedCoroutine(ActivateCubes(false, true, 0f));  
     }
 
     private void ShowContinueButton(bool state)
@@ -1131,9 +1155,9 @@ public class GameController : MonoBehaviour
 
     public void HandleContinueButtonPressed()
     {
-        StartCoroutine(WaitToContinueToSimulation(0.5f));
+        StartTrackedCoroutine(WaitToContinueToSimulation(0.5f));
 
-        StartCoroutine(ActivateCubes(false, true, 0.5f));
+        StartTrackedCoroutine(ActivateCubes(false, true, 0.5f));
     }
 
     private IEnumerator WaitToContinueToSimulation(float waitTime)
@@ -1189,12 +1213,17 @@ public class GameController : MonoBehaviour
         fireDates[1] = new Vector3(11, 20, 1988);
 
         fireFrames = new List<int>();
+        fireFrameSet = new HashSet<int>();
+        fireFrameIndexByTime = new Dictionary<int, int>();
         fireYears = new List<int>();
 
         int ct = 0;
         foreach (Vector3 date in fireDates)
         {
-            fireFrames.Add(GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z));
+            int frame = GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z);
+            fireFrames.Add(frame);
+            fireFrameSet.Add(frame);
+            fireFrameIndexByTime[frame] = ct;
             fireYears.Add((int)date.z);
             ct++;
         }
@@ -1227,7 +1256,7 @@ public class GameController : MonoBehaviour
             Debug.Log(name + ".FinishSettingDates()... ");
 
         if(!landscapeController.IsBackgroundSnowOn())  // FinishStarting() will be triggered by FinishUpdateTerrainDataFromWeb() if snow is on
-            StartCoroutine(FinishStarting());         
+            StartTrackedCoroutine(FinishStarting());         
     }
 
     /// <summary>
@@ -1339,7 +1368,7 @@ public class GameController : MonoBehaviour
         warmingKnob1Slider.enabled = true;
         warmingKnob1Object.SetActive(true);
         //warmingKnob1Slider.SetToWarmingIdx(warmingIdx);
-        StartCoroutine(FinishEnteringSideBySideMode(cube, cubeSBSModeStatsLeft, warmingKnob1Slider, warmingIdx, false));
+        StartTrackedCoroutine(FinishEnteringSideBySideMode(cube, cubeSBSModeStatsLeft, warmingKnob1Slider, warmingIdx, false));
 
         //sideCube.gameObject.SetActive(true);
         //sideCube.StartSimulation(timeIdx, timeStep);
@@ -1348,7 +1377,7 @@ public class GameController : MonoBehaviour
 
         warmingKnob2Slider.enabled = true;
         warmingKnob2Object.SetActive(true);
-        StartCoroutine(FinishEnteringSideBySideMode(sideCube, cubeSBSModeStatsRight, warmingKnob2Slider, warmingIdx == 0 ? 1 : 0, true));
+        StartTrackedCoroutine(FinishEnteringSideBySideMode(sideCube, cubeSBSModeStatsRight, warmingKnob2Slider, warmingIdx == 0 ? 1 : 0, true));
         //warmingKnob2Slider.SetToWarmingIdx(warmingIdx == 0 ? 1 : 0);
         warmingKnobObject.SetActive(false);
 
@@ -1465,7 +1494,7 @@ public class GameController : MonoBehaviour
         endButtonObject.SetActive(false);
 
         if(!immediate)                  // During simulation, show end button once zoomed back out
-            StartCoroutine(ShowEndButtonInSeconds(3f));
+            StartTrackedCoroutine(ShowEndButtonInSeconds(3f));
 
         sideBySideCanvas.enabled = true;
 
@@ -1488,7 +1517,7 @@ public class GameController : MonoBehaviour
         if (gameStarting)
         {
             if(ShouldFinishStarting()) // Triggered by FinishUpdateTerrainDataFromWeb()
-                StartCoroutine(FinishStarting());    
+                StartTrackedCoroutine(FinishStarting());    
             return;
         }
 
@@ -1834,9 +1863,10 @@ public class GameController : MonoBehaviour
         bool igniteFire = false;
         int fireFrameIdx = 0;
 
-        if (fireFrames.Contains(timeIdx))                               // Check if fire on current day
+        if (fireFrameSet != null && fireFrameSet.Contains(timeIdx))                               // Check if fire on current day
         {
-            fireFrameIdx = fireFrames.IndexOf(timeIdx);
+            if (fireFrameIndexByTime != null && fireFrameIndexByTime.TryGetValue(timeIdx, out var idx0))
+                fireFrameIdx = idx0;
             if (settings.DebugFire)
                 Debug.Log(name + ".UpdateSimulation()... Will ignite fire at index:" + fireFrameIdx + " ==> timeIdx:" + timeIdx);
 
@@ -1846,13 +1876,14 @@ public class GameController : MonoBehaviour
         {
             for (int i = timeIdx; i >= timeIdx - timeStep; i--)
             {
-                if (fireFrames.Contains(i))
+                if (fireFrameIndexByTime != null && fireFrameIndexByTime.TryGetValue(i, out var idx1))
                 {
-                    fireFrameIdx = fireFrames.IndexOf(i);
+                    fireFrameIdx = idx1;
                     if (settings.DebugFire)
                         Debug.Log(name + ".UpdateSimulation()... Will ignite fire at index:" + fireFrameIdx + " FireBurningOnAnyTerrain():" + FireBurningOnAnyTerrain() + " ==> timeIdx:" + timeIdx + " Time.time:" + Time.time);
 
                     igniteFire = true;
+                    break;
                 }
             }
         }
@@ -2587,7 +2618,7 @@ public class GameController : MonoBehaviour
 
     private void ShowCubes(bool immediate)
     {
-        StartCoroutine(ActivateCubes(false, true, 0f));
+        StartTrackedCoroutine(ActivateCubes(false, true, 0f));
     }
 
     /// <summary>
@@ -3608,6 +3639,12 @@ public class GameController : MonoBehaviour
     private void OnDisable()
     {
         PauseButton.pauseEvent -= SetPaused;
+        StopAllTrackedCoroutines();
+    }
+
+    private void OnDestroy()
+    {
+        StopAllTrackedCoroutines();
     }
 
     void OnApplicationQuit()
