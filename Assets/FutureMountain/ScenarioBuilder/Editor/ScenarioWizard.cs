@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -37,6 +38,28 @@ namespace FutureMountain.ScenarioBuilder.Editor
 
             if (GUILayout.Button("Build Scenario", GUILayout.Height(30)))
             {
+                var configAssetPath = $"Assets/FutureMountain/Scenarios/{scenarioId}/config.json";
+                var normalized = configAssetPath.Replace("\\", "/");
+                string fullPath;
+                if (normalized.StartsWith("Assets/"))
+                {
+                    var rel = normalized.Substring("Assets/".Length);
+                    fullPath = Path.Combine(Application.dataPath, rel);
+                }
+                else
+                {
+                    fullPath = Path.Combine(Application.dataPath, normalized);
+                }
+
+                if (!File.Exists(fullPath))
+                {
+                    EditorUtility.DisplayDialog(
+                        "Scenario Config Missing",
+                        $"Config not found at:\n{configAssetPath}\n\nPlease create the file and try again.",
+                        "OK");
+                    return;
+                }
+
                 FutureMountain.ScenarioBuilder.ScenarioBuilder.BuildScenario(scenarioId);
             }
         }
