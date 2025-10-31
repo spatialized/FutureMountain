@@ -1,0 +1,8 @@
+{
+  "id": "BigCreek",
+  "cubeDefinitions": [
+    { "id": "cube_1", "position": [0, 0, 0] },
+    { "id": "cube_2", "position": [120, 0, 0] },
+    { "id": "cube_3", "position": [240, 0, 0] }
+  ]
+}
