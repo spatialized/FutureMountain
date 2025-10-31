@@ -1,4 +1,4 @@
-﻿//using System;
+//using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -140,6 +140,27 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         //pos.y = 30000f;
         uiTimelineDateTextObject.transform.position = pos;
         uiTimelineDateTextObject.SetActive(true);
+    }
+
+    private void DestroyAllChildren(GameObject parent)
+    {
+        if (parent == null) return;
+        var t = parent.transform;
+        for (int i = t.childCount - 1; i >= 0; i--)
+        {
+            Destroy(t.GetChild(i).gameObject);
+        }
+    }
+
+    private void ClearTimelineContents()
+    {
+        if (fireIcons != null) fireIcons.Clear();
+        if (messageIcons != null) messageIcons.Clear();
+        DestroyAllChildren(timelineLayoutGroup);
+        DestroyAllChildren(fireIconsLayoutGroupEven);
+        DestroyAllChildren(fireIconsLayoutGroupOdd);
+        DestroyAllChildren(messageIconsLayoutGroupEven);
+        DestroyAllChildren(messageIconsLayoutGroupOdd);
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -374,6 +395,8 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         if (waterData == null || waterData.Count == 0)
             return;
 
+        ClearTimelineContents();
+
         messageManager = gameController.messageManager;
         
         resolution = waterData.Count;                      // Set resolution to number of years of water data
@@ -504,6 +527,8 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
         resolution = waterData.Length;     
         startYear = waterData[0].year;  
+
+        ClearTimelineContents();
 
         points = new GameObject[resolution];
         fireYears = newFireYears;
@@ -659,6 +684,8 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         messageManager = gameController.messageManager;
 
         resolution = endYear - startYear + 1;                      // Set resolution to number of years in range
+
+        ClearTimelineContents();
 
         points = new GameObject[resolution];
         fireYears = newFireYears;
