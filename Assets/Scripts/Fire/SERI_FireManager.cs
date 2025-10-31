@@ -441,5 +441,35 @@ public class SERI_FireManager : MonoBehaviour
             terrain.terrainData.SetAlphamaps(0, 0, terrainTextureOriginal);
         }
     }
+
+    private Coroutine StartTrackedCoroutine(IEnumerator routine)
+    {
+        var c = StartCoroutine(routine);
+        _activeCoroutines.Add(c);
+        return c;
+    }
+
+    private void StopAllTrackedCoroutines()
+    {
+        foreach (var c in _activeCoroutines)
+        {
+            if (c != null)
+            {
+                try { StopCoroutine(c); } catch { }
+            }
+        }
+        _activeCoroutines.Clear();
+    }
+
+    private void OnDisable()
+    {
+        StopAllTrackedCoroutines();
+    }
+
+    private void OnDestroy()
+    {
+        StopAllTrackedCoroutines();
+    }
+
     #endregion
 }
