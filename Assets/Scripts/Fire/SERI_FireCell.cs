@@ -1,4 +1,4 @@
-﻿/* Adapted from FireCell.cs
+/* Adapted from FireCell.cs
 // Fire Propagation System
 // Copyright (c) 2016-2017 Lewis Ward
 // author: Lewis Ward
@@ -108,27 +108,33 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
     /// </summary>
     /// <param name="firePos">Position</param>
     /// <param name="newPooler">Fire GameObject/Prefab</param>
-    private void InstantiateFireFromPool(Vector3 firePos, GameObjectPool newPooler)
+    private int InstantiateFireFromPool(Vector3 firePos, GameObjectPool newPooler)
     {
         pooler = newPooler;
 
+        int created = 0;
         for (int i = 0; i < fireList.Length; i++)
         {
-            fireList[i] = pooler.GetPooledObject();
+            var obj = pooler.GetPooledObject();
+            if (obj == null || obj.gameObject == null)
+            {
+                Debug.Log(name + ".InstantiateFireFromPool()... WARNING pooled object is null at i:" + i + "); Possible pool exhaustion.");
+                fireList[i] = null;
+                continue;
+            }
 
-            if (fireList[i] == null)
-                Debug.Log(">> fireList i:" + i + " is null!");
-            else if(fireList[i].gameObject == null)
-                Debug.Log(">> fireList[i].gameObject i:" + i + " is null!");
-
-            fireList[i].transform.position = firePos + new Vector3(firePositions[i].x, 0.0f, firePositions[i].y);
-            fireList[i].transform.parent = transform;
+            fireList[i] = obj;
+            obj.transform.position = firePos + new Vector3(firePositions[i].x, 0.0f, firePositions[i].y);
+            obj.transform.parent = transform;
+            created++;
         }
 
         returnedToPool = false;
 
         if (debug)
             DebugText(GetIter().ToString()+"("+ id.ToString()+")");
+
+        return created;
     }
 
     /// <summary>
@@ -155,7 +161,15 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
 
         if (fireInstantiated == false)
         {
-            InstantiateFireFromPool(transform.position, pooler);
+            int created = InstantiateFireFromPool(transform.position, pooler);
+            if (created == 0)
+            {
+                Debug.Log(name + ".Ignite()... WARNING no pooled fire objects available; ignition skipped.");
+                fireInstantiated = false;
+                isAlight = false;
+                return;
+            }
+
             IgniteAtSize(fireSize);
 
             fireInstantiated = true;
@@ -170,6 +184,7 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
         {
             for (int i = 0; i < fireList.Length; i++)
             {
+                if (fireList[i] == null) continue;
                 SERI_FireVisualManager visualMgr = fireList[i].GetComponent<SERI_FireVisualManager>();
                 visualMgr.SetExtingushState();
             }
@@ -190,6 +205,7 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
     {
         for (int i = 0; i < fireList.Length; i++)
         {
+            if (fireList[i] == null) continue;
             SERI_FireVisualManager visualMgr = fireList[i].GetComponent<SERI_FireVisualManager>();
             visualMgr.SetSize(size);
             visualMgr.RandomizeFire();
@@ -219,6 +235,7 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
             {
                 for (int i = 0; i < fireList.Length; i++)         // Extinguish fire
                 {
+                    if (fireList[i] == null) continue;
                     SERI_FireVisualManager visualMgr = fireList[i].GetComponent<SERI_FireVisualManager>();
                     visualMgr.SetExtingushState();
                 }
@@ -268,11 +285,17 @@ public class SERI_FireCell : MonoBehaviour, IComparable<SERI_FireCell> {
     {
         if (fireInstantiated == false)
         {
-            InstantiateFireFromPool(transform.position, pooler);
+            int created = InstantiateFireFromPool(transform.position, pooler);
+            if (created == 0)
+            {
+                Debug.Log(name + ".Burn()... WARNING no pooled fire objects available; burn skipped.");
+                return;
+            }
             fireInstantiated = true;
 
             for (int i = 0; i < fireList.Length; i++)
             {
+                if (fireList[i] == null) continue;
                 SERI_FireVisualManager visualMgr = fireList[i].GetComponent<SERI_FireVisualManager>();
                 visualMgr.SetHeatState();
             }
