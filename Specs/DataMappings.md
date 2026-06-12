@@ -307,6 +307,8 @@ Fire also modifies later mappings by setting burned terrain state, killed vegeta
 
 ## Model/Statistics Overlay Mapping
 
+See [ShowModelDataLayer.md](ShowModelDataLayer.md) for the feature-level behavior and future improvement notes.
+
 The model display compares data values against visualized values. `CubeController.UpdateStatistics()` maps:
 
 - Data net transpiration into `netTransSlider`.

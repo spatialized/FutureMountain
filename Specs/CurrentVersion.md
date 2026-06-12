@@ -20,6 +20,7 @@ Feature-level specs:
 - [Normal Mode](NormalMode.md)
 - [Side-by-Side Mode](SideBySideMode.md)
 - [Timeline](Timeline.md)
+- [Show Model / Data Layer](ShowModelDataLayer.md)
 - [Data Model](DataModel.md)
 - [Data Mappings](DataMappings.md)
 - [Fire](Fire.md)
@@ -84,9 +85,9 @@ The user can enter side-by-side mode for a selected cube and compare the origina
 
 The timeline shows annual precipitation and markers for fire/message events. UI messages can appear at configured dates and warming levels.
 
-### Model/Statistics Display
+### Show Model / Data Layer
 
-The scene includes labels and statistics UI for cube variables such as water access, groundwater depth, evapotranspiration, stem carbon, and related model values.
+The scene includes a Show Model data layer next to cubes. The current version presents selected model values as bar-style statistics displays so users can compare the numerical model state with the 3D visualization. The Timeline is also a graph-like UI element, using annual precipitation to set bar height.
 
 ## Technical Behavior
 
