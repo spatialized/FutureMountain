@@ -20,13 +20,16 @@ Feature-level specs:
 - [Normal Mode](NormalMode.md)
 - [Side-by-Side Mode](SideBySideMode.md)
 - [Timeline](Timeline.md)
-- [Show Model / Data Layer](ShowModelDataLayer.md)
+- [Show Model / Data Layer](ModelDataLayer.md)
 - [Data Model](DataModel.md)
 - [Data Mappings](DataMappings.md)
 - [Fire](Fire.md)
 - [Messages](Messages.md)
 - [Lighting](Lighting.md)
 - [Snow](Snow.md)
+- [Roots](Roots.md)
+- [Soil](Soil.md)
+- [Ground Water](GroundWater.md)
 
 ### Intro and Loading Flow
 
