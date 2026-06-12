@@ -1775,42 +1775,6 @@ public class CubeController : MonoBehaviour
             //Debug.Log(name+".UpdateDataFromWeb()... warmingIdx: "+warmingIdx);
             WebManager.Instance.RequestCubeData(patchID, warmingIdx, this.FinishUpdateDataFromWeb);
         }
-        //else       // Unused
-        //{
-        //    firstCurrentDataIdx = newTimeIdx;
-        //    if (first)                              // Get initial data
-        //    {
-        //        lastCurrentDataIdx = firstCurrentDataIdx + dataBuffer; // * timeStep < GameController.Instance.GetEndTimeIdx() ? timeIdx + 9 * timeStep : GameController.Instance.GetEndTimeIdx();
-        //        Debug.Log("UpdateDataFromWeb()... first... newTimeIdx: " + newTimeIdx + " set lastCurrentDataIdx: " + lastCurrentDataIdx);
-        //        WebManager.Instance.RequestData(patchID, warmingIdx, timeIdx, lastCurrentDataIdx, this.UpdateDataFromJSON);
-
-        //        Debug.Log("UpdateDataFromWeb()... setting next data...");
-        //        int end = lastCurrentDataIdx + dataBuffer;
-        //        int last = GameController.Instance.GetEndTimeIdx();
-        //        firstNextDataIdx = lastCurrentDataIdx + 1;
-        //        lastNextDataIdx = end < last ? end : last;
-        //        WebManager.Instance.RequestData(patchID, warmingIdx, firstNextDataIdx, lastNextDataIdx, this.UpdateNextDataFromJSON);
-        //    }
-        //    else
-        //    {
-        //        cubeData = nextCubeData;
-        //        firstCurrentDataIdx = firstNextDataIdx;
-        //        lastCurrentDataIdx = lastNextDataIdx;
-
-        //        int end = lastCurrentDataIdx + dataBuffer;
-        //        int last = GameController.Instance.GetEndTimeIdx();
-
-        //        firstNextDataIdx = lastCurrentDataIdx + 1;
-        //        lastNextDataIdx = end < last ? end : last;
-
-        //        if(firstNextDataIdx <= lastCurrentDataIdx)
-        //            return;
-
-        //        Debug.Log("UpdateDataFromWeb()... newTimeIdx: " + newTimeIdx + " set firstCurrentDataIdx: " + firstCurrentDataIdx + " lastCurrentDataIdx:" + lastCurrentDataIdx + " firstNextDataIdx:" + firstNextDataIdx + " lastNextDataIdx:" + lastNextDataIdx);
-
-        //        WebManager.Instance.RequestData(patchID, warmingIdx, firstNextDataIdx, lastNextDataIdx, this.UpdateNextDataFromJSON);
-        //    }
-        //}
     }
 
     private void UpdateDataFromJSON(string jsonString)
