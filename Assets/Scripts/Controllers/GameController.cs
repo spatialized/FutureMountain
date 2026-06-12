@@ -1635,8 +1635,11 @@ public class GameController : MonoBehaviour
 
             UpdateSimulation();
 
-            if (reachedEndOfTimeline)
-                PauseAtEndOfTimeline();
+            if (reachedEndOfTimeline && gameStarted)
+            {
+                EndSimulationRun();
+                return;
+            }
 
             if (!paused && !pausedAuto)
             {
@@ -1726,13 +1729,13 @@ public class GameController : MonoBehaviour
     {
         if (timeIdx > endTimeIdx || endSimulation)
         {
-            ClampTimeIdxToSimulationBounds(true);
+            ClampTimeIdxToSimulationBounds(false);
             if (DebugLevel(1))
                 Debug.Log("UpdateSimulation().. Ended... timeIdx:" + timeIdx + " curDate:" + curDate.ToString() + " endTimeIdx:" + endTimeIdx);
             if (DebugLevel(1) && debugMessages)
                 DebugMessage("UpdateSimulation().. Ended... timeIdx:" + timeIdx + " curDate:" + curDate.ToString() + " endTimeIdx:" + endTimeIdx, true);
 
-            PauseAtEndOfTimeline();
+            EndSimulationRun();
             return;
         }
         else
@@ -2483,20 +2486,6 @@ public class GameController : MonoBehaviour
         return changed;
     }
 
-    private void PauseAtEndOfTimeline()
-    {
-        ClampTimeIdxToSimulationBounds(true);
-        endSimulation = false;
-
-        if (timeIdx >= 0 && timeIdx < dataDates.Count)
-            curDate = dataDates[timeIdx];
-
-        if (uiTimelineObject != null)
-            uiTimelineObject.SetActive(true);
-
-        UpdateUIText();
-        uiTimeline.UpdateSimulation(GetCurrentYear());
-    }
     #endregion
 
     #region Controls
