@@ -15,6 +15,18 @@ This spec describes the current Big Creek version of Future Mountain as implemen
 
 ## Primary User Features
 
+Feature-level specs:
+
+- [Normal Mode](NormalMode.md)
+- [Side-by-Side Mode](SideBySideMode.md)
+- [Timeline](Timeline.md)
+- [Data Model](DataModel.md)
+- [Data Mappings](DataMappings.md)
+- [Fire](Fire.md)
+- [Messages](Messages.md)
+- [Lighting](Lighting.md)
+- [Snow](Snow.md)
+
 ### Intro and Loading Flow
 
 The experience begins with an intro/setup state, then loads simulation data and transitions into the main scene. Loading text and short explanatory instructions are stored in the Unity scene.
@@ -100,4 +112,3 @@ The scene includes labels and statistics UI for cube variables such as water acc
 - WebGL build can load Big Creek data from the API.
 - User can start the simulation, select warming level, pause/resume, use the timeline, inspect cubes, and enter side-by-side comparison.
 - Fire, snow, river, vegetation, roots, groundwater, and cube statistics appear consistently with the current deployed Big Creek behavior.
-
