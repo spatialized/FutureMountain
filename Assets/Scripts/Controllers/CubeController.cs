@@ -2036,10 +2036,9 @@ public class CubeController : MonoBehaviour
         {
             GameObject rootsPrefab = rootsPrefabs[i];
             float rootsY = settings.RootsYOffsetFactor;
-            Vector3 rootLocation = new Vector3(firLocations[treeID].x, firLocations[treeID].y + rootsY, firLocations[treeID].z);
-            GameObject newRoots = Instantiate(rootsPrefab, rootLocation, rootsPrefab.transform.rotation, parent);       // Create root object from prefab
-
-            newRoots.transform.parent = newTree.transform;
+            GameObject newRoots = Instantiate(rootsPrefab, newTree.transform);       // Create root object from prefab
+            newRoots.transform.localPosition = new Vector3(0f, rootsY, 0f);
+            newRoots.transform.localRotation = Quaternion.identity;
             newRoots.name = "Roots_" + i;
 
             Assert.IsNotNull(newRoots);
