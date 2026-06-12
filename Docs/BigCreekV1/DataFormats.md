@@ -4,8 +4,7 @@ Last updated: 2026-06-12
 
 ## Overview
 
-Future Mountain visualizes RHESSys-derived data through Unity runtime models, API JSON responses, and legacy TextAsset parsing paths. The current repo includes `ScenarioConfig_BigCreek.json`, which documents the intended Big Creek source folders, file patterns, output tables, and column mappings.
-
+Future Mountain Big Creek (v1) visualizes RHESSys-derived data through Unity runtime models, API JSON responses, and legacy TextAsset parsing paths.
 The runtime code still contains hard-coded column order assumptions, so this document should be treated as both documentation and a migration checklist.
 
 ## Scenario Config
@@ -20,7 +19,7 @@ The runtime code still contains hard-coded column order assumptions, so this doc
 - Output tables: `cubedata`, `patchdata`, `terraindata`, `firedata`, `waterdata`, `dates`.
 - Flags: `hasFire: true`, `vegetationLayers: 2`.
 
-This file is currently documentation/config for the data pipeline. The Unity runtime does not appear to load this scenario config directly.
+This file is currently documentation/config for the data pipeline. The Unity runtime does not load this scenario config directly. This format may be used/expanded in the future for a generalized scenario loader.
 
 ## Warming Levels
 
