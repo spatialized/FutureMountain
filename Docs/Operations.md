@@ -1,43 +1,213 @@
-# Future Mountain Operations
-
-Last updated: 2026-06-12
+# Future Mountain Operations Guide
 
 ## Purpose
 
-This document is a first-pass operations runbook for opening, testing, building, and handing off the current Future Mountain Unity project. It focuses on the current Big Creek version and should be expanded as deployment credentials, server details, and the Central Coast data pipeline are confirmed.
+This document describes the operational infrastructure required to maintain and support the Future Mountain project.
 
-## Contacts
+It is intended for developers, graduate students, researchers, and technical staff who may need to administer servers, websites, databases, or related services.
 
-To be filled in manually.
+This document focuses on project operations rather than software architecture or scientific modeling.
 
-Suggested contact areas:
+---
 
-- Project owner / producer.
-- Unity developer.
-- Designer / visual lead.
-- Data/modeling contact.
-- API/database administrator.
-- Web hosting/deployment contact.
-- Exhibit/install support contact.
+# Infrastructure Overview
+
+Future Mountain consists of several web applications, databases, simulation datasets, and Unity applications hosted through UCSB infrastructure.
+
+Primary responsibilities include:
+
+* Website administration
+* Database maintenance
+* User account management
+* Server access and troubleshooting
+* Deployment of web applications
+* Data management and backups
+* Coordination with UCSB GRIT support staff
+
+---
+
+# Server Hosting
+
+## Primary Server
+
+**Hostname**
+
+```text
+fm01.grit.ucsb.edu
+```
+
+**IP Address**
+
+```text
+128.111.100.115
+```
+
+This server is managed through UCSB GRIT (Geographic Information and Remote Sensing Technology).
+
+The server hosts the Future Mountain web applications and associated services.
+
+---
+
+# GRIT Support
+
+## GRIT Helpdesk
+
+https://zammad.grit.ucsb.edu/
+
+GRIT should be contacted for:
+
+* Server outages
+* Authentication problems
+* Authorization and permissions issues
+* VPN access problems
+* Remote Desktop access issues
+* Operating system or infrastructure failures
+* Server maintenance requests
+
+When reporting issues, include:
+
+* Date and time of occurrence
+* Error messages
+* Screenshots if available
+* Steps required to reproduce the issue
+
+---
+
+# VPN Requirements
+
+Administrative access to project infrastructure requires connection through the UCSB Ivanti VPN.
+
+Without VPN access, administrative services may be inaccessible.
+
+Examples include:
+
+* Remote Desktop access
+* Internal server management
+* IIS administration
+* Database administration
+* Internal web applications
+
+---
+
+# Administrative Access
+
+## Remote Desktop
+
+Administrative tasks are typically performed through Remote Desktop access to:
+
+```text
+fm01.grit.ucsb.edu
+```
+
+Requirements:
+
+* UCSB Ivanti VPN connection
+* Authorized user account
+* Administrative privileges on the server
+
+Common administrative tasks include:
+
+* Website deployment
+* IIS configuration
+* Log inspection
+* Application troubleshooting
+* Database maintenance
+
+---
+
+# Hosted Websites
+
+## Production Website
+
+https://futuremtn.org
+
+Primary public-facing Future Mountain website.
+
+---
+
+## Staging Website
+
+https://staging.futuremtn.org
+
+Used for testing and validation before production deployment.
+
+---
+
+## Data Portal
+
+https://data.futuremtn.org
+
+Provides access to simulation data and related resources.
+
+---
+
+# Website Administration
+
+Website administration may include:
+
+* Creating new websites
+* Updating IIS configuration
+* Managing SSL certificates
+* Deploying application updates
+* Reviewing server logs
+* Managing application pools
+
+Administrative access to the server is required.
+
+---
+
+# Databases
+
+Future Mountain utilizes MySQL databases to store simulation outputs and related application data.
+
+Database documentation is maintained separately in:
+
+```text
+Docs/DataDictionary.md
+Specs/DataModel.md
+```
+
+Database administration tasks may include:
+
+* Backups
+* Schema updates
+* User account management
+* Data imports
+* Performance troubleshooting
+
+---
+
+# Source Code
+
+Source code repositories are maintained through GitHub.
+
+Developers should use Git for:
+
+* Version control
+* Code reviews
+* Documentation updates
+* Issue tracking
+
+Project documentation should be committed alongside source code whenever possible.
 
 ## Repository
 
-- Repository root: `D:\Git\FutureMountain` on this workstation.
-- Unity solution: `FutureMountain.sln`.
-- Active scene: `Assets/Scenes/FutureMountain/FutureMountain.unity`.
-- Unity version: `2022.3.62f3`.
-- Scenario config reference: `ScenarioConfig_BigCreek.json`.
+* Repository root: `D:\Git\FutureMountain` on this workstation.
+* Unity solution: `FutureMountain.sln`.
+* Active scene: `Assets/Scenes/FutureMountain/FutureMountain.unity`.
+* Unity version: `2022.3.62f3`.
+* Scenario config reference: `ScenarioConfig_BigCreek.json`.
 
 The repository contains Unity source/assets plus documentation in `Docs/` and feature specs in `Specs/`.
 
 ## Required Local Software
 
-- Unity Editor `2022.3.62f3`.
-- Unity WebGL build support if building the online version.
-- Git.
-- A browser for WebGL smoke testing.
-- Optional: MySQL Workbench 8 for schema inspection/export.
-- Optional: local Future Mountain API/database stack if testing `LOCAL_VERSION`.
+* Unity Editor `2022.3.62f3`.
+* Unity WebGL build support if building the online version.
+* Git.
+* A browser for WebGL smoke testing.
+* Optional: MySQL Workbench 8 for schema inspection/export.
+* Optional: local Future Mountain API/database stack if testing `LOCAL_VERSION`.
 
 ## Build Targets And Symbols
 
@@ -45,13 +215,13 @@ The project currently uses scripting define symbols in `ProjectSettings/ProjectS
 
 Known symbols:
 
-- `WEB_VERSION` for WebGL.
-- `LOCAL_VERSION` for Standalone/editor-local API testing.
+* `WEB_VERSION` for WebGL.
+* `LOCAL_VERSION` for Standalone/editor-local API testing.
 
 Current API base URLs in `Assets/Scripts/Controllers/WebManager.cs`:
 
-- `LOCAL_VERSION`: `http://localhost:5550/api/`
-- `WEB_VERSION` or default: `https://data.futuremtn.org/api/`
+* `LOCAL_VERSION`: `http://localhost:5550/api/`
+* `WEB_VERSION` or default: `https://data.futuremtn.org/api/`
 
 `SimulationSettings.BuildForWeb` is currently true by default. In web builds, `SimulationSettings.OptimizeForWeb()` reduces vegetation density and increases carbon factors to improve performance.
 
@@ -69,10 +239,10 @@ The project can run in the Unity Editor, but current runtime settings are orient
 
 Before pressing Play, confirm:
 
-- The active scene is `Assets/Scenes/FutureMountain/FutureMountain.unity`.
-- The intended scripting symbol is active for the target being tested.
-- The API target is reachable if using web/API data.
-- The Console is visible for data-loading errors.
+* The active scene is `Assets/Scenes/FutureMountain/FutureMountain.unity`.
+* The intended scripting symbol is active for the target being tested.
+* The API target is reachable if using web/API data.
+* The Console is visible for data-loading errors.
 
 Basic run check:
 
@@ -86,15 +256,15 @@ Basic run check:
 
 For the deployed Big Creek API, these endpoints are expected by Unity:
 
-- `https://data.futuremtn.org/api/cubedata/{patchIdx}/{warmingIdx}`
-- `https://data.futuremtn.org/api/waterdata/{index}`
-- `https://data.futuremtn.org/api/waterdata/total`
-- `https://data.futuremtn.org/api/firedata/{warmingIdx}`
-- `https://data.futuremtn.org/api/patchdata`
-- `https://data.futuremtn.org/api/patchdata/{patchId}`
-- `https://data.futuremtn.org/api/dates`
-- `https://data.futuremtn.org/api/dates/{year}/{month}/{day}`
-- `https://data.futuremtn.org/api/terraindata/{warmingIdx}`
+* `https://data.futuremtn.org/api/cubedata/{patchIdx}/{warmingIdx}`
+* `https://data.futuremtn.org/api/waterdata/{index}`
+* `https://data.futuremtn.org/api/waterdata/total`
+* `https://data.futuremtn.org/api/firedata/{warmingIdx}`
+* `https://data.futuremtn.org/api/patchdata`
+* `https://data.futuremtn.org/api/patchdata/{patchId}`
+* `https://data.futuremtn.org/api/dates`
+* `https://data.futuremtn.org/api/dates/{year}/{month}/{day}`
+* `https://data.futuremtn.org/api/terraindata/{warmingIdx}`
 
 If the app stalls during loading, first check browser/Unity Console logs for failed API requests, JSON parse failures, or missing fields.
 
@@ -110,21 +280,21 @@ Use this path when testing a local API/database copy. The local API should match
 
 Before testing locally:
 
-- Start the local API.
-- Confirm the local database is loaded with the expected scenario data.
-- Visit one or two API endpoints directly in a browser to confirm JSON responses.
-- Confirm CORS/browser access if testing a WebGL build against the local API.
+* Start the local API.
+* Confirm the local database is loaded with the expected scenario data.
+* Visit one or two API endpoints directly in a browser to confirm JSON responses.
+* Confirm CORS/browser access if testing a WebGL build against the local API.
 
 ## WebGL Build Checklist
 
 Before building:
 
-- Confirm active build target is WebGL.
-- Confirm `WEB_VERSION` is present for WebGL scripting define symbols.
-- Confirm `Assets/Scenes/FutureMountain/FutureMountain.unity` is included in Build Settings.
-- Confirm `SimulationSettings.BuildForWeb` is true.
-- Confirm the deployed API is reachable.
-- Confirm no local-only API URL is selected.
+* Confirm active build target is WebGL.
+* Confirm `WEB_VERSION` is present for WebGL scripting define symbols.
+* Confirm `Assets/Scenes/FutureMountain/FutureMountain.unity` is included in Build Settings.
+* Confirm `SimulationSettings.BuildForWeb` is true.
+* Confirm the deployed API is reachable.
+* Confirm no local-only API URL is selected.
 
 Build smoke test:
 
@@ -142,10 +312,10 @@ Build smoke test:
 
 Before building:
 
-- Confirm active build target is Standalone.
-- Confirm `LOCAL_VERSION` is present for Standalone scripting define symbols if testing a local API.
-- Confirm a local API is running at `http://localhost:5550/api/`, or adjust the code/config intentionally.
-- Confirm `Assets/Scenes/FutureMountain/FutureMountain.unity` is included in Build Settings.
+* Confirm active build target is Standalone.
+* Confirm `LOCAL_VERSION` is present for Standalone scripting define symbols if testing a local API.
+* Confirm a local API is running at `http://localhost:5550/api/`, or adjust the code/config intentionally.
+* Confirm `Assets/Scenes/FutureMountain/FutureMountain.unity` is included in Build Settings.
 
 Smoke test the same primary features as WebGL, with extra attention to any local/non-web paths such as background snow and legacy data-loading behavior.
 
@@ -172,106 +342,76 @@ When behavior changes, update the nearest feature spec in `Specs/`.
 
 When data contracts change, update:
 
-- [DataDictionary.md](DataDictionary.md)
-- [DataFormats.md](DataFormats.md)
-- [Data Model Spec](../Specs/DataModel.md)
-- [Data Mappings Spec](../Specs/DataMappings.md)
+* [DataDictionary.md](DataDictionary.md)
+* [DataFormats.md](DataFormats.md)
+* [Data Model Spec](../Specs/DataModel.md)
+* [Data Mappings Spec](../Specs/DataMappings.md)
 
 When build, deployment, access, or runbook details change, update this operations document.
 
-## Troubleshooting
+---
 
-### Loading Does Not Complete
+# Documentation
 
-Likely causes:
-
-- API unavailable.
-- Endpoint URL mismatch.
-- JSON field name mismatch.
-- Missing scenario data for a cube, warming index, date, fire frame, terrain frame, or patch.
-- Browser/CORS issue in WebGL.
-
-First checks:
-
-- Unity Console or browser developer console.
-- `WebManager` base URL and active scripting symbol.
-- Direct browser request to the failing API endpoint.
-
-### Cubes Load But Vegetation Looks Wrong
-
-Likely causes:
-
-- Carbon fields changed units or ranges.
-- Scenario data missing overstory/understory fields.
-- `SimulationSettings` carbon factors or web optimization values changed.
-- Warming/cube/patch index mismatch.
-
-Relevant specs:
-
-- [Data Mappings Spec](../Specs/DataMappings.md)
-- [Normal Mode Spec](../Specs/NormalMode.md)
-- [Side-by-Side Mode Spec](../Specs/SideBySideMode.md)
-
-### Timeline Looks Wrong
-
-Likely causes:
-
-- Missing or incorrect annual precipitation totals.
-- `waterdata/total` contract changed.
-- Web path still using hard-coded maximum precipitation scaling.
-- Date index/year mismatch.
-
-Relevant specs:
-
-- [Timeline Spec](../Specs/Timeline.md)
-- [Show Model / Data Layer Spec](../Specs/ShowModelDataLayer.md)
-
-### Fire Timing Or Spread Looks Wrong
-
-Likely causes:
-
-- Scheduled fire dates differ between code, messages, and model data.
-- Fire grid dimensions or serialized `_dataList` format changed.
-- Missing fire data for selected warming index.
-
-Relevant spec:
-
-- [Fire Spec](../Specs/Fire.md)
-
-### Snow Looks Wrong
-
-Likely causes:
-
-- `BuildForWeb` or `backgroundSnowOn` path changed.
-- Terrain snow data missing or scenario-specific.
-- Cube `snow` units/ranges changed.
-
-Relevant spec:
-
-- [Snow Spec](../Specs/Snow.md)
-
-## Release Notes Template
-
-Use this lightweight template for future handoff/release notes:
+Project documentation is maintained within the repository under:
 
 ```text
-Version / date:
-Build target:
-Unity version:
-Scenario data version:
-API/database version:
-Major changes:
-Known issues:
-Smoke tests completed:
-Deployment location:
-Rollback notes:
+Docs/
 ```
 
-## Open Operations Items
+Examples include:
 
-- Add real project contacts.
-- Document production hosting/deployment steps for `futuremtn.org`.
-- Document API/backend repository location and deployment process.
-- Decide whether the importer remains separate or becomes a utility project inside this repository.
-- Add MySQL schema export procedure once the database workflow is confirmed.
-- Add Central Coast scenario data import and validation procedure.
+* Architecture documentation
+* Data model documentation
+* RHESSys integration documentation
+* Vegetation visualization specifications
+* Fire system documentation
+* Operations documentation
+
+Documentation stored in Git is considered the authoritative source.
+
+---
+
+# Disaster Recovery
+
+If project services become unavailable:
+
+1. Verify VPN connectivity.
+2. Verify server availability.
+3. Review application and IIS logs.
+4. Confirm database connectivity.
+5. Contact GRIT if server-level issues are suspected.
+6. Document findings and corrective actions.
+
+---
+
+# Key Contacts
+
+## UCSB GRIT
+
+Primary support organization responsible for server infrastructure and related services.
+
+Helpdesk:
+
+https://zammad.grit.ucsb.edu/
+
+---
+
+## Future Mountain Team
+
+Project-specific contacts should be maintained here.
+
+Future updates should include:
+
+* Principal Investigators
+* Graduate Researchers
+* Developers
+* System Administrators
+
+---
+
+# Revision History
+
+| Date | Author | Notes |
+| --- | --- | --- |
+| YYYY-MM-DD | Initial Author | Initial operations guide created |
