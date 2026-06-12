@@ -1217,16 +1217,24 @@ public class GameController : MonoBehaviour
         fireFrameIndexByTime = new Dictionary<int, int>();
         fireYears = new List<int>();
 
-        int ct = 0;
+        List<Vector3> validFireDates = new List<Vector3>();
         foreach (Vector3 date in fireDates)
         {
             int frame = GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z);
+            if (!IsValidTimeIdx(frame))
+            {
+                Debug.LogWarning(name + ".SetupFires()... Skipping fire outside simulation dates. date:" + date + " frame:" + frame + " endTimeIdx:" + endTimeIdx);
+                continue;
+            }
+
+            int ct = fireFrames.Count;
+            validFireDates.Add(date);
             fireFrames.Add(frame);
             fireFrameSet.Add(frame);
             fireFrameIndexByTime[frame] = ct;
             fireYears.Add((int)date.z);
-            ct++;
         }
+        fireDates = validFireDates.ToArray();
 
         if (landscapeController.LandscapeSimulationIsOn() && landscapeController.LandscapeWebSimulationIsOn())
             Assert.IsNotNull(landscapeDataList);
@@ -1617,10 +1625,18 @@ public class GameController : MonoBehaviour
 
         if (Time.time - lastSimulationUpdate > timeSpeed)                         /* Update Simulation */
         {
+            bool reachedEndOfTimeline = false;
             if (!paused && !pausedAuto)
+            {
                 timeIdx += timeStep;
+                reachedEndOfTimeline = timeIdx >= GetMaxValidTimeIdx();
+                ClampTimeIdxToSimulationBounds(false);
+            }
 
             UpdateSimulation();
+
+            if (reachedEndOfTimeline)
+                PauseAtEndOfTimeline();
 
             if (!paused && !pausedAuto)
             {
@@ -1649,11 +1665,7 @@ public class GameController : MonoBehaviour
 
                 uiTimeline.UpdateSimulation(GetCurrentYear());                  // Update timeline 
 
-                if (uiTimeline.clickedID >= 0 && uiTimeline.clickedID < simulationEndYear - simulationStartYear)
-                {
-                    SetTimePosition(uiTimeline.clickedID);
-                }
-                uiTimeline.clickedID = -1;
+                HandleTimelineClick();
             }
         }
         else if (displaySeasons)                                                /* Update lighting between simulation frames */
@@ -1661,15 +1673,13 @@ public class GameController : MonoBehaviour
             if (!paused && !pausedAuto)
             {
                 uiTimeline.UpdateSimulation(GetCurrentYear());                  // Update timeline 
-                if (uiTimeline.clickedID >= 0 && uiTimeline.clickedID < simulationEndYear - simulationStartYear)
-                {
-                    SetTimePosition(uiTimeline.clickedID);
-                }
-                uiTimeline.clickedID = -1;
+                HandleTimelineClick();
 
                 UpdateLighting();                                               /* Update lighting between simulation frames */
             }
         }
+
+        HandleTimelineClick();
 
         /* Handle Keyboard Input */
         if (Input.GetKeyDown(KeyCode.H))
@@ -1716,16 +1726,18 @@ public class GameController : MonoBehaviour
     {
         if (timeIdx > endTimeIdx || endSimulation)
         {
+            ClampTimeIdxToSimulationBounds(true);
             if (DebugLevel(1))
                 Debug.Log("UpdateSimulation().. Ended... timeIdx:" + timeIdx + " curDate:" + curDate.ToString() + " endTimeIdx:" + endTimeIdx);
             if (DebugLevel(1) && debugMessages)
                 DebugMessage("UpdateSimulation().. Ended... timeIdx:" + timeIdx + " curDate:" + curDate.ToString() + " endTimeIdx:" + endTimeIdx, true);
 
-            EndSimulationRun();
+            PauseAtEndOfTimeline();
             return;
         }
         else
         {
+            ClampTimeIdxToSimulationBounds(false);
             if (timeIdx >= 0 && timeIdx < dataDates.Count)
             {
                 curDate = dataDates[timeIdx];
@@ -1890,6 +1902,12 @@ public class GameController : MonoBehaviour
 
         if (igniteFire)
         {
+            if (fireDates == null || fireFrames == null || fireFrameIdx < 0 || fireFrameIdx >= fireDates.Length || fireFrameIdx >= fireFrames.Count)
+            {
+                Debug.LogWarning(name + ".UpdateFireIgnition()... Skipping fire with invalid fireFrameIdx:" + fireFrameIdx);
+                return;
+            }
+
             Vector3 date = fireDates[fireFrameIdx];
             int fireTimeIdx = fireFrames[fireFrameIdx];
 
@@ -2224,6 +2242,9 @@ public class GameController : MonoBehaviour
     private void SetTimePosition(int selectedYearIdx)
     {
         timeIdx = GetTimeIdxForDay(1, 1, selectedYearIdx + simulationStartYear);        // Go to selected year 
+        if (timeIdx < 0)
+            timeIdx = GetMaxValidTimeIdx();
+        ClampTimeIdxToSimulationBounds(false);
 
         if (DebugLevel(1))
             Debug.Log(name+".SetTimePosition()... selectedYearIdx:" + selectedYearIdx + " new timeIdx:" + timeIdx);
@@ -2240,6 +2261,17 @@ public class GameController : MonoBehaviour
         aggregateSideCubeController.UpdateVegetationFromData();
         landscapeController.ResetBurntState();
         landscapeController.UpdateLandscape(timeIdx, GetCurrentYear(), GetCurrentMonth(), GetCurrentDayInMonth(), timeStep, pausedAuto);
+    }
+
+    private void HandleTimelineClick()
+    {
+        if (uiTimeline == null || uiTimeline.clickedID < 0)
+            return;
+
+        if (uiTimeline.clickedID <= simulationEndYear - simulationStartYear)
+            SetTimePosition(uiTimeline.clickedID);
+
+        uiTimeline.clickedID = -1;
     }
     
     public int GetTimeIdx()
@@ -2258,6 +2290,12 @@ public class GameController : MonoBehaviour
     {
         int idx = 0;
 
+        if (dataDates == null || dataDates.Count == 0)
+        {
+            Debug.LogWarning("GetTimeIdxForDay()... No dates are loaded.");
+            return 0;
+        }
+
         DateModel check = dataDates[0];
         int curYear = check.year;
         int curMonth = check.month;
@@ -2270,7 +2308,7 @@ public class GameController : MonoBehaviour
             if (idx >= dataDates.Count)
             {
                 Debug.Log("GetTimeIdxForDay()... Couldn't find time index for day:" + day + " month:" + month + " year:" + year);
-                break;
+                return -1;
             }
 
             check = dataDates[idx];
@@ -2331,16 +2369,17 @@ public class GameController : MonoBehaviour
     /// <returns>The current day of year.</returns>
     private int GetCurrentDayOfYear()
     {
-        if (timeIdx < dataDates.Count)
+        int safeTimeIdx = GetClampedTimeIdx();
+        if (safeTimeIdx >= 0 && safeTimeIdx < dataDates.Count)
         {
             //string[] curDateFields = dataDates[timeIdx].Split('-');            // Save data file headings
             //int curYear = int.Parse(curDateFields[0]);
             //int curMonth = int.Parse(curDateFields[1]);
             //int curDay = int.Parse(curDateFields[2]);
 
-            int curYear = dataDates[timeIdx].year;
-            int curMonth = dataDates[timeIdx].month;
-            int curDay = dataDates[timeIdx].day;
+            int curYear = dataDates[safeTimeIdx].year;
+            int curMonth = dataDates[safeTimeIdx].month;
+            int curDay = dataDates[safeTimeIdx].day;
 
             return GetDayOfYear(curMonth, curDay, curYear);
         }
@@ -2358,24 +2397,14 @@ public class GameController : MonoBehaviour
     /// <returns>The current day in month.</returns>
     private int GetCurrentDayInMonth()
     {
-        if (timeIdx >= dataDates.Count)
+        int safeTimeIdx = GetClampedTimeIdx();
+        if (safeTimeIdx < 0 || safeTimeIdx >= dataDates.Count)
         {
-            Debug.Log("GetCurrentDayInMonth()... ERROR... timeIdx > dataDates.Count");
+            Debug.Log("GetCurrentDayInMonth()... ERROR... no valid date for timeIdx:" + timeIdx);
             return -1;
         }
 
-        //string[] curDateFields;
-        DateModel cur = dataDates[timeIdx];            // Save data file headings
-        if (timeIdx < dataDates.Count - 2)
-            return cur.day;
-
-        Debug.Log("ERROR: Can't get current day in month... timeIdx:" + timeIdx + " > dataDates.Count:" + dataDates.Count + " endTimeIdx:" + endTimeIdx);
-
-        if (debugMessages)
-            DebugMessage("ERROR: Can't get current day in month... timeIdx:" + timeIdx + " > dataDates.Count:" + dataDates.Count + " endTimeIdx:" + endTimeIdx, true);
-
-        cur = dataDates[dataDates.Count - 2];
-        return cur.day;
+        return dataDates[safeTimeIdx].day;
     }
 
     /// <summary>
@@ -2384,24 +2413,14 @@ public class GameController : MonoBehaviour
     /// <returns>The current month.</returns>
     private int GetCurrentMonth()
     {
-        if (timeIdx >= dataDates.Count)
+        int safeTimeIdx = GetClampedTimeIdx();
+        if (safeTimeIdx < 0 || safeTimeIdx >= dataDates.Count)
         {
-            Debug.Log("GetCurrentMonth()... ERROR... timeIdx > dataDates.Count... timeIdx: " + timeIdx);
+            Debug.Log("GetCurrentMonth()... ERROR... no valid date for timeIdx:" + timeIdx);
             return -1;
         }
 
-        //string[] curDateFields;
-        DateModel cur = dataDates[timeIdx];            // Save data file headings
-        if (timeIdx < dataDates.Count - 2)
-            return cur.month;
-
-        Debug.Log("ERROR: Can't get current month... timeIdx:" + timeIdx + " > dataDates.Count:" + dataDates.Count + " endTimeIdx:" + endTimeIdx);
-
-        if (debugMessages)
-            DebugMessage("ERROR: Can't get current month... timeIdx:" + timeIdx + " > dataDates.Count:" + dataDates.Count + " endTimeIdx:" + endTimeIdx, true);
-
-        cur = dataDates[dataDates.Count - 2];
-        return cur.month;
+        return dataDates[safeTimeIdx].month;
     }
 
     /// <summary>
@@ -2410,29 +2429,73 @@ public class GameController : MonoBehaviour
     /// <returns>The current year.</returns>
     private int GetCurrentYear()
     {
-        if (timeIdx >= dataDates.Count)
+        int safeTimeIdx = GetClampedTimeIdx();
+        if (safeTimeIdx < 0 || safeTimeIdx >= dataDates.Count)
         {
-            Debug.Log("ERROR... timeIdx > dataDates.Count");
+            Debug.Log("GetCurrentYear()... ERROR... no valid date for timeIdx:" + timeIdx);
             return -1;
         }
 
-        //string[] curDateFields;
-        DateModel cur = dataDates[timeIdx];            // Save data file headings
-        if (timeIdx < dataDates.Count - 2)
-            return cur.year;
-
-        Debug.Log("ERROR: Can't get current year... timeIdx:" + timeIdx + " > dataDates.Count:" + dataDates.Count + " endTimeIdx:" + endTimeIdx);
-
-        if (debugMessages)
-            DebugMessage("ERROR: Can't get current year... timeIdx:" + timeIdx + " > dataDates.Count:" + dataDates.Count + " endTimeIdx:" + endTimeIdx, true);
-
-        cur = dataDates[dataDates.Count - 2];
-        return cur.year;
+        return dataDates[safeTimeIdx].year;
     }
 
     public int GetEndTimeIdx()
     {
         return endTimeIdx;
+    }
+
+    private int GetMaxValidTimeIdx()
+    {
+        if (dataDates == null || dataDates.Count == 0)
+            return 0;
+
+        return Mathf.Clamp(endTimeIdx, 0, dataDates.Count - 1);
+    }
+
+    private int GetClampedTimeIdx()
+    {
+        if (dataDates == null || dataDates.Count == 0)
+            return 0;
+
+        return Mathf.Clamp(timeIdx, 0, GetMaxValidTimeIdx());
+    }
+
+    private bool IsValidTimeIdx(int idx)
+    {
+        return dataDates != null && dataDates.Count > 0 && idx >= 0 && idx <= GetMaxValidTimeIdx();
+    }
+
+    private bool ClampTimeIdxToSimulationBounds(bool pauseAtEnd)
+    {
+        if (dataDates == null || dataDates.Count == 0)
+            return false;
+
+        int clampedTimeIdx = Mathf.Clamp(timeIdx, 0, GetMaxValidTimeIdx());
+        bool changed = clampedTimeIdx != timeIdx;
+        timeIdx = clampedTimeIdx;
+
+        if (pauseAtEnd && timeIdx >= GetMaxValidTimeIdx() && !paused)
+        {
+            SetPaused(true);
+            pausedAuto = false;
+        }
+
+        return changed;
+    }
+
+    private void PauseAtEndOfTimeline()
+    {
+        ClampTimeIdxToSimulationBounds(true);
+        endSimulation = false;
+
+        if (timeIdx >= 0 && timeIdx < dataDates.Count)
+            curDate = dataDates[timeIdx];
+
+        if (uiTimelineObject != null)
+            uiTimelineObject.SetActive(true);
+
+        UpdateUIText();
+        uiTimeline.UpdateSimulation(GetCurrentYear());
     }
     #endregion
 
@@ -2551,7 +2614,14 @@ public class GameController : MonoBehaviour
     public int GetDateIdxForDate(int year, int month, int day)
     {
         if(year > 0 && month > 0 && day > 0)
-            return dateLookup[new Vector3(year, month, day)];
+        {
+            int idx;
+            if (dateLookup != null && dateLookup.TryGetValue(new Vector3(year, month, day), out idx))
+                return idx;
+
+            Debug.LogWarning("GetDateIdxForDate()... No date index found for year:" + year + " month:" + month + " day:" + day);
+            return -1;
+        }
         else
         {
             Debug.Log("GetDateIdxForDate()... ERROR: year / month / day cannot be zero!");
