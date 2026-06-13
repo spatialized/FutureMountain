@@ -1625,21 +1625,29 @@ public class GameController : MonoBehaviour
 
         if (Time.time - lastSimulationUpdate > timeSpeed)                         /* Update Simulation */
         {
-            bool reachedEndOfTimeline = false;
             if (!paused && !pausedAuto)
             {
-                timeIdx += timeStep;
-                reachedEndOfTimeline = timeIdx >= GetMaxValidTimeIdx();
+                int maxTimeIdx = GetMaxValidTimeIdx();
+                int nextTimeIdx = timeIdx + timeStep;
+                if (nextTimeIdx >= maxTimeIdx)
+                {
+                    timeIdx = maxTimeIdx;
+                    ClampTimeIdxToSimulationBounds(false);
+                    if (timeIdx >= 0 && dataDates != null && timeIdx < dataDates.Count)
+                        curDate = dataDates[timeIdx];
+
+                    if (gameStarted)
+                    {
+                        EndSimulationRun();
+                        return;
+                    }
+                }
+
+                timeIdx = nextTimeIdx;
                 ClampTimeIdxToSimulationBounds(false);
             }
 
             UpdateSimulation();
-
-            if (reachedEndOfTimeline && gameStarted)
-            {
-                EndSimulationRun();
-                return;
-            }
 
             if (!paused && !pausedAuto)
             {
@@ -2904,7 +2912,8 @@ public class GameController : MonoBehaviour
         ResetCubes();
         HideCubes(true, -1, true);
         HideSideCubes();
-        ResetFireManagers();
+        if (!settings.BuildForWeb && Application.platform != RuntimePlatform.WebGLPlayer)
+            ResetFireManagers();
 
         pauseButtonObject.SetActive(false);
         warmingKnobSlider.respondToUser = true;

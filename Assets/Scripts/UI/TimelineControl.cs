@@ -896,18 +896,17 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         if (idx < 0 || idx >= points.Length)
         {
             Debug.Log("SetColorForYear()... ERROR idx:" + idx + " points Length:" + points.Length);
+            return;
         }
-        else
+
+        for (int i = 0; i < resolution; i++)
         {
-            for (int i = 0; i < resolution; i++)
-            {
-                if (i == idx) continue;
-                Image img = points[i].GetComponent<Image>() as Image;
-                img.color = defaultColor;
-            }
-            Image image = points[idx].GetComponent<Image>() as Image;
-            image.color = color;
+            if (i == idx) continue;
+            Image img = points[i].GetComponent<Image>() as Image;
+            img.color = defaultColor;
         }
+        Image image = points[idx].GetComponent<Image>() as Image;
+        image.color = color;
     }
 
     /// <summary>
