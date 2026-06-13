@@ -180,7 +180,14 @@ namespace RHESSYs_Data_Importer.Wizard
                 }
             }
 
-            foreach (var cat in new[] { "patch", "terrain", "fire", "water", "climate", "stratum" })
+            // CCV2: terrain generation depends on PatchData, StratumData, and FireData
+            // already being in the database. Run patch/fire/water/stratum first, terrain last.
+            // Legacy: iterate in natural order.
+            string[] catOrder = config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2
+                ? new[] { "patch", "fire", "water", "climate", "stratum", "terrain" }
+                : new[] { "patch", "terrain", "fire", "water", "climate", "stratum" };
+
+            foreach (var cat in catOrder)
             {
                 if (!selected.Contains(cat)) continue;
                 var count = discovery.Count(cat);

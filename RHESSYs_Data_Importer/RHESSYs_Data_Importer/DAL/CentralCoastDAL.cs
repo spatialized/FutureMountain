@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using RHESSYs_Data_Importer.Models.CentralCoast;
@@ -139,6 +140,83 @@ namespace RHESSYs_Data_Importer.DAL
             {
                 Console.WriteLine($"[ERROR] AddTerrainDataRow failed: {ex.Message}");
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Inserts a batch of <see cref="FireDataRow"/> rows in a single
+        /// <c>SaveChanges</c> call. Preferred over <see cref="AddFireDataRow"/>
+        /// for bulk file imports to avoid per-row round-trips.
+        /// </summary>
+        public int AddFireDataRows(IEnumerable<FireDataRow> rows)
+        {
+            try
+            {
+                using var db = new CentralCoastDbContext(_connectionString);
+                db.FireData.AddRange(rows);
+                return db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddFireDataRows failed: {ex.Message}");
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Inserts a batch of <see cref="StratumDataRow"/> rows in a single
+        /// <c>SaveChanges</c> call.
+        /// </summary>
+        public int AddStratumDataRows(IEnumerable<StratumDataRow> rows)
+        {
+            try
+            {
+                using var db = new CentralCoastDbContext(_connectionString);
+                db.StratumData.AddRange(rows);
+                return db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddStratumDataRows failed: {ex.Message}");
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Inserts a batch of <see cref="PatchDataRow"/> rows in a single
+        /// <c>SaveChanges</c> call.
+        /// </summary>
+        public int AddPatchDataRows(IEnumerable<PatchDataRow> rows)
+        {
+            try
+            {
+                using var db = new CentralCoastDbContext(_connectionString);
+                db.PatchData.AddRange(rows);
+                return db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddPatchDataRows failed: {ex.Message}");
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Inserts a batch of <see cref="TerrainDataRow"/> rows in a single
+        /// <c>SaveChanges</c> call.
+        /// </summary>
+        public int AddTerrainDataRows(IEnumerable<TerrainDataRow> rows)
+        {
+            try
+            {
+                using var db = new CentralCoastDbContext(_connectionString);
+                db.TerrainData.AddRange(rows);
+                return db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddTerrainDataRows failed: {ex.Message}");
+                return 0;
             }
         }
     }

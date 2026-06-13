@@ -33,11 +33,15 @@ Console.WriteLine("");
 Console.WriteLine("Running...");
 {
     ScenarioConfig config;
-    const string defaultConfigPath = "ScenarioConfig_BigCreek.json";
+    // --config <path> overrides the default config file
+    string configPath = "ScenarioConfig_BigCreek.json";
+    int configArgIdx = Array.IndexOf(Environment.GetCommandLineArgs(), "--config");
+    if (configArgIdx >= 0 && configArgIdx + 1 < Environment.GetCommandLineArgs().Length)
+        configPath = Environment.GetCommandLineArgs()[configArgIdx + 1];
 
-    if (File.Exists(defaultConfigPath))
+    if (File.Exists(configPath))
     {
-        config = ScenarioConfigLoader.Load(defaultConfigPath);
+        config = ScenarioConfigLoader.Load(configPath);
         Console.WriteLine($"Loaded scenario: {config.ScenarioName}");
 
         // Resolve the explicit data-model profile. Behavior must be driven by the
@@ -223,10 +227,24 @@ if (importPatchData)
             TextFileInput.ReadPatchData(folderPatchData);
     }
 }
+if (importStratumData)
+{
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    {
+        // CCV2: stratum must run before terrain generation
+        CentralCoastImporter.ImportStratumCarbonData(activeConfig, dryrun);
+    }
+    else
+    {
+        Console.WriteLine("[INFO] Stratum import not implemented for legacy profiles.");
+    }
+}
 if (importTerrainData)
 {
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
+        // CCV2: terrain generation reads from PatchData, StratumData, FireData
+        // -- must run after patch, stratum, and fire imports
         CentralCoastImporter.GenerateTerrainData(activeConfig, dryrun);
     }
     else
@@ -235,17 +253,6 @@ if (importTerrainData)
             Console.WriteLine("[DRY RUN] Would import Terrain data (legacy)");
         else
             TextFileInput.ReadTerrainData(folderTerrainData);
-    }
-}
-if (importStratumData)
-{
-    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
-    {
-        CentralCoastImporter.ImportStratumCarbonData(activeConfig, dryrun);
-    }
-    else
-    {
-        Console.WriteLine("[INFO] Stratum import not implemented for legacy profiles.");
     }
 }
 

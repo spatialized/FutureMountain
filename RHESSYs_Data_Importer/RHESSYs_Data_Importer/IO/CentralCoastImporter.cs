@@ -294,14 +294,20 @@ namespace RHESSYs_Data_Importer.IO
                 for (int i = 0; i < headers.Length; i++)
                     colMap[headers[i].Trim()] = i;
 
-                // Key columns
-                colMap.TryGetValue("day", out var dayIdx);
-                colMap.TryGetValue("month", out var monthIdx);
-                colMap.TryGetValue("year", out var yearIdx);
-                colMap.TryGetValue("zoneID", out var zoneIdx);
-                colMap.TryGetValue("patchID", out var patchIdx);
-                colMap.TryGetValue("stratumID", out var stratumIdx);
-                colMap.TryGetValue("veg_parm_ID", out var vegIdx);
+                // Key columns -- use -1 sentinel; 0 would silently read column 0 on miss
+                int dayIdx     = colMap.TryGetValue("day",        out var _dIdx)  ? _dIdx  : -1;
+                int monthIdx   = colMap.TryGetValue("month",      out var _moIdx) ? _moIdx : -1;
+                int yearIdx    = colMap.TryGetValue("year",       out var _yrIdx) ? _yrIdx : -1;
+                int zoneIdx    = colMap.TryGetValue("zoneID",     out var _znIdx) ? _znIdx : -1;
+                int patchIdx   = colMap.TryGetValue("patchID",    out var _ptIdx) ? _ptIdx : -1;
+                int stratumIdx = colMap.TryGetValue("stratumID",  out var _stIdx) ? _stIdx : -1;
+                int vegIdx     = colMap.TryGetValue("veg_parm_ID",out var _vgIdx) ? _vgIdx : -1;
+
+                if (dayIdx < 0 || monthIdx < 0 || yearIdx < 0 || zoneIdx < 0 || patchIdx < 0)
+                {
+                    Console.WriteLine($"[WARN] {def.Role}: missing required column(s) (day/month/year/zoneID/patchID). Skipping file.");
+                    continue;
+                }
 
                 // Stratum-specific columns: CSV name -> model property name
                 var stratumPropMap = def.IsOverstory
@@ -450,11 +456,18 @@ namespace RHESSYs_Data_Importer.IO
             for (int i = 0; i < headers.Length; i++)
                 colMap[headers[i].Trim()] = i;
 
-            colMap.TryGetValue("month", out var mIdx);
-            colMap.TryGetValue("year", out var yIdx);
-            colMap.TryGetValue("basinID", out var bIdx);
-            colMap.TryGetValue("burn", out var burnIdx);
+            int mIdx   = colMap.TryGetValue("month",   out var _mIdx)   ? _mIdx   : -1;
+            int yIdx   = colMap.TryGetValue("year",    out var _yIdx)   ? _yIdx   : -1;
+            int bIdx   = colMap.TryGetValue("basinID", out var _bIdx)   ? _bIdx   : -1;
+            int burnIdx = colMap.TryGetValue("burn",   out var _burnIdx) ? _burnIdx : -1;
 
+            if (mIdx < 0 || yIdx < 0 || bIdx < 0 || burnIdx < 0)
+            {
+                Console.WriteLine($"[WARN] basinMonthlyBurn: missing required column(s). mIdx={mIdx} yIdx={yIdx} bIdx={bIdx} burnIdx={burnIdx}. Skipping file.");
+                return;
+            }
+
+            var batch = new List<FireDataRow>();
             int imported = 0;
             string line;
             while ((line = reader.ReadLine()) != null)
@@ -476,19 +489,22 @@ namespace RHESSYs_Data_Importer.IO
                     patchID = null
                 };
 
-                if (mIdx >= 0 && int.TryParse(GetSafe(parts, mIdx), out var month))
+                if (int.TryParse(GetSafe(parts, mIdx), out var month))
                     row.month = month;
-                if (yIdx >= 0 && int.TryParse(GetSafe(parts, yIdx), out var year))
+                if (int.TryParse(GetSafe(parts, yIdx), out var year))
                     row.year = year;
-                if (bIdx >= 0 && int.TryParse(GetSafe(parts, bIdx), out var basinID))
+                if (int.TryParse(GetSafe(parts, bIdx), out var basinID))
                     row.basinID = basinID;
-                if (burnIdx >= 0 && float.TryParse(GetSafe(parts, burnIdx), out var burn))
+                if (float.TryParse(GetSafe(parts, burnIdx), out var burn))
                     row.burn = burn;
 
                 imported++;
                 if (!dryrun)
-                    dal.AddFireDataRow(row);
+                    batch.Add(row);
             }
+
+            if (!dryrun && batch.Count > 0)
+                dal.AddFireDataRows(batch);
 
             Console.WriteLine($"[FireData/basin] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
         }
@@ -521,14 +537,21 @@ namespace RHESSYs_Data_Importer.IO
             for (int i = 0; i < headers.Length; i++)
                 colMap[headers[i].Trim()] = i;
 
-            colMap.TryGetValue("month", out var mIdx);
-            colMap.TryGetValue("year", out var yIdx);
-            colMap.TryGetValue("basinID", out var bIdx);
-            colMap.TryGetValue("hillID", out var hIdx);
-            colMap.TryGetValue("zoneID", out var zIdx);
-            colMap.TryGetValue("patchID", out var pIdx);
-            colMap.TryGetValue("burn", out var burnIdx);
+            int mIdx    = colMap.TryGetValue("month",   out var _mIdx2)   ? _mIdx2   : -1;
+            int yIdx    = colMap.TryGetValue("year",    out var _yIdx2)   ? _yIdx2   : -1;
+            int bIdx    = colMap.TryGetValue("basinID", out var _bIdx2)   ? _bIdx2   : -1;
+            int hIdx    = colMap.TryGetValue("hillID",  out var _hIdx2)   ? _hIdx2   : -1;
+            int zIdx    = colMap.TryGetValue("zoneID",  out var _zIdx2)   ? _zIdx2   : -1;
+            int pIdx    = colMap.TryGetValue("patchID", out var _pIdx2)   ? _pIdx2   : -1;
+            int burnIdx = colMap.TryGetValue("burn",    out var _burnIdx2) ? _burnIdx2 : -1;
 
+            if (mIdx < 0 || yIdx < 0 || zIdx < 0 || pIdx < 0 || burnIdx < 0)
+            {
+                Console.WriteLine($"[WARN] patchMonthlyBurn: missing required column(s). mIdx={mIdx} yIdx={yIdx} zIdx={zIdx} pIdx={pIdx} burnIdx={burnIdx}. Skipping file.");
+                return;
+            }
+
+            var batch = new List<FireDataRow>();
             int imported = 0;
             string line;
             while ((line = reader.ReadLine()) != null)
@@ -564,8 +587,11 @@ namespace RHESSYs_Data_Importer.IO
 
                 imported++;
                 if (!dryrun)
-                    dal.AddFireDataRow(row);
+                    batch.Add(row);
             }
+
+            if (!dryrun && batch.Count > 0)
+                dal.AddFireDataRows(batch);
 
             Console.WriteLine($"[FireData/patch] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
         }
@@ -605,6 +631,8 @@ namespace RHESSYs_Data_Importer.IO
                 else if (h == "year") yIdx = i;
             }
 
+            const int ChunkSize = 10_000;
+            var chunk = new List<StratumDataRow>(ChunkSize);
             int imported = 0;
             string line;
             while ((line = reader.ReadLine()) != null)
@@ -665,8 +693,19 @@ namespace RHESSYs_Data_Importer.IO
 
                 imported++;
                 if (!dryrun)
-                    dal.AddStratumDataRow(row);
+                {
+                    chunk.Add(row);
+                    if (chunk.Count >= ChunkSize)
+                    {
+                        dal.AddStratumDataRows(chunk);
+                        chunk.Clear();
+                        Console.WriteLine($"[StratumData] {imported:N0} rows written...");
+                    }
+                }
             }
+
+            if (!dryrun && chunk.Count > 0)
+                dal.AddStratumDataRows(chunk);
 
             Console.WriteLine($"[StratumData] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
         }
@@ -871,6 +910,7 @@ namespace RHESSYs_Data_Importer.IO
             }
 
             var dal = new CentralCoastDAL();
+            var terrainBatch = new List<TerrainDataRow>();
             int written = 0;
 
             foreach (var (year, month) in timePeriods)
@@ -943,12 +983,15 @@ namespace RHESSYs_Data_Importer.IO
                     _dataList = dataList
                 };
 
-                dal.AddTerrainDataRow(row);
+                terrainBatch.Add(row);
                 written++;
 
                 if (written % 12 == 0)
                     Console.WriteLine($"[TerrainData] {written:N0}/{timePeriods.Count:N0} frames written...");
             }
+
+            if (terrainBatch.Count > 0)
+                dal.AddTerrainDataRows(terrainBatch);
 
             Console.WriteLine($"[TerrainData] Generated {written:N0} TerrainData rows.");
         }
