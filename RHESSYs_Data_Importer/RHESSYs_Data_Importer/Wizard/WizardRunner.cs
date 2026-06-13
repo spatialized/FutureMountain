@@ -183,6 +183,10 @@ namespace RHESSYs_Data_Importer.Wizard
                 {
                     CentralCoastImporter.ImportWaterData(config, dryrun);
                 }
+                else if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2 && cat == "fire")
+                {
+                    CentralCoastImporter.ImportBasinBurnData(config, dryrun);
+                }
                 else
                 {
                     Console.WriteLine($"[INFO] Import for category '{cat}' not yet implemented in wizard mode.");

@@ -192,10 +192,17 @@ if (importWaterData)
 }
 if (importFireData)
 {
-    if (dryrun)
-        Console.WriteLine("[DRY RUN] Would import Fire data (legacy)");
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    {
+        CentralCoastImporter.ImportBasinBurnData(activeConfig, dryrun);
+    }
     else
-        TextFileInput.ReadFireData(folderFire);
+    {
+        if (dryrun)
+            Console.WriteLine("[DRY RUN] Would import Fire data (legacy)");
+        else
+            TextFileInput.ReadFireData(folderFire);
+    }
 }
 if (importPatchData)
 {

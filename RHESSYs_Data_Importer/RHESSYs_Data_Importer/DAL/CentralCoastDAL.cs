@@ -81,5 +81,20 @@ namespace RHESSYs_Data_Importer.DAL
                 return false;
             }
         }
+
+        public bool AddFireDataRow(FireDataRow row)
+        {
+            try
+            {
+                using var db = new CentralCoastDbContext(_connectionString);
+                db.FireData.Add(row);
+                return db.SaveChanges() > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddFireDataRow failed: {ex.Message}");
+                return false;
+            }
+        }
     }
 }

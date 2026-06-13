@@ -422,6 +422,76 @@ namespace RHESSYs_Data_Importer.IO
         }
 
         /// <summary>
+        /// Imports the monthly basin burn file (<c>bm.csv</c>) into the
+        /// <c>FireData</c> table as <c>level = "basin"</c> rows.
+        /// </summary>
+        public static void ImportBasinBurnData(ScenarioConfig config, bool dryrun = false)
+        {
+            var path = config.GetSourceFilePath("basinMonthlyBurn");
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            {
+                Console.WriteLine($"[WARN] basinMonthlyBurn file not found: {path}");
+                return;
+            }
+
+            var dal = new CentralCoastDAL();
+            using var reader = new StreamReader(path);
+            string headerLine = reader.ReadLine();
+            if (string.IsNullOrWhiteSpace(headerLine))
+            {
+                Console.WriteLine("[WARN] basinMonthlyBurn file has empty header.");
+                return;
+            }
+
+            var headers = headerLine.Split(',');
+            var colMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < headers.Length; i++)
+                colMap[headers[i].Trim()] = i;
+
+            colMap.TryGetValue("month", out var mIdx);
+            colMap.TryGetValue("year", out var yIdx);
+            colMap.TryGetValue("basinID", out var bIdx);
+            colMap.TryGetValue("burn", out var burnIdx);
+
+            int imported = 0;
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                var parts = line.Split(',');
+
+                var row = new FireDataRow
+                {
+                    scenarioRunId = config.ScenarioRunId ?? "",
+                    warmingIdx = config.WarmingIdx ?? 0,
+                    importRunId = 0,
+                    sourceFile = Path.GetFileName(path),
+                    level = "basin",
+                    hillID = null,
+                    zoneID = null,
+                    patchID = null
+                };
+
+                if (mIdx >= 0 && int.TryParse(GetSafe(parts, mIdx), out var month))
+                    row.month = month;
+                if (yIdx >= 0 && int.TryParse(GetSafe(parts, yIdx), out var year))
+                    row.year = year;
+                if (bIdx >= 0 && int.TryParse(GetSafe(parts, bIdx), out var basinID))
+                    row.basinID = basinID;
+                if (burnIdx >= 0 && float.TryParse(GetSafe(parts, burnIdx), out var burn))
+                    row.burn = burn;
+
+                imported++;
+                if (!dryrun)
+                    dal.AddFireDataRow(row);
+            }
+
+            Console.WriteLine($"[FireData/basin] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
+        }
+
+        /// <summary>
         /// Builds a map from CSV column index to writable property for the
         /// given model type. Header dots are normalized to underscores to
         /// match the C# property names (e.g. <c>cs.net_psn</c> ->
