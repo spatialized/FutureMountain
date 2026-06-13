@@ -47,7 +47,7 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | CCV2-13 | Import dry-run and row-count verification | Completed |
 | CCV2-14 | Real database import smoke test | Pending |
 | CCV2-15 | Patch map spatial footprint planning | Completed |
-| CCV2-16 | PatchData raster importer implementation | Pending |
+| CCV2-16 | PatchData raster importer implementation | Completed |
 | CCV2-17 | PatchData database validation | Pending |
 | CCV2-18 | Precomputed Central Coast TerrainData planning | Pending |
 | CCV2-19 | Precomputed Central Coast TerrainData implementation | Pending |
@@ -553,7 +553,7 @@ Implementation:
 
 ### CCV2-16 PatchData Raster Importer Implementation
 
-Status: Pending
+Status: Completed
 
 Implement the `Pch30rip90upRN.tiff` decoder described in CCV2-15.
 
@@ -566,6 +566,21 @@ Acceptance:
 - Dry-run prints decoded `zoneID` count and total non-nodata pixel count.
 - Wired into auto mode (`--patch` CCV2 branch) and wizard `[2] Patch`.
 - Build passes with zero errors.
+
+Implementation:
+
+- Added `BitMiracle.LibTiff.NET` 2.4.660 to csproj.
+- `CentralCoastDAL.AddPatchDataRow`: writes `PatchDataRow` through
+  `CentralCoastDbContext`.
+- `CentralCoastImporter.ImportPatchMapData`: opens TIFF via `Tiff.Open`,
+  reads 16-bit pixels scanline by scanline, groups `[col, row]` pairs by
+  `zoneID`, skips nodata `65535`. Prints decoded count + total pixel count
+  before any writes (dry-run safe). Serializes footprint JSON per CCV2-15
+  schema (`zoneID`, `gridWidth`, `gridHeight`, `pixelCount`, `centroidCol/Row`,
+  `boundingBox`, `pixels`). Writes one `PatchDataRow` per `zoneID`.
+- Wired into auto mode `--patch` CCV2 branch in `Program.cs`.
+- Wired into wizard `[2] Patch` CCV2 branch in `WizardRunner.cs`;
+  also fixed dryrun passthrough for all CCV2 wizard categories.
 
 ### CCV2-17 PatchData Database Validation
 
