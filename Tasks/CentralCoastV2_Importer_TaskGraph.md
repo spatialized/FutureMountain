@@ -50,7 +50,7 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | CCV2-16 | PatchData raster importer implementation | Completed |
 | CCV2-17 | PatchData database validation | Pending |
 | CCV2-18 | Precomputed Central Coast TerrainData planning | Completed |
-| CCV2-19 | Precomputed Central Coast TerrainData implementation | Pending |
+| CCV2-19 | Precomputed Central Coast TerrainData implementation | Completed |
 | CCV2-20 | API/Unity follow-on planning | Pending |
 
 ## Task Graph
@@ -639,7 +639,7 @@ Implementation:
 
 ### CCV2-19 Precomputed Central Coast TerrainData Implementation
 
-Status: Pending
+Status: Completed
 
 Implement the `TerrainData` generator described in CCV2-18.
 
@@ -652,6 +652,24 @@ Acceptance:
 - Output frame passes the shape defined in CCV2-18.
 - Build passes with zero errors.
 - Big Creek `TerrainData` table is untouched.
+
+Implementation:
+
+- Added `TerrainDataRow` model: `gridSize=0`, `gridWidth`, `gridHeight`,
+  `pixelGrainSize`, `decimalPrecision`, `_dataList` (longtext); index on
+  `(scenarioRunId, warmingIdx, year, month)`.
+- Added `TerrainData` `DbSet` to `CentralCoastDbContext`.
+- Added `CentralCoastDAL.AddTerrainDataRow`.
+- `CentralCoastImporter.GenerateTerrainData`:
+  1. Loads all `PatchData` pixel footprints -> `zoneID` -> flat index list.
+  2. Computes `globalMaxPlantC` (MAX over all `StratumData` for scenario).
+  3. Enumerates distinct `(year, month)` from `StratumData`.
+  4. Per frame: mean `total_plantc` per `zoneID` (GROUP BY), max `burn`
+     per `zoneID` level="patch" (GROUP BY), builds 396x301 float array
+     (`vegIntensity + burnSignal * 100`), serializes `_dataList` JSON.
+  - Dry-run safe; progress log every 12 frames.
+- Wired into `--terrain` CCV2 branch (`Program.cs`) and wizard `[3] Terrain`
+  (`WizardRunner.cs`).
 
 ### CCV2-20 API/Unity Follow-On Planning
 
