@@ -156,6 +156,79 @@ The canonical run instructions live in
 `Docs/RHESSysDataImporter/Runbook.md`, including the Central Coast v2 wizard flow
 and dry-run command. See the `Central Coast v2 Config` section there.
 
+## Schema Setup and Migration Workflow
+
+The Central Coast v2 tables live in a dedicated schema: **`futuremtn_central_coast`**.
+Do not create or touch these tables in `defaultdb` (Big Creek).
+
+### One-time schema creation (MySQL Workbench or CLI)
+
+```sql
+CREATE SCHEMA IF NOT EXISTS futuremtn_central_coast
+  DEFAULT CHARACTER SET utf8mb4
+  DEFAULT COLLATE utf8mb4_0900_ai_ci;
+```
+
+### Apply EF Core migration (creates all CCV2 tables)
+
+Run from the `RHESSYs_Data_Importer/RHESSYs_Data_Importer` directory:
+
+```powershell
+dotnet ef database update --context CentralCoastDbContext
+```
+
+This applies `Migrations/CentralCoast/20260613094310_CentralCoast_InitialCreate.cs`
+which creates: `CubeData`, `Dates`, `FireData`, `ImportRun`, `PatchData`,
+`StratumData`, `TerrainData`, `WaterData` in `futuremtn_central_coast`.
+
+The migration connection is defined in `DAL/CentralCoastDbContextFactory.cs`.
+Update the password there before applying if the local `admin` account has one.
+
+### Generate a SQL script instead of applying directly
+
+```powershell
+dotnet ef migrations script --context CentralCoastDbContext --output schema_centralcoast.sql
+```
+
+Useful for reviewing the DDL before applying, or for applying via a DBA.
+
+### Import sequence (after schema exists)
+
+```powershell
+# 1. Dry run -- validate config, file paths, column headers
+dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json --dryrun
+
+# 2. Patch map (spatial footprints -- fast, ~4,477 rows)
+dotnet run -- --patch --config ScenarioConfig_CentralCoastV2.json
+
+# 3. Fire (basin + patch monthly burn)
+dotnet run -- --fire --config ScenarioConfig_CentralCoastV2.json
+
+# 4. Stratum (6.9M rows -- chunked 10k, takes minutes)
+dotnet run -- --stratum --config ScenarioConfig_CentralCoastV2.json
+
+# 5. Terrain (reads PatchData + StratumData + FireData -- must be last)
+dotnet run -- --terrain --config ScenarioConfig_CentralCoastV2.json
+
+# 6. Full import (all of the above in dependency order)
+dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json
+```
+
+All commands run from the `RHESSYs_Data_Importer/RHESSYs_Data_Importer` directory.
+
+### Adding future migrations
+
+After any model change to a CCV2 entity:
+
+```powershell
+dotnet ef migrations add <MigrationName> --context CentralCoastDbContext --output-dir Migrations/CentralCoast
+dotnet ef database update --context CentralCoastDbContext
+```
+
+Big Creek migrations live in `Migrations/` (root) and use `CubeDataDbContext`.
+Central Coast migrations live in `Migrations/CentralCoast/` and use `CentralCoastDbContext`.
+Never mix them.
+
 ## Known Follow-ups
 
 - The current `ColumnMapper` splits on whitespace; Central Coast CSVs are

@@ -6,10 +6,10 @@
   "description": "Central Coast v2 RHESSys-derived sample bundle (single scenario member). warmingIdx is an explicit import assumption of 0 until real warming/climate-case metadata is provided.",
   "version": "2.0",
   "database": {
-    "name": "centralcoast_rhessys",
-    "host": "localhost",
+    "name": "futuremtn_central_coast",
+    "host": "127.0.0.1",
     "port": 3306,
-    "user": "root",
+    "user": "admin",
     "password": "",
     "charset": "utf8mb4",
     "collation": "utf8mb4_0900_ai_ci"
