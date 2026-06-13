@@ -207,17 +207,23 @@ Status: Pending
 
 Design Central Coast raw/staging import tables.
 
-Candidate tables:
+Tables live in their own Central Coast database (`centralcoast_rhessys`, parallel
+to `bigcreek_rhessys`), so they are NOT prefixed with `centralcoast_`. They reuse
+the original Big Creek table names; the database provides the namespace.
 
-- `centralcoast_dates`
-- `centralcoast_cube_aggregate_daily`
-- `centralcoast_cube_patch_daily`
-- `centralcoast_cube_stratum_daily`
-- `centralcoast_basin_monthly_burn`
-- `centralcoast_patch_monthly_burn`
-- `centralcoast_stratum_monthly_carbon`
-- `centralcoast_import_run`
-- `centralcoast_raster_metadata`
+Candidate tables (original-style names):
+
+- `dates`
+- `cubedata`
+- `patchdata`
+- `firedata`
+- `waterdata`
+- `terraindata`
+
+How each source file/grain (daily cube aggregate/patch/stratum; monthly basin and
+patch burn; monthly stratum carbon; patch-family raster) maps into these tables is
+decided in this task. An `importrun` provenance table may be added (also without a
+`centralcoast_` prefix).
 
 Common columns should include:
 

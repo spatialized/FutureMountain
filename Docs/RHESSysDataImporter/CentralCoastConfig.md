@@ -25,7 +25,16 @@ optional fields (all unused by Big Creek v1, which leaves them null):
 | `delimiter` | string | Field delimiter for source files (`,` for Central Coast CSVs). |
 | `files` | object | Logical file role -> file name, resolved relative to `sourceRoot`. |
 | `database` | object | Central Coast database connection (separate DB: `centralcoast_rhessys`). |
-| `outputTables` | array | The `centralcoast_*` staging tables (see `CCV2-04`). |
+| `outputTables` | array | Target tables, named to match the original Big Creek tables (`dates`, `cubedata`, `patchdata`, `firedata`, `waterdata`, `terraindata`). See `CCV2-04`. |
+
+### Table Naming
+
+Central Coast tables live in their own database (`centralcoast_rhessys`, parallel
+to Big Creek's `bigcreek_rhessys`), so they are **not** prefixed with
+`centralcoast_`. The database already provides the namespace. Tables reuse the
+original Big Creek names so the schema and any later API/adapter stay familiar:
+`dates`, `cubedata`, `patchdata`, `firedata`, `waterdata`, `terraindata`. How
+each source file/grain maps into these tables is finalized in `CCV2-04`.
 
 `ScenarioConfig.GetSourceFilePath(role)` joins `sourceRoot` + the file name for a
 role and returns a full path, or null if the role is not configured.

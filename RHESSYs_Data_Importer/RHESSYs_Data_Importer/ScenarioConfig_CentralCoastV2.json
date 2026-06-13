@@ -31,15 +31,11 @@
     "demRaster": "dem30mSBFRbound.tiff"
   },
   "outputTables": [
-    "centralcoast_import_run",
-    "centralcoast_dates",
-    "centralcoast_cube_aggregate_daily",
-    "centralcoast_cube_patch_daily",
-    "centralcoast_cube_stratum_daily",
-    "centralcoast_basin_monthly_burn",
-    "centralcoast_patch_monthly_burn",
-    "centralcoast_stratum_monthly_carbon",
-    "centralcoast_patch_family_spatial",
-    "centralcoast_raster_metadata"
+    "dates",
+    "cubedata",
+    "patchdata",
+    "firedata",
+    "waterdata",
+    "terraindata"
   ]
 }
