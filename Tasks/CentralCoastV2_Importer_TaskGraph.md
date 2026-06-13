@@ -36,7 +36,7 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | CCV2-02 | Scenario profile design | Completed |
 | CCV2-03 | Central Coast config design | Completed |
 | CCV2-04 | Central Coast database schema design | Completed |
-| CCV2-05 | Importer model classes | Pending |
+| CCV2-05 | Importer model classes | Completed |
 | CCV2-06 | Import validation/reporting framework | Pending |
 | CCV2-07 | Daily aggregate importer | Pending |
 | CCV2-08 | Daily cube patch importer | Pending |
@@ -240,9 +240,23 @@ Acceptance:
 
 ### CCV2-05 Importer Model Classes
 
-Status: Pending
+Status: Completed
 
 Add C# model classes for Central Coast v2 rows and target tables.
+
+Implementation:
+
+- New `Models/CentralCoast/` classes in namespace `RHESSYs_Data_Importer.Models.CentralCoast`,
+  each mapped to its table via `[Table(...)]`: `CubeDataRow` (CubeData),
+  `WaterDataRow` (WaterData, daily aggregate), `FireDataRow` (FireData, monthly
+  burn), `StratumDataRow` (StratumData), `PatchDataRow` (PatchData),
+  `TerrainDataRow` (TerrainData, deferred), `ImportRun`, `RasterMetadata`.
+- Columns match `Docs/CentralCoastV2/DataFormats.md`; source dots mapped to
+  underscores. `cubedata` keeps patch 01/02 as separate rows and merges
+  overstory/understory into columns.
+- Provenance columns (`scenarioRunId`, `warmingIdx`, `importRunId`, `sourceFile`).
+- New `DAL/CentralCoastDbContext.cs` exposes all Central Coast tables (reuses the
+  existing `Date` model for `Dates`). Big Creek models/contexts untouched.
 
 Acceptance:
 
