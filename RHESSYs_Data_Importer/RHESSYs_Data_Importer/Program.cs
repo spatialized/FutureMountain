@@ -195,6 +195,7 @@ if (importFireData)
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
         CentralCoastImporter.ImportBasinBurnData(activeConfig, dryrun);
+        CentralCoastImporter.ImportPatchBurnData(activeConfig, dryrun);
     }
     else
     {

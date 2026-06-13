@@ -186,6 +186,7 @@ namespace RHESSYs_Data_Importer.Wizard
                 else if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2 && cat == "fire")
                 {
                     CentralCoastImporter.ImportBasinBurnData(config, dryrun);
+                    CentralCoastImporter.ImportPatchBurnData(config, dryrun);
                 }
                 else
                 {
