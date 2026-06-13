@@ -32,7 +32,7 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | ID | Task | Status |
 | --- | --- | --- |
 | CCV2-00 | Discovery and documentation | Complete |
-| CCV2-01 | Repository/importer cleanup decision | Pending |
+| CCV2-01 | Repository/importer cleanup decision | Completed |
 | CCV2-02 | Scenario profile design | Pending |
 | CCV2-03 | Central Coast config design | Pending |
 | CCV2-04 | Central Coast database schema design | Pending |
@@ -115,7 +115,7 @@ Acceptance:
 
 ### CCV2-01 Repository/Importer Cleanup Decision
 
-Status: Pending
+Status: Completed
 
 Decide how the embedded importer should live in the Future Mountain repo.
 
@@ -123,6 +123,17 @@ Questions:
 
 - Fully absorb the importer as source?
 - Keep it as a submodule?
+
+Decision: Fully absorb the importer as source (no submodule, no nested `.git`).
+See `Docs/RHESSysDataImporter/RepositoryStrategy.md`.
+
+Implementation:
+
+- Root `.gitignore` now keeps Unity-generated `*.csproj`/`*.sln` ignored but
+  narrowly un-ignores the importer's real `RHESSYs_Data_Importer.sln` and
+  `RHESSYs_Data_Importer.csproj` so the absorbed tool can be cloned and built.
+- Importer `bin/`, `obj/`, and `.vs/` are explicitly ignored.
+- Large source data remains tracked via Git LFS (`Data/.gitattributes`).
 
 Acceptance:
 
