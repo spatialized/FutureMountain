@@ -47,8 +47,11 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | CCV2-13 | Import dry-run and row-count verification | Completed |
 | CCV2-14 | Real database import smoke test | Pending |
 | CCV2-15 | Patch map spatial footprint planning | Completed |
-| CCV2-16 | Precomputed Central Coast TerrainData planning | Pending |
-| CCV2-17 | API/Unity follow-on planning | Pending |
+| CCV2-16 | PatchData raster importer implementation | Pending |
+| CCV2-17 | PatchData database validation | Pending |
+| CCV2-18 | Precomputed Central Coast TerrainData planning | Pending |
+| CCV2-19 | Precomputed Central Coast TerrainData implementation | Pending |
+| CCV2-20 | API/Unity follow-on planning | Pending |
 
 ## Task Graph
 
@@ -70,8 +73,11 @@ flowchart TD
   CCV2_13["CCV2-13 Dry-run verification"]
   CCV2_14["CCV2-14 Database import smoke test"]
   CCV2_15["CCV2-15 Patch map spatial footprint planning"]
-  CCV2_16["CCV2-16 Precomputed TerrainData planning"]
-  CCV2_17["CCV2-17 API/Unity follow-on planning"]
+  CCV2_16["CCV2-16 PatchData raster importer"]
+  CCV2_17["CCV2-17 PatchData database validation"]
+  CCV2_18["CCV2-18 TerrainData planning"]
+  CCV2_19["CCV2-19 TerrainData generation implementation"]
+  CCV2_20["CCV2-20 API/Unity follow-on planning"]
 
   CCV2_00 --> CCV2_01
   CCV2_00 --> CCV2_02
@@ -94,8 +100,11 @@ flowchart TD
   CCV2_12 --> CCV2_13
   CCV2_13 --> CCV2_14
   CCV2_14 --> CCV2_15
-  CCV2_14 --> CCV2_16
+  CCV2_15 --> CCV2_16
   CCV2_16 --> CCV2_17
+  CCV2_17 --> CCV2_18
+  CCV2_18 --> CCV2_19
+  CCV2_19 --> CCV2_20
 ```
 
 ## Task Details
@@ -532,53 +541,101 @@ Acceptance:
 Implementation:
 
 - Spec written to `Docs/CentralCoastV2/PatchMapSpatialFootprintPlan.md`.
-- Defines decoder algorithm: iterate 396×301 grid, group pixel (col,row) pairs
-  by `zoneID`, skip nodata (`65535`), compute pixelCount/centroid/boundingBox,
-  serialize each `zoneID` as `PatchPointCollection` JSON into `PatchData.data`.
+- Defines decoder algorithm: iterate 396 x 301 grid, group pixel (col,row)
+  pairs by `zoneID`, skip nodata (`65535`), compute pixelCount/centroid/
+  boundingBox, serialize each `zoneID` as JSON into `PatchData.data`.
 - Recommends `BitMiracle.LibTiff.Classic` for .NET TIFF reading.
-- Specifies wiring: `ImportPatchMapData` → `AddPatchDataRow` → `PatchData`.
-- States the CCV2-16 contract: how `PatchData.pixels` maps `zoneID` to
-  output grid cells for the `TerrainData` generator.
-- Documents open questions (aggregation function, output frame format,
-  temporal grain, coordinate system mapping) deferred to CCV2-16.
+- Specifies wiring: `ImportPatchMapData` -> `AddPatchDataRow` -> `PatchData`.
+- States the CCV2-16 contract: `PatchData.pixels` maps `zoneID` to output
+  grid cells for the `TerrainData` generator.
+- Locks CCV2-18 aggregation defaults: mean `total_plantc`, max `burn`,
+  monthly grain, rectangular grid issue (396 x 301) flagged.
 
-### CCV2-16 Precomputed Central Coast TerrainData Planning
+### CCV2-16 PatchData Raster Importer Implementation
+
+Status: Pending
+
+Implement the `Pch30rip90upRN.tiff` decoder described in CCV2-15.
+
+Acceptance:
+
+- `BitMiracle.LibTiff.Classic` (or equivalent) added to project.
+- `CentralCoastImporter.ImportPatchMapData` reads the TIFF, groups pixels
+  by `zoneID`, serializes JSON per the CCV2-15 schema, writes `PatchDataRow`.
+- `CentralCoastDAL.AddPatchDataRow` implemented.
+- Dry-run prints decoded `zoneID` count and total non-nodata pixel count.
+- Wired into auto mode (`--patch` CCV2 branch) and wizard `[2] Patch`.
+- Build passes with zero errors.
+
+### CCV2-17 PatchData Database Validation
+
+Status: Pending
+
+Verify the imported `PatchData` rows are correct before using them to
+generate `TerrainData`.
+
+Acceptance:
+
+- `PatchData` row count equals 4,477.
+- Total pixel count across all rows equals total non-nodata pixels in TIFF.
+- All `zoneID` values in `StratumData` and `FireData` (level="patch") are
+  present in `PatchData`; missing/extra IDs are reported.
+- No row has `zoneID = 65535`.
+- Sample spot-check: pick one `zoneID`, confirm `pixels` array content
+  against manual TIFF inspection.
+
+### CCV2-18 Precomputed Central Coast TerrainData Planning
 
 Status: Pending
 
 Plan the post-import transformation that creates the Unity/API-facing
-`TerrainData` equivalent for Central Coast v2.
+`TerrainData` for Central Coast v2. Aggregation defaults are already set
+by CCV2-15; this task resolves the remaining open questions.
 
-Inputs:
+Open questions to resolve:
 
-- `PatchData` / patch-family raster geometry (`zoneID` footprints)
-- `StratumData` monthly vegetation/carbon values
-- `FireData` monthly burn values
-- `Dates`, `scenarioRunId`, and `warmingIdx`
-
-Goal:
-
-- Keep the name and concept `TerrainData` for the precomputed large-landscape
-  frames Unity consumes.
-- Do not confuse raw `StratumData` rows with precomputed `TerrainData` frames.
-- Define a basic first visual mapping from `total_plantc` and/or `totalc` to
-  landscape vegetation/texture state.
-- Define how monthly burn can blend into the same terrain frame if needed.
-- Use patch-map footprints as the spatial basis for the first mapping.
+- **Grid shape**: the patch map is 396 x 301 (rectangular). Does Central
+  Coast `TerrainData` extend the payload with `gridWidth`/`gridHeight`, or
+  does it resample into a square Unity terrain grid? This is the first
+  decision.
+- **Output frame format**: same `TerrainDataFrameJSONRecord` as Big Creek,
+  or a profile-aware extension? Big Creek `TerrainData` behavior must remain
+  untouched.
+- **Unity coordinate mapping**: how do raster (col, row) coordinates
+  convert to alphamap UV and/or data-grid position?
+- **API contract**: new endpoint or reused `terraindata/{warmingIdx}`?
 
 Acceptance:
 
-- Spec explains the output frame shape and whether it matches Big Creek
-  `TerrainDataFrameJSONRecord` exactly or uses a profile-aware extension.
-- Spec explains how `zoneID` footprints receive stratum/burn values.
-- Spec gives one basic, testable visual mapping that can drive Unity.
+- Spec resolves the rectangular grid decision.
+- Spec defines the output frame JSON shape.
+- Spec gives one basic, testable visual mapping (`total_plantc` -> vegetation
+  intensity, `burn` -> fire overlay).
+- Spec explains the coordinate transformation from raster to Unity.
 - Big Creek `TerrainData` behavior remains untouched.
 
-### CCV2-17 API/Unity Follow-On Planning
+### CCV2-19 Precomputed Central Coast TerrainData Implementation
 
 Status: Pending
 
-Plan the post-ingestion work only after database import is proven.
+Implement the `TerrainData` generator described in CCV2-18.
+
+Acceptance:
+
+- Generator reads `PatchData`, `StratumData`, `FireData` and writes
+  one `TerrainData` row per (scenarioRunId, warmingIdx, year, month).
+- Aggregation: mean `total_plantc`, max `burn` per `zoneID` / month.
+- Grain: monthly.
+- Output frame passes the shape defined in CCV2-18.
+- Build passes with zero errors.
+- Big Creek `TerrainData` table is untouched.
+
+### CCV2-20 API/Unity Follow-On Planning
+
+Status: Pending
+
+Plan the post-ingestion API and Unity work after `TerrainData` is generated
+and validated.
 
 Topics:
 
@@ -591,7 +648,7 @@ Topics:
 Acceptance:
 
 - Follow-on plan preserves Big Creek v1 behavior.
-- API/Unity work is not started until ingestion is validated.
+- API/Unity work is not started until `TerrainData` generation is validated.
 
 ## First Implementation Milestone
 
