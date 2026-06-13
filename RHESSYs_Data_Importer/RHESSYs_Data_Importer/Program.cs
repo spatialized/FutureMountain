@@ -211,10 +211,17 @@ if (importFireData)
 }
 if (importPatchData)
 {
-    if (dryrun)
-        Console.WriteLine("[DRY RUN] Would import Patch data (legacy)");
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    {
+        CentralCoastImporter.ImportPatchMapData(activeConfig, dryrun);
+    }
     else
-        TextFileInput.ReadPatchData(folderPatchData);
+    {
+        if (dryrun)
+            Console.WriteLine("[DRY RUN] Would import Patch data (legacy)");
+        else
+            TextFileInput.ReadPatchData(folderPatchData);
+    }
 }
 if (importTerrainData)
 {

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using BitMiracle.LibTiff.Classic; // BitMiracle.LibTiff.NET package
+using Newtonsoft.Json;
 using RHESSYs_Data_Importer.Configuration;
 using RHESSYs_Data_Importer.DAL;
 using RHESSYs_Data_Importer.Models.CentralCoast;
@@ -667,6 +669,118 @@ namespace RHESSYs_Data_Importer.IO
             }
 
             Console.WriteLine($"[StratumData] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
+        }
+
+        /// <summary>
+        /// Decodes <c>Pch30rip90upRN.tiff</c> into one <c>PatchData</c> row
+        /// per unique <c>zoneID</c>. Each row stores the full pixel footprint
+        /// (col, row pairs), bounding box, centroid, and pixel count serialized
+        /// as JSON in the <c>data</c> column.
+        ///
+        /// Coordinates are zero-based (col, row) with origin at upper-left of
+        /// the TIFF. Nodata value 65535 is skipped.
+        /// </summary>
+        public static void ImportPatchMapData(ScenarioConfig config, bool dryrun = false)
+        {
+            var path = config.GetSourceFilePath("patchFamilyRaster");
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            {
+                Console.WriteLine($"[WARN] patchFamilyRaster file not found: {path}");
+                return;
+            }
+
+            // keyed by zoneID -> list of [col, row]
+            var pixelsByZone = new Dictionary<int, List<int[]>>();
+
+            int gridWidth = 0;
+            int gridHeight = 0;
+
+            using (var tiff = Tiff.Open(path, "r"))
+            {
+                if (tiff == null)
+                {
+                    Console.WriteLine($"[ERROR] Could not open TIFF: {path}");
+                    return;
+                }
+
+                gridWidth = tiff.GetField(TiffTag.IMAGEWIDTH)[0].ToInt();
+                gridHeight = tiff.GetField(TiffTag.IMAGELENGTH)[0].ToInt();
+
+                int scanlineSize = tiff.ScanlineSize();
+                byte[] buf = new byte[scanlineSize];
+
+                for (int row = 0; row < gridHeight; row++)
+                {
+                    tiff.ReadScanline(buf, row);
+                    // Each pixel is a 16-bit unsigned value (2 bytes, little-endian)
+                    for (int col = 0; col < gridWidth; col++)
+                    {
+                        int byteOffset = col * 2;
+                        if (byteOffset + 1 >= buf.Length)
+                            continue;
+                        int value = buf[byteOffset] | (buf[byteOffset + 1] << 8);
+                        if (value == 65535)
+                            continue; // nodata
+
+                        if (!pixelsByZone.TryGetValue(value, out var list))
+                        {
+                            list = new List<int[]>();
+                            pixelsByZone[value] = list;
+                        }
+                        list.Add(new[] { col, row });
+                    }
+                }
+            }
+
+            int totalPixels = pixelsByZone.Values.Sum(l => l.Count);
+            Console.WriteLine($"[PatchData] Decoded {pixelsByZone.Count:N0} unique zoneIDs from {gridWidth}x{gridHeight} grid ({totalPixels:N0} total non-nodata pixels).");
+
+            if (dryrun)
+            {
+                Console.WriteLine($"[PatchData] Dry run: would write {pixelsByZone.Count:N0} rows to PatchData.");
+                return;
+            }
+
+            var dal = new CentralCoastDAL();
+            int written = 0;
+
+            foreach (var kvp in pixelsByZone)
+            {
+                int zoneID = kvp.Key;
+                var pixels = kvp.Value;
+
+                int colMin = pixels.Min(p => p[0]);
+                int colMax = pixels.Max(p => p[0]);
+                int rowMin = pixels.Min(p => p[1]);
+                int rowMax = pixels.Max(p => p[1]);
+                double centroidCol = pixels.Average(p => p[0]);
+                double centroidRow = pixels.Average(p => p[1]);
+
+                var footprint = new
+                {
+                    zoneID,
+                    gridWidth,
+                    gridHeight,
+                    pixelCount = pixels.Count,
+                    centroidCol = Math.Round(centroidCol, 2),
+                    centroidRow = Math.Round(centroidRow, 2),
+                    boundingBox = new { colMin, colMax, rowMin, rowMax },
+                    pixels
+                };
+
+                var row = new PatchDataRow
+                {
+                    scenarioRunId = config.ScenarioRunId ?? "",
+                    importRunId = 0,
+                    zoneID = zoneID,
+                    data = JsonConvert.SerializeObject(footprint)
+                };
+
+                dal.AddPatchDataRow(row);
+                written++;
+            }
+
+            Console.WriteLine($"[PatchData] Imported {written:N0} rows.");
         }
 
         /// <summary>

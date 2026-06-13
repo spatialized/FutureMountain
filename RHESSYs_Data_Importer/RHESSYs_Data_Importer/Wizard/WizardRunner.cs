@@ -185,9 +185,12 @@ namespace RHESSYs_Data_Importer.Wizard
                 if (!selected.Contains(cat)) continue;
                 var count = discovery.Count(cat);
                 Console.WriteLine($"[{cat}] {count} file(s)");
-                if (dryrun) continue;
 
-                if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2 && cat == "water")
+                if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2 && cat == "patch")
+                {
+                    CentralCoastImporter.ImportPatchMapData(config, dryrun);
+                }
+                else if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2 && cat == "water")
                 {
                     CentralCoastImporter.ImportWaterData(config, dryrun);
                 }
@@ -202,7 +205,8 @@ namespace RHESSYs_Data_Importer.Wizard
                 }
                 else
                 {
-                    Console.WriteLine($"[INFO] Import for category '{cat}' not yet implemented in wizard mode.");
+                    if (!dryrun)
+                        Console.WriteLine($"[INFO] Import for category '{cat}' not yet implemented in wizard mode.");
                 }
             }
         }

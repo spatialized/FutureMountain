@@ -111,5 +111,20 @@ namespace RHESSYs_Data_Importer.DAL
                 return false;
             }
         }
+
+        public bool AddPatchDataRow(PatchDataRow row)
+        {
+            try
+            {
+                using var db = new CentralCoastDbContext(_connectionString);
+                db.PatchData.Add(row);
+                return db.SaveChanges() > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddPatchDataRow failed: {ex.Message}");
+                return false;
+            }
+        }
     }
 }
