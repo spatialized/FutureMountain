@@ -35,7 +35,7 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | CCV2-01 | Repository/importer cleanup decision | Completed |
 | CCV2-02 | Scenario profile design | Completed |
 | CCV2-03 | Central Coast config design | Completed |
-| CCV2-04 | Central Coast database schema design | Pending |
+| CCV2-04 | Central Coast database schema design | Completed |
 | CCV2-05 | Importer model classes | Pending |
 | CCV2-06 | Import validation/reporting framework | Pending |
 | CCV2-07 | Daily aggregate importer | Pending |
@@ -203,34 +203,34 @@ Acceptance:
 
 ### CCV2-04 Central Coast Database Schema Design
 
-Status: Pending
+Status: Completed
 
 Design Central Coast raw/staging import tables.
 
 Tables live in their own Central Coast database (`centralcoast_rhessys`, parallel
 to `bigcreek_rhessys`), so they are NOT prefixed with `centralcoast_`. They reuse
-the original Big Creek table names; the database provides the namespace.
+the original Big Creek table-naming style; the database provides the namespace.
 
-Candidate tables (original-style names):
+Designed tables (see `Docs/RHESSysDataImporter/CentralCoastSchema.md`):
 
-- `dates`
-- `cubedata`
-- `patchdata`
-- `firedata`
-- `waterdata`
-- `terraindata`
+- `dates` — daily date dimension
+- `cubedata` — daily per-cube (patch + overstory + understory merged)
+- `waterdata` — daily basin/aggregate (`cube_agg_p`); streamflow + basin summaries
+- `firedata` — monthly burn (basin + patch) with a `level` discriminator
+- `stratumdata` — monthly whole-landscape stratum carbon
+- `patchdata` — static patch-family spatial extents (raster-derived)
+- `terraindata` — deferred (DEM); defined for parity
+- `importrun` — provenance / batch marker
+- `rastermetadata` — raster provenance
 
-How each source file/grain (daily cube aggregate/patch/stratum; monthly basin and
-patch burn; monthly stratum carbon; patch-family raster) maps into these tables is
-decided in this task. An `importrun` provenance table may be added (also without a
-`centralcoast_` prefix).
+File/grain -> table mapping, the daily-aggregate-to-`waterdata` decision, full
+column lists, keys, and indexes are documented in the schema design doc.
 
-Common columns should include:
+Common columns include:
 
 - `scenarioRunId`
 - `warmingIdx`
-- source file name
-- source row number or import batch marker where useful
+- `importRunId` (batch marker) and `sourceFile` where a single file feeds a table
 
 Acceptance:
 

@@ -29,10 +29,7 @@ optional fields (all unused by Big Creek v1, which leaves them null):
 
 ### Table Naming
 
-Central Coast tables live in their own database (`centralcoast_rhessys`, parallel
-to Big Creek's `bigcreek_rhessys`), so they are **not** prefixed with
-`centralcoast_`. The database already provides the namespace. Tables reuse the
-original Big Creek names so the schema and any later API/adapter stay familiar:
+Tables reuse the original Big Creek names so the schema and any later API/adapter stay familiar:
 `dates`, `cubedata`, `patchdata`, `firedata`, `waterdata`, `terraindata`. How
 each source file/grain maps into these tables is finalized in `CCV2-04`.
 
