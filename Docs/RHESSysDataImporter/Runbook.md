@@ -1,0 +1,223 @@
+# RHESSys Data Importer Runbook
+
+Last updated: 2026-06-13
+
+## Purpose
+
+This runbook describes how to build and run the current RHESSys Data Importer embedded in Future Mountain.
+
+It is intended for developers or technical staff importing current Big Creek-style RHESSys data into a local or staging MySQL database.
+
+## Prerequisites
+
+Required:
+
+- .NET SDK compatible with `net8.0`.
+- MySQL server reachable from the workstation.
+- Source RHESSys data files in folders matching the active scenario config.
+- A database user with permission to write the configured database.
+
+Useful:
+
+- MySQL Workbench or another MySQL inspection tool.
+- A staging database for testing imports before production updates.
+
+## Build
+
+From the importer solution folder:
+
+```powershell
+cd RHESSYs_Data_Importer
+dotnet build RHESSYs_Data_Importer.sln
+```
+
+The project currently builds successfully, but with nullable and cleanup warnings.
+
+## Configuration Files
+
+Default scenario config:
+
+```text
+RHESSYs_Data_Importer/RHESSYs_Data_Importer/ScenarioConfig_BigCreek.json
+```
+
+Optional local connection fallback:
+
+```text
+RHESSYs_Data_Importer/RHESSYs_Data_Importer/appsettings.Development.json
+```
+
+When the scenario config exists, it takes precedence because `Program.cs` calls `ConnectionHelper.SetOverride(config.Database.GetConnectionString())`.
+
+## Working Directory
+
+Run commands from the project folder that contains `ScenarioConfig_BigCreek.json`:
+
+```powershell
+cd RHESSYs_Data_Importer\RHESSYs_Data_Importer
+dotnet run
+```
+
+The current code checks for the default config using a relative path:
+
+```text
+ScenarioConfig_BigCreek.json
+```
+
+Running from another working directory may cause config discovery to fail and trigger legacy fallback behavior.
+
+## Interactive Import
+
+Default interactive run:
+
+```powershell
+dotnet run
+```
+
+Expected flow:
+
+1. The app prints the importer title.
+2. It loads `ScenarioConfig_BigCreek.json` if present.
+3. It prints the configured scenario and database.
+4. It discovers matching files and prints category counts.
+5. It opens the wizard.
+6. The user confirms the scenario or loads another config.
+7. The user chooses whether to use an existing database or simulate creation of a new database.
+8. The user selects data categories.
+9. The user can preview cube column mappings.
+10. The user confirms import.
+
+Current wizard limitation:
+
+Only cube import is implemented in wizard mode. Patch, terrain, fire, water, and climate are selectable but report that the import is not yet implemented in wizard mode.
+
+## Auto Import
+
+Run all currently enabled auto categories:
+
+```powershell
+dotnet run -- --auto
+```
+
+Dry run:
+
+```powershell
+dotnet run -- --auto --dryrun
+```
+
+Cube-only dry run:
+
+```powershell
+dotnet run -- --auto --dryrun --cubes
+```
+
+Cube-only import:
+
+```powershell
+dotnet run -- --auto --cubes
+```
+
+Auto mode flags:
+
+| Flag | Current behavior |
+| --- | --- |
+| `--auto` | Enables non-interactive mode |
+| `--dryrun` | Prints intended actions without DB writes in supported paths |
+| `--force` | Prints that force is enabled; no broad force behavior is currently implemented |
+| `--cubes` | Enables cube import |
+| `--patch` | Enables legacy patch import |
+| `--terrain` | Enables legacy terrain import |
+| `--fire` | Enables legacy fire import |
+| `--water` | Enables legacy water import |
+| `--climate` | Recognized as a flag, but climate import is not implemented |
+
+## Database Behavior
+
+The importer writes directly through EF Core DbContexts. It does not currently batch large imports.
+
+Before importing:
+
+1. Confirm the target database name.
+2. Confirm that credentials in the scenario config point to staging or the intended target.
+3. Confirm that existing data can be replaced or appended safely.
+4. Back up any database that matters.
+
+The current database creation helper is simulated. Choosing "Create new database" in the wizard logs what it would create but does not actually create a MySQL database.
+
+## File Discovery Check
+
+On startup, the importer prints a discovery summary:
+
+```text
+cube: N files
+patch: N files
+terrain: N files
+fire: N files
+water: N files
+climate: N files
+```
+
+Warnings are printed when:
+
+- An input folder does not exist.
+- A category has no configured file pattern.
+- No files match a category pattern.
+- A directory search fails.
+
+Treat these warnings as important. A successful process run can still import little or no data if discovery paths are wrong.
+
+## Recommended Current Workflow
+
+1. Build the importer.
+2. Verify the scenario config database points to staging.
+3. Run a dry run with the intended category flags.
+4. Review discovery counts and warnings.
+5. Confirm source files and target tables.
+6. Back up the target database if it already contains useful data.
+7. Run the import.
+8. Inspect row counts in MySQL.
+9. Smoke test the API endpoints that Unity consumes.
+10. Smoke test the Unity runtime against the imported database/API.
+
+## Troubleshooting
+
+### The importer says no config was found
+
+Run from:
+
+```text
+RHESSYs_Data_Importer/RHESSYs_Data_Importer/
+```
+
+or pass through the wizard and load a config manually.
+
+### File counts are zero
+
+Check:
+
+- `inputFolders` in the scenario config.
+- Whether paths are relative to the current working directory.
+- File patterns under `filePatterns`.
+- Whether source files are in the top level of each folder.
+
+`FileDiscovery` currently searches only the top level of each input folder.
+
+### Cube import uses legacy parsing
+
+If the source header does not match configured `columnMapping.cube` keys, `ColumnMapper` has no matches. The importer logs an error and falls back to positional legacy parsing.
+
+### Wizard create-database option does not create a database
+
+This is current behavior. `DatabaseHelper.CreateNewDatabase` is a placeholder that logs a simulated action.
+
+### Build succeeds with warnings
+
+The current code has nullable warnings, unused variables, and legacy comments. These do not currently prevent build output.
+
+## Current Safety Notes
+
+- Do not assume the importer is idempotent.
+- Do not point the importer at production before validating on staging.
+- Do not rely on `--force` as a real safety or overwrite mechanism.
+- Do not assume all wizard categories are implemented.
+- Do not commit local credentials.
