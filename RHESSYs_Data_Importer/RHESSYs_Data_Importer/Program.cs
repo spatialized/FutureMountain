@@ -63,8 +63,16 @@ Console.WriteLine("Running...");
         Console.WriteLine($"Scenario profile: {ScenarioProfiles.ToCanonicalString(profileKind)}");
 
         Console.WriteLine($"Database: {config.Database.Name} @ {config.Database.Host}:{config.Database.Port}");
-        // Make connection string available to all DbContexts
-        ConnectionHelper.SetOverride(config.Database.GetConnectionString());
+        // Make connection string available to all DbContexts.
+        // If the config has no password, check appsettings.Local.json (gitignored) for one.
+        var dbCs = config.Database.GetConnectionString();
+        if (string.IsNullOrEmpty(config.Database.Password))
+        {
+            var localPw = ConnectionHelper.GetLocalPassword();
+            if (!string.IsNullOrEmpty(localPw))
+                dbCs = dbCs.Replace("password=;", $"password={localPw};");
+        }
+        ConnectionHelper.SetOverride(dbCs);
         activeConfig = config;
 
         // Dynamic file discovery

@@ -31,12 +31,33 @@ namespace RHESSYs_Data_Importer.DAL
                 }
             }
 
-            // Fallback (safe placeholder, not real credentials)
+                // Fallback (safe placeholder, not real credentials)
             return "server=localhost;port=3306;database=bigcreek_rhessys;user=root;password=;charset=utf8mb4;";
         }
         public static void SetOverride(string connectionString)
         {
             _overrideConnectionString = connectionString;
+        }
+
+        /// <summary>
+        /// Reads an optional password from <c>appsettings.Local.json</c> (gitignored).
+        /// Returns null if the file is absent or the key is missing.
+        /// </summary>
+        public static string? GetLocalPassword()
+        {
+            const string localPath = "appsettings.Local.json";
+            if (!File.Exists(localPath))
+                return null;
+            try
+            {
+                var json = File.ReadAllText(localPath);
+                using var doc = JsonDocument.Parse(json);
+                if (doc.RootElement.TryGetProperty("Database", out var db) &&
+                    db.TryGetProperty("Password", out var pw))
+                    return pw.GetString();
+            }
+            catch (Exception) { }
+            return null;
         }
     }
 }

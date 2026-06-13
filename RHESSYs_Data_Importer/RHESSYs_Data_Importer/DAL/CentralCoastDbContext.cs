@@ -44,7 +44,8 @@ namespace RHESSYs_Data_Importer.DAL
             if (!optionsBuilder.IsConfigured)
             {
                 var cs = _connectionString ?? ConnectionHelper.GetConnectionString();
-                optionsBuilder.UseMySql(cs, ServerVersion.AutoDetect(cs));
+                var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
+                optionsBuilder.UseMySql(cs, serverVersion);
             }
         }
 
