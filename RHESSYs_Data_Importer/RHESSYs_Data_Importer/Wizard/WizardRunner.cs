@@ -16,6 +16,7 @@ namespace RHESSYs_Data_Importer.Wizard
 
             // 1. Confirm Scenario
             Console.WriteLine($"Loaded scenario: {config.ScenarioName}");
+            Console.WriteLine($"Scenario profile: {ScenarioProfiles.ToCanonicalString(config.GetProfileKind())}");
             Console.WriteLine($"Database: {config.Database.Name} @ {config.Database.Host}:{config.Database.Port}");
             Console.WriteLine();
             Console.WriteLine("Options:");

@@ -38,6 +38,16 @@ Console.WriteLine("Running...");
     {
         config = ScenarioConfigLoader.Load(defaultConfigPath);
         Console.WriteLine($"Loaded scenario: {config.ScenarioName}");
+
+        // Resolve the explicit data-model profile. Behavior must be driven by the
+        // profile, never inferred from table names or which files are present.
+        var profileKind = config.GetProfileKind();
+        if (!string.IsNullOrWhiteSpace(config.ScenarioProfile) && !ScenarioProfiles.IsKnown(config.ScenarioProfile))
+            Console.WriteLine($"[WARN] Unknown scenarioProfile '{config.ScenarioProfile}'. Defaulting to {ScenarioProfiles.ToCanonicalString(profileKind)}.");
+        else if (string.IsNullOrWhiteSpace(config.ScenarioProfile))
+            Console.WriteLine($"[INFO] No scenarioProfile set. Defaulting to {ScenarioProfiles.ToCanonicalString(profileKind)}.");
+        Console.WriteLine($"Scenario profile: {ScenarioProfiles.ToCanonicalString(profileKind)}");
+
         Console.WriteLine($"Database: {config.Database.Name} @ {config.Database.Host}:{config.Database.Port}");
         // Make connection string available to all DbContexts
         ConnectionHelper.SetOverride(config.Database.GetConnectionString());

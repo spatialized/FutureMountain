@@ -1,6 +1,7 @@
 {
   "scenarioName": "BigCreek",
-  "description": "Baseline RHESSys dataset for the Big Creek watershed, with fire and non-fire variants at 0–6°C warming.",
+  "scenarioProfile": "BigCreekV1",
+  "description": "Baseline RHESSys dataset for the Big Creek watershed, with fire and non-fire variants at 0-6 C warming.",
   "version": "1.0",
   "database": {
     "name": "bigcreek_rhessys",

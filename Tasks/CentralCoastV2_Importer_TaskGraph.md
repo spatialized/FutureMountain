@@ -33,7 +33,7 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | --- | --- | --- |
 | CCV2-00 | Discovery and documentation | Complete |
 | CCV2-01 | Repository/importer cleanup decision | Completed |
-| CCV2-02 | Scenario profile design | Pending |
+| CCV2-02 | Scenario profile design | Completed |
 | CCV2-03 | Central Coast config design | Pending |
 | CCV2-04 | Central Coast database schema design | Pending |
 | CCV2-05 | Importer model classes | Pending |
@@ -143,7 +143,7 @@ Acceptance:
 
 ### CCV2-02 Scenario Profile Design
 
-Status: Pending
+Status: Completed
 
 Add an explicit scenario-profile concept to the importer design.
 
@@ -151,6 +151,17 @@ Required profiles:
 
 - `BigCreekV1`
 - `CentralCoastV2`
+
+Implementation:
+
+- `ScenarioProfileKind` enum and `ScenarioProfiles` helpers in
+  `Configuration/ScenarioProfile.cs` (`BigCreekV1`, `CentralCoastV2`).
+- `ScenarioConfig.ScenarioProfile` string field + `GetProfileKind()`; missing or
+  unknown values default to `BigCreekV1`.
+- `Program.cs` resolves/logs the active profile and warns on unknown values;
+  `WizardRunner` displays it.
+- `ScenarioConfig_BigCreek.json` declares `"scenarioProfile": "BigCreekV1"`.
+- Design documented in `Docs/RHESSysDataImporter/ScenarioProfiles.md`.
 
 Acceptance:
 
