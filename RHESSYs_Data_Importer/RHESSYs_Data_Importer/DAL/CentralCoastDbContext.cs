@@ -54,6 +54,7 @@ namespace RHESSYs_Data_Importer.DAL
         public DbSet<FireDataRow> FireData { get; set; }
         public DbSet<StratumDataRow> StratumData { get; set; }
         public DbSet<PatchDataRow> PatchData { get; set; }
+        public DbSet<TerrainDataRow> TerrainData { get; set; }
         public DbSet<ImportRun> ImportRun { get; set; }
     }
 }

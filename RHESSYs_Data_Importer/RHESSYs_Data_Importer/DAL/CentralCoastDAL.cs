@@ -126,5 +126,20 @@ namespace RHESSYs_Data_Importer.DAL
                 return false;
             }
         }
+
+        public bool AddTerrainDataRow(TerrainDataRow row)
+        {
+            try
+            {
+                using var db = new CentralCoastDbContext(_connectionString);
+                db.TerrainData.Add(row);
+                return db.SaveChanges() > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddTerrainDataRow failed: {ex.Message}");
+                return false;
+            }
+        }
     }
 }

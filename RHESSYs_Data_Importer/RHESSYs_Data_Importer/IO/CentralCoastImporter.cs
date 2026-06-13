@@ -784,6 +784,176 @@ namespace RHESSYs_Data_Importer.IO
         }
 
         /// <summary>
+        /// Generates precomputed <c>TerrainData</c> frames for Central Coast v2.
+        ///
+        /// For each unique (year, month) in <c>StratumData</c>, reads all
+        /// <c>PatchData</c> footprints, aggregates mean <c>total_plantc</c> and
+        /// max <c>burn</c> per <c>zoneID</c>, and writes one <c>TerrainDataRow</c>
+        /// containing a flat 396x301 float array encoded as
+        /// <c>vegIntensity + burnSignal * 100</c>.
+        ///
+        /// See <c>Docs/CentralCoastV2/TerrainDataPlan.md</c> for full design.
+        /// </summary>
+        public static void GenerateTerrainData(ScenarioConfig config, bool dryrun = false)
+        {
+            const int GridWidth = 396;
+            const int GridHeight = 301;
+            const int PixelGrainSize = 30;
+            const int DecimalPrecision = 4;
+            const int TotalPixels = GridWidth * GridHeight; // 119,196
+
+            var scenarioRunId = config.ScenarioRunId ?? "";
+            int warmingIdx = config.WarmingIdx ?? 0;
+
+            Console.WriteLine($"[TerrainData] Loading PatchData footprints for scenarioRunId={scenarioRunId}...");
+
+            // Step 1: load all PatchData pixel lists into memory
+            // zoneID -> flat array of linear indices (row * GridWidth + col)
+            var zonePixels = new Dictionary<int, List<int>>();
+            using (var db = new CentralCoastDbContext())
+            {
+                var patchRows = db.PatchData
+                    .Where(p => p.scenarioRunId == scenarioRunId)
+                    .ToList();
+
+                foreach (var prow in patchRows)
+                {
+                    if (string.IsNullOrWhiteSpace(prow.data))
+                        continue;
+
+                    dynamic footprint = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(prow.data);
+                    var pixelList = new List<int>();
+                    foreach (var px in footprint.pixels)
+                    {
+                        int col = (int)px[0];
+                        int row = (int)px[1];
+                        pixelList.Add(row * GridWidth + col);
+                    }
+                    zonePixels[prow.zoneID] = pixelList;
+                }
+            }
+
+            Console.WriteLine($"[TerrainData] Loaded {zonePixels.Count:N0} zoneID footprints.");
+
+            // Step 2: compute globalMaxPlantC across all months/zones
+            float globalMaxPlantC;
+            using (var db = new CentralCoastDbContext())
+            {
+                globalMaxPlantC = db.StratumData
+                    .Where(s => s.scenarioRunId == scenarioRunId && s.warmingIdx == warmingIdx)
+                    .Select(s => s.total_plantc)
+                    .DefaultIfEmpty(1f)
+                    .Max();
+            }
+
+            if (globalMaxPlantC <= 0f) globalMaxPlantC = 1f;
+            Console.WriteLine($"[TerrainData] globalMaxPlantC = {globalMaxPlantC:F4}");
+
+            // Step 3: enumerate distinct (year, month) pairs
+            List<(int year, int month)> timePeriods;
+            using (var db = new CentralCoastDbContext())
+            {
+                timePeriods = db.StratumData
+                    .Where(s => s.scenarioRunId == scenarioRunId && s.warmingIdx == warmingIdx)
+                    .Select(s => new { s.year, s.month })
+                    .Distinct()
+                    .OrderBy(x => x.year).ThenBy(x => x.month)
+                    .ToList()
+                    .Select(x => (x.year, x.month))
+                    .ToList();
+            }
+
+            Console.WriteLine($"[TerrainData] {timePeriods.Count:N0} monthly frames to generate.");
+            if (dryrun)
+            {
+                Console.WriteLine($"[TerrainData] Dry run: would write {timePeriods.Count:N0} TerrainData rows.");
+                return;
+            }
+
+            var dal = new CentralCoastDAL();
+            int written = 0;
+
+            foreach (var (year, month) in timePeriods)
+            {
+                // Step 4a: aggregate StratumData for this (year, month)
+                Dictionary<int, float> meanPlantCByZone;
+                using (var db = new CentralCoastDbContext())
+                {
+                    meanPlantCByZone = db.StratumData
+                        .Where(s => s.scenarioRunId == scenarioRunId &&
+                                    s.warmingIdx == warmingIdx &&
+                                    s.year == year &&
+                                    s.month == month)
+                        .GroupBy(s => s.zoneID)
+                        .Select(g => new { zoneID = g.Key, meanC = g.Average(s => s.total_plantc) })
+                        .ToDictionary(x => x.zoneID, x => x.meanC);
+                }
+
+                // Step 4b: aggregate FireData for this (year, month)
+                Dictionary<int, float> maxBurnByZone;
+                using (var db = new CentralCoastDbContext())
+                {
+                    maxBurnByZone = db.FireData
+                        .Where(f => f.scenarioRunId == scenarioRunId &&
+                                    f.warmingIdx == warmingIdx &&
+                                    f.year == year &&
+                                    f.month == month &&
+                                    f.level == "patch" &&
+                                    f.zoneID != null)
+                        .GroupBy(f => f.zoneID!.Value)
+                        .Select(g => new { zoneID = g.Key, maxBurn = g.Max(f => f.burn) })
+                        .ToDictionary(x => x.zoneID, x => x.maxBurn);
+                }
+
+                // Step 4c: build output float array
+                float[] output = new float[TotalPixels]; // default 0.0
+
+                foreach (var kvp in zonePixels)
+                {
+                    int zoneID = kvp.Key;
+
+                    float meanC = meanPlantCByZone.TryGetValue(zoneID, out var mc) ? mc : 0f;
+                    float maxBurn = maxBurnByZone.TryGetValue(zoneID, out var mb) ? mb : 0f;
+
+                    float vegIntensity = Math.Clamp(meanC / globalMaxPlantC, 0f, 1f);
+                    float burnSignal = maxBurn > 0f ? 1f : 0f;
+                    float value = (float)Math.Round(vegIntensity + burnSignal * 100f, DecimalPrecision);
+
+                    foreach (int idx in kvp.Value)
+                    {
+                        if (idx >= 0 && idx < TotalPixels)
+                            output[idx] = value;
+                    }
+                }
+
+                // Step 4d: serialize and write
+                string dataList = Newtonsoft.Json.JsonConvert.SerializeObject(output);
+
+                var row = new TerrainDataRow
+                {
+                    scenarioRunId = scenarioRunId,
+                    warmingIdx = warmingIdx,
+                    year = year,
+                    month = month,
+                    gridSize = 0,
+                    gridWidth = GridWidth,
+                    gridHeight = GridHeight,
+                    pixelGrainSize = PixelGrainSize,
+                    decimalPrecision = DecimalPrecision,
+                    _dataList = dataList
+                };
+
+                dal.AddTerrainDataRow(row);
+                written++;
+
+                if (written % 12 == 0)
+                    Console.WriteLine($"[TerrainData] {written:N0}/{timePeriods.Count:N0} frames written...");
+            }
+
+            Console.WriteLine($"[TerrainData] Generated {written:N0} TerrainData rows.");
+        }
+
+        /// <summary>
         /// Builds a map from CSV column index to writable property for the
         /// given model type. Header dots are normalized to underscores to
         /// match the C# property names (e.g. <c>cs.net_psn</c> ->

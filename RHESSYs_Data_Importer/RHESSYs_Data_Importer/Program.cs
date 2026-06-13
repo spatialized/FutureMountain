@@ -225,10 +225,17 @@ if (importPatchData)
 }
 if (importTerrainData)
 {
-    if (dryrun)
-        Console.WriteLine("[DRY RUN] Would import Terrain data (legacy)");
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    {
+        CentralCoastImporter.GenerateTerrainData(activeConfig, dryrun);
+    }
     else
-        TextFileInput.ReadTerrainData(folderTerrainData);
+    {
+        if (dryrun)
+            Console.WriteLine("[DRY RUN] Would import Terrain data (legacy)");
+        else
+            TextFileInput.ReadTerrainData(folderTerrainData);
+    }
 }
 if (importStratumData)
 {

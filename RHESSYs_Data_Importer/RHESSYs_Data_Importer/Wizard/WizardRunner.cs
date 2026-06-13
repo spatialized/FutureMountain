@@ -190,6 +190,10 @@ namespace RHESSYs_Data_Importer.Wizard
                 {
                     CentralCoastImporter.ImportPatchMapData(config, dryrun);
                 }
+                else if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2 && cat == "terrain")
+                {
+                    CentralCoastImporter.GenerateTerrainData(config, dryrun);
+                }
                 else if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2 && cat == "water")
                 {
                     CentralCoastImporter.ImportWaterData(config, dryrun);
