@@ -106,13 +106,7 @@ mechanism as snow (see decision 7). Import preserves `burn` columns now; the
 config is built so it works once fuller data arrives. There is no `fire`
 category.
 
-### 4. No terrain category
-
-Big Creek terrain splatmaps were precomputed/derived artifacts and the DEM is a
-landscape-generation concern. The DEM raster role is recorded for provenance but
-deferred. There is no active `terrain` import for this profile.
-
-### 5. Patch identity: `zoneID` is the spatial cube identity
+### 4. Patch identity: `zoneID` is the spatial cube identity
 
 This is the largest model change. Big Creek used a flat `patchID -> footprint`.
 Central Coast uses a patch family:
@@ -132,21 +126,12 @@ Handling:
 - Cube rows are keyed by `(zoneID, patchID)`. A later adapter can bridge to the
   legacy "one cube per location" shape.
 
-### 6. No climate category
+### 5. No climate category
 
 Climate was imported just-in-case in Big Creek and never consumed. The Central
 Coast sample has no climate files. No `climate` category.
 
-### 7. Temporal grain is a storage concern only; runtime reuses existing interpolation
-
-Future Mountain stays on a 1-day `timeIdx`. The importer simply loads daily files
-into day-keyed tables and monthly files into month-keyed tables. At runtime,
-monthly Central Coast data (snow/landscape, burn, stratum carbon) is interpolated
-to daily using the **existing** Big Creek monthly-to-daily interpolation
-(`BuildTerrainSplatmapForDay` and the terrain-frame interpolation). No new time
-model or interpolation mechanism is introduced.
-
-### 8. Patch-family raster decoded into the existing `PatchPointCollection` contract
+### 6. Patch-family raster decoded into the existing `PatchPointCollection` contract
 
 The `.tiff` patch map is used the same way Big Creek's text patch map was: to
 place where each cube "comes from" (opening animation) and to drive large-
