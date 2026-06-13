@@ -58,7 +58,6 @@ The date range reflects the WRF climate data window described by the data provid
 | `bm.csv` | 384 | Monthly basin burn | One row per month |
 | `spatial_data_point_patchvar.csv` | 3,438,336 | Monthly all-patch burn | 8,954 patch rows per month |
 | `spatial_data_point_stratvar.csv` | 6,876,672 | Monthly all-stratum carbon | 17,908 stratum rows per month |
-| `dem30mSBFRbound.tiff` | n/a | Raster | DEM, not part of first import implementation |
 | `Pch30rip90upRN.tiff` | n/a | Raster | Patch-family map, used to derive spatial patch extents |
 
 ## Spatial Identity Model
@@ -385,18 +384,59 @@ Current sample includes:
 - 8,954 `patchID` values.
 - 17,908 `stratumID` values.
 
-## Raster Source Files
+### Stratum Carbon Shape
 
-The sample includes two rasters:
+This file is a rectangular CSV, but it is in **long table** form rather than map
+or raster form. Each line is one monthly observation for one vegetation layer:
 
 ```text
-dem30mSBFRbound.tiff
+month,year,basinID,hillID,zoneID,patchID,stratumID,totalc,total_plantc
+7,1987,1,324,3497,349701,3497011,256.597308,247.802126
+7,1987,1,324,3497,3497012,0.188243,0.188243
+```
+
+Plain-English grain:
+
+```text
+for this month
+for this zoneID / patch-family
+for this patchID / aspatial patch member
+for this stratumID / vegetation layer
+the carbon values are totalc and total_plantc
+```
+
+The shape is:
+
+```text
+4,477 zoneIDs
+* 2 patchIDs per zoneID
+= 8,954 patchIDs
+
+8,954 patchIDs
+* 2 strata per patchID
+= 17,908 stratumIDs
+
+17,908 stratumIDs
+* 384 months
+= 6,876,672 rows
+```
+
+The spatial footprint is indirect. `zoneID` links these monthly values back to
+the patch-family raster (`Pch30rip90upRN.tiff`), whose pixels store the same
+`zoneID` values. The CSV itself is not shaped like `x,y,value` and is not a
+Unity terrain/splatmap frame.
+
+## Patch Map Raster Source
+
+```text
 Pch30rip90upRN.tiff
 ```
 
-These are not part of the first importer implementation step, but they define important spatial context.
+The patch map is the spatial bridge between RHESSys `zoneID` values and Future
+Mountain landscape footprints. It is required for Central Coast `PatchData` and
+for later precomputed `TerrainData` generation.
 
-Shared raster properties:
+Raster properties:
 
 | Property | Value |
 | --- | --- |
@@ -404,13 +444,6 @@ Shared raster properties:
 | Pixel scale | Approximately 30 m |
 | Nodata | `65535` |
 | Source metadata | GRASS GIS 7.8.3 with GDAL 3.0.4 |
-
-`dem30mSBFRbound.tiff`:
-
-- Elevation range in sample: `102` through `1211`.
-- Used as DEM source for future terrain/landscape generation.
-
-`Pch30rip90upRN.tiff`:
 
 - Stores patch-family IDs matching `zoneID`.
 - Contains 4,477 valid patch-family IDs.

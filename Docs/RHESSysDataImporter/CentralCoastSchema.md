@@ -18,8 +18,8 @@ inventory in `Docs/CentralCoastV2/DataFormats.md`.
   the Big Creek v1 database or its `CubeData`.
 - **Original EF naming style.** Tables are unprefixed and use the existing
   Big Creek EF/PascalCase convention (`CubeData`, `WaterData`, `FireData`,
-  `PatchData`, `TerrainData`, `Dates`). New tables that have no Big Creek
-  equivalent reuse the same style (`StratumData`, `ImportRun`, `RasterMetadata`).
+  `PatchData`, `Dates`). New tables that have no Big Creek
+  equivalent reuse the same style (`StratumData`, `ImportRun`).
   This applies to the new Central Coast database only; Big Creek v1 remains
   untouched, including any lowercase table names shown by the current MySQL
   server.
@@ -43,6 +43,28 @@ vs. large-landscape split:
 This is why `CubeData` stays small/clean and is not overloaded with
 whole-landscape monthly data.
 
+## Raw Import vs Precomputed TerrainData
+
+The tables in this document are raw imported RHESSys/source tables. They are not
+yet the Unity-facing large-landscape payload.
+
+For Big Creek v1, `TerrainData` is a precomputed monthly large-landscape
+splatmap/texture frame that Unity can load through the API and interpolate over
+time. Central Coast v2 should keep that same concept and name, but its
+`TerrainData` should be generated after import from Central Coast source tables
+and spatial assets:
+
+```text
+PatchData geometry
++ StratumData monthly vegetation/carbon
++ FireData monthly burn
++ scenario/warming metadata
+= precomputed Central Coast TerrainData
+```
+
+That `TerrainData` generation is a separate post-import/API-data task. It is not
+the same thing as importing `spatial_data_point_stratvar.csv`.
+
 ## Table Overview
 
 | Table | Grain | Source file(s) | Notes |
@@ -53,9 +75,7 @@ whole-landscape monthly data.
 | `FireData` | Monthly, basin + patch | `bm`, `spatial_data_point_patchvar` | Burn; `level` discriminates basin vs patch. |
 | `StratumData` | Monthly, per stratum | `spatial_data_point_stratvar` | Whole-landscape stratum carbon over time. |
 | `PatchData` | Static, per patch family | `Pch30rip90upRN.tiff` | Spatial extents (PatchPointCollection contract). |
-| `TerrainData` | (deferred) | `dem30mSBFRbound.tiff` | Defined for parity; not populated in phase 1. |
 | `ImportRun` | per run | n/a | Provenance / batch marker. |
-| `RasterMetadata` | per raster | both `.tiff` | Raster provenance. |
 
 ## Decision: where the daily aggregate goes
 
@@ -186,6 +206,22 @@ Monthly whole-landscape stratum carbon from `spatial_data_point_stratvar.csv`
 (~6.9M rows per member). Kept separate from `CubeData` because it spans every
 stratum in the watershed, not just the 5 cubes.
 
+This table is long-format RHESSys source data, not a map grid. One row means:
+
+```text
+for this month + zoneID + patchID + stratumID,
+the carbon values are totalc and total_plantc
+```
+
+The current sample has 6,876,672 rows:
+
+```text
+17,908 stratumIDs * 384 months
+```
+
+The `zoneID` column links these rows back to the patch-family raster; the CSV
+itself does not contain pixel coordinates or Unity texture weights.
+
 | Column | Type | Source |
 | --- | --- | --- |
 | common columns | | |
@@ -219,14 +255,6 @@ Index on `(scenarioRunId, zoneID)`.
 Decoding the raster into this contract is a later task; the table shape is fixed
 here.
 
-## TerrainData (deferred)
-
-Defined for parity with Big Creek but not populated in phase 1. Source would be
-`dem30mSBFRbound.tiff` plus derived splatmaps. Shape mirrors Big Creek
-`TerrainData`: common columns, `year`, `month`, `gridSize`, `pixelGrainSize`,
-`decimalPrecision`, `data` (serialized frame). Listed so the schema is complete
-and future terrain work has a defined home.
-
 ## ImportRun
 
 One row per import execution; the batch marker referenced by `importRunId`.
@@ -247,24 +275,6 @@ One row per import execution; the batch marker referenced by `importRunId`.
 | `rowsImported` | bigint | Total rows written. |
 | `notes` | longtext (nullable) | Warnings/summary. |
 
-## RasterMetadata
-
-Raster provenance for the two `.tiff` inputs.
-
-| Column | Type | Meaning |
-| --- | --- | --- |
-| common columns (no `warmingIdx`) | | |
-| `role` | varchar | `patchFamily` or `dem`. |
-| `fileName` | varchar | Raster file name. |
-| `gridColumns` | int | e.g. 396. |
-| `gridRows` | int | e.g. 301. |
-| `pixelScaleMeters` | float | ~30. |
-| `nodataValue` | bigint | e.g. 65535. |
-| `minValue` | float | Sample min. |
-| `maxValue` | float | Sample max. |
-| `validIdCount` | int | e.g. 4,477 patch-family ids. |
-| `sourceMetadata` | varchar | e.g. GRASS/GDAL provenance. |
-
 ## Acceptance Mapping
 
 - **Preserves raw Central Coast structure:** each source file's columns are
@@ -281,4 +291,3 @@ Raster provenance for the two `.tiff` inputs.
 - Model classes for these tables: `CCV2-05`.
 - EF migrations generated from those models (authoritative DDL): after `CCV2-05`.
 - Raster decoder for `PatchData`: later spatial task.
-- `TerrainData` population: deferred landscape task.

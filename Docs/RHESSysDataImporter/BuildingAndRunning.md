@@ -1,10 +1,10 @@
-# RHESSys Data Importer Runbook
+# RHESSys Data Importer Building and Running
 
 Last updated: 2026-06-13
 
 ## Purpose
 
-This runbook describes how to build and run the current RHESSys Data Importer embedded in Future Mountain.
+This document describes how to build and run the current RHESSys Data Importer embedded in Future Mountain.
 
 It is intended for developers or technical staff importing current Big Creek-style RHESSys data into a local or staging MySQL database.
 
@@ -87,9 +87,59 @@ Expected flow:
 9. The user can preview cube column mappings.
 10. The user confirms import.
 
-Current wizard limitation:
+Current wizard limitations (Big Creek v1):
 
-Only cube import is implemented in wizard mode. Patch, terrain, fire, water, and climate are selectable but report that the import is not yet implemented in wizard mode.
+Only cube import is implemented in wizard mode for the Big Creek v1 profile.
+Patch, terrain, fire, water, and climate are selectable but report that the
+import is not yet implemented.
+
+For the Central Coast v2 profile, the following categories are fully
+implemented in wizard mode:
+
+| Category | Wizard | Auto |
+| --- | --- | --- |
+| Cube (patch + stratum) | Implemented | `--cubes` |
+| Water | Implemented | `--water` |
+| Fire (basin + patch burn) | Implemented | `--fire` |
+| Stratum carbon | Implemented | `--stratum` |
+
+### Central Coast v2 Config
+
+Central Coast v2 is selected through the interactive wizard. Run from the importer
+project folder:
+
+```powershell
+cd RHESSYs_Data_Importer\RHESSYs_Data_Importer
+dotnet run
+```
+
+The app loads `ScenarioConfig_BigCreek.json` first because Big Creek remains the
+default profile. To use Central Coast v2, choose:
+
+```text
+[2] Load another config (enter path)
+```
+
+Then enter:
+
+```text
+ScenarioConfig_CentralCoastV2.json
+```
+
+For a validation-only run through the same wizard path:
+
+```powershell
+cd RHESSYs_Data_Importer\RHESSYs_Data_Importer
+dotnet run -- --dryrun
+```
+
+Then choose option `2` and load `ScenarioConfig_CentralCoastV2.json`. The wizard
+prints the resolved profile (`CentralCoastV2`), database target
+(`centralcoast_rhessys`), discovery summary, and Central Coast validation report
+before any import writes.
+
+There is not yet a headless command like
+`dotnet run -- --config ScenarioConfig_CentralCoastV2.json`.
 
 ## Auto Import
 
@@ -117,18 +167,51 @@ Cube-only import:
 dotnet run -- --auto --cubes
 ```
 
+### Central Coast v2 Auto Dry Run
+
+From the importer project folder, with `ScenarioConfig_CentralCoastV2.json` as
+the default config (rename or swap `ScenarioConfig_BigCreek.json` temporarily),
+or once a `--config` flag is added:
+
+Full dry run (all CCV2 categories, no DB writes):
+
+```powershell
+dotnet run -- --auto --dryrun
+```
+
+Expected console output (approximate row counts):
+
+| Category | File(s) | Expected rows |
+| --- | --- | --- |
+| Water | `cube_agg_p.csv` | 11,688 |
+| Cube patch | `cube_p_patch1.csv` + `patch2.csv` | 116,880 |
+| Cube stratum | over/under patch1/2 | 233,760 updates |
+| Fire basin | `bm.csv` | 384 |
+| Fire patch | `spatial_data_point_patchvar.csv` | 3,438,336 |
+| Stratum carbon | `spatial_data_point_stratvar.csv` | 6,876,672 |
+
+Category-scoped dry runs:
+
+```powershell
+dotnet run -- --auto --dryrun --water
+dotnet run -- --auto --dryrun --cubes
+dotnet run -- --auto --dryrun --fire
+dotnet run -- --auto --dryrun --stratum
+```
+
 Auto mode flags:
 
 | Flag | Current behavior |
 | --- | --- |
 | `--auto` | Enables non-interactive mode |
 | `--dryrun` | Prints intended actions without DB writes in supported paths |
-| `--force` | Prints that force is enabled; no broad force behavior is currently implemented |
-| `--cubes` | Enables cube import |
+| `--force` | Skips validation failure abort; prints that force is enabled |
+| `--cubes` | Enables cube import (CCV2: patch + stratum rows) |
 | `--patch` | Enables legacy patch import |
 | `--terrain` | Enables legacy terrain import |
-| `--fire` | Enables legacy fire import |
-| `--water` | Enables legacy water import |
+| `--fire` | Enables fire import (CCV2: basin burn + patch burn) |
+| `--water` | Enables water import (CCV2: daily aggregate) |
+| `--stratum` | Enables stratum carbon import (CCV2 only) |
 | `--climate` | Recognized as a flag, but climate import is not implemented |
 
 ## Database Behavior

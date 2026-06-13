@@ -25,14 +25,14 @@ optional fields (all unused by Big Creek v1, which leaves them null):
 | `delimiter` | string | Field delimiter for source files (`,` for Central Coast CSVs). |
 | `files` | object | Logical file role -> file name, resolved relative to `sourceRoot`. |
 | `database` | object | Central Coast database connection (separate DB: `centralcoast_rhessys`). |
-| `outputTables` | array | Target tables, named to match the existing EF/Big Creek table convention (`Dates`, `CubeData`, `PatchData`, `FireData`, `WaterData`, `TerrainData`). See `CCV2-04`. |
+| `outputTables` | array | Target tables, named to match the existing EF/Big Creek table convention (`Dates`, `CubeData`, `PatchData`, `FireData`, `WaterData`). See `CCV2-04`. |
 
 ### Table Naming
 
 Tables reuse the original Big Creek EF naming convention so the schema and any
 later API/adapter stay familiar: `Dates`, `CubeData`, `PatchData`, `FireData`,
-`WaterData`, `TerrainData`. Central Coast-only tables use the same PascalCase
-style: `StratumData`, `ImportRun`, and `RasterMetadata`.
+`WaterData`. Central Coast-only tables use the same PascalCase style:
+`StratumData` and `ImportRun`.
 
 This is a Central Coast v2 decision only. Big Creek v1 remains untouched, even if
 an existing MySQL instance displays its tables in lowercase.
@@ -69,7 +69,6 @@ and spatial level (aggregate/patch/stratum):
 | `patchMonthlyBurn` | `spatial_data_point_patchvar.csv` | Monthly all-patch burn |
 | `stratumMonthlyCarbon` | `spatial_data_point_stratvar.csv` | Monthly all-stratum carbon |
 | `patchFamilyRaster` | `Pch30rip90upRN.tiff` | Patch-family raster |
-| `demRaster` | `dem30mSBFRbound.tiff` | DEM raster (deferred) |
 
 ## Design Decisions
 
@@ -150,6 +149,12 @@ The Central Coast config is selected explicitly:
 Big Creek remains the default config loaded by `Program.cs`, so default behavior
 is unchanged. Wiring the Central Coast profile into actual import paths and
 staging tables is handled by `CCV2-04` onward.
+
+## How To Run
+
+The canonical run instructions live in
+`Docs/RHESSysDataImporter/Runbook.md`, including the Central Coast v2 wizard flow
+and dry-run command. See the `Central Coast v2 Config` section there.
 
 ## Known Follow-ups
 

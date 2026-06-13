@@ -33,7 +33,7 @@ Central Coast v2 should get its own importer path and database/schema path. Comp
 | Strata | Big Creek runtime fields flatten overstory and understory values into one cube data row. | Central Coast provides separate overstory and understory stratum files. |
 | Burn data | Big Creek has fire/burn data integrated into existing fire/terrain flows by warming index. | Current Central Coast burn data is monthly at basin and patch levels; daily cube burn is zero in the sample. |
 | Spatial map | Big Creek patch extents are consumed as derived patch data / text-derived collections. | Central Coast provides a GeoTIFF patch-family raster that must be converted into equivalent patch collections. |
-| Landscape scale | Big Creek current runtime uses existing terrain/assets and precomputed terrain data paths. | Central Coast includes DEM and patch map rasters; DEM use is a later landscape task, not the first import step. |
+| Landscape scale | Big Creek current runtime uses existing terrain/assets and precomputed terrain data paths. | Central Coast uses the patch map raster to connect `zoneID` values to landscape footprints before precomputed `TerrainData` can be generated. |
 | Import style | Big Creek importer includes legacy positional parsing and Big Creek file conventions. | Central Coast should use named CSV columns and profile-specific parsing. |
 
 ## Warming Scenario Difference
@@ -185,14 +185,17 @@ PascalCase EF table convention as the existing importer models:
 - `FireData`
 - `StratumData`
 - `PatchData`
-- `TerrainData`
 - `ImportRun`
-- `RasterMetadata`
 
 The table names are now fixed by `Docs/RHESSysDataImporter/CentralCoastSchema.md`.
 The important structural separation remains: daily per-cube data, daily basin
 aggregate water data, monthly burn, monthly full-landscape stratum carbon, and
-spatial/raster provenance stay distinct.
+patch-map-derived spatial footprints stay distinct.
+
+Central Coast v2 does not define a phase-1 `TerrainData` table. Big Creek
+`TerrainData` is a derived monthly runtime payload for large-landscape
+splatmap/texture state. Central Coast landscape runtime data
+should be designed later from the imported source tables and assets.
 
 ## Compatibility Rule
 
