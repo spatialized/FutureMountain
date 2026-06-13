@@ -844,6 +844,12 @@ namespace RHESSYs_Data_Importer.IO
             var scenarioRunId = config.ScenarioRunId ?? "";
             int warmingIdx = config.WarmingIdx ?? 0;
 
+            if (dryrun)
+            {
+                Console.WriteLine($"[TerrainData] Dry run: terrain generation skipped (PatchData/StratumData not yet in DB).");
+                return;
+            }
+
             Console.WriteLine($"[TerrainData] Loading PatchData footprints for scenarioRunId={scenarioRunId}...");
 
             // Step 1: load all PatchData pixel lists into memory
@@ -880,9 +886,7 @@ namespace RHESSYs_Data_Importer.IO
             {
                 globalMaxPlantC = db.StratumData
                     .Where(s => s.scenarioRunId == scenarioRunId && s.warmingIdx == warmingIdx)
-                    .Select(s => s.total_plantc)
-                    .DefaultIfEmpty(1f)
-                    .Max();
+                    .Max(s => (float?)s.total_plantc) ?? 1f;
             }
 
             if (globalMaxPlantC <= 0f) globalMaxPlantC = 1f;
@@ -903,11 +907,6 @@ namespace RHESSYs_Data_Importer.IO
             }
 
             Console.WriteLine($"[TerrainData] {timePeriods.Count:N0} monthly frames to generate.");
-            if (dryrun)
-            {
-                Console.WriteLine($"[TerrainData] Dry run: would write {timePeriods.Count:N0} TerrainData rows.");
-                return;
-            }
 
             var dal = new CentralCoastDAL();
             var terrainBatch = new List<TerrainDataRow>();

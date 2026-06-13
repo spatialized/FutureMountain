@@ -138,8 +138,17 @@ prints the resolved profile (`CentralCoastV2`), database target
 (`centralcoast_rhessys`), discovery summary, and Central Coast validation report
 before any import writes.
 
-There is not yet a headless command like
-`dotnet run -- --config ScenarioConfig_CentralCoastV2.json`.
+Headless (auto mode) with an explicit config:
+
+```powershell
+dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json
+```
+
+Dry run:
+
+```powershell
+dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json --dryrun
+```
 
 ## Auto Import
 
@@ -169,14 +178,12 @@ dotnet run -- --auto --cubes
 
 ### Central Coast v2 Auto Dry Run
 
-From the importer project folder, with `ScenarioConfig_CentralCoastV2.json` as
-the default config (rename or swap `ScenarioConfig_BigCreek.json` temporarily),
-or once a `--config` flag is added:
+From the importer project folder:
 
 Full dry run (all CCV2 categories, no DB writes):
 
 ```powershell
-dotnet run -- --auto --dryrun
+dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json --dryrun
 ```
 
 Expected console output (approximate row counts):
@@ -193,10 +200,10 @@ Expected console output (approximate row counts):
 Category-scoped dry runs:
 
 ```powershell
-dotnet run -- --auto --dryrun --water
-dotnet run -- --auto --dryrun --cubes
-dotnet run -- --auto --dryrun --fire
-dotnet run -- --auto --dryrun --stratum
+dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json --dryrun --water
+dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json --dryrun --cubes
+dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json --dryrun --fire
+dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json --dryrun --stratum
 ```
 
 Auto mode flags:
@@ -212,11 +219,12 @@ Auto mode flags:
 | `--fire` | Enables fire import (CCV2: basin burn + patch burn) |
 | `--water` | Enables water import (CCV2: daily aggregate) |
 | `--stratum` | Enables stratum carbon import (CCV2 only) |
+| `--config <path>` | Loads the specified scenario config instead of the default `ScenarioConfig_BigCreek.json` |
 | `--climate` | Recognized as a flag, but climate import is not implemented |
 
 ## Database Behavior
 
-The importer writes directly through EF Core DbContexts. It does not currently batch large imports.
+The importer writes through EF Core DbContexts. Central Coast v2 fire, stratum, patch, and terrain data use batch inserts (chunk-based `AddRange` + single `SaveChanges` per chunk) to handle the large row counts efficiently.
 
 Before importing:
 
