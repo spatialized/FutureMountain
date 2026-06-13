@@ -41,8 +41,8 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | CCV2-07 | Daily aggregate importer | Completed |
 | CCV2-08 | Daily cube patch importer | Completed |
 | CCV2-09 | Daily cube stratum importer | Completed |
-| CCV2-10 | Monthly basin burn importer | Pending |
-| CCV2-11 | Monthly patch burn importer | Pending |
+| CCV2-10 | Monthly basin burn importer | Completed |
+| CCV2-11 | Monthly patch burn importer | Completed |
 | CCV2-12 | Monthly stratum carbon importer | Pending |
 | CCV2-13 | Import dry-run and row-count verification | Pending |
 | CCV2-14 | Real database import smoke test | Pending |
@@ -390,7 +390,7 @@ Implementation:
 
 ### CCV2-10 Monthly Basin Burn Importer
 
-Status: Pending
+Status: Completed
 
 Import:
 
@@ -403,9 +403,20 @@ Acceptance:
 - 384 rows imported or dry-run counted.
 - Month range validates.
 
+Implementation:
+
+- `CentralCoastDAL.AddFireDataRow`: adds a `FireDataRow` through
+  `CentralCoastDbContext`.
+- `CentralCoastImporter.ImportBasinBurnData`: streams `bm.csv`, sets
+  `level = "basin"`, leaves `hillID`/`zoneID`/`patchID` null, attaches
+  `scenarioRunId`/`warmingIdx`/`sourceFile`, and maps `month`/`year`/
+  `basinID`/`burn` columns.
+- Wired into wizard (fire category) and auto mode (`--fire`) for
+  `CentralCoastV2` profile; legacy Big Creek path preserved.
+
 ### CCV2-11 Monthly Patch Burn Importer
 
-Status: Pending
+Status: Completed
 
 Import:
 
@@ -418,6 +429,15 @@ Acceptance:
 - 3,438,336 rows imported or dry-run counted.
 - 4,477 `zoneID` values and 8,954 `patchID` values are preserved.
 - Month range validates.
+
+Implementation:
+
+- `CentralCoastImporter.ImportPatchBurnData`: streams
+  `spatial_data_point_patchvar.csv` (~3.4M rows) with `level = "patch"`,
+  maps `month`/`year`/`basinID`/`hillID`/`zoneID`/`patchID`/`burn`,
+  attaches `scenarioRunId`/`warmingIdx`/`sourceFile`.
+- Wired into wizard and auto mode (`--fire`) for `CentralCoastV2`
+  profile, running after basin burn import.
 
 ### CCV2-12 Monthly Stratum Carbon Importer
 
