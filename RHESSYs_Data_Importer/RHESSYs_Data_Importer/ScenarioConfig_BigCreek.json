@@ -1,0 +1,100 @@
+{
+  "scenarioName": "BigCreek",
+  "description": "Baseline RHESSys dataset for the Big Creek watershed, with fire and non-fire variants at 0–6°C warming.",
+  "version": "1.0",
+  "database": {
+    "name": "bigcreek_rhessys",
+    "host": "localhost",
+    "port": 3306,
+    "user": "root",
+    "password": "",
+    "charset": "utf8mb4",
+    "collation": "utf8mb4_0900_ai_ci"
+  },
+  "inputFolders": {
+    "cubeData": "../Data/CubeData/",
+    "patchOutput": "../Data/PatchOutput/",
+    "basinOutput": "../Data/BasinOutput/",
+    "spatialData": "../Data/SpatialData/",
+    "climateData": "../Data/ClimateData/"
+  },
+  "filePatterns": {
+    "cube": "p*_2veg_*_*.txt",
+    "patch": "extent100m_*.txt",
+    "terrain": "patches100m*.txt",
+    "fire": "firemask*.txt",
+    "water": "ext100m_*.txt",
+    "climate": "clim*.txt"
+  },
+  "columnMapping": {
+    "cube": {
+      "date": "date",
+      "snow": "snow",
+      "evap": "evap",
+      "netpsn": "netpsn",
+      "depthtogw": "depthToGW",
+      "vegaccesswater": "vegAccessWater",
+      "Qout": "Qout",
+      "litter": "litter",
+      "soil": "soil",
+      "height_over": "heightOver",
+      "trans_over": "transOver",
+      "height_under": "heightUnder",
+      "trans_under": "transUnder",
+      "leafc_over": "leafCOver",
+      "stemc_over": "stemCOver",
+      "rootc_over": "rootCOver",
+      "leafc_under": "leafCUnder",
+      "stemc_under": "stemCUnder",
+      "rootc_under": "rootCUnder",
+      "year": "year",
+      "month": "month",
+      "day": "day"
+    },
+    "patch": {
+      "month": "month",
+      "year": "year",
+      "patchID": "patchID",
+      "snow": "snow",
+      "plantc": "plantC"
+    },
+    "basin": {
+      "wy": "waterYear",
+      "precip": "precipitation",
+      "Qbase": "QBase",
+      "Qwarm1": "QWarm1",
+      "Qwarm2": "QWarm2",
+      "Qwarm4": "QWarm4",
+      "Qwarm6": "QWarm6"
+    },
+    "climate": {
+      "date": "date",
+      "day": "day",
+      "month": "month",
+      "year": "year",
+      "precip": "precip",
+      "tmax": "tmax",
+      "tmin": "tmin",
+      "tavg": "tavg",
+      "vpd": "vpd"
+    }
+  },
+  "transforms": {
+    "cube": [],
+    "patch": [],
+    "basin": [],
+    "climate": []
+  },
+  "flags": {
+    "hasFire": true,
+    "vegetationLayers": 2
+  },
+  "outputTables": [
+    "cubedata",
+    "patchdata",
+    "terraindata",
+    "firedata",
+    "waterdata",
+    "dates"
+  ]
+}
