@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using RHESSYs_Data_Importer.Models;
-using RHESSYs_Data_Importer.Models.RHESSYs_Data_Importer.Models;
 
 namespace RHESSYs_Data_Importer.DAL
 {

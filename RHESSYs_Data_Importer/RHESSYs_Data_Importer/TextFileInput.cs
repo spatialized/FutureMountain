@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using RHESSYs_Data_Importer.Models.RHESSYs_Data_Importer.Models;
 using System.Linq;
 using RHESSYs_Data_Importer.Configuration;
 using RHESSYs_Data_Importer.Parsing;

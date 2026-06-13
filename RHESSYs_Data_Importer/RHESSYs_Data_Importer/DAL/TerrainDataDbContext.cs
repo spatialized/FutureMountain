@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using RHESSYs_Data_Importer.Models.RHESSYs_Data_Importer.Models;
-
 namespace RHESSYs_Data_Importer.DAL
 {
     /// <summary>
