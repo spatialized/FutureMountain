@@ -46,7 +46,7 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | CCV2-12 | Monthly stratum carbon importer | Completed |
 | CCV2-13 | Import dry-run and row-count verification | Completed |
 | CCV2-14 | Real database import smoke test | Pending |
-| CCV2-15 | Patch map spatial footprint planning | Pending |
+| CCV2-15 | Patch map spatial footprint planning | Completed |
 | CCV2-16 | Precomputed Central Coast TerrainData planning | Pending |
 | CCV2-17 | API/Unity follow-on planning | Pending |
 
@@ -512,7 +512,7 @@ Acceptance:
 
 ### CCV2-15 Patch Map Spatial Footprint Planning
 
-Status: Pending
+Status: Completed
 
 Plan how the patch map raster becomes Central Coast `PatchData` and supports
 precomputed `TerrainData`.
@@ -528,6 +528,19 @@ Acceptance:
 - Plan explains how `PatchData` will let `StratumData` and `FireData` values be
   projected into precomputed `TerrainData`.
 - No precomputed `TerrainData` generation is implemented in this task.
+
+Implementation:
+
+- Spec written to `Docs/CentralCoastV2/PatchMapSpatialFootprintPlan.md`.
+- Defines decoder algorithm: iterate 396×301 grid, group pixel (col,row) pairs
+  by `zoneID`, skip nodata (`65535`), compute pixelCount/centroid/boundingBox,
+  serialize each `zoneID` as `PatchPointCollection` JSON into `PatchData.data`.
+- Recommends `BitMiracle.LibTiff.Classic` for .NET TIFF reading.
+- Specifies wiring: `ImportPatchMapData` → `AddPatchDataRow` → `PatchData`.
+- States the CCV2-16 contract: how `PatchData.pixels` maps `zoneID` to
+  output grid cells for the `TerrainData` generator.
+- Documents open questions (aggregation function, output frame format,
+  temporal grain, coordinate system mapping) deferred to CCV2-16.
 
 ### CCV2-16 Precomputed Central Coast TerrainData Planning
 
