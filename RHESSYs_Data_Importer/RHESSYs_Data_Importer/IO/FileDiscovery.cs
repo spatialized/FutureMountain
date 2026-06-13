@@ -24,7 +24,10 @@ namespace RHESSYs_Data_Importer.IO
             var result = new FileDiscoveryResult();
             if (config.InputFolders == null || config.InputFolders.Count == 0)
             {
-                result.Warnings.Add("[WARN] No input folders defined in ScenarioConfig.");
+                // CCV2-style configs use SourceRoot + Files rather than InputFolders.
+                // Suppress the legacy warning when the profile already has explicit file roles.
+                if (config.Files == null || config.Files.Count == 0)
+                    result.Warnings.Add("[WARN] No input folders defined in ScenarioConfig.");
                 return result;
             }
             if (config.FilePatterns == null || config.FilePatterns.Count == 0)
