@@ -253,6 +253,175 @@ namespace RHESSYs_Data_Importer.IO
         }
 
         /// <summary>
+        /// Imports daily cube stratum files (overstory and understory for
+        /// patch 01 and 02) and merges them into the existing <c>CubeData</c>
+        /// rows created by <see cref="ImportCubePatchData"/>.
+        ///
+        /// Matches on (scenarioRunId, warmingIdx, dateIdx, zoneID, patchID).
+        /// </summary>
+        public static void ImportCubeStratumData(ScenarioConfig config, bool dryrun = false)
+        {
+            var fileDefs = new[]
+            {
+                new { Role = "cubeStratumOver01", IsOverstory = true, PatchSuffix = "01" },
+                new { Role = "cubeStratumOver02", IsOverstory = true, PatchSuffix = "02" },
+                new { Role = "cubeStratumUnder01", IsOverstory = false, PatchSuffix = "01" },
+                new { Role = "cubeStratumUnder02", IsOverstory = false, PatchSuffix = "02" },
+            };
+
+            foreach (var def in fileDefs)
+            {
+                var path = config.GetSourceFilePath(def.Role);
+                if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+                {
+                    Console.WriteLine($"[WARN] {def.Role} file not found: {path}");
+                    continue;
+                }
+
+                var dal = new CentralCoastDAL();
+                using var reader = new StreamReader(path);
+                string headerLine = reader.ReadLine();
+                if (string.IsNullOrWhiteSpace(headerLine))
+                {
+                    Console.WriteLine($"[WARN] {def.Role} file has empty header.");
+                    continue;
+                }
+
+                var headers = headerLine.Split(',');
+                var colMap = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                for (int i = 0; i < headers.Length; i++)
+                    colMap[headers[i].Trim()] = i;
+
+                // Key columns
+                colMap.TryGetValue("day", out var dayIdx);
+                colMap.TryGetValue("month", out var monthIdx);
+                colMap.TryGetValue("year", out var yearIdx);
+                colMap.TryGetValue("zoneID", out var zoneIdx);
+                colMap.TryGetValue("patchID", out var patchIdx);
+                colMap.TryGetValue("stratumID", out var stratumIdx);
+                colMap.TryGetValue("veg_parm_ID", out var vegIdx);
+
+                // Stratum-specific columns: CSV name -> model property name
+                var stratumPropMap = def.IsOverstory
+                    ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "consumedCOver", "consumedCOver" },
+                        { "mortCOver", "mortCOver" },
+                        { "netpsnOver", "netpsnOver" },
+                        { "heightOver", "heightOver" },
+                        { "transOver", "transOver" },
+                        { "leafCOver", "leafCOver" },
+                        { "stemCOver", "stemCOver" },
+                        { "rootCOver", "rootCOver" },
+                        { "rootdepthCOver", "rootdepthCOver" },
+                        { "laiOver", "laiOver" },
+                    }
+                    : new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        { "consumedCUnder", "consumedCUnder" },
+                        { "mortCUnder", "mortCUnder" },
+                        { "transUnder", "transUnder" },
+                        { "netpsnUnder", "netpsnUnder" },
+                        { "heightUnder", "heightUnder" },
+                        { "leafCUnder", "leafCUnder" },
+                        { "stemCUnder", "stemCUnder" },
+                        { "rootCUnder", "rootCUnder" },
+                        { "rootdepthUnder", "rootdepthUnder" },
+                        { "laiUnder", "laiUnder" },
+                    };
+
+                // Build column index -> property name map for float columns
+                var floatPropMap = new Dictionary<int, string>();
+                foreach (var kvp in stratumPropMap)
+                {
+                    if (colMap.TryGetValue(kvp.Key, out var idx))
+                        floatPropMap[idx] = kvp.Value;
+                }
+
+                int updated = 0;
+                int skipped = 0;
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+
+                    var parts = line.Split(',');
+
+                    // Compute dateIdx
+                    int dateIdx = 0;
+                    if (dayIdx >= 0 && monthIdx >= 0 && yearIdx >= 0 &&
+                        int.TryParse(GetSafe(parts, dayIdx), out var day) &&
+                        int.TryParse(GetSafe(parts, monthIdx), out var month) &&
+                        int.TryParse(GetSafe(parts, yearIdx), out var year))
+                    {
+                        try
+                        {
+                            var dt = new DateTime(year, month, day);
+                            dateIdx = (dt - DailyStart).Days + 1;
+                        }
+                        catch { dateIdx = 0; }
+                    }
+
+                    // Parse spatial key
+                    if (!int.TryParse(GetSafe(parts, zoneIdx), out var zoneID) ||
+                        !long.TryParse(GetSafe(parts, patchIdx), out var patchID))
+                    {
+                        skipped++;
+                        continue;
+                    }
+
+                    if (dryrun)
+                    {
+                        updated++;
+                        continue;
+                    }
+
+                    Action<CubeDataRow> updater = row =>
+                    {
+                        // stratumID and veg_parm_ID map to different properties
+                        // depending on whether this is an overstory or understory file
+                        if (stratumIdx >= 0 && long.TryParse(GetSafe(parts, stratumIdx), out var sid))
+                        {
+                            if (def.IsOverstory) row.stratumIDOver = sid;
+                            else row.stratumIDUnder = sid;
+                        }
+                        if (vegIdx >= 0 && int.TryParse(GetSafe(parts, vegIdx), out var vid))
+                        {
+                            if (def.IsOverstory) row.vegParmIDOver = vid;
+                            else row.vegParmIDUnder = vid;
+                        }
+
+                        // Float stratum columns
+                        foreach (var kvp in floatPropMap)
+                        {
+                            int col = kvp.Key;
+                            var propName = kvp.Value;
+                            if (col < 0 || col >= parts.Length)
+                                continue;
+                            var raw = parts[col]?.Trim();
+                            if (string.IsNullOrWhiteSpace(raw))
+                                continue;
+                            if (float.TryParse(raw, out var f))
+                            {
+                                var prop = typeof(CubeDataRow).GetProperty(propName);
+                                prop?.SetValue(row, f);
+                            }
+                        }
+                    };
+
+                    if (dal.UpdateCubeDataStratum(dateIdx, zoneID, patchID,
+                        config.ScenarioRunId ?? "", config.WarmingIdx ?? 0, updater))
+                        updated++;
+                    else
+                        skipped++;
+                }
+
+                Console.WriteLine($"[CubeData/{def.Role}] {(dryrun ? "Would update" : "Updated")} {updated:N0} rows, skipped {skipped:N0}.");
+            }
+        }
+
+        /// <summary>
         /// Builds a map from CSV column index to writable property for the
         /// given model type. Header dots are normalized to underscores to
         /// match the C# property names (e.g. <c>cs.net_psn</c> ->

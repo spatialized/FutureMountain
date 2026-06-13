@@ -156,6 +156,7 @@ namespace RHESSYs_Data_Importer.Wizard
                 if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
                 {
                     CentralCoastImporter.ImportCubePatchData(config, dryrun);
+                    CentralCoastImporter.ImportCubeStratumData(config, dryrun);
                 }
                 else
                 {

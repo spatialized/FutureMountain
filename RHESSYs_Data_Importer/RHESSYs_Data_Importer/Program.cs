@@ -151,6 +151,7 @@ if(importCubeData)
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
         CentralCoastImporter.ImportCubePatchData(activeConfig, dryrun);
+        CentralCoastImporter.ImportCubeStratumData(activeConfig, dryrun);
     }
     else if (activeConfig != null && discovered != null && discovered.Count("cube") > 0)
     {
