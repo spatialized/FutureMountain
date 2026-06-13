@@ -33,8 +33,6 @@ public static class TextFileInput
                 int warmingIdx = -1;
 
                 string fileName = Path.GetFileNameWithoutExtension(file);
-                //Console.WriteLine("Found data file: " + fileName);
-
                 if (fileName.Contains("hist"))
                 {
                     warmingIdx = 0;
@@ -46,10 +44,7 @@ public static class TextFileInput
                     int warmingDegrees = int.Parse(warmingStr);
                     warmingIdx = WarmingDegreesToIndex(warmingDegrees);
                 }
-                //Console.WriteLine("Set warmingIdx: " + warmingIdx);
-
                 List<string> lines = ReadLinesFromFile(file);
-                //Console.WriteLine("Read " + lines.Count +" lines from file "+fileName);
 
                 int count = 0;
                 foreach (string line in lines)
@@ -611,12 +606,10 @@ public static class TextFileInput
 
     public static void ReadWaterData(string folderWater)
     {
-        // List<WaterDataYear> waterData;          // List of formatted water data by warming idx.
         RHESSYsDAL dal = new RHESSYsDAL();
 
         try
         {
-            //TextAsset patchExtTextAsset = (TextAsset)Resources.Load("WaterData/WaterData");
             string text = ReadFile(folderWater + "/" + "WaterData.json");
             List<WaterDataYear> waterData = JsonConvert.DeserializeObject<List<WaterDataYear>>(text);
             foreach (WaterDataYear year in waterData)
@@ -640,7 +633,6 @@ public static class TextFileInput
         }
         catch (Exception ex)
         {
-            //Debug.Log("InitializeData()... waterData ERROR: " + e.Message);
         }
     }
 
@@ -650,7 +642,6 @@ public static class TextFileInput
 
         try
         {
-            // fireDataList_0.json
             foreach (string file in Directory.EnumerateFiles(folderFire))
             {
                 int warmingIdx = -1;
@@ -661,10 +652,7 @@ public static class TextFileInput
                 string[] parts = file.Split('.')[0].Split("_fire");
                 string warmingStr = parts[0].Substring(parts[0].Length - 1);
                 warmingIdx = int.Parse(warmingStr);
-                //int warmingDegrees = int.Parse(warmingStr);
-                //warmingIdx = WarmingDegreesToIndex(warmingDegrees);
 
-                //string text = ReadFile(folderPath + "/" + "fireDataList_0.json");
                 string text = ReadFile(file);
 
                 List<FireDataFrameRecord> fireData = JsonConvert.DeserializeObject<List<FireDataFrameRecord>>(text);
@@ -685,7 +673,6 @@ public static class TextFileInput
         }
         catch (Exception e)
         {
-            //Debug.Log("InitializeData()... waterData ERROR: " + e.Message);
         }
     }
 
@@ -695,7 +682,6 @@ public static class TextFileInput
 
         try
         {
-            // fireDataList_0.json  terrain_warm1_1942_10_4_4.json
             foreach (string file in Directory.EnumerateFiles(folderTerrain))
             {
                 int warmingIdx = -1;
@@ -722,7 +708,6 @@ public static class TextFileInput
                 string text = ReadFile(file);
 
                 int[] flatArray = JsonConvert.DeserializeObject<int[]>(text);
-                //int[,,] unflattened = Unflatten1DIntArrayTo3D(flatArray, inputWidth, 4);
 
                 int gridHeight = 512 / grainSize;
 
@@ -744,25 +729,8 @@ public static class TextFileInput
         }
         catch (Exception e)
         {
-            //Debug.Log("InitializeData()... Terrain Data ERROR: " + e.Message);
         }
     }
-
-    //private static int[,,] Unflatten1DIntArrayTo3D(int[] array, int terrainWidth, int zCount)
-    //{
-    //    int xCount = terrainWidth;
-    //    int yCount = terrainWidth;
-    //    //int zCount = 4;
-
-    //    var output = new int[xCount, yCount, zCount];
-    //    var index = 0;
-    //    for (var x = 0; x < xCount; x++)
-    //    for (var y = 0; y < yCount; y++)
-    //    for (var z = 0; z < zCount; z++)
-    //        output[x, y, z] = array[index++];
-
-    //    return output;
-    //}
 
     private static TerrainDataFrameJSONRecord ConvertTerrainDataFrameRecordToJSONRecord(TerrainData frame, int warmingIdx, int year, int month,
         int grainSize, int decimalPrecision)
@@ -793,29 +761,12 @@ public static class TextFileInput
 
         return results;
     }
-    //private string ExportPatchExtents(Dictionary<int, PatchPointCollection> extents, string fileName, string path)
-    //{
-    //    if (path.Equals(""))
-    //        path = EditorUtility.SaveFolderPanel("Choose a directory to save the landscape data files:", "", "");
-
-    //    string json = JsonConvert.SerializeObject(extents, Formatting.None,
-    //        new JsonSerializerSettings()
-    //        {
-    //            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-    //        });
-
-    //    File.WriteAllText(path + "/" + fileName + ".json", json);
-    //    return path;
-    //}
-
     public static void ReadPatchData(string folderPath)
     {
-        // List<WaterDataYear> waterData;          // List of formatted water data by warming idx.
         RHESSYsDAL dal = new RHESSYsDAL();
 
         try
         {
-            //TextAsset patchExtTextAsset = (TextAsset)Resources.Load("WaterData/WaterData");
             string text = ReadFile(folderPath + "/" + "PatchData.json");
             Dictionary<int, PatchPointCollection> patchData = JsonConvert.DeserializeObject<Dictionary<int, PatchPointCollection>>(text);
             foreach (int i in patchData.Keys)
@@ -834,7 +785,6 @@ public static class TextFileInput
         }
         catch (Exception ex)
         {
-            //Debug.Log("InitializeData()... waterData ERROR: " + e.Message);
         }
     }
 
@@ -889,7 +839,6 @@ public static class TextFileInput
 
             Date date = new Date();
 
-            //date.id; Primary key --> add in SQL Server
             date.year = int.Parse(str[18]);
             date.month = int.Parse(str[19]);
             date.day = int.Parse(str[20]);
@@ -909,8 +858,6 @@ public static class TextFileInput
         List<string> lines = new List<string>();
         string line;
 
-        //Console.WriteLine("ReadLinesFromFile()... filePath: " + filePath);
-
         // Pass the file path and file name to the StreamReader constructor
         StreamReader sr = new StreamReader(filePath);
         // Read the first line of text
@@ -920,7 +867,6 @@ public static class TextFileInput
         // Continue to read until you reach end of file
         while (line != null)
         {
-            //Console.WriteLine(line);
             lines.Add(line);
 
             //Read the next line
@@ -938,26 +884,13 @@ public static class TextFileInput
     /// <param name="ta">Ta.</param>
     private static string ReadFile(string filePath)
     {
-        //List<string> lines = new List<string>();
         string text;
-
-        //Console.WriteLine("ReadFile()... filePath: " + filePath);
 
         // Pass the file path and file name to the StreamReader constructor
         StreamReader sr = new StreamReader(filePath);
         // Read the first line of text
 
-        int ct = 0;
         text = sr.ReadToEnd();
-        // Continue to read until you reach end of file
-        //while (text != null)
-        //{
-        //    //Console.WriteLine(line);
-        //    lines.Add(text);
-
-        //    //Read the next line
-        //    text = sr.ReadLine();
-        //}
 
         sr.Close();        // Close file
         return text;
