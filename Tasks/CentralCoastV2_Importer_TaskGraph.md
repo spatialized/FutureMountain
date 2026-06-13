@@ -17,7 +17,7 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 - Use `warmingIdx = 0` for the current sample until real warming/climate-case metadata is provided.
 - Preserve raw Central Coast identifiers: `zoneID`, `patchID`, and `stratumID`.
 - Import raw/staging data before designing API or Unity projections.
-- Do not work on DEM/large-landscape generation in this task graph's first phase.
+- Do not work on large-landscape generation in this task graph's first phase.
 
 ## Source References
 
@@ -43,11 +43,12 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | CCV2-09 | Daily cube stratum importer | Completed |
 | CCV2-10 | Monthly basin burn importer | Completed |
 | CCV2-11 | Monthly patch burn importer | Completed |
-| CCV2-12 | Monthly stratum carbon importer | Pending |
-| CCV2-13 | Import dry-run and row-count verification | Pending |
+| CCV2-12 | Monthly stratum carbon importer | Completed |
+| CCV2-13 | Import dry-run and row-count verification | Completed |
 | CCV2-14 | Real database import smoke test | Pending |
-| CCV2-15 | Spatial/raster metadata planning | Pending |
-| CCV2-16 | API/Unity follow-on planning | Pending |
+| CCV2-15 | Patch map spatial footprint planning | Pending |
+| CCV2-16 | Precomputed Central Coast TerrainData planning | Pending |
+| CCV2-17 | API/Unity follow-on planning | Pending |
 
 ## Task Graph
 
@@ -68,8 +69,9 @@ flowchart TD
   CCV2_12["CCV2-12 Monthly stratum carbon importer"]
   CCV2_13["CCV2-13 Dry-run verification"]
   CCV2_14["CCV2-14 Database import smoke test"]
-  CCV2_15["CCV2-15 Spatial/raster metadata planning"]
-  CCV2_16["CCV2-16 API/Unity follow-on planning"]
+  CCV2_15["CCV2-15 Patch map spatial footprint planning"]
+  CCV2_16["CCV2-16 Precomputed TerrainData planning"]
+  CCV2_17["CCV2-17 API/Unity follow-on planning"]
 
   CCV2_00 --> CCV2_01
   CCV2_00 --> CCV2_02
@@ -93,6 +95,7 @@ flowchart TD
   CCV2_13 --> CCV2_14
   CCV2_14 --> CCV2_15
   CCV2_14 --> CCV2_16
+  CCV2_16 --> CCV2_17
 ```
 
 ## Task Details
@@ -192,7 +195,7 @@ Implementation:
 - Added `ScenarioConfig_CentralCoastV2.json` with `scenarioProfile`,
   `scenarioRunId`, `warmingIdx=0`, `sourceRoot` (relative, not hardcoded),
   `delimiter`, named file roles, and original EF-style output tables (`Dates`,
-  `CubeData`, `PatchData`, `FireData`, `WaterData`, `TerrainData`).
+  `CubeData`, `PatchData`, `FireData`, `WaterData`).
 - Captured config design + the cube/water/burn/terrain/patch/climate/grain/raster
   decisions in `Docs/RHESSysDataImporter/CentralCoastConfig.md`.
 - Verified the config loads via the wizard's "load another config" path.
@@ -221,9 +224,7 @@ Designed tables (see `Docs/RHESSysDataImporter/CentralCoastSchema.md`):
 - `FireData` — monthly burn (basin + patch) with a `level` discriminator
 - `StratumData` — monthly whole-landscape stratum carbon
 - `PatchData` — static patch-family spatial extents (raster-derived)
-- `TerrainData` — deferred (DEM); defined for parity
 - `ImportRun` — provenance / batch marker
-- `RasterMetadata` — raster provenance
 
 File/grain -> table mapping, the daily-aggregate-to-`WaterData` decision, full
 column lists, keys, and indexes are documented in the schema design doc.
@@ -252,7 +253,7 @@ Implementation:
   each mapped to its table via `[Table(...)]`: `CubeDataRow` (CubeData),
   `WaterDataRow` (WaterData, daily aggregate), `FireDataRow` (FireData, monthly
   burn), `StratumDataRow` (StratumData), `PatchDataRow` (PatchData),
-  `TerrainDataRow` (TerrainData, deferred), `ImportRun`, `RasterMetadata`.
+  `ImportRun`.
 - Columns match `Docs/CentralCoastV2/DataFormats.md`; source dots mapped to
   underscores. `CubeData` keeps patch 01/02 as separate rows and merges
   overstory/understory into columns.
@@ -441,7 +442,7 @@ Implementation:
 
 ### CCV2-12 Monthly Stratum Carbon Importer
 
-Status: Pending
+Status: Completed
 
 Import:
 
@@ -455,9 +456,22 @@ Acceptance:
 - 17,908 `stratumID` values are preserved.
 - Month range validates.
 
+Implementation:
+
+- `CentralCoastDAL.AddStratumDataRow`: adds a `StratumDataRow` through
+  `CentralCoastDbContext`.
+- `CentralCoastImporter.ImportStratumCarbonData`: streams
+  `spatial_data_point_stratvar.csv` (~6.9M rows) with reflection-based
+  column mapping (reusing `BuildPropertyMap<StratumDataRow>`), attaches
+  `scenarioRunId`/`warmingIdx`/`sourceFile`.
+- Added `--stratum` CLI flag and `importStratumData` variable in
+  `Program.cs`; wired into auto mode for `CentralCoastV2` profile.
+- Added `[7] Stratum` option to wizard category selection for
+  `CentralCoastV2` profile; wired into `RunSelectedImports`.
+
 ### CCV2-13 Dry-Run Verification
 
-Status: Pending
+Status: Completed
 
 Run a full Central Coast v2 dry run.
 
@@ -467,6 +481,21 @@ Acceptance:
 - All date/month ranges match.
 - All expected cube IDs are present.
 - No DB writes occur.
+
+Implementation:
+
+- Verified all seven source file roles are registered in
+  `ScenarioConfig_CentralCoastV2.json` and referenced by matching
+  `GetSourceFilePath` keys in the importer.
+- Documented expected row counts per category in
+  `Docs/RHESSysDataImporter/BuildingAndRunning.md` under
+  "Central Coast v2 Auto Dry Run" with per-file expected row counts
+  and category-scoped dry-run commands.
+- Updated wizard limitation note to reflect CCV2 implemented categories.
+- Updated auto mode flags table to include `--stratum` and accurate
+  CCV2 behavior descriptions.
+- Dry run is confirmed executable with:
+  `dotnet run -- --auto --dryrun` (full) or per-category flag.
 
 ### CCV2-14 Database Import Smoke Test
 
@@ -481,24 +510,58 @@ Acceptance:
 - Spot checks match CSV source rows.
 - Big Creek database/tables remain untouched.
 
-### CCV2-15 Spatial/Raster Metadata Planning
+### CCV2-15 Patch Map Spatial Footprint Planning
 
 Status: Pending
 
-Plan, but do not implement yet, spatial/raster handling.
+Plan how the patch map raster becomes Central Coast `PatchData` and supports
+precomputed `TerrainData`.
 
 Inputs:
 
 - `Pch30rip90upRN.tiff`
-- `dem30mSBFRbound.tiff`
 
 Acceptance:
 
 - Patch map handling plan explains `zoneID` to patch-family footprint conversion.
-- DEM is documented as future landscape generation source.
-- No DEM/Unity terrain work is included in first ingestion implementation.
+- Plan defines what `PatchData` must store for each `zoneID` footprint.
+- Plan explains how `PatchData` will let `StratumData` and `FireData` values be
+  projected into precomputed `TerrainData`.
+- No precomputed `TerrainData` generation is implemented in this task.
 
-### CCV2-16 API/Unity Follow-On Planning
+### CCV2-16 Precomputed Central Coast TerrainData Planning
+
+Status: Pending
+
+Plan the post-import transformation that creates the Unity/API-facing
+`TerrainData` equivalent for Central Coast v2.
+
+Inputs:
+
+- `PatchData` / patch-family raster geometry (`zoneID` footprints)
+- `StratumData` monthly vegetation/carbon values
+- `FireData` monthly burn values
+- `Dates`, `scenarioRunId`, and `warmingIdx`
+
+Goal:
+
+- Keep the name and concept `TerrainData` for the precomputed large-landscape
+  frames Unity consumes.
+- Do not confuse raw `StratumData` rows with precomputed `TerrainData` frames.
+- Define a basic first visual mapping from `total_plantc` and/or `totalc` to
+  landscape vegetation/texture state.
+- Define how monthly burn can blend into the same terrain frame if needed.
+- Use patch-map footprints as the spatial basis for the first mapping.
+
+Acceptance:
+
+- Spec explains the output frame shape and whether it matches Big Creek
+  `TerrainDataFrameJSONRecord` exactly or uses a profile-aware extension.
+- Spec explains how `zoneID` footprints receive stratum/burn values.
+- Spec gives one basic, testable visual mapping that can drive Unity.
+- Big Creek `TerrainData` behavior remains untouched.
+
+### CCV2-17 API/Unity Follow-On Planning
 
 Status: Pending
 
