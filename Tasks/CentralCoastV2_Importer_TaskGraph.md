@@ -49,7 +49,7 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | CCV2-15 | Patch map spatial footprint planning | Completed |
 | CCV2-16 | PatchData raster importer implementation | Completed |
 | CCV2-17 | PatchData database validation | Pending |
-| CCV2-18 | Precomputed Central Coast TerrainData planning | Pending |
+| CCV2-18 | Precomputed Central Coast TerrainData planning | Completed |
 | CCV2-19 | Precomputed Central Coast TerrainData implementation | Pending |
 | CCV2-20 | API/Unity follow-on planning | Pending |
 
@@ -601,24 +601,11 @@ Acceptance:
 
 ### CCV2-18 Precomputed Central Coast TerrainData Planning
 
-Status: Pending
+Status: Completed
 
 Plan the post-import transformation that creates the Unity/API-facing
 `TerrainData` for Central Coast v2. Aggregation defaults are already set
 by CCV2-15; this task resolves the remaining open questions.
-
-Open questions to resolve:
-
-- **Grid shape**: the patch map is 396 x 301 (rectangular). Does Central
-  Coast `TerrainData` extend the payload with `gridWidth`/`gridHeight`, or
-  does it resample into a square Unity terrain grid? This is the first
-  decision.
-- **Output frame format**: same `TerrainDataFrameJSONRecord` as Big Creek,
-  or a profile-aware extension? Big Creek `TerrainData` behavior must remain
-  untouched.
-- **Unity coordinate mapping**: how do raster (col, row) coordinates
-  convert to alphamap UV and/or data-grid position?
-- **API contract**: new endpoint or reused `terraindata/{warmingIdx}`?
 
 Acceptance:
 
@@ -628,6 +615,27 @@ Acceptance:
   intensity, `burn` -> fire overlay).
 - Spec explains the coordinate transformation from raster to Unity.
 - Big Creek `TerrainData` behavior remains untouched.
+
+Implementation:
+
+- Spec written to `Docs/CentralCoastV2/TerrainDataPlan.md`.
+- **Grid shape**: add `gridWidth=396` / `gridHeight=301` to the payload;
+  set `gridSize=0` for Central Coast. Do not resample to square. Big Creek
+  rows are untouched.
+- **`_dataList` encoding**: flat float array, row-major index `row*396+col`.
+  Value = `vegIntensity + burnSignal * 100`. Unity decodes with `fmod` /
+  `floor`. No coordinate transform needed in the generator.
+- **Aggregation**: mean `total_plantc`, max `burn` per zoneID/month
+  (confirmed from CCV2-15 defaults).
+- **Normalization**: `vegIntensity = meanPlantC / globalMaxPlantC`.
+- **Burn threshold**: `maxBurn > 0.0`.
+- **Temporal grain**: monthly; 384 frames for initial sample.
+- **`TerrainDataRow` model class** defined (new, Central Coast only;
+  Big Creek `TerrainData` untouched).
+- **Wiring path**: `GenerateTerrainData` -> `AddTerrainDataRow`;
+  `--terrain` CCV2 branch; wizard `[3] Terrain` CCV2 branch.
+- **Open questions for CCV2-20**: Unity terrain world dimensions, endpoint
+  routing, monthly interpolation with `gridWidth/Height`, burn persistence.
 
 ### CCV2-19 Precomputed Central Coast TerrainData Implementation
 
