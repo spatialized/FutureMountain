@@ -38,7 +38,7 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | CCV2-04 | Central Coast database schema design | Completed |
 | CCV2-05 | Importer model classes | Completed |
 | CCV2-06 | Import validation/reporting framework | Completed |
-| CCV2-07 | Daily aggregate importer | Pending |
+| CCV2-07 | Daily aggregate importer | Completed |
 | CCV2-08 | Daily cube patch importer | Pending |
 | CCV2-09 | Daily cube stratum importer | Pending |
 | CCV2-10 | Monthly basin burn importer | Pending |
@@ -302,7 +302,7 @@ Implementation:
 
 ### CCV2-07 Daily Aggregate Importer
 
-Status: Pending
+Status: Completed
 
 Import:
 
@@ -315,6 +315,17 @@ Acceptance:
 - 11,688 rows imported or dry-run counted.
 - Date range validates.
 - `scenarioRunId` and `warmingIdx` are attached to each row.
+
+Implementation:
+
+- `DAL/CentralCoastDAL.cs`: `AddWaterDataRow` writes through
+  `CentralCoastDbContext.WaterData`.
+- `IO/CentralCoastImporter.cs`: `ImportWaterData` streams the CSV,
+  normalizes dots to underscores for column mapping, computes `dateIdx`
+  from day/month/year, attaches `scenarioRunId`/`warmingIdx`, and writes
+  each row.
+- Wired into wizard (water category) and auto mode (`--water`) for
+  `CentralCoastV2` profile; legacy Big Creek path preserved.
 
 ### CCV2-08 Daily Cube Patch Importer
 
