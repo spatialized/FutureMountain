@@ -173,10 +173,17 @@ if(importCubeData)
 }
 if (importWaterData)
 {
-    if (dryrun)
-        Console.WriteLine("[DRY RUN] Would import Water data (legacy)");
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    {
+        CentralCoastImporter.ImportWaterData(activeConfig, dryrun);
+    }
     else
-        TextFileInput.ReadWaterData(folderWater);
+    {
+        if (dryrun)
+            Console.WriteLine("[DRY RUN] Would import Water data (legacy)");
+        else
+            TextFileInput.ReadWaterData(folderWater);
+    }
 }
 if (importFireData)
 {

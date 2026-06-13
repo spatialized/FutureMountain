@@ -170,7 +170,15 @@ namespace RHESSYs_Data_Importer.Wizard
                 var count = discovery.Count(cat);
                 Console.WriteLine($"[{cat}] {count} file(s)");
                 if (dryrun) continue;
-                Console.WriteLine($"[INFO] Import for category '{cat}' not yet implemented in wizard mode.");
+
+                if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2 && cat == "water")
+                {
+                    CentralCoastImporter.ImportWaterData(config, dryrun);
+                }
+                else
+                {
+                    Console.WriteLine($"[INFO] Import for category '{cat}' not yet implemented in wizard mode.");
+                }
             }
         }
     }
