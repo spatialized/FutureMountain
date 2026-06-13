@@ -25,13 +25,17 @@ optional fields (all unused by Big Creek v1, which leaves them null):
 | `delimiter` | string | Field delimiter for source files (`,` for Central Coast CSVs). |
 | `files` | object | Logical file role -> file name, resolved relative to `sourceRoot`. |
 | `database` | object | Central Coast database connection (separate DB: `centralcoast_rhessys`). |
-| `outputTables` | array | Target tables, named to match the original Big Creek tables (`dates`, `cubedata`, `patchdata`, `firedata`, `waterdata`, `terraindata`). See `CCV2-04`. |
+| `outputTables` | array | Target tables, named to match the existing EF/Big Creek table convention (`Dates`, `CubeData`, `PatchData`, `FireData`, `WaterData`, `TerrainData`). See `CCV2-04`. |
 
 ### Table Naming
 
-Tables reuse the original Big Creek names so the schema and any later API/adapter stay familiar:
-`dates`, `cubedata`, `patchdata`, `firedata`, `waterdata`, `terraindata`. How
-each source file/grain maps into these tables is finalized in `CCV2-04`.
+Tables reuse the original Big Creek EF naming convention so the schema and any
+later API/adapter stay familiar: `Dates`, `CubeData`, `PatchData`, `FireData`,
+`WaterData`, `TerrainData`. Central Coast-only tables use the same PascalCase
+style: `StratumData`, `ImportRun`, and `RasterMetadata`.
+
+This is a Central Coast v2 decision only. Big Creek v1 remains untouched, even if
+an existing MySQL instance displays its tables in lowercase.
 
 `ScenarioConfig.GetSourceFilePath(role)` joins `sourceRoot` + the file name for a
 role and returns a full path, or null if the role is not configured.
@@ -88,7 +92,7 @@ Coast's extra stratum fields (`consumedC*`, `mortC*`, `netpsn*`, `lai*`,
 
 The aggregate cube represents the whole watershed, so `streamflow` in
 `cube_agg_p.csv` is the basin streamflow that drives the large-landscape river
-(the role Big Creek's `waterdata` filled). There is therefore no `water`
+(the role Big Creek's `WaterData` filled). There is therefore no `water`
 category. Per-warming streamflow columns become per-member rows as more members
 arrive.
 

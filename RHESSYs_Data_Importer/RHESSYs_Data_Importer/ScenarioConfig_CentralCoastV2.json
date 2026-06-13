@@ -31,14 +31,14 @@
     "demRaster": "dem30mSBFRbound.tiff"
   },
   "outputTables": [
-    "dates",
-    "cubedata",
-    "waterdata",
-    "firedata",
-    "stratumdata",
-    "patchdata",
-    "terraindata",
-    "importrun",
-    "rastermetadata"
+    "Dates",
+    "CubeData",
+    "WaterData",
+    "FireData",
+    "StratumData",
+    "PatchData",
+    "TerrainData",
+    "ImportRun",
+    "RasterMetadata"
   ]
 }

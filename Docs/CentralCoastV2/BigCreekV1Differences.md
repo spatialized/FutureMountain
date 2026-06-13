@@ -175,19 +175,24 @@ Central Coast v2 should add:
 - raw/staging tables that preserve Central Coast identifiers
 - optional derived compatibility tables or API projections later
 
-Recommended first-phase Central Coast tables:
+Recommended first-phase Central Coast tables live in the separate
+`centralcoast_rhessys` database, so they are not prefixed. They use the same
+PascalCase EF table convention as the existing importer models:
 
-- `centralcoast_dates`
-- `centralcoast_cube_aggregate_daily`
-- `centralcoast_cube_patch_daily`
-- `centralcoast_cube_stratum_daily`
-- `centralcoast_basin_monthly_burn`
-- `centralcoast_patch_monthly_burn`
-- `centralcoast_stratum_monthly_carbon`
-- `centralcoast_patch_family_spatial`
-- `centralcoast_raster_metadata`
+- `Dates`
+- `CubeData`
+- `WaterData`
+- `FireData`
+- `StratumData`
+- `PatchData`
+- `TerrainData`
+- `ImportRun`
+- `RasterMetadata`
 
-Names can change, but the separation of daily patch, daily stratum, monthly burn, and monthly full-landscape carbon should remain.
+The table names are now fixed by `Docs/RHESSysDataImporter/CentralCoastSchema.md`.
+The important structural separation remains: daily per-cube data, daily basin
+aggregate water data, monthly burn, monthly full-landscape stratum carbon, and
+spatial/raster provenance stay distinct.
 
 ## Compatibility Rule
 
