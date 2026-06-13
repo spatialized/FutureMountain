@@ -616,12 +616,12 @@ Acceptance:
 - Spec explains the coordinate transformation from raster to Unity.
 - Big Creek `TerrainData` behavior remains untouched.
 
-Implementation:
+Implementation (planning only; no code in this task -- code is in CCV2-19):
 
 - Spec written to `Docs/CentralCoastV2/TerrainDataPlan.md`.
 - **Grid shape**: add `gridWidth=396` / `gridHeight=301` to the payload;
   set `gridSize=0` for Central Coast. Do not resample to square. Big Creek
-  rows are untouched.
+  `TerrainData.cs` / `TerrainDataFrameJSONRecord` are untouched.
 - **`_dataList` encoding**: flat float array, row-major index `row*396+col`.
   Value = `vegIntensity + burnSignal * 100`. Unity decodes with `fmod` /
   `floor`. No coordinate transform needed in the generator.
@@ -630,10 +630,10 @@ Implementation:
 - **Normalization**: `vegIntensity = meanPlantC / globalMaxPlantC`.
 - **Burn threshold**: `maxBurn > 0.0`.
 - **Temporal grain**: monthly; 384 frames for initial sample.
-- **`TerrainDataRow` model class** defined (new, Central Coast only;
-  Big Creek `TerrainData` untouched).
+- **`TerrainDataRow` model shape** defined for CCV2-19 to implement.
 - **Wiring path**: `GenerateTerrainData` -> `AddTerrainDataRow`;
-  `--terrain` CCV2 branch; wizard `[3] Terrain` CCV2 branch.
+  `--terrain` CCV2 branch; wizard `[3] Terrain` CCV2 branch (implemented
+  in CCV2-19).
 - **Open questions for CCV2-20**: Unity terrain world dimensions, endpoint
   routing, monthly interpolation with `gridWidth/Height`, burn persistence.
 

@@ -7,11 +7,23 @@ namespace RHESSYs_Data_Importer.Models.CentralCoast
     /// <summary>
     /// Central Coast v2 static patch-family spatial extents (table <c>PatchData</c>).
     ///
-    /// Decoded from the patch-family raster (Pch30rip90upRN.tiff) into the existing
-    /// PatchPointCollection contract (data-grid location, fire-grid location,
-    /// alphamap location, UTM, pixel members), serialized in <c>data</c>. Spatial
-    /// extents are climate-independent, so there is no warmingIdx. The raster
-    /// decoder is a later task; this fixes the table shape.
+    /// One row per unique <c>zoneID</c> decoded from Pch30rip90upRN.tiff by
+    /// <c>CentralCoastImporter.ImportPatchMapData</c>. The <c>data</c> column
+    /// contains a JSON blob with the following shape (see CCV2-15 spec):
+    /// <code>
+    /// {
+    ///   "zoneID": 3497,
+    ///   "gridWidth": 396,
+    ///   "gridHeight": 301,
+    ///   "pixelCount": 12,
+    ///   "centroidCol": 198.3,
+    ///   "centroidRow": 142.7,
+    ///   "boundingBox": { "colMin": 195, "colMax": 202, "rowMin": 139, "rowMax": 147 },
+    ///   "pixels": [[195,139],[196,140], ...]
+    /// }
+    /// </code>
+    /// Pixel coordinates are zero-based (col, row) with origin at upper-left of
+    /// the TIFF. Spatial extents are climate-independent; there is no warmingIdx.
     /// </summary>
     [Table("PatchData")]
     [Index(nameof(scenarioRunId), nameof(zoneID))]

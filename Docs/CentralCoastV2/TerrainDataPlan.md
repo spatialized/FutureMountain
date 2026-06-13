@@ -10,10 +10,10 @@ questions from CCV2-15 and defines the complete design for generating precompute
 
 Inputs available after CCV2-16:
 
-- `PatchData` — one row per `zoneID`, `data` JSON with `pixels`, `pixelCount`,
+- `PatchData` -- one row per `zoneID`, `data` JSON with `pixels`, `pixelCount`,
   `centroid`, `boundingBox`, `gridWidth` (396), `gridHeight` (301)
-- `StratumData` — monthly per-stratum carbon rows (~6.9M rows)
-- `FireData` (level="patch") — monthly per-patch burn rows
+- `StratumData` -- monthly per-stratum carbon rows (~6.9M rows)
+- `FireData` (level="patch") -- monthly per-patch burn rows
 - `Dates`, `scenarioRunId`, `warmingIdx`
 
 No implementation is done in this task. That is CCV2-19.
