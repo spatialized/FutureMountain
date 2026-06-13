@@ -35,5 +35,20 @@ namespace RHESSYs_Data_Importer.DAL
                 return false;
             }
         }
+
+        public bool AddCubeDataRow(CubeDataRow row)
+        {
+            try
+            {
+                using var db = new CentralCoastDbContext(_connectionString);
+                db.CubeData.Add(row);
+                return db.SaveChanges() > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddCubeDataRow failed: {ex.Message}");
+                return false;
+            }
+        }
     }
 }

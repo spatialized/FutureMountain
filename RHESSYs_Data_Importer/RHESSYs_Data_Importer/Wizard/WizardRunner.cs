@@ -153,14 +153,21 @@ namespace RHESSYs_Data_Importer.Wizard
         {
             if (selected.Contains("cube"))
             {
-                var files = discovery.FilesByCategory.ContainsKey("cube") ? discovery.FilesByCategory["cube"] : new List<string>();
-                Console.WriteLine($"[Cube] {files.Count} file(s)");
-                if (!dryrun)
+                if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
                 {
-                    if (files.Count > 0)
-                        TextFileInput.ReadCubeDataFiles(files, config);
-                    else
-                        Console.WriteLine("[WARN] No cube files discovered.");
+                    CentralCoastImporter.ImportCubePatchData(config, dryrun);
+                }
+                else
+                {
+                    var files = discovery.FilesByCategory.ContainsKey("cube") ? discovery.FilesByCategory["cube"] : new List<string>();
+                    Console.WriteLine($"[Cube] {files.Count} file(s)");
+                    if (!dryrun)
+                    {
+                        if (files.Count > 0)
+                            TextFileInput.ReadCubeDataFiles(files, config);
+                        else
+                            Console.WriteLine("[WARN] No cube files discovered.");
+                    }
                 }
             }
 

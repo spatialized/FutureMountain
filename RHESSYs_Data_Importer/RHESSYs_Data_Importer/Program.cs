@@ -148,7 +148,11 @@ if(importDates)
     TextFileInput.ReadDates(folderAggregate);
 if(importCubeData)
 {
-    if (activeConfig != null && discovered != null && discovered.Count("cube") > 0)
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    {
+        CentralCoastImporter.ImportCubePatchData(activeConfig, dryrun);
+    }
+    else if (activeConfig != null && discovered != null && discovered.Count("cube") > 0)
     {
         if (dryrun)
             Console.WriteLine($"[DRY RUN] Would import {discovered.Count("cube")} cube file(s)");
