@@ -39,8 +39,8 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | CCV2-05 | Importer model classes | Completed |
 | CCV2-06 | Import validation/reporting framework | Completed |
 | CCV2-07 | Daily aggregate importer | Completed |
-| CCV2-08 | Daily cube patch importer | Pending |
-| CCV2-09 | Daily cube stratum importer | Pending |
+| CCV2-08 | Daily cube patch importer | Completed |
+| CCV2-09 | Daily cube stratum importer | Completed |
 | CCV2-10 | Monthly basin burn importer | Pending |
 | CCV2-11 | Monthly patch burn importer | Pending |
 | CCV2-12 | Monthly stratum carbon importer | Pending |
@@ -329,7 +329,7 @@ Implementation:
 
 ### CCV2-08 Daily Cube Patch Importer
 
-Status: Pending
+Status: Completed
 
 Import:
 
@@ -345,9 +345,19 @@ Acceptance:
 - `zoneID`, `patchID`, and patch member suffix are preserved.
 - Riparian patch 01/02 difference is not flattened away.
 
+Implementation:
+
+- `CentralCoastImporter.ImportCubePatchData` streams both
+  `cubePatchDaily01` and `cubePatchDaily02` roles, maps patch hydrology
+  columns to `CubeDataRow` via reflection, computes `dateIdx`, and
+  attaches `scenarioRunId`/`warmingIdx`. Stratum columns remain at
+  default (0) awaiting CCV2-09.
+- Wired into wizard (cube category) and auto mode (`--cube`) for
+  `CentralCoastV2` profile; legacy Big Creek path preserved.
+
 ### CCV2-09 Daily Cube Stratum Importer
 
-Status: Pending
+Status: Completed
 
 Import:
 
@@ -364,6 +374,19 @@ Acceptance:
 - Overstory and understory are distinguishable.
 - `stratumID` is preserved.
 - `veg_parm_ID` is preserved.
+
+Implementation:
+
+- `CentralCoastDAL.UpdateCubeDataStratum`: queries existing `CubeData` row by
+  composite key (dateIdx, zoneID, patchID, scenarioRunId, warmingIdx),
+  applies an `Action<CubeDataRow>` updater, and saves changes.
+- `CentralCoastImporter.ImportCubeStratumData`: streams all four stratum
+  files, resolves column indices per file type (overstory vs understory),
+  handles `veg_parm_ID` -> `vegParmIDOver`/`vegParmIDUnder` and
+  `stratumID` -> `stratumIDOver`/`stratumIDUnder` mapping, computes
+  `dateIdx`, and updates matching rows.
+- Wired into wizard and auto mode (`--cube`) for `CentralCoastV2` profile,
+  running immediately after patch import.
 
 ### CCV2-10 Monthly Basin Burn Importer
 
