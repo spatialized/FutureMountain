@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 
 namespace RHESSYs_Data_Importer.Configuration
 {
@@ -23,12 +24,64 @@ namespace RHESSYs_Data_Importer.Configuration
         public ScenarioFlags Flags { get; set; }
         public List<string> OutputTables { get; set; }
 
+        // ---- Multi-member scenario fields (used by Central Coast v2; optional and
+        // unused by Big Creek v1, which leaves them null/empty). ----
+
+        /// <summary>
+        /// Identifier for a single scenario member/run within a profile (e.g.
+        /// "single-warming-sample"). Lets multiple bundles of the same profile be
+        /// imported and stored side by side.
+        /// </summary>
+        public string ScenarioRunId { get; set; }
+
+        /// <summary>
+        /// Warming/climate-case index for this scenario member. Null when not
+        /// applicable. The current Central Coast sample has no warming token, so it
+        /// is imported with an explicit assumed value of 0.
+        /// </summary>
+        public int? WarmingIdx { get; set; }
+
+        /// <summary>
+        /// Base folder that the entries in <see cref="Files"/> are resolved against.
+        /// Keeps the source bundle location out of code so the same config shape can
+        /// point at different members by changing only this value.
+        /// </summary>
+        public string SourceRoot { get; set; }
+
+        /// <summary>
+        /// Field/column delimiter for source files (e.g. "," for Central Coast CSVs).
+        /// Null/empty preserves legacy whitespace-delimited behavior.
+        /// </summary>
+        public string Delimiter { get; set; }
+
+        /// <summary>
+        /// Logical file role -> file name, resolved relative to <see cref="SourceRoot"/>.
+        /// Central Coast members share these role names and the same file names, so a
+        /// new member is configured by changing <see cref="SourceRoot"/>,
+        /// <see cref="ScenarioRunId"/>, and <see cref="WarmingIdx"/> only.
+        /// </summary>
+        public Dictionary<string, string> Files { get; set; }
+
         /// <summary>
         /// Resolves the explicit profile for this scenario, defaulting to
         /// Big Creek v1 when <see cref="ScenarioProfile"/> is missing or unknown.
         /// </summary>
         public ScenarioProfileKind GetProfileKind()
             => ScenarioProfiles.ResolveOrDefault(ScenarioProfile);
+
+        /// <summary>
+        /// Resolves a logical file role to a full path under <see cref="SourceRoot"/>.
+        /// Returns null when the role is not configured.
+        /// </summary>
+        public string GetSourceFilePath(string role)
+        {
+            if (Files == null || string.IsNullOrWhiteSpace(role)
+                || !Files.TryGetValue(role, out var name) || string.IsNullOrWhiteSpace(name))
+                return null;
+
+            var root = string.IsNullOrWhiteSpace(SourceRoot) ? "." : SourceRoot;
+            return Path.GetFullPath(Path.Combine(root, name));
+        }
     }
 
     public class DatabaseConfig

@@ -34,7 +34,7 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | CCV2-00 | Discovery and documentation | Complete |
 | CCV2-01 | Repository/importer cleanup decision | Completed |
 | CCV2-02 | Scenario profile design | Completed |
-| CCV2-03 | Central Coast config design | Pending |
+| CCV2-03 | Central Coast config design | Completed |
 | CCV2-04 | Central Coast database schema design | Pending |
 | CCV2-05 | Importer model classes | Pending |
 | CCV2-06 | Import validation/reporting framework | Pending |
@@ -171,7 +171,7 @@ Acceptance:
 
 ### CCV2-03 Central Coast Config Design
 
-Status: Pending
+Status: Completed
 
 Design config fields for Central Coast v2 imports.
 
@@ -183,6 +183,18 @@ Minimum fields:
 - `sourceRoot`
 - Central Coast database connection
 - file names/patterns for current CSVs
+
+Implementation:
+
+- Added optional `ScenarioConfig` fields: `ScenarioRunId`, `WarmingIdx` (int?),
+  `SourceRoot`, `Delimiter`, and `Files` (role -> file name), plus
+  `GetSourceFilePath(role)`. All unused by Big Creek v1.
+- Added `ScenarioConfig_CentralCoastV2.json` with `scenarioProfile`,
+  `scenarioRunId`, `warmingIdx=0`, `sourceRoot` (relative, not hardcoded),
+  `delimiter`, named file roles, and `centralcoast_*` output tables.
+- Captured config design + the cube/water/burn/terrain/patch/climate/grain/raster
+  decisions in `Docs/RHESSysDataImporter/CentralCoastConfig.md`.
+- Verified the config loads via the wizard's "load another config" path.
 
 Acceptance:
 
