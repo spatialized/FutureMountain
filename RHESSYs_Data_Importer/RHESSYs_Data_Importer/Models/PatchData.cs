@@ -95,21 +95,6 @@ namespace RHESSYs_Data_Importer.Models
         public Vector3 utm { get; set; } // UTM location
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:LandscapeController.PatchPoint"/> class.
-        /// </summary>
-        /// <param name="newPatchID">New patch identifier.</param>
-        /// <param name="newLocation">New location.</param>
-        /// <param name="newUTM">New utm.</param>
-        //public PatchPoint(int newPatchID, Vector2 newLocation, Vector2 newFireLocation, Vector2 newAlphamapLocation, Vector3 newUTM)
-        //{
-        //    patchID = newPatchID;
-        //    location = newLocation;
-        //    fireLocation = newFireLocation;
-        //    alphamapLoc = newAlphamapLocation;
-        //    utm = newUTM;
-        //}
-
-        /// <summary>
         /// Gets the patch identifier.
         /// </summary>
         /// <returns>The patch identifier.</returns>

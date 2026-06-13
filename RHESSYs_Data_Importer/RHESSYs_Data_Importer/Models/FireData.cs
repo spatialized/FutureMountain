@@ -29,17 +29,6 @@ namespace RHESSYs_Data_Importer.Models
         public int gridWidth { get; set; }
         public List<FireDataPoint> dataList { get; set; }
 
-        //public FireDataFrameRecord(int newDay, int newMonth, int newYear, int newGridHeight, int newGridWidth,
-        //    List<FireDataPoint> newDataList) //, FireDataPointCollection[,] newDataGrid)
-        //{
-        //    year = newYear;
-        //    month = newMonth;
-        //    day = newDay;
-        //    dataList = newDataList;
-        //    gridSize = newGridHeight;
-        //    gridWidth = newGridWidth;
-        //}
-
         public int GetYear()
         {
             return year;
@@ -50,10 +39,6 @@ namespace RHESSYs_Data_Importer.Models
             return month;
         }
 
-        //public void SetDay(int newDay)
-        //{
-        //    day = newDay;
-        //}
         public int GetDay()
         {
             return day;
@@ -102,68 +87,11 @@ namespace RHESSYs_Data_Importer.Models
         public float spread { get; set; }
         public int iter { get; set; }
 
-        /// <summary>
-        /// Constructor 
-        /// </summary>
-        /// <param name="patchPoint">Position in terrain alphamap grid</param>
-        /// <param name="newSpread"></param>
-        /// <param name="newIter"></param>
-        //public FireDataPoint(Vector2 newGridLocation, int newPatchId, float newSpread, int newIter)
-        //{
-        //    gridLocation = newGridLocation;
-        //    patchId = newPatchId;
-        //    spread = newSpread;
-        //    iter = newIter;
-
-        //    //gridLocation = patchPoint.GetFireGridLocation();
-        //    //patchId = patchPoint.GetPatchID();
-        //}
-
-        ///// <summary>
-        ///// Constructor 
-        ///// </summary>
-        ///// <param name="patchPoint">Position in terrain alphamap grid</param>
-        ///// <param name="newSpread"></param>
-        ///// <param name="newIter"></param>
-        //public FireDataPoint(PatchPoint patchPoint, float newSpread, int newIter)
-        //{
-        //    spread = newSpread;
-        //    iter = newIter;
-
-        //    gridLocation = patchPoint.GetFireGridLocation();
-        //    patchId = patchPoint.GetPatchID();
-        //}
-
-        //public PatchPoint GetPatchPoint()
-        //{
-        //    return patchPoint;
-        //}
-
         public Vector2 GetGridPosition()
         {
             return gridLocation;
             //return patchPoint.GetFireGridLocation();
         }
-
-        ///// <summary>
-        ///// Gets X coord.
-        ///// </summary>
-        ///// <returns>The x.</returns>
-        //public int X()
-        //{
-        //    return (int)gridLocation.x;
-        //    //return (int)patchPoint.GetFireGridLocation().x;
-        //}
-
-        ///// <summary>
-        ///// Gets Y coord.
-        ///// </summary>
-        ///// <returns>The y.</returns>
-        //public int Y()
-        //{
-        //    return (int)gridLocation.y;
-        //    //return (int)patchPoint.GetFireGridLocation().y;
-        //}
 
         public float GetSpread()
         {
@@ -178,7 +106,6 @@ namespace RHESSYs_Data_Importer.Models
         public int GetPatchID()
         {
             return patchId;
-            //return patchPoint.GetPatchID();
         }
 
         public int CompareTo(FireDataPoint that)

@@ -39,7 +39,7 @@ namespace RHESSYs_Data_Importer.Models
 
             public TerrainData(int newMonth, int newYear, int newGridSize, 
                 int newPixelGrainSize, int newDecimalPrecision,
-                int[] newDataList) //, FireDataPointCollection[,] newDataGrid)
+                int[] newDataList)
             {
                 year = newYear;
                 month = newMonth;
@@ -88,7 +88,6 @@ namespace RHESSYs_Data_Importer.Models
             public TerrainDataFrameJSONRecord GetJsonRecord()
             {
                 TerrainDataFrameJSONRecord jsonRecord = new TerrainDataFrameJSONRecord();
-                //jsonRecord.id = id;
                 jsonRecord.year = year;
                 jsonRecord.month = month;
                 jsonRecord.gridSize = gridSize;

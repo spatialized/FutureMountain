@@ -29,58 +29,6 @@ namespace RHESSYs_Data_Importer.Models
         public float QWarm6 { get; set; }
         public float precipitation { get; set; }
 
-        ///// <summary>
-        ///// Initializes a new instance of the <see cref="T:LandscapeController.WaterDataFrame"/> class.
-        ///// </summary>
-        ///// <param name="newYear">New year.</param>
-        ///// <param name="newMonth">New month.</param>
-        ///// <param name="newDay">New day.</param>
-        ///// <param name="newQBase">New streamflow.</param>
-        ///// <param name="newPrecipitation">New precipitation.</param>
-        ///// <param name="newIndex">New index.</param>
-        //public WaterDataFrame(int newYear, int newMonth, int newDay, float newPrecipitation, float newQBase, float newQWarm1, float newQWarm2, float newQWarm4, float newQWarm6, int newIndex)
-        //{
-        //    index = newIndex;
-        //    year = newYear;
-        //    month = newMonth;
-        //    day = newDay;
-        //    QBase = newQBase;
-        //    QWarm1 = newQWarm1;
-        //    QWarm2 = newQWarm2;
-        //    QWarm4 = newQWarm4;
-        //    QWarm6 = newQWarm6;
-        //    precipitation = newPrecipitation;
-        //}
-
-        //public int CompareTo(WaterDataFrame that)
-        //{
-        //    return this.GetIndex().CompareTo(that.GetIndex());
-        //}
-
-        ///// <summary>
-        ///// Gets the index of the streamflow for warming.
-        ///// </summary>
-        ///// <returns>The streamflow for warming index.</returns>
-        ///// <param name="warmIdx">Warm index.</param>
-        //public float GetStreamflowForWarmingIdx(int warmIdx)
-        //{
-        //    switch (warmIdx)
-        //    {
-        //        case 0:
-        //            return QBase;
-        //        case 1:
-        //            return QWarm1;
-        //        case 2:
-        //            return QWarm2;
-        //        case 3:
-        //            return QWarm4;
-        //        case 4:
-        //            return QWarm6;
-        //        default:
-        //            return QBase;
-        //    }
-        //}
-
         public int GetDay()
         {
             return day;
@@ -232,21 +180,6 @@ namespace RHESSYs_Data_Importer.Models
             return result;
         }
 
-        /// <summary>
-        /// Get total streamflow
-        /// </summary>
-        /// <returns></returns>
-        //public float GetTotalStreamflow(int warmIdx)
-        //{
-        //    float result = 0f;
-        //    foreach (WaterDataMonth month in dataMonths)
-        //    {
-        //        foreach (WaterDataFrame frame in month.GetFrames())
-        //        {
-        //            result += frame.GetStreamflowForWarmingIdx(warmIdx);
-        //        }
-        //    }
-        //    return result;
-        //}
     }
+
 }
