@@ -37,7 +37,7 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 | CCV2-03 | Central Coast config design | Completed |
 | CCV2-04 | Central Coast database schema design | Completed |
 | CCV2-05 | Importer model classes | Completed |
-| CCV2-06 | Import validation/reporting framework | Pending |
+| CCV2-06 | Import validation/reporting framework | Completed |
 | CCV2-07 | Daily aggregate importer | Pending |
 | CCV2-08 | Daily cube patch importer | Pending |
 | CCV2-09 | Daily cube stratum importer | Pending |
@@ -191,8 +191,8 @@ Implementation:
   `GetSourceFilePath(role)`. All unused by Big Creek v1.
 - Added `ScenarioConfig_CentralCoastV2.json` with `scenarioProfile`,
   `scenarioRunId`, `warmingIdx=0`, `sourceRoot` (relative, not hardcoded),
-  `delimiter`, named file roles, and original-style output tables (`dates`,
-  `cubedata`, `patchdata`, `firedata`, `waterdata`, `terraindata`).
+  `delimiter`, named file roles, and original EF-style output tables (`Dates`,
+  `CubeData`, `PatchData`, `FireData`, `WaterData`, `TerrainData`).
 - Captured config design + the cube/water/burn/terrain/patch/climate/grain/raster
   decisions in `Docs/RHESSysDataImporter/CentralCoastConfig.md`.
 - Verified the config loads via the wizard's "load another config" path.
@@ -210,21 +210,22 @@ Design Central Coast raw/staging import tables.
 
 Tables live in their own Central Coast database (`centralcoast_rhessys`, parallel
 to `bigcreek_rhessys`), so they are NOT prefixed with `centralcoast_`. They reuse
-the original Big Creek table-naming style; the database provides the namespace.
+the original Big Creek EF/PascalCase table-naming style; the database provides
+the namespace.
 
 Designed tables (see `Docs/RHESSysDataImporter/CentralCoastSchema.md`):
 
-- `dates` — daily date dimension
-- `cubedata` — daily per-cube (patch + overstory + understory merged)
-- `waterdata` — daily basin/aggregate (`cube_agg_p`); streamflow + basin summaries
-- `firedata` — monthly burn (basin + patch) with a `level` discriminator
-- `stratumdata` — monthly whole-landscape stratum carbon
-- `patchdata` — static patch-family spatial extents (raster-derived)
-- `terraindata` — deferred (DEM); defined for parity
-- `importrun` — provenance / batch marker
-- `rastermetadata` — raster provenance
+- `Dates` — daily date dimension
+- `CubeData` — daily per-cube (patch + overstory + understory merged)
+- `WaterData` — daily basin/aggregate (`cube_agg_p`); streamflow + basin summaries
+- `FireData` — monthly burn (basin + patch) with a `level` discriminator
+- `StratumData` — monthly whole-landscape stratum carbon
+- `PatchData` — static patch-family spatial extents (raster-derived)
+- `TerrainData` — deferred (DEM); defined for parity
+- `ImportRun` — provenance / batch marker
+- `RasterMetadata` — raster provenance
 
-File/grain -> table mapping, the daily-aggregate-to-`waterdata` decision, full
+File/grain -> table mapping, the daily-aggregate-to-`WaterData` decision, full
 column lists, keys, and indexes are documented in the schema design doc.
 
 Common columns include:
@@ -236,7 +237,7 @@ Common columns include:
 Acceptance:
 
 - Schema preserves raw Central Coast structure.
-- Schema does not overload Big Creek v1 `cubedata`.
+- Schema does not overload Big Creek v1 `CubeData`.
 - Schema can store multiple future scenario members.
 
 ### CCV2-05 Importer Model Classes
@@ -253,7 +254,7 @@ Implementation:
   burn), `StratumDataRow` (StratumData), `PatchDataRow` (PatchData),
   `TerrainDataRow` (TerrainData, deferred), `ImportRun`, `RasterMetadata`.
 - Columns match `Docs/CentralCoastV2/DataFormats.md`; source dots mapped to
-  underscores. `cubedata` keeps patch 01/02 as separate rows and merges
+  underscores. `CubeData` keeps patch 01/02 as separate rows and merges
   overstory/understory into columns.
 - Provenance columns (`scenarioRunId`, `warmingIdx`, `importRunId`, `sourceFile`).
 - New `DAL/CentralCoastDbContext.cs` exposes all Central Coast tables (reuses the
@@ -267,7 +268,7 @@ Acceptance:
 
 ### CCV2-06 Import Validation/Reporting Framework
 
-Status: Pending
+Status: Completed
 
 Add dry-run/reporting output for Central Coast imports.
 
@@ -285,6 +286,19 @@ Acceptance:
 
 - Dry run reports counts before DB writes.
 - Mismatched counts produce warnings or errors.
+
+Implementation:
+
+- `IO/CentralCoastValidator.cs`: streaming validation (no full-file load)
+  for large CSVs (~7M rows). Validates per-role file existence, header
+  presence, row counts, date ranges, rows-per-day (cube), zoneIDs,
+  patch counts, and stratum counts.
+- `IO/ValidationReport.cs`: structured report with `Errors`, `Warnings`,
+  `Info`, per-file `FileValidationResult`, and `Print()` console output.
+- Wizard: runs validation after file discovery for CentralCoastV2 profiles;
+  aborts on failure unless user confirms continuation.
+- Auto mode: runs validation before imports; aborts on failure unless
+  `--force` is passed.
 
 ### CCV2-07 Daily Aggregate Importer
 
@@ -458,4 +472,3 @@ The first milestone is complete when:
 - Current sample bundle can be imported into separate Central Coast tables.
 - Imported row counts match source row counts.
 - Big Creek v1 is untouched.
-
