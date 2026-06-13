@@ -63,11 +63,29 @@ namespace RHESSYs_Data_Importer.Configuration
         public Dictionary<string, string> Files { get; set; }
 
         /// <summary>
-        /// Resolves the explicit profile for this scenario, defaulting to
-        /// Big Creek v1 when <see cref="ScenarioProfile"/> is missing or unknown.
+        /// Resolves the explicit profile for this scenario.
         /// </summary>
+        /// <returns>
+        /// The known <see cref="ScenarioProfileKind"/> when the configured
+        /// <see cref="ScenarioProfile"/> is a recognized value.
+        /// </returns>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when <see cref="ScenarioProfile"/> is explicitly set to an
+        /// unknown value (e.g. a misspelling). Missing/empty values safely
+        /// default to <see cref="ScenarioProfileKind.BigCreekV1"/>.
+        /// </exception>
         public ScenarioProfileKind GetProfileKind()
-            => ScenarioProfiles.ResolveOrDefault(ScenarioProfile);
+        {
+            if (string.IsNullOrWhiteSpace(ScenarioProfile))
+                return ScenarioProfiles.DefaultKind;
+
+            if (ScenarioProfiles.TryResolve(ScenarioProfile, out var kind))
+                return kind;
+
+            throw new InvalidOperationException(
+                $"Unknown scenarioProfile '{ScenarioProfile}'. " +
+                $"Known values: {string.Join(", ", new[] { ScenarioProfiles.BigCreekV1, ScenarioProfiles.CentralCoastV2 })}.");
+        }
 
         /// <summary>
         /// Resolves a logical file role to a full path under <see cref="SourceRoot"/>.

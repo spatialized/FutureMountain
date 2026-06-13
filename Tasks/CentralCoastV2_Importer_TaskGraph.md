@@ -191,7 +191,8 @@ Implementation:
   `GetSourceFilePath(role)`. All unused by Big Creek v1.
 - Added `ScenarioConfig_CentralCoastV2.json` with `scenarioProfile`,
   `scenarioRunId`, `warmingIdx=0`, `sourceRoot` (relative, not hardcoded),
-  `delimiter`, named file roles, and `centralcoast_*` output tables.
+  `delimiter`, named file roles, and original-style output tables (`dates`,
+  `cubedata`, `patchdata`, `firedata`, `waterdata`, `terraindata`).
 - Captured config design + the cube/water/burn/terrain/patch/climate/grain/raster
   decisions in `Docs/RHESSysDataImporter/CentralCoastConfig.md`.
 - Verified the config loads via the wizard's "load another config" path.

@@ -41,10 +41,19 @@ Console.WriteLine("Running...");
 
         // Resolve the explicit data-model profile. Behavior must be driven by the
         // profile, never inferred from table names or which files are present.
-        var profileKind = config.GetProfileKind();
-        if (!string.IsNullOrWhiteSpace(config.ScenarioProfile) && !ScenarioProfiles.IsKnown(config.ScenarioProfile))
-            Console.WriteLine($"[WARN] Unknown scenarioProfile '{config.ScenarioProfile}'. Defaulting to {ScenarioProfiles.ToCanonicalString(profileKind)}.");
-        else if (string.IsNullOrWhiteSpace(config.ScenarioProfile))
+        ScenarioProfileKind profileKind;
+        try
+        {
+            profileKind = config.GetProfileKind();
+        }
+        catch (InvalidOperationException ex)
+        {
+            Console.WriteLine($"[ERROR] {ex.Message}");
+            Console.WriteLine("Import aborted.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(config.ScenarioProfile))
             Console.WriteLine($"[INFO] No scenarioProfile set. Defaulting to {ScenarioProfiles.ToCanonicalString(profileKind)}.");
         Console.WriteLine($"Scenario profile: {ScenarioProfiles.ToCanonicalString(profileKind)}");
 
@@ -97,6 +106,19 @@ else
     Console.WriteLine("[AUTO MODE] Starting headless import...");
     if (dryrun) Console.WriteLine("[AUTO MODE] Dry run enabled (no DB writes)");
     if (force) Console.WriteLine("[AUTO MODE] Force flag enabled");
+
+    // Central Coast pre-import validation
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    {
+        Console.WriteLine("[AUTO MODE] Running Central Coast validation...");
+        var validation = CentralCoastValidator.Validate(activeConfig);
+        validation.Print();
+        if (!validation.IsValid && !force)
+        {
+            Console.WriteLine("[AUTO MODE] Validation failed. Use --force to proceed anyway.");
+            return;
+        }
+    }
 
     // Set category imports based on flags; if none specified, import all
     bool anyCategoryFlag = flagCubes || flagPatch || flagTerrain || flagFire || flagWater || flagClimate;

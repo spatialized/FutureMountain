@@ -30,6 +30,15 @@ namespace RHESSYs_Data_Importer.DAL
         {
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // The [Index] attributes on the models drive the migration, but
+            // OnModelCreating is the authoritative place for any additional
+            // constraints or composite indexes added in future iterations.
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)

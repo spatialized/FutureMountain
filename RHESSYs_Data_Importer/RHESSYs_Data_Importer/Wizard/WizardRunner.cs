@@ -70,6 +70,25 @@ namespace RHESSYs_Data_Importer.Wizard
                 Console.WriteLine($"  {cat}: {discovery.Count(cat)} file(s)");
             }
 
+            // 3b. Central Coast validation (dry-run report)
+            if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+            {
+                Console.WriteLine("\n[CentralCoastV2] Running pre-import validation...");
+                var validation = CentralCoastValidator.Validate(config);
+                validation.Print();
+
+                if (!validation.IsValid)
+                {
+                    Console.WriteLine("\nValidation failed. Continue anyway? [y/N]");
+                    var cont = Console.ReadLine();
+                    if (!string.Equals(cont, "y", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Console.WriteLine("Import canceled.");
+                        return;
+                    }
+                }
+            }
+
             // 4. Confirm which categories to import
             var selected = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             while (true)

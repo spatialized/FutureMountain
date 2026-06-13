@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,6 +14,7 @@ namespace RHESSYs_Data_Importer.Models.CentralCoast
     /// decoder is a later task; this fixes the table shape.
     /// </summary>
     [Table("PatchData")]
+    [Index(nameof(scenarioRunId), nameof(zoneID))]
     public class PatchDataRow
     {
         [Key]

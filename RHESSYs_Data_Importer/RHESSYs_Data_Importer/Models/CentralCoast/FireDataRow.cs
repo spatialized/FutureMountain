@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,6 +14,7 @@ namespace RHESSYs_Data_Importer.Models.CentralCoast
     /// interpolation; no new runtime mechanism is introduced.
     /// </summary>
     [Table("FireData")]
+    [Index(nameof(scenarioRunId), nameof(warmingIdx), nameof(year), nameof(month), nameof(zoneID), nameof(patchID))]
     public class FireDataRow
     {
         [Key]

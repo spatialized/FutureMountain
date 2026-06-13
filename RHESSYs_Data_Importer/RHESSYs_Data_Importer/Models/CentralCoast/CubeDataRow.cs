@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -15,6 +16,7 @@ namespace RHESSYs_Data_Importer.Models.CentralCoast
     /// cube_sc_under_patch{1,2}.csv.
     /// </summary>
     [Table("CubeData")]
+    [Index(nameof(scenarioRunId), nameof(warmingIdx), nameof(dateIdx), nameof(zoneID), nameof(patchID))]
     public class CubeDataRow
     {
         [Key]

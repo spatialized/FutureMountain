@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,6 +15,7 @@ namespace RHESSYs_Data_Importer.Models.CentralCoast
     /// Source column dots are mapped to underscores (e.g. cs.net_psn -> cs_net_psn).
     /// </summary>
     [Table("WaterData")]
+    [Index(nameof(scenarioRunId), nameof(warmingIdx), nameof(dateIdx))]
     public class WaterDataRow
     {
         [Key]

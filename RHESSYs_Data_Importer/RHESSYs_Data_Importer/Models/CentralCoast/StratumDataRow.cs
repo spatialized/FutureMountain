@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,6 +13,7 @@ namespace RHESSYs_Data_Importer.Models.CentralCoast
     /// (~17,908), not just the five detailed cubes.
     /// </summary>
     [Table("StratumData")]
+    [Index(nameof(scenarioRunId), nameof(warmingIdx), nameof(year), nameof(month), nameof(stratumID))]
     public class StratumDataRow
     {
         [Key]
