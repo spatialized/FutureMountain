@@ -100,6 +100,8 @@ namespace RHESSYs_Data_Importer.Wizard
                 Console.WriteLine("  [4] Fire");
                 Console.WriteLine("  [5] Water");
                 Console.WriteLine("  [6] Climate");
+                if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+                    Console.WriteLine("  [7] Stratum");
                 Console.WriteLine("  [0] Done selecting");
                 Console.Write("> ");
                 var sel = Console.ReadLine();
@@ -112,6 +114,12 @@ namespace RHESSYs_Data_Importer.Wizard
                     case "4": selected.Add("fire"); break;
                     case "5": selected.Add("water"); break;
                     case "6": selected.Add("climate"); break;
+                    case "7":
+                        if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+                            selected.Add("stratum");
+                        else
+                            Console.WriteLine("[WARN] Stratum import is only available for CentralCoastV2.");
+                        break;
                     default:
                         Console.WriteLine("[WARN] Unknown selection.");
                         break;
@@ -172,7 +180,7 @@ namespace RHESSYs_Data_Importer.Wizard
                 }
             }
 
-            foreach (var cat in new[] { "patch", "terrain", "fire", "water", "climate" })
+            foreach (var cat in new[] { "patch", "terrain", "fire", "water", "climate", "stratum" })
             {
                 if (!selected.Contains(cat)) continue;
                 var count = discovery.Count(cat);
@@ -187,6 +195,10 @@ namespace RHESSYs_Data_Importer.Wizard
                 {
                     CentralCoastImporter.ImportBasinBurnData(config, dryrun);
                     CentralCoastImporter.ImportPatchBurnData(config, dryrun);
+                }
+                else if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2 && cat == "stratum")
+                {
+                    CentralCoastImporter.ImportStratumCarbonData(config, dryrun);
                 }
                 else
                 {

@@ -569,6 +569,107 @@ namespace RHESSYs_Data_Importer.IO
         }
 
         /// <summary>
+        /// Imports the monthly all-stratum carbon file
+        /// (<c>spatial_data_point_stratvar.csv</c>) into the
+        /// <c>StratumData</c> table.
+        /// </summary>
+        public static void ImportStratumCarbonData(ScenarioConfig config, bool dryrun = false)
+        {
+            var path = config.GetSourceFilePath("stratumMonthlyCarbon");
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            {
+                Console.WriteLine($"[WARN] stratumMonthlyCarbon file not found: {path}");
+                return;
+            }
+
+            var dal = new CentralCoastDAL();
+            using var reader = new StreamReader(path);
+            string headerLine = reader.ReadLine();
+            if (string.IsNullOrWhiteSpace(headerLine))
+            {
+                Console.WriteLine("[WARN] stratumMonthlyCarbon file has empty header.");
+                return;
+            }
+
+            var headers = headerLine.Split(',');
+            var propertyMap = BuildPropertyMap<StratumDataRow>(headers);
+
+            // Pre-resolve key columns
+            int mIdx = -1, yIdx = -1;
+            for (int i = 0; i < headers.Length; i++)
+            {
+                var h = headers[i].Trim().ToLowerInvariant();
+                if (h == "month") mIdx = i;
+                else if (h == "year") yIdx = i;
+            }
+
+            int imported = 0;
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                var parts = line.Split(',');
+                var row = new StratumDataRow
+                {
+                    scenarioRunId = config.ScenarioRunId ?? "",
+                    warmingIdx = config.WarmingIdx ?? 0,
+                    importRunId = 0,
+                    sourceFile = Path.GetFileName(path)
+                };
+
+                if (mIdx >= 0 && int.TryParse(GetSafe(parts, mIdx), out var month))
+                    row.month = month;
+                if (yIdx >= 0 && int.TryParse(GetSafe(parts, yIdx), out var year))
+                    row.year = year;
+
+                // Map remaining columns via reflection
+                foreach (var kvp in propertyMap)
+                {
+                    int col = kvp.Key;
+                    var prop = kvp.Value;
+                    if (col < 0 || col >= parts.Length)
+                        continue;
+
+                    var raw = parts[col]?.Trim();
+                    if (string.IsNullOrWhiteSpace(raw))
+                        continue;
+
+                    try
+                    {
+                        if (prop.PropertyType == typeof(float))
+                        {
+                            if (float.TryParse(raw, out var f))
+                                prop.SetValue(row, f);
+                        }
+                        else if (prop.PropertyType == typeof(int))
+                        {
+                            if (int.TryParse(raw, out var i))
+                                prop.SetValue(row, i);
+                        }
+                        else if (prop.PropertyType == typeof(long))
+                        {
+                            if (long.TryParse(raw, out var l))
+                                prop.SetValue(row, l);
+                        }
+                        else if (prop.PropertyType == typeof(string))
+                        {
+                            prop.SetValue(row, raw);
+                        }
+                    }
+                    catch { }
+                }
+
+                imported++;
+                if (!dryrun)
+                    dal.AddStratumDataRow(row);
+            }
+
+            Console.WriteLine($"[StratumData] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
+        }
+
+        /// <summary>
         /// Builds a map from CSV column index to writable property for the
         /// given model type. Header dots are normalized to underscores to
         /// match the C# property names (e.g. <c>cs.net_psn</c> ->

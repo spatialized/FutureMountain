@@ -96,5 +96,20 @@ namespace RHESSYs_Data_Importer.DAL
                 return false;
             }
         }
+
+        public bool AddStratumDataRow(StratumDataRow row)
+        {
+            try
+            {
+                using var db = new CentralCoastDbContext(_connectionString);
+                db.StratumData.Add(row);
+                return db.SaveChanges() > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddStratumDataRow failed: {ex.Message}");
+                return false;
+            }
+        }
     }
 }

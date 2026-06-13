@@ -27,8 +27,7 @@
     "basinMonthlyBurn": "bm.csv",
     "patchMonthlyBurn": "spatial_data_point_patchvar.csv",
     "stratumMonthlyCarbon": "spatial_data_point_stratvar.csv",
-    "patchFamilyRaster": "Pch30rip90upRN.tiff",
-    "demRaster": "dem30mSBFRbound.tiff"
+    "patchFamilyRaster": "Pch30rip90upRN.tiff"
   },
   "outputTables": [
     "Dates",
@@ -37,8 +36,6 @@
     "FireData",
     "StratumData",
     "PatchData",
-    "TerrainData",
-    "ImportRun",
-    "RasterMetadata"
+    "ImportRun"
   ]
 }

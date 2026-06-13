@@ -14,6 +14,7 @@ bool importWaterData = importAll;
 bool importFireData = importAll;
 bool importPatchData = importAll;
 bool importTerrainData = importAll;
+bool importStratumData = importAll;
 
 // Data Folders
 string folderAggregate = "C:\\Users\\Redux\\Documents\\FutureMountain\\aggregate";      
@@ -91,6 +92,7 @@ bool flagTerrain = arguments.Contains("--terrain");
 bool flagFire = arguments.Contains("--fire");
 bool flagWater = arguments.Contains("--water");
 bool flagClimate = arguments.Contains("--climate");
+bool flagStratum = arguments.Contains("--stratum");
 
 if (!auto)
 {
@@ -121,7 +123,7 @@ else
     }
 
     // Set category imports based on flags; if none specified, import all
-    bool anyCategoryFlag = flagCubes || flagPatch || flagTerrain || flagFire || flagWater || flagClimate;
+    bool anyCategoryFlag = flagCubes || flagPatch || flagTerrain || flagFire || flagWater || flagClimate || flagStratum;
     if (anyCategoryFlag)
     {
         importCubeData = flagCubes;
@@ -129,6 +131,7 @@ else
         importTerrainData = flagTerrain;
         importFireData = flagFire;
         importWaterData = flagWater;
+        importStratumData = flagStratum;
         // Climate not yet implemented; placeholder only
     }
     else
@@ -138,6 +141,7 @@ else
         importTerrainData = true;
         importFireData = true;
         importWaterData = true;
+        importStratumData = true;
     }
 }
 
@@ -218,6 +222,17 @@ if (importTerrainData)
         Console.WriteLine("[DRY RUN] Would import Terrain data (legacy)");
     else
         TextFileInput.ReadTerrainData(folderTerrainData);
+}
+if (importStratumData)
+{
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    {
+        CentralCoastImporter.ImportStratumCarbonData(activeConfig, dryrun);
+    }
+    else
+    {
+        Console.WriteLine("[INFO] Stratum import not implemented for legacy profiles.");
+    }
 }
 
 Console.WriteLine("Finished importing data successfully...");
