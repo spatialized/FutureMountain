@@ -180,7 +180,7 @@ if(importCubeData)
 {
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
-        CentralCoastImporter.EnsureOrPopulateDates(activeConfig);
+        CentralCoastImporter.EnsureOrPopulateDates(activeConfig, dryrun);
         Console.WriteLine("[AUTO MODE] --- Importing cube patch data ---");
         CentralCoastImporter.ImportCubePatchData(activeConfig, dryrun);
         Console.WriteLine("[AUTO MODE] --- Importing cube stratum data ---");
@@ -213,7 +213,7 @@ if (importWaterData)
 {
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
-        CentralCoastImporter.EnsureOrPopulateDates(activeConfig);
+        CentralCoastImporter.EnsureOrPopulateDates(activeConfig, dryrun);
         Console.WriteLine("[AUTO MODE] --- Importing water data ---");
         CentralCoastImporter.ImportWaterData(activeConfig, dryrun);
     }
