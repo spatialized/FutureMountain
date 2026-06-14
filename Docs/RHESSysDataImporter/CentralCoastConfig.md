@@ -161,36 +161,54 @@ and dry-run command. See the `Central Coast v2 Config` section there.
 The Central Coast v2 tables live in a dedicated schema: **`futuremtn_central_coast`**.
 Do not create or touch these tables in `defaultdb` (Big Creek).
 
-### One-time schema creation (MySQL Workbench or CLI)
+### One-time schema creation (recommended MySQL Workbench path)
+
+The checked-in schema export is:
+
+```text
+Database/Schema/CentralCoastV2_schema.sql
+```
+
+Use MySQL Workbench unless there is a specific reason to use the CLI:
+
+1. Connect to the target MySQL server.
+2. In the Schemas panel, choose **Create Schema**.
+3. Name the schema exactly `futuremtn_central_coast`.
+4. Click **Apply**.
+5. Open `Database/Schema/CentralCoastV2_schema.sql`.
+6. Make `futuremtn_central_coast` the active/default schema, or add this line near the top of the SQL editor:
 
 ```sql
-CREATE SCHEMA IF NOT EXISTS futuremtn_central_coast
-  DEFAULT CHARACTER SET utf8mb4
-  DEFAULT COLLATE utf8mb4_0900_ai_ci;
+USE futuremtn_central_coast;
 ```
 
-### Apply EF Core migration (creates all CCV2 tables)
+7. Run the script.
+8. Verify tables were created:
 
-Run from the `RHESSYs_Data_Importer/RHESSYs_Data_Importer` directory:
-
-```powershell
-dotnet ef database update --context CentralCoastDbContext
+```sql
+SHOW TABLES;
 ```
 
-This applies `Migrations/CentralCoast/20260613094310_CentralCoast_InitialCreate.cs`
-which creates: `CubeData`, `Dates`, `FireData`, `ImportRun`, `PatchData`,
-`StratumData`, `TerrainData`, `WaterData` in `futuremtn_central_coast`.
+Expected tables include `cubedata`, `dates`, `firedata`, `importrun`,
+`patchdata`, `stratumdata`, `terraindata`, `waterdata`, and
+`__efmigrationshistory`.
 
-The migration connection is defined in `DAL/CentralCoastDbContextFactory.cs`.
-Update the password there before applying if the local `admin` account has one.
+The schema export does not create the database and does not contain a `USE`
+statement, so the schema must exist and must be selected before running it.
 
-### Generate a SQL script instead of applying directly
+### EF Core migration alternative
 
-```powershell
-dotnet ef migrations script --context CentralCoastDbContext --output schema_centralcoast.sql
+The EF migration artifacts also exist under:
+
+```text
+RHESSYs_Data_Importer/RHESSYs_Data_Importer/Migrations/CentralCoast/
 ```
 
-Useful for reviewing the DDL before applying, or for applying via a DBA.
+However, `dotnet ef database update --context CentralCoastDbContext` uses the
+design-time connection in `DAL/CentralCoastDbContextFactory.cs`, which is local
+development oriented. For production/staging servers, prefer the exported SQL
+file above unless the design-time connection has been intentionally updated for
+the target server.
 
 ### Import sequence (after schema exists)
 

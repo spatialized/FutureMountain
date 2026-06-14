@@ -21,10 +21,11 @@ Recommended sequence:
 3. Decide whether a new scenario profile is needed.
 4. Design raw import tables before API or Unity work.
 5. Add model classes and database context mappings.
-6. Add validators and dry-run row-count checks.
-7. Implement importers incrementally by data category.
-8. Smoke test against a separate database.
-9. Design derived API/Unity data only after raw import is proven.
+6. Create/export the target database schema.
+7. Add validators and dry-run row-count checks.
+8. Implement importers incrementally by data category.
+9. Smoke test against a separate database.
+10. Design derived API/Unity data only after raw import is proven.
 
 ## Step 1: Create A New ScenarioConfig
 
@@ -132,7 +133,50 @@ Then expose them through the appropriate scenario DbContext.
 
 Do not modify older model classes unless the task is explicitly a backward-compatible cleanup and has been reviewed as such.
 
-## Step 6: Add Validation Before Import
+## Step 6: Create And Export The Database Schema
+
+Each scenario profile should have an explicit target schema/database. Do not
+reuse `defaultdb` or an older scenario schema when the table meanings or shapes
+have changed.
+
+For example:
+
+```text
+futuremtn_central_coast
+futuremtn_ventana_wilderness_v3
+```
+
+The most user-friendly setup path is:
+
+1. Create the empty schema in MySQL Workbench with **Create Schema**.
+2. Open the scenario SQL export from `Database/Schema/`.
+3. Select the new schema as the active/default schema, or add `USE <schema>;`
+   near the top of the SQL editor.
+4. Run the script.
+5. Verify with `SHOW TABLES;`.
+
+For Central Coast v2, the checked-in schema export is:
+
+```text
+Database/Schema/CentralCoastV2_schema.sql
+```
+
+Future scenarios should add the equivalent file, for example:
+
+```text
+Database/Schema/VentanaWildernessV3_schema.sql
+```
+
+Schema export files may include table-level character set/collation details, but
+they do not necessarily create the database or select it. Keep the create-schema
+step explicit in the runbook.
+
+EF Core migrations can still be used to generate or evolve schema, but applying
+migrations directly to a production/staging server requires checking the
+design-time DbContext factory connection first. Prefer a reviewed SQL export for
+manual server setup unless deployment automation has been wired.
+
+## Step 7: Add Validation Before Import
 
 Each new format should support dry-run validation before database writes.
 
@@ -147,7 +191,7 @@ Minimum validation:
 
 The dry run should print enough detail to catch source-data surprises before a long import starts.
 
-## Step 7: Implement Importers Incrementally
+## Step 8: Implement Importers Incrementally
 
 Import one category at a time. Prefer this order:
 
@@ -166,7 +210,7 @@ After each category:
 - compare database row counts to source row counts
 - spot-check a few source rows against database rows
 
-## Step 8: Keep Derived Terrain/API Data Separate
+## Step 9: Keep Derived Terrain/API Data Separate
 
 Raw RHESSys tables are not necessarily what Unity should consume.
 
@@ -181,7 +225,7 @@ raw RHESSys source tables
 
 For Central Coast v2, `StratumData`, `FireData`, and `PatchData` are raw or source-derived inputs. They later produce precomputed `TerrainData` frames. A future scenario should make the same distinction clear.
 
-## Step 9: Preserve Existing Behavior
+## Step 10: Preserve Existing Behavior
 
 Every upgrade should explicitly state what remains untouched:
 
@@ -212,6 +256,7 @@ Update existing importer docs only for shared behavior, such as new command-line
 - Add `ScenarioConfig_NewScenarioV3.json`.
 - Add model classes for new raw tables.
 - Add or extend a scenario DbContext.
+- Add or update `Database/Schema/<ScenarioName>_schema.sql`.
 - Add DAL write methods.
 - Add validator checks.
 - Add importer methods per category.
