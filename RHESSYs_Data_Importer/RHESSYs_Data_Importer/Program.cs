@@ -1,4 +1,4 @@
-// Program to import RHESSYs data into MSSQL or MySQL database
+﻿// Program to import RHESSYs data into MSSQL or MySQL database
 // Note: Change USE_MYSQL compilation symbol to switch between MySQL and MSSQL
 
 using RHESSYs_Data_Importer.Configuration;
