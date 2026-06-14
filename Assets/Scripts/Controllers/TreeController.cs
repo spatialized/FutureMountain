@@ -649,7 +649,11 @@ public abstract class TreeController : MonoBehaviour
         {
             for (int i = 0; i < curRootsObject.transform.childCount; i++)
             {
-                GetLODInGroup(i, curRootsObject).transform.localScale = new Vector3(newWidthScale, newHeightScale, newWidthScale);
+                GameObject rootLOD = GetLODInGroup(i, curRootsObject);
+                if (rootLOD == null)
+                    continue;
+
+                rootLOD.transform.localScale = new Vector3(newWidthScale, Mathf.Abs(newHeightScale), newWidthScale);
             }
         }
         else

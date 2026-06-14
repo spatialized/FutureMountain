@@ -1233,6 +1233,12 @@ public class CubeController : MonoBehaviour
         if (!simulationOn)
             return;
 
+        if (settings.BuildForWeb && !HasDataRow(timeIdx))
+        {
+            Debug.LogWarning(name + ".UpdateVegetationFromData()... Missing cube data for timeIdx:" + timeIdx + ". Skipping vegetation reset.");
+            return;
+        }
+
         ResetCube();
         //Debug.Log(name + ".UpdateVegetationFromData()... ");
         UpdateCurrentData(timeIdx);         // Added 12/23/24
@@ -1303,7 +1309,8 @@ public class CubeController : MonoBehaviour
             return;
         }
 
-        if (timeIdx >= 0 && timeIdx < dataLength)
+        bool validDataTime = settings.BuildForWeb ? HasDataRow(timeIdx) : (timeIdx >= 0 && timeIdx < dataLength);
+        if (validDataTime)
         {
             UpdateCurrentData(timeIdx);
 
@@ -1491,7 +1498,9 @@ public class CubeController : MonoBehaviour
         }
         else
         {
-            if (debugCubes && debugDetailed)
+            if (settings.BuildForWeb)
+                Debug.LogWarning(name + ".UpdateVegetationBehavior()... Missing cube data for timeIdx:" + timeIdx + ". Skipping vegetation update.");
+            else if (debugCubes && debugDetailed)
                 Debug.Log("UpdateSimulation()... Invalid time index!  timeIdx: " + timeIdx);
         }
 
@@ -1775,42 +1784,6 @@ public class CubeController : MonoBehaviour
             //Debug.Log(name+".UpdateDataFromWeb()... warmingIdx: "+warmingIdx);
             WebManager.Instance.RequestCubeData(patchID, warmingIdx, this.FinishUpdateDataFromWeb);
         }
-        //else       // Unused
-        //{
-        //    firstCurrentDataIdx = newTimeIdx;
-        //    if (first)                              // Get initial data
-        //    {
-        //        lastCurrentDataIdx = firstCurrentDataIdx + dataBuffer; // * timeStep < GameController.Instance.GetEndTimeIdx() ? timeIdx + 9 * timeStep : GameController.Instance.GetEndTimeIdx();
-        //        Debug.Log("UpdateDataFromWeb()... first... newTimeIdx: " + newTimeIdx + " set lastCurrentDataIdx: " + lastCurrentDataIdx);
-        //        WebManager.Instance.RequestData(patchID, warmingIdx, timeIdx, lastCurrentDataIdx, this.UpdateDataFromJSON);
-
-        //        Debug.Log("UpdateDataFromWeb()... setting next data...");
-        //        int end = lastCurrentDataIdx + dataBuffer;
-        //        int last = GameController.Instance.GetEndTimeIdx();
-        //        firstNextDataIdx = lastCurrentDataIdx + 1;
-        //        lastNextDataIdx = end < last ? end : last;
-        //        WebManager.Instance.RequestData(patchID, warmingIdx, firstNextDataIdx, lastNextDataIdx, this.UpdateNextDataFromJSON);
-        //    }
-        //    else
-        //    {
-        //        cubeData = nextCubeData;
-        //        firstCurrentDataIdx = firstNextDataIdx;
-        //        lastCurrentDataIdx = lastNextDataIdx;
-
-        //        int end = lastCurrentDataIdx + dataBuffer;
-        //        int last = GameController.Instance.GetEndTimeIdx();
-
-        //        firstNextDataIdx = lastCurrentDataIdx + 1;
-        //        lastNextDataIdx = end < last ? end : last;
-
-        //        if(firstNextDataIdx <= lastCurrentDataIdx)
-        //            return;
-
-        //        Debug.Log("UpdateDataFromWeb()... newTimeIdx: " + newTimeIdx + " set firstCurrentDataIdx: " + firstCurrentDataIdx + " lastCurrentDataIdx:" + lastCurrentDataIdx + " firstNextDataIdx:" + firstNextDataIdx + " lastNextDataIdx:" + lastNextDataIdx);
-
-        //        WebManager.Instance.RequestData(patchID, warmingIdx, firstNextDataIdx, lastNextDataIdx, this.UpdateNextDataFromJSON);
-        //    }
-        //}
     }
 
     private void UpdateDataFromJSON(string jsonString)
@@ -1881,6 +1854,9 @@ public class CubeController : MonoBehaviour
         if (settings.BuildForWeb)
         {
             CubeData row = GetDataRow(timeIdx);
+            if (row == null)
+                return;
+
             //Debug.Log("UpdateCurrentData()... timeIdx: " + timeIdx+ " row.soil:" + row.soil);
 
             if (dataType == CubeDataType.Veg1)
@@ -1991,22 +1967,32 @@ public class CubeController : MonoBehaviour
     /// <returns></returns>
     CubeData GetDataRow(int timeIdx)
     {
-        if (!cubeData.ContainsKey(timeIdx))
+        if (cubeData == null || cubeData.Count == 0)
         {
-            if (timeIdx == 0)
-            {
-                timeIdx = 1;
-                Debug.Log(name+".GetDataRow()... WARNING: Fixed 0 timeIdx reference...");
-            }
-        }
-
-        //return dataRows[timeIdx - currentDataTimeIdx];
-        if (timeIdx > cubeData.Count)
-        {
-            Debug.Log("GetDataRow() ERROR... timeIdx: "+timeIdx+" cubeData.Count:"+cubeData.Count);
+            Debug.LogWarning(name + ".GetDataRow()... No cube data loaded.");
             return null;
         }
-        return cubeData[timeIdx];
+
+        CubeData row;
+        if (cubeData.TryGetValue(timeIdx, out row))
+            return row;
+
+        if (timeIdx == 0 && cubeData.TryGetValue(1, out row))
+        {
+            Debug.LogWarning(name + ".GetDataRow()... Missing timeIdx 0, using timeIdx 1.");
+            return row;
+        }
+
+        Debug.LogWarning(name + ".GetDataRow()... Missing cube data for timeIdx:" + timeIdx + " cubeData.Count:" + cubeData.Count);
+        return null;
+    }
+
+    private bool HasDataRow(int timeIdx)
+    {
+        if (cubeData == null || cubeData.Count == 0)
+            return false;
+
+        return cubeData.ContainsKey(timeIdx) || (timeIdx == 0 && cubeData.ContainsKey(1));
     }
 
     #endregion
@@ -2050,10 +2036,9 @@ public class CubeController : MonoBehaviour
         {
             GameObject rootsPrefab = rootsPrefabs[i];
             float rootsY = settings.RootsYOffsetFactor;
-            Vector3 rootLocation = new Vector3(firLocations[treeID].x, firLocations[treeID].y + rootsY, firLocations[treeID].z);
-            GameObject newRoots = Instantiate(rootsPrefab, rootLocation, rootsPrefab.transform.rotation, parent);       // Create root object from prefab
-
-            newRoots.transform.parent = newTree.transform;
+            GameObject newRoots = Instantiate(rootsPrefab, newTree.transform);       // Create root object from prefab
+            newRoots.transform.localPosition = new Vector3(0f, rootsY, 0f);
+            newRoots.transform.localRotation = Quaternion.Euler(180f, 0f, 0f);
             newRoots.name = "Roots_" + i;
 
             Assert.IsNotNull(newRoots);

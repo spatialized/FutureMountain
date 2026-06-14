@@ -1,4 +1,4 @@
-﻿/* Adapted from FireManager.cs
+/* Adapted from FireManager.cs
 // Fire Propagation System
 // Copyright (c) 2016-2017 Lewis Ward
 // author: Lewis Ward
@@ -95,6 +95,8 @@ public class SERI_FireManager : MonoBehaviour
     public int alphaWidth { get { return terrainAlphaWidth; } }
     public int alphaHeight { get { return terrainAlphaHeight; } }
     #endregion
+
+    private List<Coroutine> _activeCoroutines = new List<Coroutine>();
 
     #region Initialization
     private void Awake()
@@ -309,7 +311,7 @@ public class SERI_FireManager : MonoBehaviour
         CurrentFireGrid().Ignite(new Vector3(0,0,0), timeStep, fireLengthInSec);
         StartBurning();
 
-        StartCoroutine(WaitToStopBurning(fireLengthInSec)); // Added 12/24/24 to fix bug in SBS cube where fire keeps going
+        StartTrackedCoroutine(WaitToStopBurning(fireLengthInSec)); // Added 12/24/24 to fix bug in SBS cube where fire keeps going
     }
 
     private void StartBurning()
@@ -323,7 +325,7 @@ public class SERI_FireManager : MonoBehaviour
     }
     private void StopBurningInSec(float time)
     {
-        StartCoroutine(WaitToStopBurning(time));
+        StartTrackedCoroutine(WaitToStopBurning(time));
     }
 
     private IEnumerator WaitToStopBurning(float time)
@@ -337,7 +339,7 @@ public class SERI_FireManager : MonoBehaviour
         StopBurningInSec(3f);
         foreach (var grid in fireGrids)
         {
-            StartCoroutine(grid.WaitToStopAllFires(3f));
+            StartTrackedCoroutine(grid.WaitToStopAllFires(3f));
         }
     }
     #endregion
@@ -421,23 +423,62 @@ public class SERI_FireManager : MonoBehaviour
     /// </summary>
     void OnApplicationQuit()
     {
-        if (terrain != null)
+        if (terrain != null && terrain.terrainData != null)
         {
+            TerrainData terrainData = terrain.terrainData;
+            int detailPrototypeCount = terrainData.detailPrototypes != null ? terrainData.detailPrototypes.Length : 0;
+
             if (!maxGrassDetails)
             {
-                terrain.terrainData.SetDetailLayer(0, 0, 0, terrainMapOriginal);
-                terrain.terrainData.SetDetailLayer(0, 0, 1, terrainReplaceMapOriginal);
+                if (detailPrototypeCount > 0 && terrainMapOriginal != null)
+                    terrainData.SetDetailLayer(0, 0, 0, terrainMapOriginal);
+
+                if (detailPrototypeCount > 1 && terrainReplaceMapOriginal != null)
+                    terrainData.SetDetailLayer(0, 0, 1, terrainReplaceMapOriginal);
             }
-            else
+            else if (terrainMapsOriginal != null)
             {
-                for (int i = 0; i < terrain.terrainData.detailPrototypes.Length; i++)
+                int restoreCount = Mathf.Min(detailPrototypeCount, terrainMapsOriginal.Count);
+                for (int i = 0; i < restoreCount; i++)
                 {
-                    terrain.terrainData.SetDetailLayer(0, 0, i, terrainMapsOriginal[i]);
+                    if (terrainMapsOriginal[i] != null)
+                        terrainData.SetDetailLayer(0, 0, i, terrainMapsOriginal[i]);
                 }
             }
 
-            terrain.terrainData.SetAlphamaps(0, 0, terrainTextureOriginal);
+            if (terrainTextureOriginal != null)
+                terrainData.SetAlphamaps(0, 0, terrainTextureOriginal);
         }
     }
+
+    private Coroutine StartTrackedCoroutine(IEnumerator routine)
+    {
+        var c = StartCoroutine(routine);
+        _activeCoroutines.Add(c);
+        return c;
+    }
+
+    private void StopAllTrackedCoroutines()
+    {
+        foreach (var c in _activeCoroutines)
+        {
+            if (c != null)
+            {
+                try { StopCoroutine(c); } catch { }
+            }
+        }
+        _activeCoroutines.Clear();
+    }
+
+    private void OnDisable()
+    {
+        StopAllTrackedCoroutines();
+    }
+
+    private void OnDestroy()
+    {
+        StopAllTrackedCoroutines();
+    }
+
     #endregion
 }

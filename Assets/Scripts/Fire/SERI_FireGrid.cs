@@ -1,4 +1,4 @@
-﻿/* Adapted from FireGrid.cs
+/* Adapted from FireGrid.cs
 // Fire Propagation System
 // Copyright (c) 2016-2017 Lewis Ward
 // author: Lewis Ward
@@ -69,6 +69,8 @@ public class SERI_FireGrid : MonoBehaviour
     public bool fireStarted = false;
     [SerializeField]
     private bool gridCreated = false;
+
+    private List<Coroutine> _activeCoroutines = new List<Coroutine>();
     #endregion
 
     #region Initialization
@@ -307,7 +309,7 @@ public class SERI_FireGrid : MonoBehaviour
         if (debug)
             Debug.Log(transform.parent.transform.parent.transform.parent.name + "." + name + ".CreateGrid()... Added fireCellsList.Count:" + fireCellsList.Count + " immediateFire:" + immediateFire + " dataControlled:" + dataControlled);
 
-        DestroyImmediate(tmp);
+        Destroy(tmp);
         gridCreated = true;
     }
 
@@ -474,7 +476,7 @@ public class SERI_FireGrid : MonoBehaviour
             {
                 if (dataControlled)
                 {
-                    StartCoroutine(WaitToBurnCell(cell, cellBurnWaitTime * count, fuelAmount, combustionRate));
+                    StartTrackedCoroutine(WaitToBurnCell(cell, cellBurnWaitTime * count, fuelAmount, combustionRate));
                     landscapeController.AddBurnedCellAfterTime(cell, cellBurnWaitTime * count);
                 }
                 else
@@ -497,7 +499,7 @@ public class SERI_FireGrid : MonoBehaviour
             fireManager.StopBurning();
 
             if (gameObject.activeInHierarchy)
-                StartCoroutine(WaitToDeactivate(immediate ? 0f : fireGridDestroyWaitTime));
+                StartTrackedCoroutine(WaitToDeactivate(immediate ? 0f : fireGridDestroyWaitTime));
             else
                 Deactivate();
         }
@@ -657,6 +659,35 @@ public class SERI_FireGrid : MonoBehaviour
         waitingToDeactivate = false;
         fireStarted = false;
         ignited = false;
+    }
+
+    private Coroutine StartTrackedCoroutine(IEnumerator routine)
+    {
+        var c = StartCoroutine(routine);
+        _activeCoroutines.Add(c);
+        return c;
+    }
+
+    private void StopAllTrackedCoroutines()
+    {
+        foreach (var c in _activeCoroutines)
+        {
+            if (c != null)
+            {
+                try { StopCoroutine(c); } catch { }
+            }
+        }
+        _activeCoroutines.Clear();
+    }
+
+    private void OnDisable()
+    {
+        StopAllTrackedCoroutines();
+    }
+
+    private void OnDestroy()
+    {
+        StopAllTrackedCoroutines();
     }
 
     /// <summary>
