@@ -1,4 +1,4 @@
-﻿// Program to import RHESSYs data into MSSQL or MySQL database
+// Program to import RHESSYs data into MSSQL or MySQL database
 // Note: Change USE_MYSQL compilation symbol to switch between MySQL and MSSQL
 
 using RHESSYs_Data_Importer.Configuration;
@@ -132,6 +132,7 @@ else
             Console.WriteLine("[AUTO MODE] Validation failed. Use --force to proceed anyway.");
             return;
         }
+        Console.WriteLine("[AUTO MODE] Validation passed. Starting import...");
     }
 
     // Set category imports based on flags; if none specified, import all
@@ -166,7 +167,9 @@ if(importCubeData)
 {
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
+        Console.WriteLine("[AUTO MODE] --- Importing cube patch data ---");
         CentralCoastImporter.ImportCubePatchData(activeConfig, dryrun);
+        Console.WriteLine("[AUTO MODE] --- Importing cube stratum data ---");
         CentralCoastImporter.ImportCubeStratumData(activeConfig, dryrun);
     }
     else if (activeConfig != null && discovered != null && discovered.Count("cube") > 0)
@@ -196,6 +199,7 @@ if (importWaterData)
 {
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
+        Console.WriteLine("[AUTO MODE] --- Importing water data ---");
         CentralCoastImporter.ImportWaterData(activeConfig, dryrun);
     }
     else
@@ -210,6 +214,7 @@ if (importFireData)
 {
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
+        Console.WriteLine("[AUTO MODE] --- Importing fire data ---");
         CentralCoastImporter.ImportBasinBurnData(activeConfig, dryrun);
         CentralCoastImporter.ImportPatchBurnData(activeConfig, dryrun);
     }
@@ -225,6 +230,7 @@ if (importPatchData)
 {
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
+        Console.WriteLine("[AUTO MODE] --- Importing patch data ---");
         CentralCoastImporter.ImportPatchMapData(activeConfig, dryrun);
     }
     else
@@ -240,6 +246,7 @@ if (importStratumData)
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
         // CCV2: stratum must run before terrain generation
+        Console.WriteLine("[AUTO MODE] --- Importing stratum carbon data ---");
         CentralCoastImporter.ImportStratumCarbonData(activeConfig, dryrun);
     }
     else
@@ -253,6 +260,7 @@ if (importTerrainData)
     {
         // CCV2: terrain generation reads from PatchData, StratumData, FireData
         // -- must run after patch, stratum, and fire imports
+        Console.WriteLine("[AUTO MODE] --- Generating terrain data ---");
         CentralCoastImporter.GenerateTerrainData(activeConfig, dryrun);
     }
     else

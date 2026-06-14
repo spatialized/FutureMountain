@@ -118,6 +118,9 @@ namespace RHESSYs_Data_Importer.IO
             return report;
         }
 
+        private static readonly HashSet<string> RasterExtensions =
+            new(StringComparer.OrdinalIgnoreCase) { ".tiff", ".tif", ".img", ".asc", ".dem", ".bil" };
+
         private static FileValidationResult ValidateFile(string role, string path)
         {
             var result = new FileValidationResult
@@ -130,6 +133,14 @@ namespace RHESSYs_Data_Importer.IO
 
             if (!result.Exists)
                 return result;
+
+            // Raster/binary files cannot be validated as CSV — skip row-level checks.
+            if (RasterExtensions.Contains(Path.GetExtension(path)))
+            {
+                result.Headers = Array.Empty<string>();
+                result.RowCount = result.ExpectedRowCount; // treat as valid
+                return result;
+            }
 
             // Stream the file: read header, count rows, sample dates/IDs.
             using var reader = new StreamReader(path);
