@@ -39,6 +39,18 @@ ExportedObj/
 *.unityproj
 *.sln
 *.suo
+
+# Embedded RHESSys Data Importer is a real .NET tool absorbed as source.
+# Keep its solution/project files tracked despite the broad Unity rules above.
+!RHESSYs_Data_Importer/RHESSYs_Data_Importer.sln
+!RHESSYs_Data_Importer/RHESSYs_Data_Importer/RHESSYs_Data_Importer.csproj
+
+# Never commit the importer's generated build output.
+RHESSYs_Data_Importer/**/[Bb]in/
+RHESSYs_Data_Importer/**/[Oo]bj/
+RHESSYs_Data_Importer/**/.vs/
+# Local dev credentials - never commit
+RHESSYs_Data_Importer/**/appsettings.Local.json
 *.tmp
 *.user
 *.userprefs
