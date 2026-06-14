@@ -22,6 +22,8 @@ Solution:
 RHESSYs_Data_Importer/RHESSYs_Data_Importer.sln
 ```
 
+Opening the solution in Visual Studio requires Visual Studio 2022 or newer. The importer targets .NET 8, and older Visual Studio versions may not load the solution correctly.
+
 Project:
 
 ```text
@@ -149,6 +151,7 @@ Those paths are currently local workstation paths in `Program.cs`.
 - [Runbook](Runbook.md)
 - [Scenario Config](ScenarioConfig.md)
 - [Data Sources](DataSources.md)
+- [Scenario Upgrade Guide](ScenarioUpgradeGuide.md)
 - [Import Pipeline Spec](../../Specs/RHESSysDataImporter/ImportPipeline.md)
 - [Scenario Config Schema Spec](../../Specs/RHESSysDataImporter/ScenarioConfigSchema.md)
 - [File Naming And Discovery Spec](../../Specs/RHESSysDataImporter/FileNamingAndDiscovery.md)

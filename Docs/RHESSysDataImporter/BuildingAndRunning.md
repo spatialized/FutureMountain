@@ -13,6 +13,7 @@ It is intended for developers or technical staff importing current Big Creek-sty
 Required:
 
 - .NET SDK compatible with `net8.0`.
+- Visual Studio 2022 or newer if opening the `.sln` in Visual Studio. Older Visual Studio versions may not load the .NET 8 importer solution correctly.
 - MySQL server reachable from the workstation.
 - Source RHESSys data files in folders matching the active scenario config.
 - A database user with permission to write the configured database.
