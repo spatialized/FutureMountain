@@ -7,6 +7,7 @@ using BitMiracle.LibTiff.Classic; // BitMiracle.LibTiff.NET package
 using Newtonsoft.Json;
 using RHESSYs_Data_Importer.Configuration;
 using RHESSYs_Data_Importer.DAL;
+using RHESSYs_Data_Importer.Models;
 using RHESSYs_Data_Importer.Models.CentralCoast;
 
 namespace RHESSYs_Data_Importer.IO
@@ -20,7 +21,145 @@ namespace RHESSYs_Data_Importer.IO
     /// </summary>
     public static class CentralCoastImporter
     {
-        private static readonly DateTime DailyStart = new(1987, 7, 1);
+        /// <summary>
+        /// Derives the calendar once per import session and caches it so all
+        /// import methods within one run share the same <c>dateIdx</c> mapping.
+        /// </summary>
+        private static Dictionary<DateTime, int>? _dateIndexCache;
+        private static string? _dateIndexCacheKey;
+
+        private static Dictionary<DateTime, int> GetDateIndex(ScenarioConfig config)
+        {
+            var key = config.ScenarioRunId + "|" + config.GetSourceFilePath("cubeAggregateDaily");
+            if (_dateIndexCache != null && _dateIndexCacheKey == key)
+                return _dateIndexCache;
+            _dateIndexCache = CentralCoastCalendar.BuildDateIndex(config);
+            _dateIndexCacheKey = key;
+            return _dateIndexCache;
+        }
+
+        /// <summary>
+        /// Derives the daily calendar from <c>cubeAggregateDaily</c> and
+        /// populates the shared <c>Dates</c> table.  Idempotent: if the table
+        /// already contains a consistent calendar it is left untouched.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown if the existing <c>Dates</c> table content does not match the
+        /// derived calendar (wrong count or date range). Clear the table manually
+        /// and re-run with <c>--dates</c>.
+        /// </exception>
+        public static void ImportDates(ScenarioConfig config, bool dryrun = false)
+        {
+            Console.WriteLine("[Dates] Deriving calendar from cubeAggregateDaily...");
+            List<DateTime> calendar;
+            try
+            {
+                calendar = CentralCoastCalendar.DeriveCalendar(config);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] {ex.Message}");
+                return;
+            }
+
+            Console.WriteLine($"[Dates] Derived {calendar.Count:N0} distinct dates: " +
+                              $"{calendar[0]:yyyy-MM-dd} – {calendar[^1]:yyyy-MM-dd}.");
+
+            if (dryrun)
+            {
+                Console.WriteLine($"[Dates] Would insert {calendar.Count:N0} rows (dry run).");
+                return;
+            }
+
+            var dal = new CentralCoastDAL();
+            bool alreadyValid;
+            try
+            {
+                alreadyValid = dal.EnsureDatesCalendarValid(calendar);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine($"[ERROR] {ex.Message}");
+                throw;
+            }
+
+            if (alreadyValid)
+            {
+                Console.WriteLine($"[Dates] Table already consistent ({calendar.Count:N0} rows). Skipping insert.");
+                return;
+            }
+
+            // Build Date objects — EF will assign identity IDs sequentially.
+            var rows = new List<Date>(calendar.Count);
+            for (int i = 0; i < calendar.Count; i++)
+            {
+                var dt = calendar[i];
+                rows.Add(new Date
+                {
+                    date  = dt,
+                    year  = dt.Year,
+                    month = dt.Month,
+                    day   = dt.Day,
+                });
+            }
+
+            int inserted = dal.AddDateRows(rows);
+            Console.WriteLine($"[Dates] Inserted {inserted:N0} rows.");
+        }
+
+        /// <summary>
+        /// Ensures the <c>Dates</c> table is populated and consistent before
+        /// running imports that depend on <c>dateIdx</c>.  If the table is empty
+        /// it is automatically populated; if it is non-empty but mismatched an
+        /// exception is thrown.
+        /// </summary>
+        public static void EnsureOrPopulateDates(ScenarioConfig config, bool dryrun = false)
+        {
+            List<DateTime> calendar;
+            try
+            {
+                calendar = CentralCoastCalendar.DeriveCalendar(config);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Cannot derive calendar: {ex.Message}");
+                throw;
+            }
+
+            var dal = new CentralCoastDAL();
+            bool alreadyValid;
+            try
+            {
+                alreadyValid = dal.EnsureDatesCalendarValid(calendar);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine($"[ERROR] {ex.Message}");
+                throw;
+            }
+
+            if (alreadyValid)
+            {
+                Console.WriteLine($"[Dates] Pre-import check: table consistent ({calendar.Count:N0} rows). OK.");
+                return;
+            }
+
+            if (dryrun)
+            {
+                Console.WriteLine($"[Dates] Table is empty — would auto-populate {calendar.Count:N0} rows (dry run).");
+                return;
+            }
+
+            Console.WriteLine($"[Dates] Table is empty — auto-populating from calendar ({calendar.Count:N0} rows)...");
+            var rows = new List<Date>(calendar.Count);
+            for (int i = 0; i < calendar.Count; i++)
+            {
+                var dt = calendar[i];
+                rows.Add(new Date { date = dt, year = dt.Year, month = dt.Month, day = dt.Day });
+            }
+            int inserted = dal.AddDateRows(rows);
+            Console.WriteLine($"[Dates] Auto-populated {inserted:N0} rows.");
+        }
 
         /// <summary>
         /// Imports the daily aggregate basin file (<c>cube_agg_p.csv</c>) into
@@ -74,26 +213,28 @@ namespace RHESSYs_Data_Importer.IO
                     importRunId = 0 // TODO: create ImportRun record
                 };
 
-                // Compute dateIdx from day/month/year if available
-                if (dayIdx >= 0 && monthIdx >= 0 && yearIdx >= 0 &&
-                    int.TryParse(GetSafe(parts, dayIdx), out var day) &&
-                    int.TryParse(GetSafe(parts, monthIdx), out var month) &&
-                    int.TryParse(GetSafe(parts, yearIdx), out var year))
-                {
-                    try
-                    {
-                        var dt = new DateTime(year, month, day);
-                        row.dateIdx = (dt - DailyStart).Days + 1;
-                    }
-                    catch
-                    {
-                        row.dateIdx = imported + 1;
-                    }
-                }
-                else
-                {
-                    row.dateIdx = imported + 1;
-                }
+                // Compute dateIdx from day/month/year — required; fail loudly if absent or unmapped
+                if (dayIdx < 0 || monthIdx < 0 || yearIdx < 0)
+                    throw new InvalidOperationException(
+                        "[WaterData] Source file is missing day/month/year column(s). Cannot compute dateIdx.");
+
+                if (!int.TryParse(GetSafe(parts, dayIdx),   out var day)   ||
+                    !int.TryParse(GetSafe(parts, monthIdx), out var month) ||
+                    !int.TryParse(GetSafe(parts, yearIdx),  out var year))
+                    throw new InvalidOperationException(
+                        $"[WaterData] Row {imported + 1}: could not parse day/month/year from '" +
+                        $"{GetSafe(parts, dayIdx)}/{GetSafe(parts, monthIdx)}/{GetSafe(parts, yearIdx)}'.");
+
+                DateTime wdt;
+                try { wdt = new DateTime(year, month, day); }
+                catch { throw new InvalidOperationException(
+                    $"[WaterData] Row {imported + 1}: invalid date {year}-{month:D2}-{day:D2}."); }
+
+                var widx = GetDateIndex(config);
+                if (!widx.TryGetValue(wdt, out var wdi))
+                    throw new InvalidOperationException(
+                        $"[WaterData] Row {imported + 1}: date {wdt:yyyy-MM-dd} not found in derived calendar.");
+                row.dateIdx = wdi;
 
                 // Map CSV columns to model properties
                 foreach (var kvp in propertyMap)
@@ -202,26 +343,28 @@ namespace RHESSYs_Data_Importer.IO
                         importRunId = 0
                     };
 
-                    // Compute dateIdx
-                    if (dayIdx >= 0 && monthIdx >= 0 && yearIdx >= 0 &&
-                        int.TryParse(GetSafe(parts, dayIdx), out var day) &&
-                        int.TryParse(GetSafe(parts, monthIdx), out var month) &&
-                        int.TryParse(GetSafe(parts, yearIdx), out var year))
-                    {
-                        try
-                        {
-                            var dt = new DateTime(year, month, day);
-                            row.dateIdx = (dt - DailyStart).Days + 1;
-                        }
-                        catch
-                        {
-                            row.dateIdx = imported + 1;
-                        }
-                    }
-                    else
-                    {
-                        row.dateIdx = imported + 1;
-                    }
+                    // Compute dateIdx — required; fail loudly if absent or unmapped
+                    if (dayIdx < 0 || monthIdx < 0 || yearIdx < 0)
+                        throw new InvalidOperationException(
+                            $"[CubeData/{role}] Source file is missing day/month/year column(s). Cannot compute dateIdx.");
+
+                    if (!int.TryParse(GetSafe(parts, dayIdx),   out var day)   ||
+                        !int.TryParse(GetSafe(parts, monthIdx), out var month) ||
+                        !int.TryParse(GetSafe(parts, yearIdx),  out var year))
+                        throw new InvalidOperationException(
+                            $"[CubeData/{role}] Row {imported + 1}: could not parse day/month/year from '" +
+                            $"{GetSafe(parts, dayIdx)}/{GetSafe(parts, monthIdx)}/{GetSafe(parts, yearIdx)}'.");
+
+                    DateTime cdt;
+                    try { cdt = new DateTime(year, month, day); }
+                    catch { throw new InvalidOperationException(
+                        $"[CubeData/{role}] Row {imported + 1}: invalid date {year}-{month:D2}-{day:D2}."); }
+
+                    var cidx = GetDateIndex(config);
+                    if (!cidx.TryGetValue(cdt, out var cdi))
+                        throw new InvalidOperationException(
+                            $"[CubeData/{role}] Row {imported + 1}: date {cdt:yyyy-MM-dd} not found in derived calendar.");
+                    row.dateIdx = cdi;
 
                     // Map CSV columns to model properties
                     foreach (var kvp in propertyMap)
@@ -400,7 +543,12 @@ namespace RHESSYs_Data_Importer.IO
                         int.TryParse(GetSafe(parts, monthIdx), out var month) &&
                         int.TryParse(GetSafe(parts, yearIdx), out var year))
                     {
-                        try { dateIdx = (new DateTime(year, month, day) - DailyStart).Days + 1; }
+                        try
+                        {
+                            var dt = new DateTime(year, month, day);
+                            var calIdx = GetDateIndex(config);
+                            dateIdx = calIdx.TryGetValue(dt, out var di) ? di : 0;
+                        }
                         catch { dateIdx = 0; }
                     }
 

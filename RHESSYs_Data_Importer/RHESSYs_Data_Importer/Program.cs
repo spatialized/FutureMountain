@@ -105,6 +105,7 @@ bool flagFire = arguments.Contains("--fire");
 bool flagWater = arguments.Contains("--water");
 bool flagClimate = arguments.Contains("--climate");
 bool flagStratum = arguments.Contains("--stratum");
+bool flagDates = arguments.Contains("--dates");
 
 if (!auto)
 {
@@ -136,7 +137,7 @@ else
     }
 
     // Set category imports based on flags; if none specified, import all
-    bool anyCategoryFlag = flagCubes || flagPatch || flagTerrain || flagFire || flagWater || flagClimate || flagStratum;
+    bool anyCategoryFlag = flagCubes || flagPatch || flagTerrain || flagFire || flagWater || flagClimate || flagStratum || flagDates;
     if (anyCategoryFlag)
     {
         importCubeData = flagCubes;
@@ -145,6 +146,7 @@ else
         importFireData = flagFire;
         importWaterData = flagWater;
         importStratumData = flagStratum;
+        importDates = flagDates;
         // Climate not yet implemented; placeholder only
     }
     else
@@ -155,18 +157,30 @@ else
         importFireData = true;
         importWaterData = true;
         importStratumData = true;
+        importDates = true;
     }
 }
 
 // -- TO DO: Check that Dates table exists
 //           Check that CubeData table exists
 
-if(importDates)
-    TextFileInput.ReadDates(folderAggregate);
+if (importDates)
+{
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    {
+        Console.WriteLine("[AUTO MODE] --- Importing dates ---");
+        CentralCoastImporter.ImportDates(activeConfig, dryrun);
+    }
+    else
+    {
+        TextFileInput.ReadDates(folderAggregate);
+    }
+}
 if(importCubeData)
 {
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
+        CentralCoastImporter.EnsureOrPopulateDates(activeConfig);
         Console.WriteLine("[AUTO MODE] --- Importing cube patch data ---");
         CentralCoastImporter.ImportCubePatchData(activeConfig, dryrun);
         Console.WriteLine("[AUTO MODE] --- Importing cube stratum data ---");
@@ -199,6 +213,7 @@ if (importWaterData)
 {
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
+        CentralCoastImporter.EnsureOrPopulateDates(activeConfig);
         Console.WriteLine("[AUTO MODE] --- Importing water data ---");
         CentralCoastImporter.ImportWaterData(activeConfig, dryrun);
     }

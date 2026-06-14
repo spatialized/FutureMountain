@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using RHESSYs_Data_Importer.Models;
 using RHESSYs_Data_Importer.Models.CentralCoast;
 
 namespace RHESSYs_Data_Importer.DAL
@@ -293,6 +294,99 @@ namespace RHESSYs_Data_Importer.DAL
                 Console.WriteLine($"[ERROR] AddTerrainDataRows failed: {ex.Message}");
                 return 0;
             }
+        }
+
+        /// <summary>
+        /// Returns the current row count in the shared <c>Dates</c> table.
+        /// </summary>
+        public int GetDatesCount()
+        {
+            try
+            {
+                using var db = new DatesDbContext(_connectionString);
+                return db.Dates.Count();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] GetDatesCount failed: {ex.Message}");
+                return -1;
+            }
+        }
+
+        /// <summary>
+        /// Inserts a batch of <see cref="Date"/> rows using a single
+        /// <c>SaveChanges</c> call per chunk of <paramref name="chunkSize"/>.
+        /// </summary>
+        public int AddDateRows(IEnumerable<Date> rows, int chunkSize = 5_000)
+        {
+            int total = 0;
+            try
+            {
+                var list = new List<Date>(rows);
+                for (int i = 0; i < list.Count; i += chunkSize)
+                {
+                    using var db = new DatesDbContext(_connectionString);
+                    db.Dates.AddRange(list.Skip(i).Take(chunkSize));
+                    total += db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddDateRows failed: {ex.Message}");
+            }
+            return total;
+        }
+
+        /// <summary>
+        /// Validates that the <c>Dates</c> table matches the supplied
+        /// <paramref name="calendar"/> exactly (count + first/last date).
+        /// Returns <c>true</c> if the table is consistent, <c>false</c> if it
+        /// is empty (caller should populate), or throws if it is non-empty but
+        /// mismatched.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// Thrown when the table contains rows that do not match the expected
+        /// calendar, indicating a schema conflict that must be resolved manually.
+        /// </exception>
+        public bool EnsureDatesCalendarValid(List<DateTime> calendar)
+        {
+            using var db = new DatesDbContext(_connectionString);
+            int count = db.Dates.Count();
+
+            if (count == 0)
+                return false; // empty — caller should populate
+
+            if (count != calendar.Count)
+                throw new InvalidOperationException(
+                    $"[Dates] Table has {count:N0} rows but derived calendar has " +
+                    $"{calendar.Count:N0}. TRUNCATE the Dates table and re-run --dates.");
+
+            // Load all rows ordered by id and verify every id == expected 1-based index
+            // and every date matches the calendar. This guards against DELETE (non-resetting
+            // auto-increment) leaving the table with wrong id values that break dateIdx joins.
+            var rows = db.Dates.OrderBy(d => d.id)
+                               .Select(d => new { d.id, d.date })
+                               .ToList();
+
+            for (int i = 0; i < rows.Count; i++)
+            {
+                int expectedId   = i + 1;
+                DateTime expectedDate = calendar[i].Date;
+
+                if (rows[i].id != expectedId)
+                    throw new InvalidOperationException(
+                        $"[Dates] Row at position {i + 1} has id={rows[i].id} but expected id={expectedId}. " +
+                        "The table may have been rebuilt with DELETE instead of TRUNCATE. " +
+                        "TRUNCATE the Dates table and re-run --dates.");
+
+                if (rows[i].date.Date != expectedDate)
+                    throw new InvalidOperationException(
+                        $"[Dates] Row id={rows[i].id} has date {rows[i].date:yyyy-MM-dd} but " +
+                        $"calendar expects {expectedDate:yyyy-MM-dd}. " +
+                        "TRUNCATE the Dates table and re-run --dates.");
+            }
+
+            return true; // fully consistent
         }
     }
 }
