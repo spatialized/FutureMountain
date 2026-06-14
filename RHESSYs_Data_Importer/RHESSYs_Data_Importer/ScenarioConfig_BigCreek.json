@@ -13,11 +13,8 @@
     "collation": "utf8mb4_0900_ai_ci"
   },
   "inputFolders": {
-    "cubeData": "../Data/CubeData/",
-    "patchOutput": "../Data/PatchOutput/",
-    "basinOutput": "../Data/BasinOutput/",
-    "spatialData": "../Data/SpatialData/",
-    "climateData": "../Data/ClimateData/"
+    "cubeData": "../Data/BigCreek/fire_cubes/",
+    "basinOutput": "../Data/BigCreek/aggregate/"
   },
   "filePatterns": {
     "cube": "p*_2veg_*_*.txt",

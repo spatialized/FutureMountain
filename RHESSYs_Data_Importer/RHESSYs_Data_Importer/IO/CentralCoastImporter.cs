@@ -57,6 +57,8 @@ namespace RHESSYs_Data_Importer.IO
                 else if (h == "year") yearIdx = i;
             }
 
+            const int ChunkSize = 5_000;
+            var chunk = new List<WaterDataRow>(ChunkSize);
             int imported = 0;
             string line;
             while ((line = reader.ReadLine()) != null)
@@ -127,8 +129,19 @@ namespace RHESSYs_Data_Importer.IO
 
                 imported++;
                 if (!dryrun)
-                    dal.AddWaterDataRow(row);
+                {
+                    chunk.Add(row);
+                    if (chunk.Count >= ChunkSize)
+                    {
+                        dal.AddWaterDataRows(chunk);
+                        chunk.Clear();
+                        Console.WriteLine($"[WaterData] {imported:N0} rows written...");
+                    }
+                }
             }
+
+            if (!dryrun && chunk.Count > 0)
+                dal.AddWaterDataRows(chunk);
 
             Console.WriteLine($"[WaterData] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
         }
@@ -172,6 +185,8 @@ namespace RHESSYs_Data_Importer.IO
                     else if (h == "year") yearIdx = i;
                 }
 
+                const int ChunkSize = 5_000;
+                var chunk = new List<CubeDataRow>(ChunkSize);
                 int imported = 0;
                 string line;
                 while ((line = reader.ReadLine()) != null)
@@ -348,30 +363,47 @@ namespace RHESSYs_Data_Importer.IO
 
                 int updated = 0;
                 int skipped = 0;
-                string line;
-                while ((line = reader.ReadLine()) != null)
+
+                if (dryrun)
                 {
-                    if (string.IsNullOrWhiteSpace(line))
-                        continue;
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (string.IsNullOrWhiteSpace(line)) continue;
+                        var parts = line.Split(',');
+                        if (int.TryParse(GetSafe(parts, zoneIdx), out _) &&
+                            long.TryParse(GetSafe(parts, patchIdx), out _))
+                            updated++;
+                        else
+                            skipped++;
+                    }
+                    Console.WriteLine($"[CubeData/{def.Role}] Would update {updated:N0} rows, skipped {skipped:N0}.");
+                    continue;
+                }
 
-                    var parts = line.Split(',');
+                // Bulk strategy: load all CubeData for this scenario into memory once,
+                // apply updates, then flush in chunks — avoids one SELECT+UPDATE per row.
+                Console.WriteLine($"[CubeData/{def.Role}] Loading existing rows into memory...");
+                var (db, lookup) = dal.OpenCubeDataLookup(
+                    config.ScenarioRunId ?? "", config.WarmingIdx ?? 0);
 
-                    // Compute dateIdx
+                string sline;
+                while ((sline = reader.ReadLine()) != null)
+                {
+                    if (string.IsNullOrWhiteSpace(sline)) continue;
+
+                    var parts = sline.Split(',');
+
                     int dateIdx = 0;
                     if (dayIdx >= 0 && monthIdx >= 0 && yearIdx >= 0 &&
                         int.TryParse(GetSafe(parts, dayIdx), out var day) &&
                         int.TryParse(GetSafe(parts, monthIdx), out var month) &&
                         int.TryParse(GetSafe(parts, yearIdx), out var year))
                     {
-                        try
-                        {
-                            var dt = new DateTime(year, month, day);
-                            dateIdx = (dt - DailyStart).Days + 1;
-                        }
+                        try { dateIdx = (new DateTime(year, month, day) - DailyStart).Days + 1; }
                         catch { dateIdx = 0; }
                     }
 
-                    // Parse spatial key
                     if (!int.TryParse(GetSafe(parts, zoneIdx), out var zoneID) ||
                         !long.TryParse(GetSafe(parts, patchIdx), out var patchID))
                     {
@@ -379,53 +411,35 @@ namespace RHESSYs_Data_Importer.IO
                         continue;
                     }
 
-                    if (dryrun)
+                    if (!lookup.TryGetValue((dateIdx, zoneID, patchID), out var row))
                     {
-                        updated++;
+                        skipped++;
                         continue;
                     }
 
-                    Action<CubeDataRow> updater = row =>
+                    if (stratumIdx >= 0 && long.TryParse(GetSafe(parts, stratumIdx), out var sid))
                     {
-                        // stratumID and veg_parm_ID map to different properties
-                        // depending on whether this is an overstory or understory file
-                        if (stratumIdx >= 0 && long.TryParse(GetSafe(parts, stratumIdx), out var sid))
-                        {
-                            if (def.IsOverstory) row.stratumIDOver = sid;
-                            else row.stratumIDUnder = sid;
-                        }
-                        if (vegIdx >= 0 && int.TryParse(GetSafe(parts, vegIdx), out var vid))
-                        {
-                            if (def.IsOverstory) row.vegParmIDOver = vid;
-                            else row.vegParmIDUnder = vid;
-                        }
-
-                        // Float stratum columns
-                        foreach (var kvp in floatPropMap)
-                        {
-                            int col = kvp.Key;
-                            var propName = kvp.Value;
-                            if (col < 0 || col >= parts.Length)
-                                continue;
-                            var raw = parts[col]?.Trim();
-                            if (string.IsNullOrWhiteSpace(raw))
-                                continue;
-                            if (float.TryParse(raw, out var f))
-                            {
-                                var prop = typeof(CubeDataRow).GetProperty(propName);
-                                prop?.SetValue(row, f);
-                            }
-                        }
-                    };
-
-                    if (dal.UpdateCubeDataStratum(dateIdx, zoneID, patchID,
-                        config.ScenarioRunId ?? "", config.WarmingIdx ?? 0, updater))
-                        updated++;
-                    else
-                        skipped++;
+                        if (def.IsOverstory) row.stratumIDOver = sid;
+                        else row.stratumIDUnder = sid;
+                    }
+                    if (vegIdx >= 0 && int.TryParse(GetSafe(parts, vegIdx), out var vid))
+                    {
+                        if (def.IsOverstory) row.vegParmIDOver = vid;
+                        else row.vegParmIDUnder = vid;
+                    }
+                    foreach (var kvp in floatPropMap)
+                    {
+                        if (kvp.Key < 0 || kvp.Key >= parts.Length) continue;
+                        var raw = parts[kvp.Key]?.Trim();
+                        if (!string.IsNullOrWhiteSpace(raw) && float.TryParse(raw, out var f))
+                            typeof(CubeDataRow).GetProperty(kvp.Value)?.SetValue(row, f);
+                    }
+                    updated++;
                 }
 
-                Console.WriteLine($"[CubeData/{def.Role}] {(dryrun ? "Would update" : "Updated")} {updated:N0} rows, skipped {skipped:N0}.");
+                int saved = CentralCoastDAL.SaveCubeDataRows(db);
+                db.Dispose();
+                Console.WriteLine($"[CubeData/{def.Role}] Updated {updated:N0} rows (saved {saved:N0}), skipped {skipped:N0}.");
             }
         }
 

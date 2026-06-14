@@ -21,7 +21,7 @@ namespace RHESSYs_Data_Importer.DAL
         {
             const string cs =
                 "Server=127.0.0.1;Port=3306;Database=futuremtn_central_coast;" +
-                "User=admin;Password=;CharSet=utf8mb4;";
+                "User=admin;Password=Historic-valley;CharSet=utf8mb4;";
 
             var optionsBuilder = new DbContextOptionsBuilder<CentralCoastDbContext>();
             // Use a pinned server version so migration generation does not require

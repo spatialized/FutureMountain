@@ -10,17 +10,19 @@ It covers current state only.
 
 ## Current Embedded Data
 
-The importer tree currently includes source/sample files under:
+The importer tree currently includes source/sample files under one shared data
+root:
 
 ```text
-RHESSYs_Data_Importer/RHESSYs_Data_Importer/data/
+RHESSYs_Data_Importer/Data/
 ```
 
 Current subfolders:
 
 ```text
-data/aggregate/
-data/fire_cubes/
+Data/BigCreek/aggregate/
+Data/BigCreek/fire_cubes/
+Data/CentralCoast/RHESSysOutput-SingleWarmIdx-6-4-2026/
 ```
 
 The embedded files total roughly 120 MB.
@@ -72,11 +74,8 @@ Current warming index mapping:
 The current `ScenarioConfig_BigCreek.json` points to these relative folders:
 
 ```text
-../Data/CubeData/
-../Data/PatchOutput/
-../Data/BasinOutput/
-../Data/SpatialData/
-../Data/ClimateData/
+../Data/BigCreek/fire_cubes/
+../Data/BigCreek/aggregate/
 ```
 
 Those folders are not the same as the embedded `data/` folder. When running the config-driven path, make sure the configured folders exist relative to the importer working directory.

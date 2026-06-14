@@ -135,7 +135,7 @@ The list documents expected targets but does not automatically create or validat
 ## Current Config Issues To Know
 
 - The checked-in description contains mojibake for the temperature range text.
-- Configured input folder paths point to `../Data/...`, while sample files are currently embedded under `RHESSYs_Data_Importer/RHESSYs_Data_Importer/data/`.
+- Big Creek and Central Coast sample files now share the `RHESSYs_Data_Importer/Data/` root.
 - Some config categories exist before full importer support exists.
 - The config includes climate mappings, but climate import is not implemented.
 - Database passwords should not be committed for real shared environments.

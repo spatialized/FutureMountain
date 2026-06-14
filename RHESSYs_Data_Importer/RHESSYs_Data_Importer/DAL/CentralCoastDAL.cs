@@ -54,6 +54,44 @@ namespace RHESSYs_Data_Importer.DAL
         }
 
         /// <summary>
+        /// Inserts a batch of <see cref="CubeDataRow"/> rows in a single
+        /// <c>SaveChanges</c> call.
+        /// </summary>
+        public int AddCubeDataRows(IEnumerable<CubeDataRow> rows)
+        {
+            try
+            {
+                using var db = new CentralCoastDbContext(_connectionString);
+                db.CubeData.AddRange(rows);
+                return db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddCubeDataRows failed: {ex.Message}");
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Inserts a batch of <see cref="WaterDataRow"/> rows in a single
+        /// <c>SaveChanges</c> call.
+        /// </summary>
+        public int AddWaterDataRows(IEnumerable<WaterDataRow> rows)
+        {
+            try
+            {
+                using var db = new CentralCoastDbContext(_connectionString);
+                db.WaterData.AddRange(rows);
+                return db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddWaterDataRows failed: {ex.Message}");
+                return 0;
+            }
+        }
+
+        /// <summary>
         /// Finds the existing <see cref="CubeDataRow"/> matching the composite
         /// key and applies the supplied updater. Used by the stratum importer
         /// to fill overstory/understory columns after the patch importer has
@@ -81,6 +119,43 @@ namespace RHESSYs_Data_Importer.DAL
                 Console.WriteLine($"[ERROR] UpdateCubeDataStratum failed: {ex.Message}");
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Loads all <see cref="CubeDataRow"/> rows for the given scenario into
+        /// a dictionary keyed on <c>(dateIdx, zoneID, patchID)</c>.
+        /// Used by the stratum importer to apply in-memory updates before a
+        /// single bulk <see cref="SaveCubeDataRows"/> flush.
+        /// </summary>
+        public (CentralCoastDbContext db, Dictionary<(int dateIdx, int zoneID, long patchID), CubeDataRow> lookup)
+            OpenCubeDataLookup(string scenarioRunId, int warmingIdx)
+        {
+            var db = new CentralCoastDbContext(_connectionString);
+            var lookup = db.CubeData
+                .Where(r => r.scenarioRunId == scenarioRunId && r.warmingIdx == warmingIdx)
+                .ToDictionary(r => (r.dateIdx, r.zoneID, r.patchID));
+            return (db, lookup);
+        }
+
+        /// <summary>
+        /// Saves all tracked changes in <paramref name="db"/> in chunks of
+        /// <paramref name="chunkSize"/> to avoid oversized transactions.
+        /// The caller is responsible for disposing <paramref name="db"/>.
+        /// </summary>
+        public static int SaveCubeDataRows(CentralCoastDbContext db, int chunkSize = 5_000)
+        {
+            var changed = db.ChangeTracker.Entries<CubeDataRow>()
+                .Where(e => e.State == Microsoft.EntityFrameworkCore.EntityState.Modified)
+                .ToList();
+
+            int total = 0;
+            for (int i = 0; i < changed.Count; i += chunkSize)
+            {
+                foreach (var e in changed.Skip(i).Take(chunkSize))
+                    e.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                total += db.SaveChanges();
+            }
+            return total;
         }
 
         public bool AddFireDataRow(FireDataRow row)

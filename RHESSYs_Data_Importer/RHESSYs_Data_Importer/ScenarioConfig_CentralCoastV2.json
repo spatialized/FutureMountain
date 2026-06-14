@@ -14,7 +14,7 @@
     "charset": "utf8mb4",
     "collation": "utf8mb4_0900_ai_ci"
   },
-  "sourceRoot": "../Data/RHESSysOutput-SingleWarmIdx-6-4-2026/",
+  "sourceRoot": "../Data/CentralCoast/RHESSysOutput-SingleWarmIdx-6-4-2026/",
   "delimiter": ",",
   "files": {
     "cubeAggregateDaily": "cube_agg_p.csv",

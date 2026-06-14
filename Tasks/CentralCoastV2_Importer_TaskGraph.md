@@ -25,7 +25,7 @@ The first implementation phase is database ingestion only. Do not change Big Cre
 - Big Creek comparison: `Docs/CentralCoastV2/BigCreekV1Differences.md`
 - Current importer docs: `Docs/RHESSysDataImporter/`
 - Current importer specs: `Specs/RHESSysDataImporter/`
-- Current sample bundle: `RHESSYs_Data_Importer/Data/RHESSysOutput-SingleWarmIdx-6-4-2026/`
+- Current sample bundle: `RHESSYs_Data_Importer/Data/CentralCoast/RHESSysOutput-SingleWarmIdx-6-4-2026/`
 
 ## Current Status
 

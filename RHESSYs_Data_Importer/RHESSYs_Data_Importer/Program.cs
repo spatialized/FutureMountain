@@ -17,12 +17,12 @@ bool importTerrainData = importAll;
 bool importStratumData = importAll;
 
 // Data Folders
-string folderAggregate = "C:\\Users\\Redux\\Documents\\FutureMountain\\aggregate";      
-string folderCubes = "C:\\Users\\Redux\\Documents\\FutureMountain\\fire_cubes";
-string folderWater = "C:\\Users\\Redux\\Documents\\FutureMountain\\water";
-string folderFire = "C:\\Users\\Redux\\Documents\\FutureMountain\\fire";
-string folderPatchData = "C:\\Users\\Redux\\Documents\\FutureMountain\\patch_data";
-string folderTerrainData = "C:\\Users\\Redux\\Documents\\FutureMountain\\terrain_data";
+string folderAggregate = Path.GetFullPath("../Data/BigCreek/aggregate");
+string folderCubes = Path.GetFullPath("../Data/BigCreek/fire_cubes");
+string folderWater = Path.GetFullPath("../Data/BigCreek/water");
+string folderFire = Path.GetFullPath("../Data/BigCreek/fire");
+string folderPatchData = Path.GetFullPath("../Data/BigCreek/patch_data");
+string folderTerrainData = Path.GetFullPath("../Data/BigCreek/terrain_data");
 
 ScenarioConfig? activeConfig = null;
 FileDiscoveryResult? discovered = null;

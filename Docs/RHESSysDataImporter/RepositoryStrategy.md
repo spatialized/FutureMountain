@@ -97,14 +97,14 @@ MB, including a ~370 MB stratum CSV). It is handled explicitly with Git LFS:
 - `RHESSYs_Data_Importer/Data/.gitattributes` routes `*.csv` through LFS.
 
 The raster `.tiff` sources and CSVs in
-`RHESSYs_Data_Importer/Data/RHESSysOutput-SingleWarmIdx-6-4-2026/` are tracked via
-LFS so the working repository stays usable.
+`RHESSYs_Data_Importer/Data/CentralCoast/RHESSysOutput-SingleWarmIdx-6-4-2026/`
+are tracked via LFS so the working repository stays usable.
 
 Source vs. sample vs. generated data distinction:
 
-- `RHESSYs_Data_Importer/Data/` holds Central Coast v2 source/sample bundles.
-- `RHESSYs_Data_Importer/RHESSYs_Data_Importer/data/` holds the older embedded
-  Big Creek sample text files.
+- `RHESSYs_Data_Importer/Data/BigCreek/` holds Big Creek v1 source/sample files.
+- `RHESSYs_Data_Importer/Data/CentralCoast/` holds Central Coast v2
+  source/sample bundles.
 - `bin/`, `obj/`, and `.vs/` are generated and are not source.
 
 ## Acceptance Check

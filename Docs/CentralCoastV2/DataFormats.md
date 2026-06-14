@@ -9,7 +9,7 @@ Central Coast v2 is a newer RHESSys-derived data model than the current Big Cree
 The current sample bundle is located at:
 
 ```text
-RHESSYs_Data_Importer/Data/RHESSysOutput-SingleWarmIdx-6-4-2026/
+RHESSYs_Data_Importer/Data/CentralCoast/RHESSysOutput-SingleWarmIdx-6-4-2026/
 ```
 
 This bundle appears to represent one scenario member only. The files do not contain a warming index, warming label, climate-case label, or filename token such as `hist`, `warm1`, `warm2`, `warm4`, or `warm6`.
