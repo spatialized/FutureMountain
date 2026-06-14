@@ -24,10 +24,10 @@ string _policyName = "CorsPolicy";
 //string connectionString = "Server=DESKTOP-BGU64QR\\SQLEXPRESS;Initial Catalog=FutureMountain;User ID=REDACTED_USER;password=REDACTED_PASSWORD;";
 
 
-string connectionString = builder.Configuration.GetConnectionString("CubeDataDbContext") ?? "";
+string connectionString = builder.Configuration.GetConnectionString("BigCreekDbContext") ?? "";
 if (string.IsNullOrWhiteSpace(connectionString))
 {
-    throw new InvalidOperationException("Connection string 'CubeDataDbContext' is not configured.");
+    throw new InvalidOperationException("Connection string 'BigCreekDbContext' is not configured.");
 }
 
 // Replace with your server version and type.
@@ -87,6 +87,16 @@ builder.Services.AddDbContext<DateDbContext>(
         //.LogTo(Console.WriteLine, LogLevel.Information)
         //.EnableSensitiveDataLogging()
         //.EnableDetailedErrors());
+
+string centralCoastConnectionString = builder.Configuration.GetConnectionString("CentralCoastDbContext") ?? "";
+if (!string.IsNullOrWhiteSpace(centralCoastConnectionString))
+{
+    var centralCoastServerVersion = ServerVersion.AutoDetect(centralCoastConnectionString);
+
+    builder.Services.AddDbContext<CentralCoastDbContext>(
+        dbContextOptions => dbContextOptions
+            .UseMySql(centralCoastConnectionString, centralCoastServerVersion));
+}
 
 //builder.Services.AddDbContext<CubeDataDbContext>(options => options.UseMySql(connectionString, serverVersion).EnableDetailedErrors(true));
 //builder.Services.AddDbContext<DateDbContext>(options => options.UseMySql(connectionString, serverVersion).EnableDetailedErrors(true));

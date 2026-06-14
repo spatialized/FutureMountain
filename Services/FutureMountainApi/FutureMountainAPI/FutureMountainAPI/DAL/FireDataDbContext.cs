@@ -40,10 +40,10 @@ namespace FutureMountainAPI.DAL
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            string connectionString = configuration.GetConnectionString("CubeDataDbContext");
+            string connectionString = configuration.GetConnectionString("BigCreekDbContext");
 
             // Sql Server
-            //optionsBuilder.UseSqlServer(configuration.GetConnectionString("CubeDataDbContext"));
+            //optionsBuilder.UseSqlServer(configuration.GetConnectionString("BigCreekDbContext"));
 
             // MySQL
             optionsBuilder.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
