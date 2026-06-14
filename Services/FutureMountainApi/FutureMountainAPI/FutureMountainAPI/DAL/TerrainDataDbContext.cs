@@ -29,7 +29,7 @@ namespace FutureMountainAPI.DAL
 
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //{
-        //    string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["CubeDataDbContext"].ConnectionString;
+        //    string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["BigCreekDbContext"].ConnectionString;
         //    optionsBuilder.UseSqlServer(connectionString);
         //}
 

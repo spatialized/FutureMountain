@@ -117,10 +117,10 @@ if (!string.IsNullOrWhiteSpace(centralCoastConnectionString))
 // Local MSSQL
 
 //builder.Services.AddDbContext<CubeDataDbContext>(options => options.UseSqlServer(
-//        System.Configuration.ConfigurationManager.ConnectionStrings["CubeDataDbContext"].ConnectionString)
+//        System.Configuration.ConfigurationManager.ConnectionStrings["BigCreekDbContext"].ConnectionString)
 //    .EnableDetailedErrors(true));
 //builder.Services.AddDbContext<DateDbContext>(options => options.UseSqlServer(
-//        System.Configuration.ConfigurationManager.ConnectionStrings["CubeDataDbContext"].ConnectionString)
+//        System.Configuration.ConfigurationManager.ConnectionStrings["BigCreekDbContext"].ConnectionString)
 //    .EnableDetailedErrors(true));
 
 // Default Policy
