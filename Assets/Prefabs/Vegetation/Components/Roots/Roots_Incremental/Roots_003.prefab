@@ -153,7 +153,7 @@ LODGroup:
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 3359778026803158287}
-  - screenRelativeHeight: 0.125
+  - screenRelativeHeight: 0.037203386
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 7564998504609008825}
@@ -323,7 +323,7 @@ BillboardRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4651947881843597093}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
