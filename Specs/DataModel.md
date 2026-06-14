@@ -230,6 +230,19 @@ Fields include:
 
 Unity uses terrain data for precomputed/interpolated splatmaps, including snow and burned/unburned texture states.
 
+For Central Coast v2, preserve this meaning. `TerrainData` should remain the
+precomputed Unity/API-facing large-landscape frame, not a raw RHESSys CSV import
+table. The Central Coast raw stratum carbon file is long-format source data:
+
+```text
+month + year + zoneID + patchID + stratumID -> totalc, total_plantc
+```
+
+It must be transformed after import into precomputed `TerrainData` frames using
+the patch map (`zoneID` footprints), vegetation/carbon values, burn values, and
+scenario metadata. Unity should consume the precomputed `TerrainData` shape
+rather than millions of raw stratum rows.
+
 ### Timeline Water Data
 
 Unity DTO:

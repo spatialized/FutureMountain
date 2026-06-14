@@ -423,22 +423,31 @@ public class SERI_FireManager : MonoBehaviour
     /// </summary>
     void OnApplicationQuit()
     {
-        if (terrain != null)
+        if (terrain != null && terrain.terrainData != null)
         {
+            TerrainData terrainData = terrain.terrainData;
+            int detailPrototypeCount = terrainData.detailPrototypes != null ? terrainData.detailPrototypes.Length : 0;
+
             if (!maxGrassDetails)
             {
-                terrain.terrainData.SetDetailLayer(0, 0, 0, terrainMapOriginal);
-                terrain.terrainData.SetDetailLayer(0, 0, 1, terrainReplaceMapOriginal);
+                if (detailPrototypeCount > 0 && terrainMapOriginal != null)
+                    terrainData.SetDetailLayer(0, 0, 0, terrainMapOriginal);
+
+                if (detailPrototypeCount > 1 && terrainReplaceMapOriginal != null)
+                    terrainData.SetDetailLayer(0, 0, 1, terrainReplaceMapOriginal);
             }
-            else
+            else if (terrainMapsOriginal != null)
             {
-                for (int i = 0; i < terrain.terrainData.detailPrototypes.Length; i++)
+                int restoreCount = Mathf.Min(detailPrototypeCount, terrainMapsOriginal.Count);
+                for (int i = 0; i < restoreCount; i++)
                 {
-                    terrain.terrainData.SetDetailLayer(0, 0, i, terrainMapsOriginal[i]);
+                    if (terrainMapsOriginal[i] != null)
+                        terrainData.SetDetailLayer(0, 0, i, terrainMapsOriginal[i]);
                 }
             }
 
-            terrain.terrainData.SetAlphamaps(0, 0, terrainTextureOriginal);
+            if (terrainTextureOriginal != null)
+                terrainData.SetAlphamaps(0, 0, terrainTextureOriginal);
         }
     }
 
