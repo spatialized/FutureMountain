@@ -24,17 +24,11 @@ string _policyName = "CorsPolicy";
 //string connectionString = "Server=DESKTOP-BGU64QR\\SQLEXPRESS;Initial Catalog=FutureMountain;User ID=REDACTED_USER;password=REDACTED_PASSWORD;";
 
 
-// Local MySQL
-//string connectionString = configuration.GetConnectionString("CubeDataDbContext");
-// Replace with your connection string.
-//string connectionString = "server=localhost;user=REDACTED_USER;password=REDACTED_PASSWORD;database=ef";
-//string connectionString =
-//    "server=localhost; user=REDACTED_USER; password=REDACTED_PASSWORD; port=3306; database=defaultdb;";
-
-string connectionString =
-    "server=localhost; user=REDACTED_USER; password=REDACTED_PASSWORD; database=defaultdb;";
-//string connectionString =
-//    "server=localhost; user=REDACTED_USER; password=REDACTED_PASSWORD; database=defaultdb;";
+string connectionString = builder.Configuration.GetConnectionString("CubeDataDbContext") ?? "";
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("Connection string 'CubeDataDbContext' is not configured.");
+}
 
 // Replace with your server version and type.
 // Use 'MariaDbServerVersion' for MariaDB.

@@ -9,6 +9,8 @@
 *.user
 *.userosscache
 *.sln.docstates
+FutureMountainAPI/FutureMountainAPI/appsettings.Development.json
+FutureMountainAPI/FutureMountainAPI/appsettings.Local.json
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
