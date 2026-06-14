@@ -5,8 +5,17 @@
 # and embedded RHESSys Data Importer.
 #
 # Usage:
-#   ./Scripts/generate_code_archive.sh
-#   ./Scripts/generate_code_archive.sh --dry-run
+#   macOS/Linux/Git Bash:
+#     ./Scripts/generate_code_archive.sh
+#     ./Scripts/generate_code_archive.sh --dry-run
+#
+#   Windows cmd.exe:
+#     Scripts\generate_code_archive.cmd
+#     Scripts\generate_code_archive.cmd --dry-run
+#
+#   Windows PowerShell:
+#     .\Scripts\generate_code_archive.cmd
+#     .\Scripts\generate_code_archive.cmd --dry-run
 #
 # Run from the project root.
 # Output:
