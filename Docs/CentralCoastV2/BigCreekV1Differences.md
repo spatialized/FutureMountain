@@ -173,7 +173,8 @@ Central Coast v2 should add:
 - separate connection/database settings
 - new CSV readers
 - raw/staging tables that preserve Central Coast identifiers
-- optional derived compatibility tables or API projections later
+- prototype API projections that adapt Central Coast rows to the current Unity
+  runtime contract
 
 Recommended first-phase Central Coast tables live in the separate
 `centralcoast_rhessys` database, so they are not prefixed. They use the same
@@ -192,10 +193,36 @@ The important structural separation remains: daily per-cube data, daily basin
 aggregate water data, monthly burn, monthly full-landscape stratum carbon, and
 patch-map-derived spatial footprints stay distinct.
 
-Central Coast v2 does not define a phase-1 `TerrainData` table. Big Creek
-`TerrainData` is a derived monthly runtime payload for large-landscape
-splatmap/texture state. Central Coast landscape runtime data
-should be designed later from the imported source tables and assets.
+Central Coast now includes a derived `TerrainData` table generated from the
+imported source tables and patch-map spatial footprints. Big Creek `TerrainData`
+remains a derived monthly runtime payload for large-landscape splatmap/texture
+state. Central Coast terrain runtime data should continue to be kept separate
+from Big Creek data and served through scenario-explicit API routes.
+
+## API Prototype Compatibility
+
+The Future Mountain API preserves the legacy Big Creek routes:
+
+```text
+/api/CubeData/...
+```
+
+Central Coast prototype routes are added beside them:
+
+```text
+/api/centralcoast/CubeData/...
+```
+
+The Central Coast database schema intentionally preserves Central Coast source
+identifiers and row shapes. The prototype API uses DTO/projection mapping to
+return the current Unity-friendly runtime shape where needed. For example,
+`zoneID` maps to legacy-style `patchIdx`, overstory and understory `netpsn`
+values are summed for legacy `netpsn`, and `litterc`/`soilc` map to `litter`
+and `soil`.
+
+Future Central Coast v2 production endpoints can expose richer native fields,
+but the prototype routes should stay stable enough for the duplicated Central
+Coast Unity scene to call them without changing Big Creek.
 
 ## Compatibility Rule
 

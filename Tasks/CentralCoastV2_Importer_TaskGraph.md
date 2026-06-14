@@ -673,23 +673,27 @@ Implementation:
 
 ### CCV2-20 API/Unity Follow-On Planning
 
-Status: Pending
+Status: In Progress
 
 Plan the post-ingestion API and Unity work after `TerrainData` is generated
 and validated.
 
 Topics:
 
-- Central Coast API endpoints or provider.
-- Big Creek adapter vs Central Coast adapter.
-- Runtime DTO normalization.
+- Central Coast API endpoints or provider. Prototype routes now exist under
+  `/api/centralcoast/...`.
+- Big Creek adapter vs Central Coast adapter. Legacy Big Creek routes remain
+  `/api/...`; future `/api/bigcreek/...` aliases may be added later.
+- Runtime DTO normalization. Prototype DTO/projection mapping currently adapts
+  Central Coast `CubeData` and `PatchData` rows to the legacy Unity JSON shape.
 - Single-scenario fallback behavior if only `warmingIdx = 0` is available.
 - Future multi-warming comparison behavior.
 
 Acceptance:
 
 - Follow-on plan preserves Big Creek v1 behavior.
-- API/Unity work is not started until `TerrainData` generation is validated.
+- API prototype routes preserve Big Creek v1 behavior.
+- Unity scene duplication and endpoint selection remain outstanding.
 
 ## First Implementation Milestone
 
