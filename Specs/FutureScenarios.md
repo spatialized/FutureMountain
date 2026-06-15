@@ -29,15 +29,6 @@ A future-ready scenario should define:
 - Runtime variable mappings from data fields to visual systems.
 - Feature flags, such as fire enabled, vegetation layers, background snow, and terrain data source.
 
-## Data Importer Decision
-
-There is a separate data importer repo. Before Central Coast work begins, decide whether to:
-
-- Keep the importer separate, with explicit versioning, setup instructions, and schema/API contract docs.
-- Move or mirror it into this repo as a utility project, making this repository the single handoff package.
-
-Recommendation for review: if the new developer/designer must frequently change both Unity and import/schema code, colocating the importer in this repo may reduce confusion. If the importer is shared across projects or maintained by a separate data owner, keeping it separate may be cleaner, but the Unity repo should still include a setup guide and pinned importer version.
-
 ## Schema/API Changes
 
 For each new Central Coast data column:
