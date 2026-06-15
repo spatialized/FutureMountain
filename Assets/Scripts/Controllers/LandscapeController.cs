@@ -420,9 +420,17 @@ public class LandscapeController : MonoBehaviour
         //simulationData = new TerrainSimulationData[5];
         List<TerrainDataFrame> tDataList = new List<TerrainDataFrame>(); // Terrain data frames for curr. warming idx
 
-        TimelineTerrainData timelineTerrainData = JsonConvert.DeserializeObject<TimelineTerrainData>("{\"months\":" + jsonString + "}");
+        TimelineTerrainData timelineTerrainData = null;
+        try
+        {
+            timelineTerrainData = JsonConvert.DeserializeObject<TimelineTerrainData>("{\"months\":" + jsonString + "}");
+        }
+        catch (Exception ex)
+        {
+            Debug.Log("FinishUpdateTerrainDataFromWeb ERROR... deserialize failed: " + ex.Message);
+        }
 
-        if (timelineTerrainData != null)
+        if (timelineTerrainData != null && timelineTerrainData.months != null)
         {
             TerrainDataFrameJSONRecord[] jDataArr = timelineTerrainData.months;
 
@@ -433,14 +441,13 @@ public class LandscapeController : MonoBehaviour
                 tDataList.Add(frame);
             }
 
-            LoadSplatMapsFromTerrainDataList(tDataList, warmingIdx);
+            landscapeDataLoadedFromWebAPI = LoadSplatMapsFromTerrainDataList(tDataList, warmingIdx);
         }
         else
         {
-            Debug.Log(("FinishUpdateFireDataFromWeb ERROR... deserialize failed"));
+            Debug.Log(("FinishUpdateTerrainDataFromWeb ERROR... deserialize failed"));
+            landscapeDataLoadedFromWebAPI = false;
         }
-
-        landscapeDataLoadedFromWebAPI = true;
     }
 
     // Unused
@@ -537,7 +544,13 @@ public class LandscapeController : MonoBehaviour
             int startYear = 1942;
             int monthIdx = curMonth + (curYear - startYear) * 12 - 10;
 
-            if (currentSplatmaps != null && monthIdx < currentSplatmaps.Count)
+            if (currentSplatmaps == null || currentSplatmaps.Count == 0)
+            {
+                Debug.Log("UpdateTerrain()... Terrain splatmaps are not loaded yet.");
+                return;
+            }
+
+            if (monthIdx >= 0 && monthIdx < currentSplatmaps.Count)
             {
                 int pixelGrainSize = 4;
                 float[,,] interpolated = new float[0, 0, 0];
@@ -554,10 +567,7 @@ public class LandscapeController : MonoBehaviour
             }
             else
             {
-                if(currentSplatmaps != null)
-                    Debug.Log("ERROR: currentSplatmaps.Count >= monthIdx... currentSplatmaps.Count: " + currentSplatmaps.Count + " monthIdx: " + monthIdx);
-                else
-                    Debug.Log("ERROR: currentSplatmaps is null");
+                Debug.Log("ERROR: monthIdx out of range for currentSplatmaps... currentSplatmaps.Count: " + currentSplatmaps.Count + " monthIdx: " + monthIdx);
             }
         }
         else
@@ -829,6 +839,7 @@ public class LandscapeController : MonoBehaviour
     {
         int i = warmIdx;
         warmingIdx = warmIdx;
+        landscapeDataLoadedFromWebAPI = false;
 
         if (loadFireDataFromFile)
         {
@@ -1987,11 +1998,17 @@ public class LandscapeController : MonoBehaviour
         return splatmap;
     }
 
-    public void LoadSplatMapsFromTerrainDataList(List<TerrainDataFrame> tdList, int warmIdx)
+    public bool LoadSplatMapsFromTerrainDataList(List<TerrainDataFrame> tdList, int warmIdx)
     {
         currentSplatmaps = new List<float[,,]>();
 
         Debug.Log(name + ".LoadSplatMapsFromTerrainDataList()... warmIdx:" + warmIdx);
+
+        if (tdList == null || tdList.Count == 0)
+        {
+            Debug.Log("LoadSplatMapsFromTerrainDataList()... ERROR: no terrain data frames to load.");
+            return false;
+        }
 
         int startTime = DateTime.Now.Millisecond;
         int ct = 0;
@@ -2029,7 +2046,8 @@ public class LandscapeController : MonoBehaviour
         }
 
         int elapsed = (int)((DateTime.Now.Millisecond - startTime) * 0.001f);
-        Debug.Log(name + ".LoadSplatMapsFromTerrainDataList()... Finished loading in:" + elapsed + "sec.");
+        Debug.Log(name + ".LoadSplatMapsFromTerrainDataList()... Finished loading " + currentSplatmaps.Count + " splatmaps in:" + elapsed + "sec.");
+        return currentSplatmaps.Count > 0;
     }
 
     private float[,,] ImportSplatData(string inputStr, int pixelGrainSize, int decimalPrecision)

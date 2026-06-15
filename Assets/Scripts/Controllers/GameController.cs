@@ -1567,7 +1567,7 @@ public class GameController : MonoBehaviour
     private bool ShouldFinishStarting()
     {
         if(landscapeController.IsBackgroundSnowOn() && dataDates != null && dataDates.Count > 0)
-            return !finishingStarting;
+            return !finishingStarting && landscapeController.IsLandscapeDataLoaded();
         else
             return !finishingStarting && landscapeController.IsLandscapeDataLoaded();
     }
