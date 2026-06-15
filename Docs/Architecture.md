@@ -98,22 +98,4 @@ These assumptions should be reviewed before adding the Central Coast scenario.
 
 The project includes several Unity asset/plugin areas, including Standard Assets, Dynamic Fog, PostProcessing, Dynamic Snow System, River Auto Material, Terrain Stitch, NatCorder, Horizon[ON], NatureManufacture/Dynamic Nature assets, and utility/editor packages. These are not all necessarily active in the final scene, but they are part of the repository and should be handled carefully during refactors.
 
-## Refactor Priorities For Handoff
-
-### Completed (June 2026)
-
-- Extracted all data model classes previously embedded in `LandscapeController.cs` into dedicated files under `Assets/Scripts/Models/`. `LandscapeController.cs` no longer defines any model types.
-- Consolidated the `MapValue` range-mapping utility (previously copy-pasted into ~10 files) into `Assets/Scripts/Utilities/MathUtils.cs`. All call sites updated.
-- Removed obsolete commented-out code from `LandscapeController.cs` (terrain texture helpers, debug log statements, dead method variants).
-- Cleaned up commented-out code and bogus nested-namespace `using` statements in the RHESSys Data Importer project.
-- Converted `SimulationSettings.BuildForWeb` from an Inspector toggle to a compile-time property (`true` for `WEB_VERSION`/`LOCAL_VERSION`, `false` for Editor). Removes the risk of a mis-set Inspector value breaking web builds.
-- Wired `LandscapeController` debug logging (`DebugGame`, `DebugFire`, `DebugDetailed`) to `SimulationSettings` instead of hardcoded local fields. Debug output is now controlled from the Inspector.
-
-### Remaining
-
-- Introduce a scenario configuration layer used by runtime code, not only by importer/config files.
-- Replace duplicated warming-level switch statements with a shared data structure.
-- Consolidate data contracts so importer, database/API, and Unity DTOs cannot drift silently.
-- Separate Big Creek content and labels from reusable visualization code.
-- Decide whether the data importer should live in this repo as a utility project or remain a separate repo with clear versioning and setup docs.
 
