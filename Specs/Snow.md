@@ -45,7 +45,7 @@ Cube snow also interacts with precipitation-to-groundwater visual effects:
 Scripting symbols affect background snow:
 
 - `LOCAL_VERSION`: `backgroundSnowOn = true`.
-- `WEB_VERSION`: `backgroundSnowOn = false`.
+- `WEB_VERSION`: `backgroundSnowOn = true`.
 - Default: `backgroundSnowOn = false`.
 
 When background snow is on, landscape simulation can load terrain data through `terraindata/{warmingIdx}` and build monthly/current splatmaps. `FinishUpdateTerrainDataFromWeb()` converts API terrain data into `TerrainDataFrame` objects and then into splatmaps.
@@ -69,7 +69,7 @@ Snow and fire share terrain texture blending. Burned terrain can still show snow
 
 ## Current Constraints
 
-- Landscape web snow behavior is split by `backgroundSnowOn`, and WebGL currently sets it false.
+- Landscape web snow behavior is split by `backgroundSnowOn`, and WebGL currently enables the terrain-data snow path.
 - Some background snow update code is commented out.
 - A hard-coded landscape start year of `1942` appears in the web/background snow month-index calculation.
 - Snow texture layer meaning is implicit in code comments and terrain setup.
