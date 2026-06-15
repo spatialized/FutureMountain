@@ -1,4 +1,4 @@
-# Future Scenario Spec Notes
+# Future Scenario Notes
 
 Last updated: 2026-06-12
 

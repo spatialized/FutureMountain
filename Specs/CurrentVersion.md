@@ -1,4 +1,4 @@
-# Current Version Spec
+# Current Version
 
 Last updated: 2026-06-12
 

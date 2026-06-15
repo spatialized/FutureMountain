@@ -1,4 +1,4 @@
-# Normal Mode Spec
+# Normal Mode
 
 Last updated: 2026-06-12
 

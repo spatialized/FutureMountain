@@ -1,4 +1,4 @@
-# Fire Spec
+# Fire
 
 Last updated: 2026-06-12
 

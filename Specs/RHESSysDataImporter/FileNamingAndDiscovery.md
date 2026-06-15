@@ -1,4 +1,4 @@
-# RHESSys Data Importer File Naming And Discovery Spec
+# RHESSys Data Importer File Naming And Discovery
 
 Last updated: 2026-06-13
 

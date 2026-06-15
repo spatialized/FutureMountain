@@ -1,4 +1,4 @@
-# Roots Spec
+# Roots
 
 Last updated: 2026-06-12
 

@@ -1,4 +1,4 @@
-# Timeline Spec
+# Timeline
 
 Last updated: 2026-06-12
 
