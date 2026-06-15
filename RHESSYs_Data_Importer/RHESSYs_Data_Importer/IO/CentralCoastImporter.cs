@@ -796,6 +796,7 @@ namespace RHESSYs_Data_Importer.IO
             const int ChunkSize = 10_000;
             var chunk = new List<StratumDataRow>(ChunkSize);
             int imported = 0;
+            int saved = 0;
             string line;
             while ((line = reader.ReadLine()) != null)
             {
@@ -859,17 +860,26 @@ namespace RHESSYs_Data_Importer.IO
                     chunk.Add(row);
                     if (chunk.Count >= ChunkSize)
                     {
-                        dal.AddStratumDataRows(chunk);
+                        saved += dal.AddStratumDataRows(chunk);
                         chunk.Clear();
-                        Console.WriteLine($"[StratumData] {imported:N0} rows written...");
+                        Console.WriteLine($"[StratumData] {imported:N0} rows read, {saved:N0} saved...");
                     }
                 }
             }
 
             if (!dryrun && chunk.Count > 0)
-                dal.AddStratumDataRows(chunk);
+                saved += dal.AddStratumDataRows(chunk);
 
-            Console.WriteLine($"[StratumData] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
+            if (dryrun)
+            {
+                Console.WriteLine($"[StratumData] Would import {imported:N0} rows from {Path.GetFileName(path)}.");
+            }
+            else
+            {
+                Console.WriteLine($"[StratumData] Imported {saved:N0} of {imported:N0} source rows from {Path.GetFileName(path)}.");
+                if (saved != imported)
+                    Console.WriteLine($"[ERROR] StratumData import incomplete: {imported - saved:N0} rows were NOT saved. Re-run the import before generating terrain.");
+            }
         }
 
         /// <summary>
