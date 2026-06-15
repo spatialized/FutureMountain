@@ -109,12 +109,12 @@ public class WaterToGWController : MonoBehaviour
             }
             else
             {
-                main.startSpeed = MathUtils.MapValue(timeStep, 1f, 30f, 2f, 15f);
-                main.startLifetime = 2.2f - MathUtils.MapValue(timeStep, 1f, 30f, 0.2f, 2f);
-                emission.rateOverTime = MathUtils.MapValue(snowValue, 0f, 1f, 1f, maxEmissionRate);
-                spsMain.startSpeed = MathUtils.MapValue(timeStep, 1f, 30f, 2f, 15f);
-                spsMain.startLifetime = 2.2f - MathUtils.MapValue(timeStep, 1f, 30f, 0.2f, 2f);
-                trails.lifetime = 0.525f - MathUtils.MapValue(timeStep, 1f, 30f, 0.025f, 0.5f);
+                main.startSpeed = MathUtil.MapValue(timeStep, 1f, 30f, 2f, 15f);
+                main.startLifetime = 2.2f - MathUtil.MapValue(timeStep, 1f, 30f, 0.2f, 2f);
+                emission.rateOverTime = MathUtil.MapValue(snowValue, 0f, 1f, 1f, maxEmissionRate);
+                spsMain.startSpeed = MathUtil.MapValue(timeStep, 1f, 30f, 2f, 15f);
+                spsMain.startLifetime = 2.2f - MathUtil.MapValue(timeStep, 1f, 30f, 0.2f, 2f);
+                trails.lifetime = 0.525f - MathUtil.MapValue(timeStep, 1f, 30f, 0.025f, 0.5f);
             }
         }
         else
@@ -139,12 +139,12 @@ public class WaterToGWController : MonoBehaviour
             }
             else
             {
-                main.startSpeed = MathUtils.MapValue(timeStep, 1f, 30f, 2f, 15f);
-                main.startLifetime = 2.2f - MathUtils.MapValue(timeStep, 1f, 30f, 0.2f, 2f);
-                emission.rateOverTime = MathUtils.MapValue(snowValue, 0f, 1f, 2f, maxEmissionRate);
-                spsMain.startSpeed = MathUtils.MapValue(timeStep, 1f, 30f, 2f, 15f);
-                spsMain.startLifetime = 2.2f - MathUtils.MapValue(timeStep, 1f, 30f, 0.2f, 2f);
-                trails.lifetime = 0.525f - MathUtils.MapValue(timeStep, 1f, 30f, 0.025f, 0.5f);
+                main.startSpeed = MathUtil.MapValue(timeStep, 1f, 30f, 2f, 15f);
+                main.startLifetime = 2.2f - MathUtil.MapValue(timeStep, 1f, 30f, 0.2f, 2f);
+                emission.rateOverTime = MathUtil.MapValue(snowValue, 0f, 1f, 2f, maxEmissionRate);
+                spsMain.startSpeed = MathUtil.MapValue(timeStep, 1f, 30f, 2f, 15f);
+                spsMain.startLifetime = 2.2f - MathUtil.MapValue(timeStep, 1f, 30f, 0.2f, 2f);
+                trails.lifetime = 0.525f - MathUtil.MapValue(timeStep, 1f, 30f, 0.025f, 0.5f);
             }
         }
     }

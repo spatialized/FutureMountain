@@ -507,7 +507,7 @@ public class LandscapeController : MonoBehaviour
         }
         else if (recentFire)                // Transition back to unburnt splatmap
         {
-            regrowthAmount = Mathf.Clamp(MathUtils.MapValue(currentTimeIdx - fireRegrowthStartTimeIdx, 0, fireRegrowthLength, 0f, 1f), 0f, 1f);
+            regrowthAmount = Mathf.Clamp(MathUtil.MapValue(currentTimeIdx - fireRegrowthStartTimeIdx, 0, fireRegrowthLength, 0f, 1f), 0f, 1f);
 
             if (settings != null && settings.DebugFire)
                 Debug.Log(name + ".UpdateTerrain()... recentFire: true...  regrowthAmount:" + regrowthAmount + " currentTimeIdx:" + currentTimeIdx + " fireRegrowthStartTimeIdx: " + fireRegrowthStartTimeIdx + " fireRegrowthLength: " + fireRegrowthLength);
@@ -581,15 +581,15 @@ public class LandscapeController : MonoBehaviour
     private void UpdateRiver(int curYear, int curMonth, int curDay, int timeStep)
     {
         riverObject.transform.localPosition = new Vector3(riverObject.transform.localPosition.x,
-                                                           Mathf.Clamp(MathUtils.MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverMinHeight, riverFullHeight), riverMinHeight, riverFullHeight),
+                                                           Mathf.Clamp(MathUtil.MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverMinHeight, riverFullHeight), riverMinHeight, riverFullHeight),
                                                            riverObject.transform.localPosition.z);
 
         riverFaceObject.transform.localPosition = new Vector3(riverFaceObject.transform.localPosition.x,
-                                                               Mathf.Clamp(MathUtils.MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverFaceMinHeight, riverFaceFullHeight), riverFaceMinHeight, riverFaceFullHeight),
+                                                               Mathf.Clamp(MathUtil.MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverFaceMinHeight, riverFaceFullHeight), riverFaceMinHeight, riverFaceFullHeight),
                                                                riverObject.transform.localPosition.z);
 
         riverFaceObject.transform.localScale = new Vector3(riverFaceObject.transform.localScale.x,
-                                                            Mathf.Clamp(MathUtils.MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverFaceMinScale, riverFaceFullScale), riverFaceMinScale, riverFaceFullScale),
+                                                            Mathf.Clamp(MathUtil.MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverFaceMinScale, riverFaceFullScale), riverFaceMinScale, riverFaceFullScale),
                                                             riverObject.transform.localScale.z);
     }
     #endregion
@@ -1008,8 +1008,8 @@ public class LandscapeController : MonoBehaviour
         //int cols = fireGridCols;
         int rows = fireGridRows - 1;             // Keep within grid array bounds
         int cols = fireGridCols - 1;
-        int xLoc = cols - (int)Mathf.Clamp(MathUtils.MapValue(location.x, 0, patchDataCols, 0, cols), 0, cols);
-        int yLoc = (int)Mathf.Clamp(MathUtils.MapValue(location.y, 0, patchDataRows, 0, rows), 0, rows);
+        int xLoc = cols - (int)Mathf.Clamp(MathUtil.MapValue(location.x, 0, patchDataCols, 0, cols), 0, cols);
+        int yLoc = (int)Mathf.Clamp(MathUtil.MapValue(location.y, 0, patchDataRows, 0, rows), 0, rows);
 
         Vector2 gridLoc = new Vector2(xLoc, yLoc);
         return gridLoc;
@@ -2601,7 +2601,7 @@ public class LandscapeController : MonoBehaviour
         int month = firstMonth.GetMonth();
         averageSnowAmount = 0f;                       // Reset avg. snow amount
 
-        float pos = MathUtils.MapValue(day, 1, GetDaysInMonth(month, year) + 1, 0f, 1f);     // Find position between current month and next month
+        float pos = MathUtil.MapValue(day, 1, GetDaysInMonth(month, year) + 1, 0f, 1f);     // Find position between current month and next month
 
         int count = 0;                                // Patch counter
         int frameCt = 0;                              // Frame count
@@ -2619,8 +2619,8 @@ public class LandscapeController : MonoBehaviour
             var patchCollection = patchExtents[patchID];
             PatchDataFrame nextFrame = nextFrames[frameCt];
 
-            float snowValue = Mathf.Clamp(MathUtils.MapValue(frame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
-            float nextSnowValue = Mathf.Clamp(MathUtils.MapValue(nextFrame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
+            float snowValue = Mathf.Clamp(MathUtil.MapValue(frame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
+            float nextSnowValue = Mathf.Clamp(MathUtil.MapValue(nextFrame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
             float snowWeight = Mathf.Lerp(snowValue, nextSnowValue, pos);              // Find interpolated snow value
 
             snowValue *= snowWeightFactor;
@@ -2634,7 +2634,7 @@ public class LandscapeController : MonoBehaviour
             }
             else
             {
-                snowWeight = Mathf.Clamp(MathUtils.MapValue(snowValue, 0f, snowWeightMax, 0f, 1f), 0f, 1f);
+                snowWeight = Mathf.Clamp(MathUtil.MapValue(snowValue, 0f, snowWeightMax, 0f, 1f), 0f, 1f);
 
                 if (snowWeight > 0.0001f)                           // Some snow
                 {
@@ -2791,7 +2791,7 @@ public class LandscapeController : MonoBehaviour
         //float[,,] lastSplatmap = t.terrainData.GetAlphamaps(0, 0, t.terrainData.alphamapWidth, t.terrainData.alphamapHeight);
         float[,,] splatmapData = new float[t.terrainData.alphamapWidth, t.terrainData.alphamapHeight, t.terrainData.alphamapLayers];
 
-        float pos = MathUtils.MapValue(day, 1, DateTime.DaysInMonth(year, month) + 1, 0f, 1f);     // Find position between current month and next month
+        float pos = MathUtil.MapValue(day, 1, DateTime.DaysInMonth(year, month) + 1, 0f, 1f);     // Find position between current month and next month
 
         for (int x = 0; x < t.terrainData.alphamapWidth; x++)
         {
@@ -2882,7 +2882,7 @@ public class LandscapeController : MonoBehaviour
         //    //float[,,] lastSplatmap = t.terrainData.GetAlphamaps(0, 0, t.terrainData.alphamapWidth, t.terrainData.alphamapHeight);
         //    float[,,] splatmapData = new float[t.terrainData.alphamapWidth, t.terrainData.alphamapHeight, t.terrainData.alphamapLayers];
 
-        //    float pos = MathUtils.MapValue(day, 1, DateTime.DaysInMonth(year, month) + 1, 0f, 1f);     // Find position between current month and next month
+        //    float pos = MathUtil.MapValue(day, 1, DateTime.DaysInMonth(year, month) + 1, 0f, 1f);     // Find position between current month and next month
 
         //    for (int x = 0; x < t.terrainData.alphamapWidth; x++)
         //    {
@@ -2925,8 +2925,8 @@ public class LandscapeController : MonoBehaviour
         //    var patchCollection = patchExtents[patchID];
         //    PatchDataFrame nextFrame = nextFrames[frameCt];
 
-        //    float snowValue = Mathf.Clamp(MathUtils.MapValue(frame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
-        //    float nextSnowValue = Mathf.Clamp(MathUtils.MapValue(nextFrame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
+        //    float snowValue = Mathf.Clamp(MathUtil.MapValue(frame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
+        //    float nextSnowValue = Mathf.Clamp(MathUtil.MapValue(nextFrame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
         //    float snowWeight = Mathf.Lerp(snowValue, nextSnowValue, pos);              // Find interpolated snow value
 
         //    snowValue *= snowWeightFactor;
@@ -2940,7 +2940,7 @@ public class LandscapeController : MonoBehaviour
         //    }
         //    else
         //    {
-        //        snowWeight = Mathf.Clamp(MathUtils.MapValue(snowValue, 0f, snowWeightMax, 0f, 1f), 0f, 1f);
+        //        snowWeight = Mathf.Clamp(MathUtil.MapValue(snowValue, 0f, snowWeightMax, 0f, 1f), 0f, 1f);
 
         //        if (snowWeight > 0.0001f)                           // Some snow
         //        {
@@ -3189,8 +3189,8 @@ public class LandscapeController : MonoBehaviour
     /// <param name="dataPosition">Data position.</param>
     public Vector2 MapDataToUTMPosition(Vector2 dataPosition)
     {
-        float xPos = MathUtils.MapValue(dataPosition.x, 0, patchDataCols, westEdge, eastEdge);
-        float yPos = MathUtils.MapValue(dataPosition.y, 0, patchDataRows, southEdge, northEdge);
+        float xPos = MathUtil.MapValue(dataPosition.x, 0, patchDataCols, westEdge, eastEdge);
+        float yPos = MathUtil.MapValue(dataPosition.y, 0, patchDataRows, southEdge, northEdge);
 
         Vector2 result = new Vector2(xPos, yPos);
 
@@ -3207,8 +3207,8 @@ public class LandscapeController : MonoBehaviour
     /// <returns></returns>
     Vector2 GetAlphamapPositionForPatchLocation(Vector2 point)
     {
-        int adjX = (int)MathUtils.MapValue(point.x, 0, patchDataCols, 0, terrain.terrainData.alphamapWidth - 1);
-        int adjY = (int)MathUtils.MapValue(point.y, 0, patchDataRows, 0, terrain.terrainData.alphamapHeight - 1);
+        int adjX = (int)MathUtil.MapValue(point.x, 0, patchDataCols, 0, terrain.terrainData.alphamapWidth - 1);
+        int adjY = (int)MathUtil.MapValue(point.y, 0, patchDataRows, 0, terrain.terrainData.alphamapHeight - 1);
 
         int terrainXLoc = (int)Mathf.Clamp(terrain.terrainData.alphamapWidth - 1 - adjX, 0, terrain.terrainData.alphamapWidth - 1);
         int terrainYLoc = (int)Mathf.Clamp(adjY, 0, terrain.terrainData.alphamapHeight);
@@ -3236,10 +3236,10 @@ public class LandscapeController : MonoBehaviour
         }
 
         /* Find terrain height at location */
-        float normX = MathUtils.MapValue(utm.x, westEdge, eastEdge, 0f, 1f);
-        float normZ = MathUtils.MapValue(utm.y, southEdge, northEdge, 0f, 1f);
-        float terrainX = terrain.terrainData.size.x - MathUtils.MapValue(utm.x, westEdge, eastEdge, 0f, terrain.terrainData.size.x);
-        float terrainZ = MathUtils.MapValue(utm.y, southEdge, northEdge, 0f, terrain.terrainData.size.z);
+        float normX = MathUtil.MapValue(utm.x, westEdge, eastEdge, 0f, 1f);
+        float normZ = MathUtil.MapValue(utm.y, southEdge, northEdge, 0f, 1f);
+        float terrainX = terrain.terrainData.size.x - MathUtil.MapValue(utm.x, westEdge, eastEdge, 0f, terrain.terrainData.size.x);
+        float terrainZ = MathUtil.MapValue(utm.y, southEdge, northEdge, 0f, terrain.terrainData.size.z);
 
         float terrainY = terrain.terrainData.GetInterpolatedHeight(normX, normZ);
 
@@ -3322,7 +3322,7 @@ public class LandscapeController : MonoBehaviour
     ///// </summary>
     //private void UpdateBackgroundSnow()
     //{
-    //    float value = Mathf.Clamp(MathUtils.MapValue(averageSnowAmount * backgroundSnowFactor, 0f, AvgSnowAmountMax, 0f, 1f), 0f, 1f);
+    //    float value = Mathf.Clamp(MathUtil.MapValue(averageSnowAmount * backgroundSnowFactor, 0f, AvgSnowAmountMax, 0f, 1f), 0f, 1f);
     //    if (float.IsNaN(value))
     //    {
     //        Debug.Log(name + ".UpdateBackgroundSnow()... Value is NaN   avgSnowAmount:" + averageSnowAmount + " backgroundSnowFactor:" + backgroundSnowFactor + " AvgSnowAmountMin:" + AvgSnowAmountMin + " AvgSnowAmountMax:" + AvgSnowAmountMax);
@@ -3333,7 +3333,7 @@ public class LandscapeController : MonoBehaviour
 
     //    Debug.Log(name + ".UpdateBackgroundSnow()... avgSnowAmount:" + averageSnowAmount + " backgroundSnowFactor:" + backgroundSnowFactor + " AvgSnowAmountMin:" + AvgSnowAmountMin + " AvgSnowAmountMax:" + AvgSnowAmountMax);
 
-    //    //snowManager.snowValue = Mathf.Clamp(MathUtils.MapValue(avgSnowAmount * backgroundSnowFactor, AvgSnowAmountMin, AvgSnowAmountMax, 0f, 1f), 0f, 1f);  // -- TESTING
+    //    //snowManager.snowValue = Mathf.Clamp(MathUtil.MapValue(avgSnowAmount * backgroundSnowFactor, AvgSnowAmountMin, AvgSnowAmountMax, 0f, 1f), 0f, 1f);  // -- TESTING
     //}
 
     #endregion

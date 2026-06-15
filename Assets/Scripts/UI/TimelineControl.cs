@@ -456,7 +456,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
             pt.localScale = scale;                                      // Set width to default and height to 0
             float prevHeight = pt.localScale.y;
-            float scaleDelta = MathUtils.MapValue(precip, 0f, maxPrecip, 0f, heightScale);
+            float scaleDelta = MathUtil.MapValue(precip, 0f, maxPrecip, 0f, heightScale);
             pt.localScale += new Vector3(0f, scaleDelta, 0f);
 
             pt.name = "Point_" + i;
@@ -565,7 +565,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
             pt.localScale = scale;                                      // Set width to default and height to 0
             float prevHeight = pt.localScale.y;
-            float scaleDelta = MathUtils.MapValue(precip, 0f, maxPrecip, 0f, heightScale);
+            float scaleDelta = MathUtil.MapValue(precip, 0f, maxPrecip, 0f, heightScale);
             pt.localScale += new Vector3(0f, scaleDelta, 0f);
 
             pt.name = "Point_" + i;
@@ -722,7 +722,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
             pt.localScale = scale;                                      // Set width to default and height to 0
             float prevHeight = pt.localScale.y;                                         
-            float scaleDelta = MathUtils.MapValue(precip, 0f, maxPrecip, 0f, heightScale);
+            float scaleDelta = MathUtil.MapValue(precip, 0f, maxPrecip, 0f, heightScale);
             pt.localScale += new Vector3(0f, scaleDelta, 0f);
 
             pt.name = "Point_" + i;

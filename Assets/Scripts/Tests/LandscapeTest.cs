@@ -133,7 +133,7 @@ public class LandscapeTest : MonoBehaviour
 //        {
 //            for (int y = 0; y < t.terrainData.alphamapHeight; y++)
 //            {
-//                //float pos = MathUtils.MapValue(x, 0, t.terrainData.alphamapWidth, 0f, 1f);     // Unused
+//                //float pos = MathUtil.MapValue(x, 0, t.terrainData.alphamapWidth, 0f, 1f);     // Unused
 
 
 //                if (snowWeight > 0.0001f)                                   // Some snow
@@ -253,7 +253,7 @@ public class LandscapeTest : MonoBehaviour
 //    /// <param name="to1">To1.</param>
 //    /// <param name="from2">From2.</param>
 //    /// <param name="to2">To2.</param>
-//    public static float MathUtils.MapValue(float value, float from1, float to1, float from2, float to2)
+//    public static float MathUtil.MapValue(float value, float from1, float to1, float from2, float to2)
 //    {
 //        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
 //    }

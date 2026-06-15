@@ -159,7 +159,7 @@ public class WarmingKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler,
         if (result < 0f)
             result = result * -1f;
         else if (result > 0f)
-            result = MathUtils.MapValue(180f - result, 0f, 180f, 180f, 360f);
+            result = MathUtil.MapValue(180f - result, 0f, 180f, 180f, 360f);
 
         return result;
     }

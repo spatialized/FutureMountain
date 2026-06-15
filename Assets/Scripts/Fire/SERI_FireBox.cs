@@ -1,4 +1,4 @@
-﻿/* -- UNUSED
+/* -- UNUSED
  *
  * Copyright (c) 2016-2017 Lewis Ward
 // Fire Propagation System

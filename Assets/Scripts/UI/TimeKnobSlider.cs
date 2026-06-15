@@ -66,7 +66,7 @@ public class TimeKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         if (result < 0f)
             result = result * -1f;
         else if (result > 0f)
-            result = MathUtils.MapValue(180f - result, 0f, 180f, 180f, 360f);
+            result = MathUtil.MapValue(180f - result, 0f, 180f, 180f, 360f);
 
         return result;
     }
@@ -84,7 +84,7 @@ public class TimeKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         timeScale = ConstrainValueRange(angle_Z) / 360f;
 
         this.foreground.fillAmount = this.timeScale;
-        timeScale = Mathf.Clamp(MathUtils.MapValue(timeScale, zeroPos, maxPos, minValue, maxValue), minValue, maxValue);
+        timeScale = Mathf.Clamp(MathUtil.MapValue(timeScale, zeroPos, maxPos, minValue, maxValue), minValue, maxValue);
 
         angle_Z *= -1f;
 
@@ -102,7 +102,7 @@ public class TimeKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     {
         timeScale = (float)newTimeStep;
         //Debug.Log("SetValue()... timeScale:" + timeScale);
-        float newAngle = MathUtils.MapValue(timeScale, minValue, maxValue, zeroPos, maxPos);
+        float newAngle = MathUtil.MapValue(timeScale, minValue, maxValue, zeroPos, maxPos);
         //Debug.Log("SetValue()... newAngle:" + newAngle);
         SetAngle(newAngle * 360f);
 
@@ -149,7 +149,7 @@ public class TimeKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         timeScale = ConstrainValueRange(timeScale);
 
         this.foreground.fillAmount = timeScale;
-        timeScale = MathUtils.MapValue(timeScale, zeroPos, maxPos, 1f, maxValue);
+        timeScale = MathUtil.MapValue(timeScale, zeroPos, maxPos, 1f, maxValue);
 
         angle_Z *= -1f;
 
@@ -220,7 +220,7 @@ public class TimeKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
             timeScaleIdx = 1;
         else
         {
-            timeScaleIdx = (int)Mathf.Clamp(MathUtils.MapValue(timeScale, 0f, 1f, 0f, maxValue), 0f, 1f);
+            timeScaleIdx = (int)Mathf.Clamp(MathUtil.MapValue(timeScale, 0f, 1f, 0f, maxValue), 0f, 1f);
         }
 
         Debug.Log(" >>> GetTimeScaleIdx()... timeScaleIdx:" + timeScaleIdx);

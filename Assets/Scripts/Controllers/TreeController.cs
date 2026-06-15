@@ -222,7 +222,7 @@ public abstract class TreeController : MonoBehaviour
         /* Near-Full-Height Growth */
         if (hDiff < 0.2f)
         {
-            float gFactor = MathUtils.MapValue(hDiff, 0f, 0.2f, 0f, 1f);
+            float gFactor = MathUtil.MapValue(hDiff, 0f, 0.2f, 0f, 1f);
             heightGrowthAmount = gFactor * settings.TreeGrowthSpeedFactor * timeStep;      // Slow height growth over time
         }
 
@@ -232,7 +232,7 @@ public abstract class TreeController : MonoBehaviour
         /* Near-Full-Width Growth */
         if (wDiff < 0.2f)
         {
-            float wFactor = MathUtils.MapValue(wDiff, 0f, 0.2f, 0f, 1f);
+            float wFactor = MathUtil.MapValue(wDiff, 0f, 0.2f, 0f, 1f);
             widthGrowthAmount = wFactor * settings.TreeGrowthSpeedFactor * timeStep;     // Increase width growth over time
         }
 
@@ -258,7 +258,7 @@ public abstract class TreeController : MonoBehaviour
         /* Near-Full-Height Growth */
         if (hDiff < 0.2f)
         {
-            float gFactor = MathUtils.MapValue(hDiff, 0f, 0.2f, 0f, 1f);
+            float gFactor = MathUtil.MapValue(hDiff, 0f, 0.2f, 0f, 1f);
             heightGrowthAmount = gFactor * settings.RootsSpreadSpeedFactor * timeStep;      // Slow height growth over time
         }
 
@@ -268,7 +268,7 @@ public abstract class TreeController : MonoBehaviour
         /* Near-Full-Width Growth */
         if (wDiff < 0.2f)
         {
-            float wFactor = MathUtils.MapValue(wDiff, 0f, 0.2f, 0f, 1f);
+            float wFactor = MathUtil.MapValue(wDiff, 0f, 0.2f, 0f, 1f);
             widthGrowthAmount = wFactor * settings.RootsSpreadSpeedFactor * timeStep;     // Increase width growth over time
         }
 

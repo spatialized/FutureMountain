@@ -1,7 +1,7 @@
 /// <summary>
 /// Shared math utilities used across controllers and UI.
 /// </summary>
-public static class MathUtils
+public static class MathUtil
 {
     /// <summary>
     /// Maps a value from one range to another.
