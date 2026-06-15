@@ -240,11 +240,27 @@ namespace RHESSYs_Data_Importer.DAL
         }
 
         /// <summary>
-        /// Inserts a batch of <see cref="StratumDataRow"/> rows in a single
-        /// <c>SaveChanges</c> call.
+        /// Inserts a batch of <see cref="StratumDataRow"/> rows.
+        ///
+        /// A plain <c>AddRange</c> + single <c>SaveChanges</c> is all-or-nothing:
+        /// a single offending row (or a transient/deadlock error not caught by
+        /// the retry strategy) discards the entire batch. To avoid silently
+        /// losing thousands of good rows, a failed batch is recursively split in
+        /// half and retried, down to individual rows. Good rows are saved; any
+        /// row that still fails on its own is logged with full inner-exception
+        /// detail and its key column values, then skipped.
         /// </summary>
         public int AddStratumDataRows(IEnumerable<StratumDataRow> rows)
         {
+            var list = rows as IList<StratumDataRow> ?? rows.ToList();
+            return SaveStratumChunkResilient(list);
+        }
+
+        private int SaveStratumChunkResilient(IList<StratumDataRow> rows)
+        {
+            if (rows.Count == 0)
+                return 0;
+
             try
             {
                 using var db = new CentralCoastDbContext(_connectionString);
@@ -253,9 +269,39 @@ namespace RHESSYs_Data_Importer.DAL
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] AddStratumDataRows failed: {ex.Message}");
-                return 0;
+                // A single row that still fails is the genuine offender: log the
+                // full cause (inner exception chain) plus its values, then drop it.
+                if (rows.Count == 1)
+                {
+                    var r = rows[0];
+                    Console.WriteLine(
+                        $"[ERROR] StratumData row dropped (stratumID={r.stratumID}, " +
+                        $"year={r.year}, month={r.month}, totalc={r.totalc}, " +
+                        $"total_plantc={r.total_plantc}): {DescribeException(ex)}");
+                    return 0;
+                }
+
+                // Otherwise split and retry so the good rows in this batch are
+                // still saved and the failure is isolated to as few rows as possible.
+                int mid = rows.Count / 2;
+                var left = new List<StratumDataRow>(rows.Take(mid));
+                var right = new List<StratumDataRow>(rows.Skip(mid));
+                return SaveStratumChunkResilient(left) + SaveStratumChunkResilient(right);
             }
+        }
+
+        /// <summary>
+        /// Flattens an exception and its <see cref="Exception.InnerException"/>
+        /// chain into a single readable string so the real database error
+        /// (normally hidden behind EF's generic "An error occurred while saving
+        /// the entity changes" message) is surfaced in the log.
+        /// </summary>
+        private static string DescribeException(Exception ex)
+        {
+            var parts = new List<string>();
+            for (Exception? e = ex; e != null; e = e.InnerException)
+                parts.Add($"{e.GetType().Name}: {e.Message}");
+            return string.Join(" -> ", parts);
         }
 
         /// <summary>
