@@ -88,6 +88,7 @@ public class FirController : TreeController
         //gameObject.SetActive(false);
         dying = false;
         alive = false;
+        initialized = true;
     }
 
     /// <summary>
@@ -148,7 +149,11 @@ public class FirController : TreeController
 
     public void UpdateETSimulationSpeed(float newSpeed)
     {
-        mainModule.simulationSpeed = newSpeed;
+        if (!initialized || destroyed || etParticles == null)
+            return;
+
+        ParticleSystem.MainModule main = etParticles.main;
+        main.simulationSpeed = newSpeed;
     }
 
     /// <summary>
