@@ -1,4 +1,4 @@
-﻿//using System.Collections;
+//using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -66,7 +66,7 @@ public class TimeKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         if (result < 0f)
             result = result * -1f;
         else if (result > 0f)
-            result = MapValue(180f - result, 0f, 180f, 180f, 360f);
+            result = MathUtils.MapValue(180f - result, 0f, 180f, 180f, 360f);
 
         return result;
     }
@@ -84,7 +84,7 @@ public class TimeKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         timeScale = ConstrainValueRange(angle_Z) / 360f;
 
         this.foreground.fillAmount = this.timeScale;
-        timeScale = Mathf.Clamp(MapValue(timeScale, zeroPos, maxPos, minValue, maxValue), minValue, maxValue);
+        timeScale = Mathf.Clamp(MathUtils.MapValue(timeScale, zeroPos, maxPos, minValue, maxValue), minValue, maxValue);
 
         angle_Z *= -1f;
 
@@ -102,7 +102,7 @@ public class TimeKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
     {
         timeScale = (float)newTimeStep;
         //Debug.Log("SetValue()... timeScale:" + timeScale);
-        float newAngle = MapValue(timeScale, minValue, maxValue, zeroPos, maxPos);
+        float newAngle = MathUtils.MapValue(timeScale, minValue, maxValue, zeroPos, maxPos);
         //Debug.Log("SetValue()... newAngle:" + newAngle);
         SetAngle(newAngle * 360f);
 
@@ -149,7 +149,7 @@ public class TimeKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         timeScale = ConstrainValueRange(timeScale);
 
         this.foreground.fillAmount = timeScale;
-        timeScale = MapValue(timeScale, zeroPos, maxPos, 1f, maxValue);
+        timeScale = MathUtils.MapValue(timeScale, zeroPos, maxPos, 1f, maxValue);
 
         angle_Z *= -1f;
 
@@ -220,7 +220,7 @@ public class TimeKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
             timeScaleIdx = 1;
         else
         {
-            timeScaleIdx = (int)Mathf.Clamp(MapValue(timeScale, 0f, 1f, 0f, maxValue), 0f, 1f);
+            timeScaleIdx = (int)Mathf.Clamp(MathUtils.MapValue(timeScale, 0f, 1f, 0f, maxValue), 0f, 1f);
         }
 
         Debug.Log(" >>> GetTimeScaleIdx()... timeScaleIdx:" + timeScaleIdx);
@@ -228,17 +228,4 @@ public class TimeKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler, IE
         return timeScaleIdx;
     }
 
-    /// <summary>
-    /// Maps value from one range to another.
-    /// </summary>
-    /// <returns>The value.</returns>
-    /// <param name="value">Value.</param>
-    /// <param name="from1">From1.</param>
-    /// <param name="to1">To1.</param>
-    /// <param name="from2">From2.</param>
-    /// <param name="to2">To2.</param>
-    public static float MapValue(float value, float from1, float to1, float from2, float to2)
-    {
-        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-    }
 }

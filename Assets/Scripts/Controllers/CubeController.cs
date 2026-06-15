@@ -429,7 +429,7 @@ public class CubeController : MonoBehaviour
             UpdateCurrentData(timeIdx);
 
         soilController.UpdateParams(timeStep, WaterAccess, DepthToGW);      // Initial update of soil parameters
-        snowManager.snowValue = Mathf.Clamp(MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, 0f, snowScalingFactor), 0f, snowScalingFactor);
+        snowManager.snowValue = Mathf.Clamp(MathUtils.MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, 0f, snowScalingFactor), 0f, snowScalingFactor);
 
         if(!settings.BuildForWeb)
             GrowInitialVegetation();
@@ -1250,7 +1250,7 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void UpdateAnimation()
     {
-        float pos = MapValue(Time.time, animationStartTime, animationEndTime, 0f, 1f);
+        float pos = MathUtils.MapValue(Time.time, animationStartTime, animationEndTime, 0f, 1f);
 
         if (pos >= 1f)
         {
@@ -1270,12 +1270,12 @@ public class CubeController : MonoBehaviour
 
             if (pos < 0.5f)
             {
-                float pos1 = MapValue(pos, 0f, 0.5f, 0f, 1f);
+                float pos1 = MathUtils.MapValue(pos, 0f, 0.5f, 0f, 1f);
                 animated.transform.localScale = Vector3.Lerp(startScale, halfTargetScale, pos1);
             }
             else
             {
-                float pos2 = MapValue(pos, 0.5f, 1f, 0f, 1f);
+                float pos2 = MathUtils.MapValue(pos, 0.5f, 1f, 0f, 1f);
                 animated.transform.localScale = Vector3.Lerp(halfTargetScale, targetScale, pos2);
             }
             //animated.transform.localScale = Vector3.Lerp(startScale, targetScale, pos);
@@ -1418,7 +1418,7 @@ public class CubeController : MonoBehaviour
             /* Add snow from current data */
             if (timeStep == 1)
             {
-                snowValue = Mathf.Clamp(snowValue + MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, snowValueMin, snowValueMax), snowValueMin, snowValueMax);
+                snowValue = Mathf.Clamp(snowValue + MathUtils.MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, snowValueMin, snowValueMax), snowValueMin, snowValueMax);
             }
             else
             {
@@ -1434,7 +1434,7 @@ public class CubeController : MonoBehaviour
                     }
 
                     float amount = ReadData((int)DataColumnIdx.Snow, idx);
-                    float val = Mathf.Clamp(MapValue(amount, SnowAmountMin, SnowAmountMax, snowValueMin, snowValueMax), snowValueMin, snowValueMax);
+                    float val = Mathf.Clamp(MathUtils.MapValue(amount, SnowAmountMin, SnowAmountMax, snowValueMin, snowValueMax), snowValueMin, snowValueMax);
                     combinedSnow += val;
 
                     //if (transform.name.Contains("CubeB"))
@@ -1568,9 +1568,9 @@ public class CubeController : MonoBehaviour
         if (!simulationOn)
             return;
 
-        float streamPos = Mathf.Clamp(MapValue(Mathf.Log(StreamHeight) * 20f, StreamHeightMin, StreamHeightMax, 0f, 1f), 0f, 1f);  // -- TESTING
-        float streamSplineHeight = Mathf.Clamp(MapValue(streamPos, 0f, 1f, streamZeroHeight, streamFullHeight), streamZeroHeight, streamFullHeight);
-        float streamFaceScale = Mathf.Clamp(MapValue(streamPos, 0f, 1f, streamFaceZeroScale, streamFaceFullScale), streamFaceZeroScale, streamFaceFullScale);
+        float streamPos = Mathf.Clamp(MathUtils.MapValue(Mathf.Log(StreamHeight) * 20f, StreamHeightMin, StreamHeightMax, 0f, 1f), 0f, 1f);  // -- TESTING
+        float streamSplineHeight = Mathf.Clamp(MathUtils.MapValue(streamPos, 0f, 1f, streamZeroHeight, streamFullHeight), streamZeroHeight, streamFullHeight);
+        float streamFaceScale = Mathf.Clamp(MathUtils.MapValue(streamPos, 0f, 1f, streamFaceZeroScale, streamFaceFullScale), streamFaceZeroScale, streamFaceFullScale);
 
         streamObject.transform.localPosition = new Vector3(streamObject.transform.localPosition.x,
                                                             streamSplineHeight,
@@ -3389,7 +3389,7 @@ public class CubeController : MonoBehaviour
         // Splatmap data is stored internally as a 3d array of floats, so declare a new empty array ready for your custom splatmap data:
         float[,,] splatmapData = new float[terrainData.alphamapWidth, terrainData.alphamapHeight, terrainData.alphamapLayers];
 
-        float pos = MapValue(timeIdx - fireRegrowthStartTimeIdx, 0, fireRegrowthLength, 0f, 1f);
+        float pos = MathUtils.MapValue(timeIdx - fireRegrowthStartTimeIdx, 0, fireRegrowthLength, 0f, 1f);
 
         if (pos >= 1f)                   // Check if burn finished
         {
@@ -3534,19 +3534,6 @@ public class CubeController : MonoBehaviour
         return rand;
     }
 
-    /// <summary>
-    /// Maps value from one range to another.
-    /// </summary>
-    /// <returns>The value.</returns>
-    /// <param name="value">Value.</param>
-    /// <param name="from1">From1.</param>
-    /// <param name="to1">To1.</param>
-    /// <param name="from2">From2.</param>
-    /// <param name="to2">To2.</param>
-    public static float MapValue(float value, float from1, float to1, float from2, float to2)
-    {
-        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-    }
 
     /// <summary>
     /// Text asset to list.
@@ -4845,11 +4832,11 @@ public class CubeController : MonoBehaviour
         //float rootsCarbonMin = (dataType == CubeDataType.Veg1) ? RootsCarbonMin : RootsCarbonOverMin;
         //float rootsCarbonMax = (dataType == CubeDataType.Veg1) ? RootsCarbonMax : RootsCarbonOverMax;
 
-        netTransSlider.value = MapValue(netTrans, netTransMin, netTransMax, netTransSlider.minValue, netTransSlider.maxValue);
-        plantCarbonSlider.value = MapValue(stemCarbon + leafCarbon, stemCarbonMin + leafCarbonMin, stemCarbonMax + leafCarbonMax, plantCarbonSlider.minValue, plantCarbonSlider.maxValue);
-        //snowAmountSlider.value = MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, snowAmountSlider.minValue, snowAmountSlider.maxValue);
-        //psnSlider.value = MapValue(NetPhotosynthesis, NetPhotosynthesisMin, NetPhotosynthesisMax, psnSlider.minValue, psnSlider.maxValue);
-        //waterAccessSlider.value = MapValue(WaterAccess, soilController.WaterAccessMin, soilController.WaterAccessMax, waterAccessSlider.minValue, waterAccessSlider.maxValue);
+        netTransSlider.value = MathUtils.MapValue(netTrans, netTransMin, netTransMax, netTransSlider.minValue, netTransSlider.maxValue);
+        plantCarbonSlider.value = MathUtils.MapValue(stemCarbon + leafCarbon, stemCarbonMin + leafCarbonMin, stemCarbonMax + leafCarbonMax, plantCarbonSlider.minValue, plantCarbonSlider.maxValue);
+        //snowAmountSlider.value = MathUtils.MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, snowAmountSlider.minValue, snowAmountSlider.maxValue);
+        //psnSlider.value = MathUtils.MapValue(NetPhotosynthesis, NetPhotosynthesisMin, NetPhotosynthesisMax, psnSlider.minValue, psnSlider.maxValue);
+        //waterAccessSlider.value = MathUtils.MapValue(WaterAccess, soilController.WaterAccessMin, soilController.WaterAccessMax, waterAccessSlider.minValue, waterAccessSlider.maxValue);
 
         //Debug.Log(name + ".UpdateModelDisplay() dataType:"+ dataType+" netTrans:" + netTrans + " netTransMin:" + netTransMin + " netTransMax:" + netTransMax + " DataColumnIdx.TransOver:" + ReadData((int)DataColumnIdx.TransOver, timeIdx));
         //Debug.Log(name + ".UpdateModelDisplay() netTrans:" + netTrans + " plantCarbon:" + (stemCarbon + leafCarbon) + " plantCarbonMin:" + (leafCarbonMin+ stemCarbonMin)
@@ -4861,13 +4848,13 @@ public class CubeController : MonoBehaviour
         //float netPhotosynthesisInViz = GetNetPsnAmountVisualized();
         //float waterAccessInViz = GetWaterAccessVisualized();
 
-        netTransSliderDebug.value = MapValue(netTransInViz, netTransMin, netTransMax, netTransSlider.minValue, netTransSlider.maxValue);
-        plantCarbonSliderDebug.value = MapValue(plantCarbonInViz, stemCarbonMin + leafCarbonMin, stemCarbonMax + leafCarbonMax, plantCarbonSlider.minValue, plantCarbonSlider.maxValue);
+        netTransSliderDebug.value = MathUtils.MapValue(netTransInViz, netTransMin, netTransMax, netTransSlider.minValue, netTransSlider.maxValue);
+        plantCarbonSliderDebug.value = MathUtils.MapValue(plantCarbonInViz, stemCarbonMin + leafCarbonMin, stemCarbonMax + leafCarbonMax, plantCarbonSlider.minValue, plantCarbonSlider.maxValue);
 
-        //snowAmountSliderDebug.value = MapValue(snowAmountInViz, SnowAmountMin, SnowAmountMax, snowAmountSlider.minValue, snowAmountSlider.maxValue);
-        //psnSliderDebug.value = MapValue(netPhotosynthesisInViz, NetPhotosynthesisMin, NetPhotosynthesisMax, psnSlider.minValue, psnSlider.maxValue);
-        //waterAccessSliderDebug.value = MapValue(waterAccessInViz, soilController.WaterAccessMin, soilController.WaterAccessMax, waterAccessSlider.minValue, waterAccessSlider.maxValue);
-        //dtgSlider.value = MapValue(DepthToGW, soilController.DepthToGWMin, soilController.DepthToGWMax, psnSlider.minValue, psnSlider.maxValue);
+        //snowAmountSliderDebug.value = MathUtils.MapValue(snowAmountInViz, SnowAmountMin, SnowAmountMax, snowAmountSlider.minValue, snowAmountSlider.maxValue);
+        //psnSliderDebug.value = MathUtils.MapValue(netPhotosynthesisInViz, NetPhotosynthesisMin, NetPhotosynthesisMax, psnSlider.minValue, psnSlider.maxValue);
+        //waterAccessSliderDebug.value = MathUtils.MapValue(waterAccessInViz, soilController.WaterAccessMin, soilController.WaterAccessMax, waterAccessSlider.minValue, waterAccessSlider.maxValue);
+        //dtgSlider.value = MathUtils.MapValue(DepthToGW, soilController.DepthToGWMin, soilController.DepthToGWMax, psnSlider.minValue, psnSlider.maxValue);
     }
     #endregion
 

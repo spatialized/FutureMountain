@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Assertions;
 using UnityEngine;
@@ -118,7 +118,7 @@ public class FirController : TreeController
             transpiration = newTranspiration;                   // -- Randomize between trees?
 
             //if (leafCarbon < maxLeafCarbon)                   // -- Unused
-            //    alphaCutoff = 1f - MapValue(leafCarbon, 0f, maxLeafCarbon, 0f, 0.6f);
+            //    alphaCutoff = 1f - MathUtils.MapValue(leafCarbon, 0f, maxLeafCarbon, 0f, 0.6f);
             //else
             //    alphaCutoff = 0.1f;
 

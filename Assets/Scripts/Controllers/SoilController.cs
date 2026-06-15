@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -179,7 +179,7 @@ public class SoilController : MonoBehaviour {
 		if (waterAccess < WaterAccessMax)
         {
 			if(waterAccess > WaterAccessMin)
-				shallowSoilShininess = MapValue (waterAccess, WaterAccessMin, WaterAccessMax, minShallowSoilShininess, maxShallowSoilShininess);
+				shallowSoilShininess = MathUtils.MapValue(waterAccess, WaterAccessMin, WaterAccessMax, minShallowSoilShininess, maxShallowSoilShininess);
 			else 
 				shallowSoilShininess = minShallowSoilShininess;
 		} 
@@ -191,7 +191,7 @@ public class SoilController : MonoBehaviour {
 		if (depthToGW < DepthToGWMax) 
         {
 			if(depthToGW > DepthToGWMin)
-				deepSoilShininess = MapValue (waterAccess, DepthToGWMin, DepthToGWMax, minDeepSoilShininess, maxDeepSoilShininess);
+				deepSoilShininess = MathUtils.MapValue(waterAccess, DepthToGWMin, DepthToGWMax, minDeepSoilShininess, maxDeepSoilShininess);
 			else 
 				deepSoilShininess = minDeepSoilShininess;
 		}
@@ -227,8 +227,8 @@ public class SoilController : MonoBehaviour {
         foreach (Material m in gwMaterials)
         {
             float yPos = gwHeights[count];
-            float gwPos = Mathf.Clamp(MapValue(depthToGW, DepthToGWMin, DepthToGWMax, 0f, 0.75f), 0f, 0.75f);      // Normalize groundwater depth level, leaving room for permannt groundwatr
-            float objPos = 1f - Mathf.Clamp(MapValue(yPos, deepSoilBottomYPos, deepSoilTopYPos, 0f, 1f), 0f, 1f);      // Find normalized object y pos
+            float gwPos = Mathf.Clamp(MathUtils.MapValue(depthToGW, DepthToGWMin, DepthToGWMax, 0f, 0.75f), 0f, 0.75f);      // Normalize groundwater depth level, leaving room for permannt groundwatr
+            float objPos = 1f - Mathf.Clamp(MathUtils.MapValue(yPos, deepSoilBottomYPos, deepSoilTopYPos, 0f, 1f), 0f, 1f);      // Find normalized object y pos
             float diff = gwPos - objPos;        // Calculate difference
             //float diff = objPos - gwPos;        // Calculate difference
 
@@ -244,7 +244,7 @@ public class SoilController : MonoBehaviour {
             }
             else                                // If negative, fade object to wet as value decreases
             {
-                float pos = Mathf.Clamp(MapValue(diff, -0.2f, 0f, 0f, 1f), 0f, 1f);
+                float pos = Mathf.Clamp(MathUtils.MapValue(diff, -0.2f, 0f, 0f, 1f), 0f, 1f);
                 m.color = Color.Lerp(gwWetColor, gwDryColor, pos);
                 float metallicAmount = pos;
                 m.SetFloat("_Metallic", metallicAmount);
@@ -335,16 +335,4 @@ public class SoilController : MonoBehaviour {
         depthToGWDryThreshold = (DepthToGWMax - DepthToGWMin) * depthToGWThresholdFactor + DepthToGWMin;             // Level under which groundwater pockets "dry up" in visualization  
     }
 
-    /// <summary>
-    /// Maps value from one range to another.
-    /// </summary>
-    /// <returns>The value.</returns>
-    /// <param name="value">Value.</param>
-    /// <param name="from1">From1.</param>
-    /// <param name="to1">To1.</param>
-    /// <param name="from2">From2.</param>
-    /// <param name="to2">To2.</param>
-	public static float MapValue (float value, float from1, float to1, float from2, float to2) {
-		return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-	}
 }

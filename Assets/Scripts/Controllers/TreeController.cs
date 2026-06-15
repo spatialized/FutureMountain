@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -99,11 +99,6 @@ public abstract class TreeController : MonoBehaviour
     public bool showParticles;
     public bool particlesEnabled;
 
-    /* Map value to new range */
-    public static float MapValue(float value, float from1, float to1, float from2, float to2)
-    {
-        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-    }
 
     /// <summary>
     /// Sets the vegetation minimum max ranges.
@@ -227,7 +222,7 @@ public abstract class TreeController : MonoBehaviour
         /* Near-Full-Height Growth */
         if (hDiff < 0.2f)
         {
-            float gFactor = MapValue(hDiff, 0f, 0.2f, 0f, 1f);
+            float gFactor = MathUtils.MapValue(hDiff, 0f, 0.2f, 0f, 1f);
             heightGrowthAmount = gFactor * settings.TreeGrowthSpeedFactor * timeStep;      // Slow height growth over time
         }
 
@@ -237,7 +232,7 @@ public abstract class TreeController : MonoBehaviour
         /* Near-Full-Width Growth */
         if (wDiff < 0.2f)
         {
-            float wFactor = MapValue(wDiff, 0f, 0.2f, 0f, 1f);
+            float wFactor = MathUtils.MapValue(wDiff, 0f, 0.2f, 0f, 1f);
             widthGrowthAmount = wFactor * settings.TreeGrowthSpeedFactor * timeStep;     // Increase width growth over time
         }
 
@@ -263,7 +258,7 @@ public abstract class TreeController : MonoBehaviour
         /* Near-Full-Height Growth */
         if (hDiff < 0.2f)
         {
-            float gFactor = MapValue(hDiff, 0f, 0.2f, 0f, 1f);
+            float gFactor = MathUtils.MapValue(hDiff, 0f, 0.2f, 0f, 1f);
             heightGrowthAmount = gFactor * settings.RootsSpreadSpeedFactor * timeStep;      // Slow height growth over time
         }
 
@@ -273,7 +268,7 @@ public abstract class TreeController : MonoBehaviour
         /* Near-Full-Width Growth */
         if (wDiff < 0.2f)
         {
-            float wFactor = MapValue(wDiff, 0f, 0.2f, 0f, 1f);
+            float wFactor = MathUtils.MapValue(wDiff, 0f, 0.2f, 0f, 1f);
             widthGrowthAmount = wFactor * settings.RootsSpreadSpeedFactor * timeStep;     // Increase width growth over time
         }
 
