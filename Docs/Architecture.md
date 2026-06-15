@@ -45,7 +45,7 @@ The project targets WebGL and standalone/editor workflows. Build symbols in `Pro
   - `MathUtils.cs` — shared `MapValue(value, from1, to1, from2, to2)` used across controllers and UI. Previously duplicated in ~10 files.
   - `GameUtilities.cs`, `GameObjectPool.cs`, `GameObjectExtensions.cs` — pre-existing general helpers.
 - `Assets/Scripts/Settings`
-  - `SimulationSettings` MonoBehaviour with inspector-tuned parameters.
+  - `SimulationSettings` MonoBehaviour with inspector-tuned parameters. See [SimulationSettings.md](SimulationSettings.md) for full field reference.
 - `Assets/Scripts/Fire`
   - SERI fire grid, cells, nodes, terrain texture integration, visual manager, and ignition helpers.
 
@@ -106,6 +106,8 @@ The project includes several Unity asset/plugin areas, including Standard Assets
 - Consolidated the `MapValue` range-mapping utility (previously copy-pasted into ~10 files) into `Assets/Scripts/Utilities/MathUtils.cs`. All call sites updated.
 - Removed obsolete commented-out code from `LandscapeController.cs` (terrain texture helpers, debug log statements, dead method variants).
 - Cleaned up commented-out code and bogus nested-namespace `using` statements in the RHESSys Data Importer project.
+- Converted `SimulationSettings.BuildForWeb` from an Inspector toggle to a compile-time property (`true` for `WEB_VERSION`/`LOCAL_VERSION`, `false` for Editor). Removes the risk of a mis-set Inspector value breaking web builds.
+- Wired `LandscapeController` debug logging (`DebugGame`, `DebugFire`, `DebugDetailed`) to `SimulationSettings` instead of hardcoded local fields. Debug output is now controlled from the Inspector.
 
 ### Remaining
 

@@ -10,7 +10,11 @@ public class SimulationSettings : MonoBehaviour
     [Header("Data")]
     [Tooltip("Load Cube Data Only (for testing)")]
     public bool CubeDataOnly = false;                   // Only load cube data and use test precip data (true) or run full landscape simulation (false)
-    public bool BuildForWeb = true;                     // Build for web (Note: always true for web or local version
+#if WEB_VERSION || LOCAL_VERSION
+    public bool BuildForWeb => true;
+#else
+    public bool BuildForWeb => false;
+#endif
 
     /* Fire Settings */
     [Header("Fire")]
@@ -120,8 +124,7 @@ public class SimulationSettings : MonoBehaviour
     void Start()
     {
 #if WEB_VERSION
-        if (BuildForWeb)
-            OptimizeForWeb();
+        OptimizeForWeb();
 #endif
     }
 

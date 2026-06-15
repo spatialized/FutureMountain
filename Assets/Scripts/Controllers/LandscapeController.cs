@@ -18,10 +18,7 @@ using Unity.VisualScripting;
 public class LandscapeController : MonoBehaviour
 {
     /* Debugging */
-    [Header("Debugging")]
-    private bool debug = true;
-    private bool debugFire = false;
-    private bool debugDetailed = false;
+    private SimulationSettings settings;
 
     #region Fields
     /* Settings */
@@ -55,7 +52,6 @@ public class LandscapeController : MonoBehaviour
     //private bool loadStreamflowFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
 
     private int immediateFireTimeThreshold;
-    //SimulationSettings settings;
 
     /* States */
     public bool initialized { get; set; } = false;            // Initialized flag
@@ -276,7 +272,7 @@ public class LandscapeController : MonoBehaviour
         {
             if (!StillBurning())
             {
-                if (debugFire)
+                if (settings != null && settings.DebugFire)
                     Debug.Log(name + " Stopped burning...");
 
                 SetToBurnt();
@@ -312,7 +308,7 @@ public class LandscapeController : MonoBehaviour
     /// <param name="timeStep">Time step.</param>
     private void UpdateData(int curTimeIdx, int curFrameYear, int curFrameMonth, int curFrameDay, int timeStep)
     {
-        if (debug && debugDetailed)
+        if (settings != null && settings.DebugDetailed)
             Debug.Log(transform.parent.name + " LandscapeController.UpdateCurrentData()... curFrameYear:" + curFrameYear + " curFrameMonth:" + curFrameMonth + " startYear:" + simulationStartYear);
 
         if (curFrameYear != lastFrameYear || curFrameMonth != lastFrameMonth || curFrameDay != lastFrameDay)        // Update data if moved to new day
@@ -513,7 +509,7 @@ public class LandscapeController : MonoBehaviour
         {
             regrowthAmount = Mathf.Clamp(MathUtils.MapValue(currentTimeIdx - fireRegrowthStartTimeIdx, 0, fireRegrowthLength, 0f, 1f), 0f, 1f);
 
-            if (debugFire)
+            if (settings != null && settings.DebugFire)
                 Debug.Log(name + ".UpdateTerrain()... recentFire: true...  regrowthAmount:" + regrowthAmount + " currentTimeIdx:" + currentTimeIdx + " fireRegrowthStartTimeIdx: " + fireRegrowthStartTimeIdx + " fireRegrowthLength: " + fireRegrowthLength);
 
             if (Mathf.Abs(regrowthAmount - 1f) < 0.0001f)           // Check if finished
@@ -521,7 +517,7 @@ public class LandscapeController : MonoBehaviour
                 ResetBurntState();
                 activeBurnCells = new List<SERI_FireCell>();
 
-                if (debugFire)
+                if (settings != null && settings.DebugFire)
                     Debug.Log(name + ".UpdateTerrain()... Finished post-fire regrowth");
             }
         }
@@ -605,6 +601,7 @@ public class LandscapeController : MonoBehaviour
     /// </summary>
     private void Awake()
     {
+        settings = FindObjectOfType<SimulationSettings>();
         initialized = false;             // Initialized flag
         dataFormatted = false;
         setup = false;
@@ -652,7 +649,7 @@ public class LandscapeController : MonoBehaviour
     /// <param name="newImmediateFireTimeThreshold"></param>
     public void StartSimulation(int curTimeIdx, int curYear, int curMonth, int curDay, int timeStep, int newWarmingIdx, int newMinFireFrames, int newImmediateFireTimeThreshold)
     {
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("Landscape.StartSimulation()... curYear:" + curYear + " curMonth:" + curMonth + " curDay:" + curDay + " warmingIdx:" + newWarmingIdx);
 
         warmingIdx = newWarmingIdx;
@@ -674,7 +671,7 @@ public class LandscapeController : MonoBehaviour
     /// </summary>
     public IEnumerator InitializeData()//SimulationSettings newSettings)
     {
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("LandscapeController.Initialize()...");
 
         //settings = newSettings;
@@ -684,7 +681,7 @@ public class LandscapeController : MonoBehaviour
             if (landscapeSimulationWeb && !landscapeSimulationLocal)
             {
                 //LoadDataWeb();                         // Loads snow and fire data frames (Web Version)
-                if (debug)
+                if (settings != null && settings.DebugGame)
                     Debug.Log("InitializeData()... Data from web... ");
 
                 //LoadPatchExtentsData();                                // Load patch extents from Resources
@@ -692,7 +689,7 @@ public class LandscapeController : MonoBehaviour
                 {
                     try
                     {
-                        if (debug)
+                        if (settings != null && settings.DebugGame)
                             Debug.Log("loadPatchDataFromFile... true");
 
                         TextAsset patchExtTextAsset = (TextAsset)Resources.Load("PatchData/PatchData");
@@ -798,7 +795,7 @@ public class LandscapeController : MonoBehaviour
                 dataFormatted = true;
                 //dataInitialized = true;
 
-                //if (debug)
+                //if (settings != null && settings.DebugGame)
                 //    Debug.Log("LoadDataWeb()... Finished");
             }
             else if (landscapeSimulationWeb && landscapeSimulationLocal)
@@ -978,7 +975,7 @@ public class LandscapeController : MonoBehaviour
                 fireLengthInSec = fireFrameCount / frameRate;                               // Calculate fire length in seconds
             }
 
-            if (debugFire)
+            if (settings != null && settings.DebugFire)
                 Debug.Log(name + ".IgniteTerrain()... parent:" + transform.parent.name + " setting terrainBurning to true... timeStep:" + timeStep + " fireLengthInSec:" + fireLengthInSec + " time:" + Time.time);
 
             fireManager.IgniteTerrain(terrain, timeStep, fireLengthInSec, fireIdx);
@@ -1158,7 +1155,7 @@ public class LandscapeController : MonoBehaviour
             //Debug.Log(name + ".CalculatePatchesToBurn().. Found fire at month:" + month + " day:" + day + " year:" + year + " cellLocations.Count:" + burnedPatches.Count+ " points.Count:"+ points.Count + " warmingIdx:" + warmingIdx);
         }
 
-        if (debugFire)
+        if (settings != null && settings.DebugFire)
             Debug.Log(name + ".CalculatePatchesToBurn().. Found burnedPatches.Count:" + patchesToBurn.Count + " warmingIdx:" + warmingIdx);
     }
 
@@ -1214,7 +1211,7 @@ public class LandscapeController : MonoBehaviour
     //        //return false;
     //    }
 
-    //    //if (debugFire)
+    //    //if (settings != null && settings.DebugFire)
     //    //    Debug.Log(name + ".LoadPatchesToBurn().. Found burnedPatches.Count:" + patchesToBurn.Count + " warmingIdx:" + warmingIdx);
     //}
 
@@ -1283,7 +1280,7 @@ public class LandscapeController : MonoBehaviour
 
                     if (fireMonth == fire.GetMonth() && fireYear == fire.GetYear())
                     {
-                        if (debugFire)
+                        if (settings != null && settings.DebugFire)
                             Debug.Log(name + ".SetupFires()... Found day for fire at month:" + fire.GetMonth() + " year:" + fire.GetYear() + " Day = " + fireDay + " warmIdx:" + warmIdx);
                         //firePoints = fire.GetDataList();
                         day = fireDay;
@@ -1317,7 +1314,7 @@ public class LandscapeController : MonoBehaviour
         int columnCount = Enum.GetNames(typeof(WaterDataColumnIdx)).Length;
         waterDataArray = new float[streamflowDataLength, columnCount];
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("LoadStreamflowFile()... length x:" + waterDataArray.GetLength(0) + " y:" + waterDataArray.GetLength(1) + " streamflowDataLength:" + streamflowDataLength + " columnCount:" + columnCount);
 
         string[] tempData = new string[7];                   // Streamflow daily data TXT file has 7 columns
@@ -1347,7 +1344,7 @@ public class LandscapeController : MonoBehaviour
             }
         }
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("LoadStreamflowFile()... Finished");
     }
 
@@ -1365,7 +1362,7 @@ public class LandscapeController : MonoBehaviour
     /// </summary>
     private void CalculateWaterRanges()
     {
-        if (debug && debugDetailed)
+        if (settings != null && settings.DebugDetailed)
             Debug.Log("CalculateParameterRanges()... Time:" + Time.time);
 
         RiverLevelMin = 100000f;
@@ -1429,7 +1426,7 @@ public class LandscapeController : MonoBehaviour
     /// </summary>
     private void CalculateWaterRangesOLD()
     {
-        if (debug && debugDetailed)
+        if (settings != null && settings.DebugDetailed)
             Debug.Log("CalculateParameterRanges()... Time:" + Time.time);
 
         RiverLevelMin = 100000f;
@@ -1517,7 +1514,7 @@ public class LandscapeController : MonoBehaviour
                 }
             }
         }
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("SetDataRanges()... plantCarbonMin:" + PlantCarbonMin + "  plantCarbonMax:" + PlantCarbonMax + "  SnowAmountMax:" + SnowAmountMax);
     }
 
@@ -1533,7 +1530,7 @@ public class LandscapeController : MonoBehaviour
         int columnCount = Enum.GetNames(typeof(PatchDataColumnIdx)).Length;
         float[,] extentsData = new float[extentsDataLength, columnCount];
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("LoadDataFile()... newDataFile:" + newDataFile.name + " length x:" + extentsData.GetLength(0) + " y:" + extentsData.GetLength(1) + " extentsDataLength:" + extentsDataLength);
 
         string[] tempData = new string[6];                           // Landscape data CSV file has 6 columns
@@ -1550,7 +1547,7 @@ public class LandscapeController : MonoBehaviour
             }
         }
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log(name + ".LoadDataFile()... Finished");
 
         dataFile = newDataFile;
@@ -1583,12 +1580,12 @@ public class LandscapeController : MonoBehaviour
                 simulationStartDay = (int)dataArray[0, (int)WaterDataColumnIdx.Day];
                 updateDate = true;
 
-                if (debug)
+                if (settings != null && settings.DebugGame)
                     Debug.Log(name + ".FormatStreamflowData()... Setting startYear / startMonth / startDay from streamflow data... setting startYear to:" + simulationStartYear);
             }
         }
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log(name + ".FormatStreamflowData()... Formatting data of length:" + dataLength + " startYear:" + simulationStartYear);
 
         for (int i = 0; i < dataLength - 1; i++)                                    // Store data in 'data' 2D array
@@ -1618,7 +1615,7 @@ public class LandscapeController : MonoBehaviour
                     dataMonths = new List<WaterDataMonth>();
                     dataFrames = new List<WaterDataFrame>();
 
-                    if (debug && debugDetailed)
+                    if (settings != null && settings.DebugDetailed)
                         Debug.Log("> FormatStreamflowData()... Set data for curYear:" + curYear + " month:" + month + " QBase:" + QBase + " precip:" + precip);
                 }
 
@@ -1638,7 +1635,7 @@ public class LandscapeController : MonoBehaviour
                     curMonth = month;
                     dataFrames = new List<WaterDataFrame>();
 
-                    if (debug && debugDetailed)
+                    if (settings != null && settings.DebugDetailed)
                         Debug.Log(">> FormatStreamflowData()... Set data for month:" + month + " year:" + year + " streamflow:" + QBase + " precip:" + precip);
                 }
             }
@@ -1686,7 +1683,7 @@ public class LandscapeController : MonoBehaviour
         simulationStartMonth = (int)dataArray[0, (int)PatchDataColumnIdx.Month];
         simulationStartDay = 1;
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("FormatExtentsData()... Formatting data of length:" + dataLength + " startYear:" + simulationStartYear);
 
         for (int i = 0; i < dataLength - 1; i++)                                    // Store data in 'data' 2D array
@@ -1720,7 +1717,7 @@ public class LandscapeController : MonoBehaviour
                     dataMonths = new List<PatchDataMonth>();
                     dataFrames = new List<PatchDataFrame>();
 
-                    if (debug && debugDetailed)
+                    if (settings != null && settings.DebugDetailed)
                         Debug.Log(name + ".FormatExtentsData()... Set data for curYear:" + curYear + " month:" + month + " patchID:" + patchID + " carbon:" + carbon + " patchData.Count:" + pData.Count);
                 }
 
@@ -1740,7 +1737,7 @@ public class LandscapeController : MonoBehaviour
                     curMonth = month;
                     dataFrames = new List<PatchDataFrame>();
 
-                    if (debug && debugDetailed)
+                    if (settings != null && settings.DebugDetailed)
                         Debug.Log(name + ".FormatExtentsData()... Set data for month:" + month + " year:" + year + " patchID:" + patchID + " carbon:" + carbon);
                 }
             }
@@ -1762,7 +1759,7 @@ public class LandscapeController : MonoBehaviour
         pData.Sort();                                                     // Sort frame lists by year
         patchesData.Add(pData.ToArray());
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log(name + ".FormatExtentsData()... AFTER GC.GetTotalMemory:" + GC.GetTotalMemory(false) + " patchesData[warmingIdx].Length:" + patchesData[warmingIdx].Length);
     }
 
@@ -2267,7 +2264,7 @@ public class LandscapeController : MonoBehaviour
         patchDataRows = int.Parse(rawData[4].Split(':')[1]);
         patchDataCols = int.Parse(rawData[5].Split(':')[1]);
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
         {
             Debug.Log("LandscapeController.LoadPatchesFile()... patchesFile:" + patchesFile.name);
             Debug.Log("UTM Boundary: northEdge:" + northEdge + " southEdge:" + southEdge + " eastEdge:" + eastEdge + " westEdge:" + westEdge);
@@ -2418,7 +2415,7 @@ public class LandscapeController : MonoBehaviour
             }
         }
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("LandscapeController.LoadPatchesFile()... Loaded patchesFile:" + patchesFile.name);
 
         return patchExtents;
