@@ -545,17 +545,20 @@ public class LandscapeController : MonoBehaviour
                 if (monthIdx + 1 >= currentSplatmaps.Count)
                 {
                     interpolated = InterpolateTerrainSplatmaps(currentSplatmaps[monthIdx], null, curDay, curMonth, curYear, pixelGrainSize);
-                    //terrain.terrainData.SetAlphamaps(0, 0, currentSplatmaps[monthIdx]);
                 }
                 else
                 {
                     interpolated = InterpolateTerrainSplatmaps(currentSplatmaps[monthIdx], currentSplatmaps[monthIdx + 1], curDay, curMonth, curYear, pixelGrainSize);
-                    //terrain.terrainData.SetAlphamaps(0, 0, interpolated);
                 }
                 terrain.terrainData.SetAlphamaps(0, 0, interpolated);
             }
             else
-                Debug.Log("ERROR: currentSplatmaps.Count >= monthIdx");
+            {
+                if(currentSplatmaps != null)
+                    Debug.Log("ERROR: currentSplatmaps.Count >= monthIdx... currentSplatmaps.Count: " + currentSplatmaps.Count + " monthIdx: " + monthIdx);
+                else
+                    Debug.Log("ERROR: currentSplatmaps is null");
+            }
         }
         else
         {
@@ -566,8 +569,6 @@ public class LandscapeController : MonoBehaviour
             else
                 Debug.Log("ERROR NO sdf");
         }
-
-        //UpdateBackgroundSnow();
     }
 
     public bool IsBackgroundSnowOn()
@@ -2031,64 +2032,6 @@ public class LandscapeController : MonoBehaviour
         Debug.Log(name + ".LoadSplatMapsFromTerrainDataList()... Finished loading in:" + elapsed + "sec.");
     }
 
-    //public void LoadSplatMapsFromFiles()
-    //{
-    //    TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>("TerrainDataFrame");
-
-    //    terrainSplatmaps = new List<List<float[,,]>>();
-    //    currentSplatmaps = new List<float[,,]>();
-
-    //    int currWarmIdx = 0;
-    //    foreach (var textAsset in splatDataArr)
-    //    {
-    //        // Ex. terrain_warm0_1942_10.json
-    //        string[] parts = textAsset.name.Split('_');
-    //        int warmingIdx = int.Parse(parts[1].Substring(4));
-    //        int year = int.Parse(parts[2]);
-    //        int month = int.Parse(parts[3].Split('.')[0]);
-    //        //float[,,] splatmap = new float[0,0,0];
-
-    //        float[,,] splatmap = new float[terrain.terrainData.alphamapWidth,
-    //            terrain.terrainData.alphamapHeight,
-    //            terrain.terrainData.alphamapLayers];
-
-    //        Debug.Log(" splatmap 0: " + splatmap.GetLength(0)
-    //                                     + " splatmap 1: " + splatmap.GetLength(1)
-    //                                     + " splatmap 2: " + splatmap.GetLength(2));
-
-    //        try
-    //        {
-    //            float[,,] unflattened = ImportSplatData(textAsset.text); // -- TO TEST
-
-    //            Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
-    //                             + " unflattened 1: " + unflattened.GetLength(1)
-    //                             + " unflattened 2: " + unflattened.GetLength(2));
-
-
-    //            Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
-
-    //            splatmap = unflattened;
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            Debug.Log("ExportTerrainData ERROR ex: " + ex.Message);
-    //        }
-
-    //        if (warmIdx > currWarmIdx)
-    //        {
-    //            terrainSplatmaps.Add(currentSplatmaps);
-    //            currentSplatmaps = new List<float[,,]>();
-    //            currWarmIdx = warmIdx;
-    //        }
-
-    //        //float[,,] splatmap = new float[terrain.terrainData.alphamapWidth, 
-    //        //    terrain.terrainData.alphamapHeight, 
-    //        //    terrain.terrainData.alphamapLayers];
-
-    //        currentSplatmaps.Add(splatmap);
-    //    }
-    //}
-
     private float[,,] ImportSplatData(string inputStr, int pixelGrainSize, int decimalPrecision)
     {
         int terrainWidth = terrain.terrainData.alphamapWidth;       // 512
@@ -2097,44 +2040,10 @@ public class LandscapeController : MonoBehaviour
         int[] flatArray = JsonConvert.DeserializeObject<int[]>(inputStr);
 
         return ImportSplatData(flatArray, pixelGrainSize, decimalPrecision, inputWidth, terrainWidth);
-        //int[,,] unflattened = Unflatten1DIntArrayTo3D(flatArray, inputWidth, 4);
-        //float[,,] result = new float[terrainWidth, terrainWidth, 4];
-
-        //for (int x = 0; x < unflattened.GetLength(0); x++)
-        //{
-        //    for (int y = 0; y < unflattened.GetLength(1); y++)
-        //    {
-        //        for (int z = 0; z < unflattened.GetLength(2); z++)
-        //        {
-        //            float val = unflattened[x, y, z] * (float)Math.Pow(10, -decimalPrecision);
-
-        //            //FillInArea(result, x, y, z, pixelGrainSize, val);
-        //            //result[x, y, z] = val;
-
-        //            // Fill in area of pixelGrainSize x pixelGrainSize in result array
-        //            int xStart = x * pixelGrainSize;
-        //            int yStart = y * pixelGrainSize;
-        //            for (int a = 0; a < pixelGrainSize; a++)
-        //            {
-        //                int xCoord = xStart + a;
-        //                for (int b = 0; b < pixelGrainSize; b++)
-        //                {
-        //                    int yCoord = yStart + b;
-        //                    result[xCoord, yCoord, z] = val;
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-
-        //return result;
     }
 
     private float[,,] ImportSplatData(int[] flatArray, int pixelGrainSize, int decimalPrecision, int inputWidth, int terrainWidth)
     {
-        //int terrainWidth = terrain.terrainData.alphamapWidth;       // 512
-        //int inputWidth = terrainWidth / pixelGrainSize;             // 128
-
         int[,,] reducedGrid = Unflatten1DIntArrayTo3D(flatArray, inputWidth, 4);
         float[,,] result = new float[terrainWidth, terrainWidth, 4];
 
