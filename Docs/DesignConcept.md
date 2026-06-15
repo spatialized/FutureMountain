@@ -45,7 +45,5 @@ The visual language emphasizes living systems rather than charts alone. Data dri
 - Performance vs. density: vegetation, particles, terrain textures, and WebGL constraints require careful balancing.
 - Scenario specificity vs. reuse: Big Creek assumptions are still embedded in code, data contracts, scene content, and UI. The Central Coast scenario should separate scenario configuration from reusable visualization behavior where practical.
 
-## Handoff Notes
 
-The next developer/designer should treat this project as a working prototype with a strong visual and interaction foundation, not as a fully generalized scenario engine yet. A useful first refactor target is to make scenario assumptions explicit: available warming levels, data columns, API endpoints, terrain/cube count, dates, labels, and importer/database schema.
 
