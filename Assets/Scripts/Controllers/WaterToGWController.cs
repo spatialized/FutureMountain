@@ -109,12 +109,12 @@ public class WaterToGWController : MonoBehaviour
             }
             else
             {
-                main.startSpeed = MapValue(timeStep, 1f, 30f, 2f, 15f);
-                main.startLifetime = 2.2f - MapValue(timeStep, 1f, 30f, 0.2f, 2f);
-                emission.rateOverTime = MapValue(snowValue, 0f, 1f, 1f, maxEmissionRate);
-                spsMain.startSpeed = MapValue(timeStep, 1f, 30f, 2f, 15f);
-                spsMain.startLifetime = 2.2f - MapValue(timeStep, 1f, 30f, 0.2f, 2f);
-                trails.lifetime = 0.525f - MapValue(timeStep, 1f, 30f, 0.025f, 0.5f);
+                main.startSpeed = MathUtil.MapValue(timeStep, 1f, 30f, 2f, 15f);
+                main.startLifetime = 2.2f - MathUtil.MapValue(timeStep, 1f, 30f, 0.2f, 2f);
+                emission.rateOverTime = MathUtil.MapValue(snowValue, 0f, 1f, 1f, maxEmissionRate);
+                spsMain.startSpeed = MathUtil.MapValue(timeStep, 1f, 30f, 2f, 15f);
+                spsMain.startLifetime = 2.2f - MathUtil.MapValue(timeStep, 1f, 30f, 0.2f, 2f);
+                trails.lifetime = 0.525f - MathUtil.MapValue(timeStep, 1f, 30f, 0.025f, 0.5f);
             }
         }
         else
@@ -139,12 +139,12 @@ public class WaterToGWController : MonoBehaviour
             }
             else
             {
-                main.startSpeed = MapValue(timeStep, 1f, 30f, 2f, 15f);
-                main.startLifetime = 2.2f - MapValue(timeStep, 1f, 30f, 0.2f, 2f);
-                emission.rateOverTime = MapValue(snowValue, 0f, 1f, 2f, maxEmissionRate);
-                spsMain.startSpeed = MapValue(timeStep, 1f, 30f, 2f, 15f);
-                spsMain.startLifetime = 2.2f - MapValue(timeStep, 1f, 30f, 0.2f, 2f);
-                trails.lifetime = 0.525f - MapValue(timeStep, 1f, 30f, 0.025f, 0.5f);
+                main.startSpeed = MathUtil.MapValue(timeStep, 1f, 30f, 2f, 15f);
+                main.startLifetime = 2.2f - MathUtil.MapValue(timeStep, 1f, 30f, 0.2f, 2f);
+                emission.rateOverTime = MathUtil.MapValue(snowValue, 0f, 1f, 2f, maxEmissionRate);
+                spsMain.startSpeed = MathUtil.MapValue(timeStep, 1f, 30f, 2f, 15f);
+                spsMain.startLifetime = 2.2f - MathUtil.MapValue(timeStep, 1f, 30f, 0.2f, 2f);
+                trails.lifetime = 0.525f - MathUtil.MapValue(timeStep, 1f, 30f, 0.025f, 0.5f);
             }
         }
     }
@@ -159,17 +159,4 @@ public class WaterToGWController : MonoBehaviour
         stopping = true;
     }
 
-    /// <summary>
-    /// Maps value from one range to another.
-    /// </summary>
-    /// <returns>The value.</returns>
-    /// <param name="value">Value.</param>
-    /// <param name="from1">From1.</param>
-    /// <param name="to1">To1.</param>
-    /// <param name="from2">From2.</param>
-    /// <param name="to2">To2.</param>
-    public static float MapValue(float value, float from1, float to1, float from2, float to2)
-    {
-        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-    }
 }

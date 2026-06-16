@@ -1,4 +1,4 @@
-﻿/***
+/***
  * Adapted from FireGrassRemover.cs of Fire Propagation System asset by Lewis Ward 
  **/
 

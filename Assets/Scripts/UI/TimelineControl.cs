@@ -456,7 +456,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
             pt.localScale = scale;                                      // Set width to default and height to 0
             float prevHeight = pt.localScale.y;
-            float scaleDelta = MapValue(precip, 0f, maxPrecip, 0f, heightScale);
+            float scaleDelta = MathUtil.MapValue(precip, 0f, maxPrecip, 0f, heightScale);
             pt.localScale += new Vector3(0f, scaleDelta, 0f);
 
             pt.name = "Point_" + i;
@@ -565,7 +565,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
             pt.localScale = scale;                                      // Set width to default and height to 0
             float prevHeight = pt.localScale.y;
-            float scaleDelta = MapValue(precip, 0f, maxPrecip, 0f, heightScale);
+            float scaleDelta = MathUtil.MapValue(precip, 0f, maxPrecip, 0f, heightScale);
             pt.localScale += new Vector3(0f, scaleDelta, 0f);
 
             pt.name = "Point_" + i;
@@ -722,7 +722,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
             pt.localScale = scale;                                      // Set width to default and height to 0
             float prevHeight = pt.localScale.y;                                         
-            float scaleDelta = MapValue(precip, 0f, maxPrecip, 0f, heightScale);
+            float scaleDelta = MathUtil.MapValue(precip, 0f, maxPrecip, 0f, heightScale);
             pt.localScale += new Vector3(0f, scaleDelta, 0f);
 
             pt.name = "Point_" + i;
@@ -909,17 +909,4 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         image.color = color;
     }
 
-    /// <summary>
-    /// Maps value from one range to another.
-    /// </summary>
-    /// <returns>The value.</returns>
-    /// <param name="value">Value.</param>
-    /// <param name="from1">From1.</param>
-    /// <param name="to1">To1.</param>
-    /// <param name="from2">From2.</param>
-    /// <param name="to2">To2.</param>
-    public static float MapValue(float value, float from1, float to1, float from2, float to2)
-    {
-        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-    }
 }

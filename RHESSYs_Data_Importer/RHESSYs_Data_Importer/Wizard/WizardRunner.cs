@@ -49,14 +49,24 @@ namespace RHESSYs_Data_Importer.Wizard
             }
 
             // 2. Confirm database usage
-            Console.WriteLine("Use existing database or create a new one?");
+            Console.WriteLine("Use existing database/schema or open setup guidance?");
             Console.WriteLine("  [1] Use existing");
-            Console.WriteLine("  [2] Create new database");
+            Console.WriteLine("  [2] Show schema setup guidance");
             Console.Write("> ");
             var dbChoice = Console.ReadLine();
             if (dbChoice == "2")
             {
-                Helpers.DatabaseHelper.CreateNewDatabase(config);
+                if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("[CentralCoastV2] Create/select schema 'futuremtn_central_coast' in MySQL Workbench,");
+                    Console.WriteLine("then run Database/Schema/CentralCoastV2_schema.sql against that schema.");
+                    Console.WriteLine("Do not create Central Coast tables in defaultdb.");
+                }
+                else
+                {
+                    Helpers.DatabaseHelper.CreateNewDatabase(config);
+                }
             }
 
             // 3. Detect files
@@ -65,8 +75,13 @@ namespace RHESSYs_Data_Importer.Wizard
                 Console.WriteLine(warn);
 
             Console.WriteLine("\nDetected Files:");
-            foreach (var cat in new[] { "cube", "patch", "terrain", "fire", "water", "climate" })
+            if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+                Console.WriteLine("  dates: derived from cubeAggregateDaily");
+
+            foreach (var cat in new[] { "cube", "patch", "terrain", "fire", "water", "climate", "stratum" })
             {
+                if (cat == "stratum" && config.GetProfileKind() != ScenarioProfileKind.CentralCoastV2)
+                    continue;
                 Console.WriteLine($"  {cat}: {discovery.Count(cat)} file(s)");
             }
 
@@ -94,35 +109,55 @@ namespace RHESSYs_Data_Importer.Wizard
             while (true)
             {
                 Console.WriteLine("\nSelect which data types to import:");
-                Console.WriteLine("  [1] Cube");
-                Console.WriteLine("  [2] Patch");
-                Console.WriteLine("  [3] Terrain");
-                Console.WriteLine("  [4] Fire");
-                Console.WriteLine("  [5] Water");
-                Console.WriteLine("  [6] Climate");
                 if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
-                    Console.WriteLine("  [7] Stratum");
+                {
+                    Console.WriteLine("  [1] Dates");
+                    Console.WriteLine("  [2] Cube");
+                    Console.WriteLine("  [3] Water");
+                    Console.WriteLine("  [4] Fire");
+                    Console.WriteLine("  [5] Patch");
+                    Console.WriteLine("  [6] Stratum");
+                    Console.WriteLine("  [7] Terrain");
+                }
+                else
+                {
+                    Console.WriteLine("  [1] Cube");
+                    Console.WriteLine("  [2] Patch");
+                    Console.WriteLine("  [3] Terrain");
+                    Console.WriteLine("  [4] Fire");
+                    Console.WriteLine("  [5] Water");
+                    Console.WriteLine("  [6] Climate");
+                }
                 Console.WriteLine("  [0] Done selecting");
                 Console.Write("> ");
                 var sel = Console.ReadLine();
                 if (sel == "0") break;
-                switch (sel)
+                if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
                 {
-                    case "1": selected.Add("cube"); break;
-                    case "2": selected.Add("patch"); break;
-                    case "3": selected.Add("terrain"); break;
-                    case "4": selected.Add("fire"); break;
-                    case "5": selected.Add("water"); break;
-                    case "6": selected.Add("climate"); break;
-                    case "7":
-                        if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
-                            selected.Add("stratum");
-                        else
-                            Console.WriteLine("[WARN] Stratum import is only available for CentralCoastV2.");
-                        break;
-                    default:
-                        Console.WriteLine("[WARN] Unknown selection.");
-                        break;
+                    switch (sel)
+                    {
+                        case "1": selected.Add("dates"); break;
+                        case "2": selected.Add("cube"); break;
+                        case "3": selected.Add("water"); break;
+                        case "4": selected.Add("fire"); break;
+                        case "5": selected.Add("patch"); break;
+                        case "6": selected.Add("stratum"); break;
+                        case "7": selected.Add("terrain"); break;
+                        default: Console.WriteLine("[WARN] Unknown selection."); break;
+                    }
+                }
+                else
+                {
+                    switch (sel)
+                    {
+                        case "1": selected.Add("cube"); break;
+                        case "2": selected.Add("patch"); break;
+                        case "3": selected.Add("terrain"); break;
+                        case "4": selected.Add("fire"); break;
+                        case "5": selected.Add("water"); break;
+                        case "6": selected.Add("climate"); break;
+                        default: Console.WriteLine("[WARN] Unknown selection."); break;
+                    }
                 }
             }
 
@@ -159,33 +194,26 @@ namespace RHESSYs_Data_Importer.Wizard
 
         private static void RunSelectedImports(ScenarioConfig config, FileDiscoveryResult discovery, HashSet<string> selected, bool dryrun)
         {
+            if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+            {
+                RunCentralCoastImports(config, discovery, selected, dryrun);
+                return;
+            }
+
             if (selected.Contains("cube"))
             {
-                if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+                var files = discovery.FilesByCategory.ContainsKey("cube") ? discovery.FilesByCategory["cube"] : new List<string>();
+                Console.WriteLine($"[Cube] {files.Count} file(s)");
+                if (!dryrun)
                 {
-                    CentralCoastImporter.ImportCubePatchData(config, dryrun);
-                    CentralCoastImporter.ImportCubeStratumData(config, dryrun);
-                }
-                else
-                {
-                    var files = discovery.FilesByCategory.ContainsKey("cube") ? discovery.FilesByCategory["cube"] : new List<string>();
-                    Console.WriteLine($"[Cube] {files.Count} file(s)");
-                    if (!dryrun)
-                    {
-                        if (files.Count > 0)
-                            TextFileInput.ReadCubeDataFiles(files, config);
-                        else
-                            Console.WriteLine("[WARN] No cube files discovered.");
-                    }
+                    if (files.Count > 0)
+                        TextFileInput.ReadCubeDataFiles(files, config);
+                    else
+                        Console.WriteLine("[WARN] No cube files discovered.");
                 }
             }
 
-            // CCV2: terrain generation depends on PatchData, StratumData, and FireData
-            // already being in the database. Run patch/fire/water/stratum first, terrain last.
-            // Legacy: iterate in natural order.
-            string[] catOrder = config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2
-                ? new[] { "patch", "fire", "water", "climate", "stratum", "terrain" }
-                : new[] { "patch", "terrain", "fire", "water", "climate", "stratum" };
+            string[] catOrder = new[] { "patch", "terrain", "fire", "water", "climate", "stratum" };
 
             foreach (var cat in catOrder)
             {
@@ -193,31 +221,52 @@ namespace RHESSYs_Data_Importer.Wizard
                 var count = discovery.Count(cat);
                 Console.WriteLine($"[{cat}] {count} file(s)");
 
-                if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2 && cat == "patch")
-                {
-                    CentralCoastImporter.ImportPatchMapData(config, dryrun);
-                }
-                else if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2 && cat == "terrain")
-                {
-                    CentralCoastImporter.GenerateTerrainData(config, dryrun);
-                }
-                else if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2 && cat == "water")
-                {
-                    CentralCoastImporter.ImportWaterData(config, dryrun);
-                }
-                else if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2 && cat == "fire")
-                {
-                    CentralCoastImporter.ImportBasinBurnData(config, dryrun);
-                    CentralCoastImporter.ImportPatchBurnData(config, dryrun);
-                }
-                else if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2 && cat == "stratum")
-                {
-                    CentralCoastImporter.ImportStratumCarbonData(config, dryrun);
-                }
+                if (!dryrun)
+                    Console.WriteLine($"[INFO] Import for category '{cat}' not yet implemented in wizard mode.");
+            }
+        }
+
+        private static void RunCentralCoastImports(ScenarioConfig config, FileDiscoveryResult discovery, HashSet<string> selected, bool dryrun)
+        {
+            string[] catOrder = new[] { "dates", "cube", "water", "fire", "patch", "stratum", "terrain" };
+
+            foreach (var cat in catOrder)
+            {
+                if (!selected.Contains(cat)) continue;
+
+                if (cat == "dates")
+                    Console.WriteLine("[dates] derived from cubeAggregateDaily");
                 else
+                    Console.WriteLine($"[{cat}] {discovery.Count(cat)} file(s)");
+
+                switch (cat)
                 {
-                    if (!dryrun)
-                        Console.WriteLine($"[INFO] Import for category '{cat}' not yet implemented in wizard mode.");
+                    case "dates":
+                        CentralCoastImporter.ImportDates(config, dryrun);
+                        break;
+                    case "cube":
+                        CentralCoastImporter.EnsureOrPopulateDates(config, dryrun);
+                        CentralCoastImporter.ImportCubePatchData(config, dryrun);
+                        CentralCoastImporter.ImportCubeStratumData(config, dryrun);
+                        break;
+                    case "water":
+                        CentralCoastImporter.EnsureOrPopulateDates(config, dryrun);
+                        CentralCoastImporter.ImportWaterData(config, dryrun);
+                        break;
+                    case "fire":
+                        CentralCoastImporter.ImportBasinBurnData(config, dryrun);
+                        CentralCoastImporter.ImportPatchBurnData(config, dryrun);
+                        break;
+                    case "patch":
+                        CentralCoastImporter.ImportPatchMapData(config, dryrun);
+                        break;
+                    case "stratum":
+                        CentralCoastImporter.ImportStratumCarbonData(config, dryrun);
+                        break;
+                    case "terrain":
+                        Console.WriteLine("[TerrainData] Requires completed PatchData, FireData, and StratumData.");
+                        CentralCoastImporter.GenerateTerrainData(config, dryrun);
+                        break;
                 }
             }
         }

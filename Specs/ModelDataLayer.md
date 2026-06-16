@@ -1,4 +1,4 @@
-# Show Model / Data Layer Spec
+# Show Model / Data Layer
 
 Last updated: 2026-06-12
 

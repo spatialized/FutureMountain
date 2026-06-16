@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/FutureMountain/FutureMountain.unity
+    path: Assets/Scenes/BigCreekV1/BigCreekV1.unity
     guid: a2184b444162242f58be7ba20b64b6e4
   m_configObjects: {}

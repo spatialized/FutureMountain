@@ -1,4 +1,4 @@
-# RHESSys Data Importer Scenario Config Schema Spec
+# RHESSys Data Importer Scenario Config Schema
 
 Last updated: 2026-06-13
 

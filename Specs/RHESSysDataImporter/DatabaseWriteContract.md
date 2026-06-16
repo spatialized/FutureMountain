@@ -1,4 +1,4 @@
-# RHESSys Data Importer Database Write Contract Spec
+# RHESSys Data Importer Database Write Contract
 
 Last updated: 2026-06-13
 

@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Assets.Scripts.Models.Assets.Scripts.Models;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -19,10 +18,7 @@ using Unity.VisualScripting;
 public class LandscapeController : MonoBehaviour
 {
     /* Debugging */
-    [Header("Debugging")]
-    private bool debug = true;
-    private bool debugFire = false;
-    private bool debugDetailed = false;
+    private SimulationSettings settings;
 
     #region Fields
     /* Settings */
@@ -30,14 +26,14 @@ public class LandscapeController : MonoBehaviour
     private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
     private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
     private static bool landscapeSimulationLocal = false;            // Local landscape simulation
+    private static bool backgroundSnowOn = true;                     // Toggle Local build background snow On / Off
     private static bool loadTerrainDataFromFile = false;
-    private static bool backgroundSnowOn = true;
 #elif WEB_VERSION
     private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
     private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
     private static bool landscapeSimulationLocal = false;            // Local landscape simulation
-    private static bool loadTerrainDataFromFile = false;
-    private static bool backgroundSnowOn = false;
+    private static bool backgroundSnowOn = false;                    // Toggle Web background snow On / Off
+    private static bool loadTerrainDataFromFile = false;             // Obsolete: load data from file not web
 #else
     private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
     private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
@@ -56,7 +52,6 @@ public class LandscapeController : MonoBehaviour
     //private bool loadStreamflowFromFile = landscapeSimulationOn && !landscapeSimulationWeb;
 
     private int immediateFireTimeThreshold;
-    //SimulationSettings settings;
 
     /* States */
     public bool initialized { get; set; } = false;            // Initialized flag
@@ -277,7 +272,7 @@ public class LandscapeController : MonoBehaviour
         {
             if (!StillBurning())
             {
-                if (debugFire)
+                if (settings != null && settings.DebugFire)
                     Debug.Log(name + " Stopped burning...");
 
                 SetToBurnt();
@@ -313,7 +308,7 @@ public class LandscapeController : MonoBehaviour
     /// <param name="timeStep">Time step.</param>
     private void UpdateData(int curTimeIdx, int curFrameYear, int curFrameMonth, int curFrameDay, int timeStep)
     {
-        if (debug && debugDetailed)
+        if (settings != null && settings.DebugDetailed)
             Debug.Log(transform.parent.name + " LandscapeController.UpdateCurrentData()... curFrameYear:" + curFrameYear + " curFrameMonth:" + curFrameMonth + " startYear:" + simulationStartYear);
 
         if (curFrameYear != lastFrameYear || curFrameMonth != lastFrameMonth || curFrameDay != lastFrameDay)        // Update data if moved to new day
@@ -425,9 +420,17 @@ public class LandscapeController : MonoBehaviour
         //simulationData = new TerrainSimulationData[5];
         List<TerrainDataFrame> tDataList = new List<TerrainDataFrame>(); // Terrain data frames for curr. warming idx
 
-        TimelineTerrainData timelineTerrainData = JsonConvert.DeserializeObject<TimelineTerrainData>("{\"months\":" + jsonString + "}");
+        TimelineTerrainData timelineTerrainData = null;
+        try
+        {
+            timelineTerrainData = JsonConvert.DeserializeObject<TimelineTerrainData>("{\"months\":" + jsonString + "}");
+        }
+        catch (Exception ex)
+        {
+            Debug.Log("FinishUpdateTerrainDataFromWeb ERROR... deserialize failed: " + ex.Message);
+        }
 
-        if (timelineTerrainData != null)
+        if (timelineTerrainData != null && timelineTerrainData.months != null)
         {
             TerrainDataFrameJSONRecord[] jDataArr = timelineTerrainData.months;
 
@@ -438,14 +441,13 @@ public class LandscapeController : MonoBehaviour
                 tDataList.Add(frame);
             }
 
-            LoadSplatMapsFromTerrainDataList(tDataList, warmingIdx);
+            landscapeDataLoadedFromWebAPI = LoadSplatMapsFromTerrainDataList(tDataList, warmingIdx);
         }
         else
         {
-            Debug.Log(("FinishUpdateFireDataFromWeb ERROR... deserialize failed"));
+            Debug.Log(("FinishUpdateTerrainDataFromWeb ERROR... deserialize failed"));
+            landscapeDataLoadedFromWebAPI = false;
         }
-
-        landscapeDataLoadedFromWebAPI = true;
     }
 
     // Unused
@@ -512,9 +514,9 @@ public class LandscapeController : MonoBehaviour
         }
         else if (recentFire)                // Transition back to unburnt splatmap
         {
-            regrowthAmount = Mathf.Clamp(MapValue(currentTimeIdx - fireRegrowthStartTimeIdx, 0, fireRegrowthLength, 0f, 1f), 0f, 1f);
+            regrowthAmount = Mathf.Clamp(MathUtil.MapValue(currentTimeIdx - fireRegrowthStartTimeIdx, 0, fireRegrowthLength, 0f, 1f), 0f, 1f);
 
-            if (debugFire)
+            if (settings != null && settings.DebugFire)
                 Debug.Log(name + ".UpdateTerrain()... recentFire: true...  regrowthAmount:" + regrowthAmount + " currentTimeIdx:" + currentTimeIdx + " fireRegrowthStartTimeIdx: " + fireRegrowthStartTimeIdx + " fireRegrowthLength: " + fireRegrowthLength);
 
             if (Mathf.Abs(regrowthAmount - 1f) < 0.0001f)           // Check if finished
@@ -522,7 +524,7 @@ public class LandscapeController : MonoBehaviour
                 ResetBurntState();
                 activeBurnCells = new List<SERI_FireCell>();
 
-                if (debugFire)
+                if (settings != null && settings.DebugFire)
                     Debug.Log(name + ".UpdateTerrain()... Finished post-fire regrowth");
             }
         }
@@ -542,7 +544,13 @@ public class LandscapeController : MonoBehaviour
             int startYear = 1942;
             int monthIdx = curMonth + (curYear - startYear) * 12 - 10;
 
-            if (currentSplatmaps != null && monthIdx < currentSplatmaps.Count)
+            if (currentSplatmaps == null || currentSplatmaps.Count == 0)
+            {
+                Debug.Log("UpdateTerrain()... Terrain splatmaps are not loaded yet.");
+                return;
+            }
+
+            if (monthIdx >= 0 && monthIdx < currentSplatmaps.Count)
             {
                 int pixelGrainSize = 4;
                 float[,,] interpolated = new float[0, 0, 0];
@@ -550,17 +558,17 @@ public class LandscapeController : MonoBehaviour
                 if (monthIdx + 1 >= currentSplatmaps.Count)
                 {
                     interpolated = InterpolateTerrainSplatmaps(currentSplatmaps[monthIdx], null, curDay, curMonth, curYear, pixelGrainSize);
-                    //terrain.terrainData.SetAlphamaps(0, 0, currentSplatmaps[monthIdx]);
                 }
                 else
                 {
                     interpolated = InterpolateTerrainSplatmaps(currentSplatmaps[monthIdx], currentSplatmaps[monthIdx + 1], curDay, curMonth, curYear, pixelGrainSize);
-                    //terrain.terrainData.SetAlphamaps(0, 0, interpolated);
                 }
                 terrain.terrainData.SetAlphamaps(0, 0, interpolated);
             }
             else
-                Debug.Log("ERROR: currentSplatmaps.Count >= monthIdx");
+            {
+                Debug.Log("ERROR: monthIdx out of range for currentSplatmaps... currentSplatmaps.Count: " + currentSplatmaps.Count + " monthIdx: " + monthIdx);
+            }
         }
         else
         {
@@ -571,8 +579,6 @@ public class LandscapeController : MonoBehaviour
             else
                 Debug.Log("ERROR NO sdf");
         }
-
-        //UpdateBackgroundSnow();
     }
 
     public bool IsBackgroundSnowOn()
@@ -586,15 +592,15 @@ public class LandscapeController : MonoBehaviour
     private void UpdateRiver(int curYear, int curMonth, int curDay, int timeStep)
     {
         riverObject.transform.localPosition = new Vector3(riverObject.transform.localPosition.x,
-                                                           Mathf.Clamp(MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverMinHeight, riverFullHeight), riverMinHeight, riverFullHeight),
+                                                           Mathf.Clamp(MathUtil.MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverMinHeight, riverFullHeight), riverMinHeight, riverFullHeight),
                                                            riverObject.transform.localPosition.z);
 
         riverFaceObject.transform.localPosition = new Vector3(riverFaceObject.transform.localPosition.x,
-                                                               Mathf.Clamp(MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverFaceMinHeight, riverFaceFullHeight), riverFaceMinHeight, riverFaceFullHeight),
+                                                               Mathf.Clamp(MathUtil.MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverFaceMinHeight, riverFaceFullHeight), riverFaceMinHeight, riverFaceFullHeight),
                                                                riverObject.transform.localPosition.z);
 
         riverFaceObject.transform.localScale = new Vector3(riverFaceObject.transform.localScale.x,
-                                                            Mathf.Clamp(MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverFaceMinScale, riverFaceFullScale), riverFaceMinScale, riverFaceFullScale),
+                                                            Mathf.Clamp(MathUtil.MapValue(StreamflowLevel, RiverLevelMin, RiverLevelMax, riverFaceMinScale, riverFaceFullScale), riverFaceMinScale, riverFaceFullScale),
                                                             riverObject.transform.localScale.z);
     }
     #endregion
@@ -606,6 +612,7 @@ public class LandscapeController : MonoBehaviour
     /// </summary>
     private void Awake()
     {
+        settings = FindObjectOfType<SimulationSettings>();
         initialized = false;             // Initialized flag
         dataFormatted = false;
         setup = false;
@@ -653,7 +660,7 @@ public class LandscapeController : MonoBehaviour
     /// <param name="newImmediateFireTimeThreshold"></param>
     public void StartSimulation(int curTimeIdx, int curYear, int curMonth, int curDay, int timeStep, int newWarmingIdx, int newMinFireFrames, int newImmediateFireTimeThreshold)
     {
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("Landscape.StartSimulation()... curYear:" + curYear + " curMonth:" + curMonth + " curDay:" + curDay + " warmingIdx:" + newWarmingIdx);
 
         warmingIdx = newWarmingIdx;
@@ -675,7 +682,7 @@ public class LandscapeController : MonoBehaviour
     /// </summary>
     public IEnumerator InitializeData()//SimulationSettings newSettings)
     {
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("LandscapeController.Initialize()...");
 
         //settings = newSettings;
@@ -685,7 +692,7 @@ public class LandscapeController : MonoBehaviour
             if (landscapeSimulationWeb && !landscapeSimulationLocal)
             {
                 //LoadDataWeb();                         // Loads snow and fire data frames (Web Version)
-                if (debug)
+                if (settings != null && settings.DebugGame)
                     Debug.Log("InitializeData()... Data from web... ");
 
                 //LoadPatchExtentsData();                                // Load patch extents from Resources
@@ -693,7 +700,7 @@ public class LandscapeController : MonoBehaviour
                 {
                     try
                     {
-                        if (debug)
+                        if (settings != null && settings.DebugGame)
                             Debug.Log("loadPatchDataFromFile... true");
 
                         TextAsset patchExtTextAsset = (TextAsset)Resources.Load("PatchData/PatchData");
@@ -799,7 +806,7 @@ public class LandscapeController : MonoBehaviour
                 dataFormatted = true;
                 //dataInitialized = true;
 
-                //if (debug)
+                //if (settings != null && settings.DebugGame)
                 //    Debug.Log("LoadDataWeb()... Finished");
             }
             else if (landscapeSimulationWeb && landscapeSimulationLocal)
@@ -832,6 +839,7 @@ public class LandscapeController : MonoBehaviour
     {
         int i = warmIdx;
         warmingIdx = warmIdx;
+        landscapeDataLoadedFromWebAPI = false;
 
         if (loadFireDataFromFile)
         {
@@ -979,7 +987,7 @@ public class LandscapeController : MonoBehaviour
                 fireLengthInSec = fireFrameCount / frameRate;                               // Calculate fire length in seconds
             }
 
-            if (debugFire)
+            if (settings != null && settings.DebugFire)
                 Debug.Log(name + ".IgniteTerrain()... parent:" + transform.parent.name + " setting terrainBurning to true... timeStep:" + timeStep + " fireLengthInSec:" + fireLengthInSec + " time:" + Time.time);
 
             fireManager.IgniteTerrain(terrain, timeStep, fireLengthInSec, fireIdx);
@@ -1012,8 +1020,8 @@ public class LandscapeController : MonoBehaviour
         //int cols = fireGridCols;
         int rows = fireGridRows - 1;             // Keep within grid array bounds
         int cols = fireGridCols - 1;
-        int xLoc = cols - (int)Mathf.Clamp(MapValue(location.x, 0, patchDataCols, 0, cols), 0, cols);
-        int yLoc = (int)Mathf.Clamp(MapValue(location.y, 0, patchDataRows, 0, rows), 0, rows);
+        int xLoc = cols - (int)Mathf.Clamp(MathUtil.MapValue(location.x, 0, patchDataCols, 0, cols), 0, cols);
+        int yLoc = (int)Mathf.Clamp(MathUtil.MapValue(location.y, 0, patchDataRows, 0, rows), 0, rows);
 
         Vector2 gridLoc = new Vector2(xLoc, yLoc);
         return gridLoc;
@@ -1159,7 +1167,7 @@ public class LandscapeController : MonoBehaviour
             //Debug.Log(name + ".CalculatePatchesToBurn().. Found fire at month:" + month + " day:" + day + " year:" + year + " cellLocations.Count:" + burnedPatches.Count+ " points.Count:"+ points.Count + " warmingIdx:" + warmingIdx);
         }
 
-        if (debugFire)
+        if (settings != null && settings.DebugFire)
             Debug.Log(name + ".CalculatePatchesToBurn().. Found burnedPatches.Count:" + patchesToBurn.Count + " warmingIdx:" + warmingIdx);
     }
 
@@ -1215,7 +1223,7 @@ public class LandscapeController : MonoBehaviour
     //        //return false;
     //    }
 
-    //    //if (debugFire)
+    //    //if (settings != null && settings.DebugFire)
     //    //    Debug.Log(name + ".LoadPatchesToBurn().. Found burnedPatches.Count:" + patchesToBurn.Count + " warmingIdx:" + warmingIdx);
     //}
 
@@ -1284,7 +1292,7 @@ public class LandscapeController : MonoBehaviour
 
                     if (fireMonth == fire.GetMonth() && fireYear == fire.GetYear())
                     {
-                        if (debugFire)
+                        if (settings != null && settings.DebugFire)
                             Debug.Log(name + ".SetupFires()... Found day for fire at month:" + fire.GetMonth() + " year:" + fire.GetYear() + " Day = " + fireDay + " warmIdx:" + warmIdx);
                         //firePoints = fire.GetDataList();
                         day = fireDay;
@@ -1318,7 +1326,7 @@ public class LandscapeController : MonoBehaviour
         int columnCount = Enum.GetNames(typeof(WaterDataColumnIdx)).Length;
         waterDataArray = new float[streamflowDataLength, columnCount];
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("LoadStreamflowFile()... length x:" + waterDataArray.GetLength(0) + " y:" + waterDataArray.GetLength(1) + " streamflowDataLength:" + streamflowDataLength + " columnCount:" + columnCount);
 
         string[] tempData = new string[7];                   // Streamflow daily data TXT file has 7 columns
@@ -1348,7 +1356,7 @@ public class LandscapeController : MonoBehaviour
             }
         }
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("LoadStreamflowFile()... Finished");
     }
 
@@ -1366,7 +1374,7 @@ public class LandscapeController : MonoBehaviour
     /// </summary>
     private void CalculateWaterRanges()
     {
-        if (debug && debugDetailed)
+        if (settings != null && settings.DebugDetailed)
             Debug.Log("CalculateParameterRanges()... Time:" + Time.time);
 
         RiverLevelMin = 100000f;
@@ -1430,7 +1438,7 @@ public class LandscapeController : MonoBehaviour
     /// </summary>
     private void CalculateWaterRangesOLD()
     {
-        if (debug && debugDetailed)
+        if (settings != null && settings.DebugDetailed)
             Debug.Log("CalculateParameterRanges()... Time:" + Time.time);
 
         RiverLevelMin = 100000f;
@@ -1518,7 +1526,7 @@ public class LandscapeController : MonoBehaviour
                 }
             }
         }
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("SetDataRanges()... plantCarbonMin:" + PlantCarbonMin + "  plantCarbonMax:" + PlantCarbonMax + "  SnowAmountMax:" + SnowAmountMax);
     }
 
@@ -1534,7 +1542,7 @@ public class LandscapeController : MonoBehaviour
         int columnCount = Enum.GetNames(typeof(PatchDataColumnIdx)).Length;
         float[,] extentsData = new float[extentsDataLength, columnCount];
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("LoadDataFile()... newDataFile:" + newDataFile.name + " length x:" + extentsData.GetLength(0) + " y:" + extentsData.GetLength(1) + " extentsDataLength:" + extentsDataLength);
 
         string[] tempData = new string[6];                           // Landscape data CSV file has 6 columns
@@ -1551,7 +1559,7 @@ public class LandscapeController : MonoBehaviour
             }
         }
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log(name + ".LoadDataFile()... Finished");
 
         dataFile = newDataFile;
@@ -1584,12 +1592,12 @@ public class LandscapeController : MonoBehaviour
                 simulationStartDay = (int)dataArray[0, (int)WaterDataColumnIdx.Day];
                 updateDate = true;
 
-                if (debug)
+                if (settings != null && settings.DebugGame)
                     Debug.Log(name + ".FormatStreamflowData()... Setting startYear / startMonth / startDay from streamflow data... setting startYear to:" + simulationStartYear);
             }
         }
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log(name + ".FormatStreamflowData()... Formatting data of length:" + dataLength + " startYear:" + simulationStartYear);
 
         for (int i = 0; i < dataLength - 1; i++)                                    // Store data in 'data' 2D array
@@ -1619,7 +1627,7 @@ public class LandscapeController : MonoBehaviour
                     dataMonths = new List<WaterDataMonth>();
                     dataFrames = new List<WaterDataFrame>();
 
-                    if (debug && debugDetailed)
+                    if (settings != null && settings.DebugDetailed)
                         Debug.Log("> FormatStreamflowData()... Set data for curYear:" + curYear + " month:" + month + " QBase:" + QBase + " precip:" + precip);
                 }
 
@@ -1639,7 +1647,7 @@ public class LandscapeController : MonoBehaviour
                     curMonth = month;
                     dataFrames = new List<WaterDataFrame>();
 
-                    if (debug && debugDetailed)
+                    if (settings != null && settings.DebugDetailed)
                         Debug.Log(">> FormatStreamflowData()... Set data for month:" + month + " year:" + year + " streamflow:" + QBase + " precip:" + precip);
                 }
             }
@@ -1687,7 +1695,7 @@ public class LandscapeController : MonoBehaviour
         simulationStartMonth = (int)dataArray[0, (int)PatchDataColumnIdx.Month];
         simulationStartDay = 1;
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("FormatExtentsData()... Formatting data of length:" + dataLength + " startYear:" + simulationStartYear);
 
         for (int i = 0; i < dataLength - 1; i++)                                    // Store data in 'data' 2D array
@@ -1721,7 +1729,7 @@ public class LandscapeController : MonoBehaviour
                     dataMonths = new List<PatchDataMonth>();
                     dataFrames = new List<PatchDataFrame>();
 
-                    if (debug && debugDetailed)
+                    if (settings != null && settings.DebugDetailed)
                         Debug.Log(name + ".FormatExtentsData()... Set data for curYear:" + curYear + " month:" + month + " patchID:" + patchID + " carbon:" + carbon + " patchData.Count:" + pData.Count);
                 }
 
@@ -1741,7 +1749,7 @@ public class LandscapeController : MonoBehaviour
                     curMonth = month;
                     dataFrames = new List<PatchDataFrame>();
 
-                    if (debug && debugDetailed)
+                    if (settings != null && settings.DebugDetailed)
                         Debug.Log(name + ".FormatExtentsData()... Set data for month:" + month + " year:" + year + " patchID:" + patchID + " carbon:" + carbon);
                 }
             }
@@ -1763,7 +1771,7 @@ public class LandscapeController : MonoBehaviour
         pData.Sort();                                                     // Sort frame lists by year
         patchesData.Add(pData.ToArray());
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log(name + ".FormatExtentsData()... AFTER GC.GetTotalMemory:" + GC.GetTotalMemory(false) + " patchesData[warmingIdx].Length:" + patchesData[warmingIdx].Length);
     }
 
@@ -1990,11 +1998,17 @@ public class LandscapeController : MonoBehaviour
         return splatmap;
     }
 
-    public void LoadSplatMapsFromTerrainDataList(List<TerrainDataFrame> tdList, int warmIdx)
+    public bool LoadSplatMapsFromTerrainDataList(List<TerrainDataFrame> tdList, int warmIdx)
     {
         currentSplatmaps = new List<float[,,]>();
 
         Debug.Log(name + ".LoadSplatMapsFromTerrainDataList()... warmIdx:" + warmIdx);
+
+        if (tdList == null || tdList.Count == 0)
+        {
+            Debug.Log("LoadSplatMapsFromTerrainDataList()... ERROR: no terrain data frames to load.");
+            return false;
+        }
 
         int startTime = DateTime.Now.Millisecond;
         int ct = 0;
@@ -2032,66 +2046,9 @@ public class LandscapeController : MonoBehaviour
         }
 
         int elapsed = (int)((DateTime.Now.Millisecond - startTime) * 0.001f);
-        Debug.Log(name + ".LoadSplatMapsFromTerrainDataList()... Finished loading in:" + elapsed + "sec.");
+        Debug.Log(name + ".LoadSplatMapsFromTerrainDataList()... Finished loading " + currentSplatmaps.Count + " splatmaps in:" + elapsed + "sec.");
+        return currentSplatmaps.Count > 0;
     }
-
-    //public void LoadSplatMapsFromFiles()
-    //{
-    //    TextAsset[] splatDataArr = Resources.LoadAll<TextAsset>("TerrainDataFrame");
-
-    //    terrainSplatmaps = new List<List<float[,,]>>();
-    //    currentSplatmaps = new List<float[,,]>();
-
-    //    int currWarmIdx = 0;
-    //    foreach (var textAsset in splatDataArr)
-    //    {
-    //        // Ex. terrain_warm0_1942_10.json
-    //        string[] parts = textAsset.name.Split('_');
-    //        int warmingIdx = int.Parse(parts[1].Substring(4));
-    //        int year = int.Parse(parts[2]);
-    //        int month = int.Parse(parts[3].Split('.')[0]);
-    //        //float[,,] splatmap = new float[0,0,0];
-
-    //        float[,,] splatmap = new float[terrain.terrainData.alphamapWidth,
-    //            terrain.terrainData.alphamapHeight,
-    //            terrain.terrainData.alphamapLayers];
-
-    //        Debug.Log(" splatmap 0: " + splatmap.GetLength(0)
-    //                                     + " splatmap 1: " + splatmap.GetLength(1)
-    //                                     + " splatmap 2: " + splatmap.GetLength(2));
-
-    //        try
-    //        {
-    //            float[,,] unflattened = ImportSplatData(textAsset.text); // -- TO TEST
-
-    //            Debug.Log(" unflattened 0: " + unflattened.GetLength(0)
-    //                             + " unflattened 1: " + unflattened.GetLength(1)
-    //                             + " unflattened 2: " + unflattened.GetLength(2));
-
-
-    //            Debug.Log(" unflattened[10,10,0]: " + unflattened[10, 10, 0]);
-
-    //            splatmap = unflattened;
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            Debug.Log("ExportTerrainData ERROR ex: " + ex.Message);
-    //        }
-
-    //        if (warmIdx > currWarmIdx)
-    //        {
-    //            terrainSplatmaps.Add(currentSplatmaps);
-    //            currentSplatmaps = new List<float[,,]>();
-    //            currWarmIdx = warmIdx;
-    //        }
-
-    //        //float[,,] splatmap = new float[terrain.terrainData.alphamapWidth, 
-    //        //    terrain.terrainData.alphamapHeight, 
-    //        //    terrain.terrainData.alphamapLayers];
-
-    //        currentSplatmaps.Add(splatmap);
-    //    }
-    //}
 
     private float[,,] ImportSplatData(string inputStr, int pixelGrainSize, int decimalPrecision)
     {
@@ -2101,44 +2058,10 @@ public class LandscapeController : MonoBehaviour
         int[] flatArray = JsonConvert.DeserializeObject<int[]>(inputStr);
 
         return ImportSplatData(flatArray, pixelGrainSize, decimalPrecision, inputWidth, terrainWidth);
-        //int[,,] unflattened = Unflatten1DIntArrayTo3D(flatArray, inputWidth, 4);
-        //float[,,] result = new float[terrainWidth, terrainWidth, 4];
-
-        //for (int x = 0; x < unflattened.GetLength(0); x++)
-        //{
-        //    for (int y = 0; y < unflattened.GetLength(1); y++)
-        //    {
-        //        for (int z = 0; z < unflattened.GetLength(2); z++)
-        //        {
-        //            float val = unflattened[x, y, z] * (float)Math.Pow(10, -decimalPrecision);
-
-        //            //FillInArea(result, x, y, z, pixelGrainSize, val);
-        //            //result[x, y, z] = val;
-
-        //            // Fill in area of pixelGrainSize x pixelGrainSize in result array
-        //            int xStart = x * pixelGrainSize;
-        //            int yStart = y * pixelGrainSize;
-        //            for (int a = 0; a < pixelGrainSize; a++)
-        //            {
-        //                int xCoord = xStart + a;
-        //                for (int b = 0; b < pixelGrainSize; b++)
-        //                {
-        //                    int yCoord = yStart + b;
-        //                    result[xCoord, yCoord, z] = val;
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
-
-        //return result;
     }
 
     private float[,,] ImportSplatData(int[] flatArray, int pixelGrainSize, int decimalPrecision, int inputWidth, int terrainWidth)
     {
-        //int terrainWidth = terrain.terrainData.alphamapWidth;       // 512
-        //int inputWidth = terrainWidth / pixelGrainSize;             // 128
-
         int[,,] reducedGrid = Unflatten1DIntArrayTo3D(flatArray, inputWidth, 4);
         float[,,] result = new float[terrainWidth, terrainWidth, 4];
 
@@ -2268,7 +2191,7 @@ public class LandscapeController : MonoBehaviour
         patchDataRows = int.Parse(rawData[4].Split(':')[1]);
         patchDataCols = int.Parse(rawData[5].Split(':')[1]);
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
         {
             Debug.Log("LandscapeController.LoadPatchesFile()... patchesFile:" + patchesFile.name);
             Debug.Log("UTM Boundary: northEdge:" + northEdge + " southEdge:" + southEdge + " eastEdge:" + eastEdge + " westEdge:" + westEdge);
@@ -2419,7 +2342,7 @@ public class LandscapeController : MonoBehaviour
             }
         }
 
-        if (debug)
+        if (settings != null && settings.DebugGame)
             Debug.Log("LandscapeController.LoadPatchesFile()... Loaded patchesFile:" + patchesFile.name);
 
         return patchExtents;
@@ -2605,7 +2528,7 @@ public class LandscapeController : MonoBehaviour
         int month = firstMonth.GetMonth();
         averageSnowAmount = 0f;                       // Reset avg. snow amount
 
-        float pos = MapValue(day, 1, GetDaysInMonth(month, year) + 1, 0f, 1f);     // Find position between current month and next month
+        float pos = MathUtil.MapValue(day, 1, GetDaysInMonth(month, year) + 1, 0f, 1f);     // Find position between current month and next month
 
         int count = 0;                                // Patch counter
         int frameCt = 0;                              // Frame count
@@ -2623,8 +2546,8 @@ public class LandscapeController : MonoBehaviour
             var patchCollection = patchExtents[patchID];
             PatchDataFrame nextFrame = nextFrames[frameCt];
 
-            float snowValue = Mathf.Clamp(MapValue(frame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
-            float nextSnowValue = Mathf.Clamp(MapValue(nextFrame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
+            float snowValue = Mathf.Clamp(MathUtil.MapValue(frame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
+            float nextSnowValue = Mathf.Clamp(MathUtil.MapValue(nextFrame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
             float snowWeight = Mathf.Lerp(snowValue, nextSnowValue, pos);              // Find interpolated snow value
 
             snowValue *= snowWeightFactor;
@@ -2638,7 +2561,7 @@ public class LandscapeController : MonoBehaviour
             }
             else
             {
-                snowWeight = Mathf.Clamp(MapValue(snowValue, 0f, snowWeightMax, 0f, 1f), 0f, 1f);
+                snowWeight = Mathf.Clamp(MathUtil.MapValue(snowValue, 0f, snowWeightMax, 0f, 1f), 0f, 1f);
 
                 if (snowWeight > 0.0001f)                           // Some snow
                 {
@@ -2795,7 +2718,7 @@ public class LandscapeController : MonoBehaviour
         //float[,,] lastSplatmap = t.terrainData.GetAlphamaps(0, 0, t.terrainData.alphamapWidth, t.terrainData.alphamapHeight);
         float[,,] splatmapData = new float[t.terrainData.alphamapWidth, t.terrainData.alphamapHeight, t.terrainData.alphamapLayers];
 
-        float pos = MapValue(day, 1, DateTime.DaysInMonth(year, month) + 1, 0f, 1f);     // Find position between current month and next month
+        float pos = MathUtil.MapValue(day, 1, DateTime.DaysInMonth(year, month) + 1, 0f, 1f);     // Find position between current month and next month
 
         for (int x = 0; x < t.terrainData.alphamapWidth; x++)
         {
@@ -2886,7 +2809,7 @@ public class LandscapeController : MonoBehaviour
         //    //float[,,] lastSplatmap = t.terrainData.GetAlphamaps(0, 0, t.terrainData.alphamapWidth, t.terrainData.alphamapHeight);
         //    float[,,] splatmapData = new float[t.terrainData.alphamapWidth, t.terrainData.alphamapHeight, t.terrainData.alphamapLayers];
 
-        //    float pos = MapValue(day, 1, DateTime.DaysInMonth(year, month) + 1, 0f, 1f);     // Find position between current month and next month
+        //    float pos = MathUtil.MapValue(day, 1, DateTime.DaysInMonth(year, month) + 1, 0f, 1f);     // Find position between current month and next month
 
         //    for (int x = 0; x < t.terrainData.alphamapWidth; x++)
         //    {
@@ -2929,8 +2852,8 @@ public class LandscapeController : MonoBehaviour
         //    var patchCollection = patchExtents[patchID];
         //    PatchDataFrame nextFrame = nextFrames[frameCt];
 
-        //    float snowValue = Mathf.Clamp(MapValue(frame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
-        //    float nextSnowValue = Mathf.Clamp(MapValue(nextFrame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
+        //    float snowValue = Mathf.Clamp(MathUtil.MapValue(frame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
+        //    float nextSnowValue = Mathf.Clamp(MathUtil.MapValue(nextFrame.snow, 0f, SnowAmountMax, 0f, 1f), 0f, 1f);
         //    float snowWeight = Mathf.Lerp(snowValue, nextSnowValue, pos);              // Find interpolated snow value
 
         //    snowValue *= snowWeightFactor;
@@ -2944,7 +2867,7 @@ public class LandscapeController : MonoBehaviour
         //    }
         //    else
         //    {
-        //        snowWeight = Mathf.Clamp(MapValue(snowValue, 0f, snowWeightMax, 0f, 1f), 0f, 1f);
+        //        snowWeight = Mathf.Clamp(MathUtil.MapValue(snowValue, 0f, snowWeightMax, 0f, 1f), 0f, 1f);
 
         //        if (snowWeight > 0.0001f)                           // Some snow
         //        {
@@ -3193,8 +3116,8 @@ public class LandscapeController : MonoBehaviour
     /// <param name="dataPosition">Data position.</param>
     public Vector2 MapDataToUTMPosition(Vector2 dataPosition)
     {
-        float xPos = MapValue(dataPosition.x, 0, patchDataCols, westEdge, eastEdge);
-        float yPos = MapValue(dataPosition.y, 0, patchDataRows, southEdge, northEdge);
+        float xPos = MathUtil.MapValue(dataPosition.x, 0, patchDataCols, westEdge, eastEdge);
+        float yPos = MathUtil.MapValue(dataPosition.y, 0, patchDataRows, southEdge, northEdge);
 
         Vector2 result = new Vector2(xPos, yPos);
 
@@ -3211,8 +3134,8 @@ public class LandscapeController : MonoBehaviour
     /// <returns></returns>
     Vector2 GetAlphamapPositionForPatchLocation(Vector2 point)
     {
-        int adjX = (int)MapValue(point.x, 0, patchDataCols, 0, terrain.terrainData.alphamapWidth - 1);
-        int adjY = (int)MapValue(point.y, 0, patchDataRows, 0, terrain.terrainData.alphamapHeight - 1);
+        int adjX = (int)MathUtil.MapValue(point.x, 0, patchDataCols, 0, terrain.terrainData.alphamapWidth - 1);
+        int adjY = (int)MathUtil.MapValue(point.y, 0, patchDataRows, 0, terrain.terrainData.alphamapHeight - 1);
 
         int terrainXLoc = (int)Mathf.Clamp(terrain.terrainData.alphamapWidth - 1 - adjX, 0, terrain.terrainData.alphamapWidth - 1);
         int terrainYLoc = (int)Mathf.Clamp(adjY, 0, terrain.terrainData.alphamapHeight);
@@ -3240,10 +3163,10 @@ public class LandscapeController : MonoBehaviour
         }
 
         /* Find terrain height at location */
-        float normX = MapValue(utm.x, westEdge, eastEdge, 0f, 1f);
-        float normZ = MapValue(utm.y, southEdge, northEdge, 0f, 1f);
-        float terrainX = terrain.terrainData.size.x - MapValue(utm.x, westEdge, eastEdge, 0f, terrain.terrainData.size.x);
-        float terrainZ = MapValue(utm.y, southEdge, northEdge, 0f, terrain.terrainData.size.z);
+        float normX = MathUtil.MapValue(utm.x, westEdge, eastEdge, 0f, 1f);
+        float normZ = MathUtil.MapValue(utm.y, southEdge, northEdge, 0f, 1f);
+        float terrainX = terrain.terrainData.size.x - MathUtil.MapValue(utm.x, westEdge, eastEdge, 0f, terrain.terrainData.size.x);
+        float terrainZ = MathUtil.MapValue(utm.y, southEdge, northEdge, 0f, terrain.terrainData.size.z);
 
         float terrainY = terrain.terrainData.GetInterpolatedHeight(normX, normZ);
 
@@ -3326,7 +3249,7 @@ public class LandscapeController : MonoBehaviour
     ///// </summary>
     //private void UpdateBackgroundSnow()
     //{
-    //    float value = Mathf.Clamp(MapValue(averageSnowAmount * backgroundSnowFactor, 0f, AvgSnowAmountMax, 0f, 1f), 0f, 1f);
+    //    float value = Mathf.Clamp(MathUtil.MapValue(averageSnowAmount * backgroundSnowFactor, 0f, AvgSnowAmountMax, 0f, 1f), 0f, 1f);
     //    if (float.IsNaN(value))
     //    {
     //        Debug.Log(name + ".UpdateBackgroundSnow()... Value is NaN   avgSnowAmount:" + averageSnowAmount + " backgroundSnowFactor:" + backgroundSnowFactor + " AvgSnowAmountMin:" + AvgSnowAmountMin + " AvgSnowAmountMax:" + AvgSnowAmountMax);
@@ -3337,7 +3260,7 @@ public class LandscapeController : MonoBehaviour
 
     //    Debug.Log(name + ".UpdateBackgroundSnow()... avgSnowAmount:" + averageSnowAmount + " backgroundSnowFactor:" + backgroundSnowFactor + " AvgSnowAmountMin:" + AvgSnowAmountMin + " AvgSnowAmountMax:" + AvgSnowAmountMax);
 
-    //    //snowManager.snowValue = Mathf.Clamp(MapValue(avgSnowAmount * backgroundSnowFactor, AvgSnowAmountMin, AvgSnowAmountMax, 0f, 1f), 0f, 1f);  // -- TESTING
+    //    //snowManager.snowValue = Mathf.Clamp(MathUtil.MapValue(avgSnowAmount * backgroundSnowFactor, AvgSnowAmountMin, AvgSnowAmountMax, 0f, 1f), 0f, 1f);  // -- TESTING
     //}
 
     #endregion
@@ -3378,197 +3301,6 @@ public class LandscapeController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Patch data frame.
-    /// </summary>
-    public class PatchDataFrame : IComparable<PatchDataFrame>
-    {
-        private int month, year;
-        private int patchID;
-        public float carbon { get; set; }
-        public float snow { get; set; }
-        public float spread { get; set; }
-        public float iter { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:LandscapeController.PatchDataFrame"/> class.
-        /// </summary>
-        /// <param name="newPatchID">New patch identifier.</param>
-        /// <param name="newMonth">New month.</param>
-        /// <param name="newYear">New year.</param>
-        public PatchDataFrame(int newPatchID, int newMonth, int newYear)
-        {
-            patchID = newPatchID;
-            month = newMonth;
-            year = newYear;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:LandscapeController.PatchDataFrame"/> class.
-        /// </summary>
-        /// <param name="newPatchID">New patch identifier.</param>
-        /// <param name="newMonth">New month.</param>
-        /// <param name="newYear">New year.</param>
-        /// <param name="newCarbon">New carbon.</param>
-        /// <param name="newSnow">New snow.</param>
-        /// <param name="newSpread">New snow.</param>
-        /// <param name="newIter">New snow.</param>
-        public PatchDataFrame(int newPatchID, int newMonth, int newYear, float newCarbon, float newSnow, float newSpread, float newIter)
-        {
-            patchID = newPatchID;
-            month = newMonth;
-            year = newYear;
-            carbon = newCarbon;
-            snow = newSnow;
-            spread = newSpread;
-            iter = newIter;
-        }
-
-        /// <summary>
-        /// Compares patch ID of this frame to given frame's patch ID.
-        /// </summary>
-        /// <returns>The comparison result.</returns>
-        /// <param name="that">Patch to compare to.</param>
-        public int CompareTo(PatchDataFrame that)
-        {
-            return this.GetMonth().CompareTo(that.GetMonth());
-        }
-
-        public int GetPatchID()
-        {
-            return patchID;
-        }
-
-        public int GetMonth()
-        {
-            return month;
-        }
-
-        public int GetYear()
-        {
-            return year;
-        }
-    }
-
-    /// <summary>
-    /// List of PatchDataFrame objects sorted by month.
-    /// </summary>
-    public class PatchDataMonth : IComparable<PatchDataMonth>
-    {
-        private int index;
-        private int month, year;
-        private List<PatchDataFrame> dataFrames;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:LandscapeController.PatchDataMonth"/> class.
-        /// </summary>
-        /// <param name="newDataFrames">New data frames.</param>
-        /// <param name="newMonth">New month.</param>
-        /// <param name="newYear">New year.</param>
-        public PatchDataMonth(List<PatchDataFrame> newDataFrames, int newMonth, int newYear, int newIndex)
-        {
-            dataFrames = newDataFrames;
-            month = newMonth;
-            year = newYear;
-            index = newIndex;
-        }
-
-        public int CompareTo(PatchDataMonth that)
-        {
-            return this.GetMonth().CompareTo(that.GetMonth());
-        }
-
-        public int GetMonth()
-        {
-            return month;
-        }
-
-        public int GetYear()
-        {
-            return year;
-        }
-
-        public int GetIndex()
-        {
-            return index;
-        }
-
-        public List<PatchDataFrame> GetFrames()
-        {
-            return dataFrames;
-        }
-
-        public void ClearFrames()
-        {
-            dataFrames = null;
-        }
-    }
-
-    /// <summary>
-    /// List of PatchDataMonth objects sorted by year.
-    /// </summary>
-    public class PatchDataYear : IComparable<PatchDataYear>
-    {
-        private int year;
-        private List<PatchDataMonth> dataMonths;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="T:LandscapeController.PatchDataYear"/> class.
-        /// </summary>
-        /// <param name="newDataFrames">New data frames.</param>
-        /// <param name="newYear">New year.</param>
-        public PatchDataYear(List<PatchDataMonth> newDataFrames, int newYear)
-        {
-            dataMonths = newDataFrames;
-            year = newYear;
-            //Debug.Log("New PatchDataYear()... newDataFrames:" + newDataFrames.Count+" year:"+newYear);
-            //Debug.Log("New PatchDataYear()... dataMonths[0].GetFrames()[1].GetPatchID():" + dataMonths[0].GetFrames()[1].GetPatchID());
-        }
-        public int CompareTo(PatchDataYear that)
-        {
-            return this.GetYear().CompareTo(that.GetYear());
-        }
-
-        public int GetYear()
-        {
-            return year;
-        }
-
-        /// <summary>
-        /// Gets the data for month.
-        /// </summary>
-        /// <returns>The data for month.</returns>
-        /// <param name="month">Month.</param>
-        public PatchDataMonth GetDataForMonth(int month)
-        {
-            if (dataMonths.Count < 12)                       // Check for incomplete year data
-            {
-                if (dataMonths[0].GetMonth() > 1)
-                {
-                    int startMonth = dataMonths[0].GetMonth();
-                    month = month - startMonth + 1;
-                }
-            }
-
-            if (month > 0 && month <= dataMonths.Count)
-            {
-                return dataMonths[month - 1];
-            }
-            else
-            {
-                Debug.Log("WaterDataYear.GetDataForMonth()... ERROR: year:" + year + " month:" + month + " dataMonths:" + dataMonths.Count);
-                return null;
-            }
-            //Debug.Log("GetDataForMonth()... year:"+year+" month:" + month + " dataMonths:" + dataMonths.Count);
-            //return dataMonths[month - 1];
-        }
-
-        public List<PatchDataMonth> GetMonths()
-        {
-            return dataMonths;
-        }
-    }
-
     #endregion
 
     #region Utilities
@@ -3595,19 +3327,6 @@ public class LandscapeController : MonoBehaviour
                            select c).ToArray());
     }
 
-    /// <summary>
-    /// Maps value from one range to another.
-    /// </summary>
-    /// <returns>The value.</returns>
-    /// <param name="value">Value.</param>
-    /// <param name="from1">From1.</param>
-    /// <param name="to1">To1.</param>
-    /// <param name="from2">From2.</param>
-    /// <param name="to2">To2.</param>
-    public static float MapValue(float value, float from1, float to1, float from2, float to2)
-    {
-        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-    }
 
     /// <summary>
     /// Gets the days in given month.
@@ -3669,54 +3388,6 @@ public class LandscapeController : MonoBehaviour
     }
 
 
-    ///// <summary>
-    ///// Get an array containing the relative mix of textures on the main terrain at this world position.
-    ///// </summary>
-    ///// <param name="worldPos"></param>
-    ///// <returns></returns>
-    //private float[] GetTextureMix(Vector3 worldPos)
-    //{
-    //    Vector3 terrainPos = terrain.transform.position;
-    //    TerrainDataFrame terrainData = terrain.terrainData;
-
-    //    // calculate which splat map cell the worldPos falls within (ignoring y)
-    //    int mapX = (int)(((worldPos.x - terrainPos.x) / terrainData.size.x) * terrainData.alphamapWidth);
-    //    int mapZ = (int)(((worldPos.z - terrainPos.z) / terrainData.size.z) * terrainData.alphamapHeight);
-
-    //    // get the splat data for this cell as a 1x1xN 3d array (where N = number of textures)
-    //    float[,,] splatmapData = terrainData.GetAlphamaps(mapX, mapZ, 1, 1);
-
-    //    // extract the 3D array data to a 1D array:
-    //    float[] cellMix = new float[splatmapData.GetUpperBound(2) + 1];
-
-    //    for (int n = 0; n < cellMix.Length; n++)
-    //    {
-    //        cellMix[n] = splatmapData[0, 0, n];
-    //    }
-    //    return cellMix;
-    //}
-
-    //private int GetMainTexture(Vector3 worldPos)
-    //{
-    //    // returns the zero-based index of the most dominant texture
-    //    // on the main terrain at this world position.
-    //    float[] mix = GetTextureMix(worldPos);
-
-    //    float maxMix = 0;
-    //    int maxIndex = 0;
-
-    //    // loop through each mix value and find the maximum
-    //    for (int n = 0; n < mix.Length; n++)
-    //    {
-    //        if (mix[n] > maxMix)
-    //        {
-    //            maxIndex = n;
-    //            maxMix = mix[n];
-    //        }
-    //    }
-    //    return maxIndex;
-    //}
-
     private FireDataFrameRecord ConvertFireDataFrameToRecord(FireDataFrame fdf)
     {
         FireDataFrameRecord record = new FireDataFrameRecord(fdf.GetDay(), fdf.GetMonth(), fdf.GetYear(), fdf.GetGridHeight(),
@@ -3741,868 +3412,6 @@ public class LandscapeController : MonoBehaviour
         return null;
     }
 
-    //private FireDataFrame ConvertTerrainDataFrameRecordToFrame(FireDataFrameRecord record)
-    //{
-    //    try
-    //    {
-    //        FireDataFrame fdf = new FireDataFrame(record.GetDay(), record.GetMonth(), record.GetYear(),
-    //            record.GetGridHeight(),
-    //            record.GetGridWidth(), record.GetDataList(), record.GetDataGrid());
-    //        return fdf;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Debug.Log("ConvertFireDataFrameRecordToFrame()... ERROR ex:"+ex.Message);
-    //    }
-
-    //    return null;
-    //}
 
     #endregion
 }
-
-#region Classes
-///// <summary>
-///// Patch point collection.
-///// </summary>
-//[Serializable]
-//public class PatchPointCollection
-//{
-//    private int patchID;
-//    List<PatchPoint> points;                // Points in collection
-
-//    /// <summary>
-//    /// Initializes a new instance of the <see cref="T:LandscapeController.PatchPointCollection"/> class.
-//    /// </summary>
-//    public PatchPointCollection(int newPatchID)
-//    {
-//        patchID = newPatchID;
-//        points = new List<PatchPoint>();
-//    }
-
-//    /// <summary>
-//    /// Adds point to collection.
-//    /// </summary>
-//    /// <param name="newPoint">New point.</param>
-//    public void AddPoint(PatchPoint newPoint)
-//    {
-//        points.Add(newPoint);
-//    }
-
-//    /// <summary>
-//    /// Adds point to collection.
-//    /// </summary>
-//    /// <param name="newPoint">New point.</param>
-//    public bool ContainsPoint(PatchPoint newPoint)
-//    {
-//        return points.Contains(newPoint);
-//    }
-
-//    /// <summary>
-//    /// Clears the points.
-//    /// </summary>
-//    public void ClearPoints()
-//    {
-//        points = new List<PatchPoint>();
-//    }
-
-//    /// <summary>
-//    /// Gets the points.
-//    /// </summary>
-//    /// <returns>The points.</returns>
-//    public List<PatchPoint> GetPoints()
-//    {
-//        return points;
-//    }
-
-//    /// <summary>
-//    /// Gets the patch identifier.
-//    /// </summary>
-//    /// <returns>The patch identifier.</returns>
-//    public int GetPatchID()
-//    {
-//        return patchID;
-//    }
-//}
-
-///// <summary>
-///// Point on terrain splatmap associated with a patch ID.
-///// </summary>
-//[Serializable]
-//public class PatchPoint
-//{
-//    private int patchID;
-//    private Vector2 location;           // Patch grid location (col, row in data file)
-//    private Vector2 fireLocation;       // Fire grid location
-//    private Vector2 alphamapLoc;        // Alphamap grid location
-//    private Vector3 utm;                // UTM location
-
-//    /// <summary>
-//    /// Initializes a new instance of the <see cref="T:LandscapeController.PatchPoint"/> class.
-//    /// </summary>
-//    /// <param name="newPatchID">New patch identifier.</param>
-//    /// <param name="newLocation">New location.</param>
-//    /// <param name="newUTM">New utm.</param>
-//    public PatchPoint(int newPatchID, Vector2 newLocation, Vector2 newFireLocation, Vector2 newAlphamapLocation, Vector3 newUTM)
-//    {
-//        patchID = newPatchID;
-//        location = newLocation;
-//        fireLocation = newFireLocation;
-//        alphamapLoc = newAlphamapLocation;
-//        utm = newUTM;
-//    }
-
-//    /// <summary>
-//    /// Gets the patch identifier.
-//    /// </summary>
-//    /// <returns>The patch identifier.</returns>
-//    public int GetPatchID()
-//    {
-//        return patchID;
-//    }
-
-//    ///// <summary>
-//    ///// Gets the patch grid location.
-//    ///// </summary>
-//    ///// <returns>The location.</returns>
-//    //public Vector2 GetLocation()
-//    //{
-//    //    return location;
-//    //}
-
-//    /// <summary>
-//    /// Gets the fire grid location.
-//    /// </summary>
-//    /// <returns>The location.</returns>
-//    public Vector2 GetFireGridLocation()
-//    {
-//        return fireLocation;
-//    }
-
-//    /// <summary>
-//    /// Gets the alphamap location.
-//    /// </summary>
-//    /// <returns>The location.</returns>
-//    public Vector2 GetAlphamapLocation()
-//    {
-//        return alphamapLoc;
-//    }
-
-//    /// <summary>
-//    /// Gets X coord.
-//    /// </summary>
-//    /// <returns>The x.</returns>
-//    public int X()
-//    {
-//        return (int)location.x;
-//    }
-//    /// <summary>
-//    /// Gets Y coord.
-//    /// </summary>
-//    /// <returns>The y.</returns>
-//    public int Y()
-//    {
-//        return (int)location.y;
-//    }
-
-//    /// <summary>
-//    /// Gets the UTM Location.
-//    /// </summary>
-//    /// <returns>The UTML ocation.</returns>
-//    public Vector3 GetUTMLocation()
-//    {
-//        return utm;
-//    }
-//}
-
-/// <summary>
-/// Data point on fire grid associated with a PatchPoint.
-/// </summary>
-[Serializable]
-public class FireDataPoint : IComparable<FireDataPoint>
-{
-    public Vector2 gridLocation;
-    public int patchId;
-    public float spread;
-    public int iter;
-
-    /// <summary>
-    /// Constructor 
-    /// </summary>
-    /// <param name="patchPoint">Position in terrain alphamap grid</param>
-    /// <param name="newSpread"></param>
-    /// <param name="newIter"></param>
-    public FireDataPoint(Vector2 newGridLocation, int newPatchId, float newSpread, int newIter)
-    {
-        gridLocation = newGridLocation;
-        patchId = newPatchId;
-        spread = newSpread;
-        iter = newIter;
-
-        //gridLocation = patchPoint.GetFireGridLocation();
-        //patchId = patchPoint.GetPatchID();
-    }
-
-    ///// <summary>
-    ///// Constructor 
-    ///// </summary>
-    ///// <param name="patchPoint">Position in terrain alphamap grid</param>
-    ///// <param name="newSpread"></param>
-    ///// <param name="newIter"></param>
-    //public FireDataPoint(PatchPoint patchPoint, float newSpread, int newIter)
-    //{
-    //    spread = newSpread;
-    //    iter = newIter;
-
-    //    gridLocation = patchPoint.GetFireGridLocation();
-    //    patchId = patchPoint.GetPatchID();
-    //}
-
-    //public PatchPoint GetPatchPoint()
-    //{
-    //    return patchPoint;
-    //}
-
-    public Vector2 GetGridPosition()
-    {
-        return gridLocation;
-        //return patchPoint.GetFireGridLocation();
-    }
-
-    /// <summary>
-    /// Gets X coord.
-    /// </summary>
-    /// <returns>The x.</returns>
-    public int X()
-    {
-        return (int)gridLocation.x;
-        //return (int)patchPoint.GetFireGridLocation().x;
-    }
-
-    /// <summary>
-    /// Gets Y coord.
-    /// </summary>
-    /// <returns>The y.</returns>
-    public int Y()
-    {
-        return (int)gridLocation.y;
-        //return (int)patchPoint.GetFireGridLocation().y;
-    }
-
-    public float GetSpread()
-    {
-        return spread;
-    }
-
-    public int GetIter()
-    {
-        return iter;
-    }
-
-    public int GetPatchID()
-    {
-        return patchId;
-        //return patchPoint.GetPatchID();
-    }
-
-    public int CompareTo(FireDataPoint that)
-    {
-        return this.GetIter().CompareTo(that.GetIter());
-    }
-}
-
-/// <summary>
-/// Collection of fire data points
-/// </summary>
-[Serializable]
-public class FireDataPointCollection
-{
-    public List<FireDataPoint> points;
-
-    public FireDataPointCollection()
-    {
-        points = new List<FireDataPoint>();
-    }
-
-    public void AddPoint(FireDataPoint newPoint)
-    {
-        points.Add(newPoint);
-    }
-
-    public List<FireDataPoint> GetPoints()
-    {
-        return points;
-    }
-}
-
-/// <summary>
-/// Terrain fire data frame.
-/// </summary>
-public class FireDataFrame
-{
-    public FireDataPointCollection[,] dataGrid;
-    //public FireDataPointCollection[] dataGrid;
-    public List<FireDataPoint> dataList;
-    public int year, month, day;
-    public int gridHeight;
-    public int gridWidth;
-
-    public FireDataFrame(int newDay, int newMonth, int newYear, int newGridHeight, int newGridWidth, List<FireDataPoint> newDataList, FireDataPointCollection[,] newDataGrid)
-    {
-        year = newYear;
-        month = newMonth;
-        day = newDay;
-        //dataGrid = Flatten2DArrayTo1D(newDataGrid);
-        dataGrid = newDataGrid;
-        dataList = newDataList;
-        gridHeight = newGridHeight;
-        gridWidth = newGridWidth;
-    }
-
-    public int GetYear()
-    {
-        return year;
-    }
-    public int GetMonth()
-    {
-        return month;
-    }
-    public void SetDay(int newDay)
-    {
-        day = newDay;
-    }
-    public int GetDay()
-    {
-        return day;
-    }
-    public int GetGridHeight()
-    {
-        return gridHeight;
-    }
-    public int GetGridWidth()
-    {
-        return gridWidth;
-    }
-
-    public FireDataPointCollection[,] GetDataGrid()
-    {
-        return dataGrid;
-    }
-
-    public List<FireDataPoint> GetDataList()
-    {
-        return dataList;
-    }
-
-    public void OptimizeData()
-    {
-        FireDataPointCollection[,] newDataGrid = new FireDataPointCollection[gridWidth, gridHeight];
-        List<FireDataPoint> newDataList = new List<FireDataPoint>();
-
-        for (int x = 0; x < gridWidth; x++)
-        {
-            for (int y = 0; y < gridHeight; y++)
-            {
-                int iter = 0;
-                float size = 0f;
-                int patchId = -1;
-                FireDataPointCollection coll = dataGrid[x, y];
-                if (coll == null)
-                {
-                    Debug.Log("OptimizeData() WARNING coll == null?: " + (coll == null));
-
-                    coll = new FireDataPointCollection();
-                }
-
-                if (coll.GetPoints() == null)
-                {
-                    Debug.Log("coll.GetPoints() == null? " + (coll.GetPoints() == null));
-                    coll.points = new List<FireDataPoint>();
-                }
-
-                foreach (FireDataPoint p in coll.GetPoints())
-                {
-                    iter += p.GetIter();
-
-                    float fireSizeFactor = 5f;                  // -- TO DO: MOVE TO SETTINGS
-                    size += p.GetSpread() * fireSizeFactor;
-
-                    patchId = p.patchId;
-                }
-
-                if (patchId == -1)
-                {
-                    Debug.Log("NO PatchId");
-                }
-                FireDataPointCollection newColl = new FireDataPointCollection();
-                FireDataPoint fdp = new FireDataPoint(new Vector2(x, y), patchId, size, iter);
-                newColl.AddPoint(fdp);
-                newDataList.Add(fdp);
-                newDataGrid[x, y] = newColl;
-            }
-        }
-
-        dataGrid = newDataGrid;
-        dataList = newDataList;
-    }
-
-
-    //public FireDataPointCollection[] Flatten2DArrayTo1D(FireDataPointCollection[,] grid)
-    //{
-    //    FireDataPointCollection[] flatArray = new FireDataPointCollection[grid.GetLength(0) * grid.GetLength(1)];
-
-    //    string str = "";
-
-    //    int i = 0;
-    //    for (int a = 0; a < grid.GetLength(0); a++)
-    //    {
-    //        for (int b = 0; b < grid.GetLength(1); b++)
-    //        {
-    //            flatArray[i++] = grid[a, b];
-    //            if (i < 100)
-    //                str += "a: "+a+" b:"+b+ " val: " + grid[a, b] + " __ ";
-    //        }
-    //    }
-
-    //    Debug.Log("Flatten2DArrayTo1D()... flatArray length:" + flatArray.Length+ "   str: "+str);
-
-    //    return flatArray;
-    //}
-
-    //public FireDataPointCollection[,] Unflatten1DArrayTo2D(FireDataPointCollection[] array, int xCount, int yCount)
-    //{
-    //    string str = "";
-
-    //    var output = new FireDataPointCollection[xCount, yCount];
-    //    var i = 0;
-    //    for (var a = 0; a < xCount; a++)
-    //    {
-    //        for (var b = 0; b < yCount; b++)
-    //        {
-    //            output[a, b] = array[i++];
-    //            if (i < 100)
-    //                str += "a: " + a + " b:" + b + " val: " + output[a, b] + " __ ";
-    //        }
-    //    }
-
-    //    Debug.Log("Unflatten1DArrayTo2D()... output length:" + output.Length + "   str: " + str);
-
-    //    return output;
-    //}
-}
-
-/// <summary>
-/// Terrain fire data frame record (for serialization).
-/// </summary>
-[Serializable]
-public class FireDataFrameRecord
-{
-    public List<FireDataPoint> dataList;
-    public int year, month, day;
-    public int gridHeight;
-    public int gridWidth;
-
-    public FireDataFrameRecord(int newDay, int newMonth, int newYear, int newGridHeight, int newGridWidth, List<FireDataPoint> newDataList)//, FireDataPointCollection[,] newDataGrid)
-    {
-        year = newYear;
-        month = newMonth;
-        day = newDay;
-        dataList = newDataList;
-        gridHeight = newGridHeight;
-        gridWidth = newGridWidth;
-    }
-
-    public int GetYear()
-    {
-        return year;
-    }
-    public int GetMonth()
-    {
-        return month;
-    }
-    //public void SetDay(int newDay)
-    //{
-    //    day = newDay;
-    //}
-    public int GetDay()
-    {
-        return day;
-    }
-
-    public int GetGridHeight()
-    {
-        return gridHeight;
-    }
-
-    public int GetGridWidth()
-    {
-        return gridWidth;
-    }
-
-    public FireDataPointCollection[,] GetDataGrid()
-    {
-        FireDataPointCollection[,] firePointGrid = new FireDataPointCollection[gridWidth, gridHeight];
-
-        for (int x = 0; x < gridWidth; x++)
-        {
-            for (int y = 0; y < gridHeight; y++)
-            {
-                firePointGrid[x, y] = new FireDataPointCollection();
-            }
-        }
-
-        foreach (FireDataPoint fdp in dataList)                                            // Loop over points in collection
-        {
-            if (Mathf.Abs(fdp.spread) > 0.0001) // Ignore if fire didn't spread to patch
-            {
-                int gridX = (int)fdp.GetGridPosition().x; //(int)point.GetFireGridLocation().x;
-                int gridY = (int)fdp.GetGridPosition().y; //(int)point.GetFireGridLocation().y;
-                firePointGrid[gridX, gridY].AddPoint(fdp);
-            }
-        }
-
-        return firePointGrid;
-    }
-
-    public List<FireDataPoint> GetDataList()
-    {
-        return dataList;
-    }
-}
-
-/// <summary>
-/// Terrain snow data frame.
-/// </summary>
-[Serializable]
-public class SnowDataFrame
-{
-    int year, month, day;
-    float[,,] data;
-    float avgSnow;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="T:LandscapeController.TerrainDataFrame"/> class.
-    /// </summary>
-    /// <param name="newDay">New day.</param>
-    /// <param name="newMonth">New month.</param>
-    /// <param name="newYear">New year.</param>
-    /// <param name="newData">New data.</param>
-    /// <param name="newAvgSnow">New average snow.</param>
-    public SnowDataFrame(int newDay, int newMonth, int newYear, float[,,] newData, float newAvgSnow)
-    {
-        day = newDay;
-        month = newMonth;
-        year = newYear;
-        data = newData;
-        avgSnow = newAvgSnow;
-
-        if (float.IsNaN(avgSnow))
-            avgSnow = 0f;
-    }
-
-    public float[,,] GetData()
-    {
-        return data;
-    }
-    public int GetYear()
-    {
-        return year;
-    }
-    public int GetMonth()
-    {
-        return month;
-    }
-    public int GetDay()
-    {
-        return day;
-    }
-    public float GetAverageSnow()
-    {
-        return avgSnow;
-    }
-}
-
-/// <summary>
-/// Water data frame.
-/// </summary>
-[Serializable]
-public class WaterDataFrame : IComparable<WaterDataFrame>
-{
-    public int index;
-    public int year, month, day;
-    public float QBase { get; set; }
-    public float QWarm1 { get; set; }
-    public float QWarm2 { get; set; }
-    public float QWarm4 { get; set; }
-    public float QWarm6 { get; set; }
-    public float precipitation { get; set; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="T:LandscapeController.WaterDataFrame"/> class.
-    /// </summary>
-    /// <param name="newYear">New year.</param>
-    /// <param name="newMonth">New month.</param>
-    /// <param name="newDay">New day.</param>
-    /// <param name="newQBase">New streamflow.</param>
-    /// <param name="newPrecipitation">New precipitation.</param>
-    /// <param name="newIndex">New index.</param>
-    public WaterDataFrame(int newYear, int newMonth, int newDay, float newPrecipitation, float newQBase, float newQWarm1, float newQWarm2, float newQWarm4, float newQWarm6, int newIndex)
-    {
-        index = newIndex;
-        year = newYear;
-        month = newMonth;
-        day = newDay;
-        QBase = newQBase;
-        QWarm1 = newQWarm1;
-        QWarm2 = newQWarm2;
-        QWarm4 = newQWarm4;
-        QWarm6 = newQWarm6;
-        precipitation = newPrecipitation;
-    }
-
-    public int CompareTo(WaterDataFrame that)
-    {
-        return this.GetIndex().CompareTo(that.GetIndex());
-    }
-
-    /// <summary>
-    /// Gets the index of the streamflow for warming.
-    /// </summary>
-    /// <returns>The streamflow for warming index.</returns>
-    /// <param name="warmIdx">Warm index.</param>
-    public float GetStreamflowForWarmingIdx(int warmIdx)
-    {
-        switch (warmIdx)
-        {
-            case 0:
-                return QBase;
-            case 1:
-                return QWarm1;
-            case 2:
-                return QWarm2;
-            case 3:
-                return QWarm4;
-            case 4:
-                return QWarm6;
-            default:
-                return QBase;
-        }
-    }
-
-    public int GetDay()
-    {
-        return day;
-    }
-
-    public int GetMonth()
-    {
-        return month;
-    }
-
-    public int GetYear()
-    {
-        return year;
-    }
-
-    public int GetIndex()
-    {
-        return index;
-    }
-}
-
-/// <summary>
-/// List of WaterDataFrame objects sorted by month.
-/// </summary>
-[Serializable]
-public class WaterDataMonth : IComparable<WaterDataMonth>
-{
-    public int index;
-    public int month, year;
-    public List<WaterDataFrame> dataFrames;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="T:LandscapeController.PatchDataMonth"/> class.
-    /// </summary>
-    /// <param name="newDataFrames">New data frames.</param>
-    /// <param name="newMonth">New month.</param>
-    /// <param name="newYear">New year.</param>
-    public WaterDataMonth(List<WaterDataFrame> newDataFrames, int newMonth, int newYear)
-    {
-        dataFrames = newDataFrames;
-        month = newMonth;
-        year = newYear;
-        //index = newIndex;
-    }
-
-    public int CompareTo(WaterDataMonth that)
-    {
-        return this.GetMonth().CompareTo(that.GetMonth());
-    }
-
-    public int GetMonth()
-    {
-        return month;
-    }
-
-    public int GetYear()
-    {
-        return year;
-    }
-
-    public WaterDataFrame GetDataForDay(int day)
-    {
-        if (day < 0 || day > dataFrames.Count)
-            return null;
-        else
-            return dataFrames[day - 1];
-    }
-
-    public List<WaterDataFrame> GetFrames()
-    {
-        return dataFrames;
-    }
-}
-
-/// <summary>
-/// List of WaterDataMonth objects sorted by year.
-/// </summary>
-[Serializable]
-public class WaterDataYear : IComparable<WaterDataYear>
-{
-    public int year;
-    public List<WaterDataMonth> dataMonths;
-
-    public WaterDataYear(List<WaterDataMonth> newDataFrames, int newYear)
-    {
-        dataMonths = newDataFrames;
-        year = newYear;
-
-        //Debug.Log("WaterDataYear()... dataMonths[0].GetFrames()[0].GetPatchID():" + dataMonths[0].GetFrames()[0].GetPatchID());
-        //Debug.Log("WaterDataYear()... dataMonths[0].GetFrames()[1].GetPatchID():" + dataMonths[0].GetFrames()[1].GetPatchID());
-    }
-
-    public int CompareTo(WaterDataYear that)
-    {
-        return this.GetYear().CompareTo(that.GetYear());
-    }
-
-    public int GetYear()
-    {
-        return year;
-    }
-
-    /// <summary>
-    /// Gets the data for month.
-    /// </summary>
-    /// <returns>The data for month.</returns>
-    /// <param name="month">Month.</param>
-    public WaterDataMonth GetDataForMonth(int month)
-    {
-        if (dataMonths.Count < 12)                       // Check for incomplete year data
-        {
-            if (dataMonths[0].GetMonth() > 1)
-            {
-                int startMonth = dataMonths[0].GetMonth();
-                month = month - startMonth + 1;
-            }
-        }
-
-        if (month > 0 && month <= dataMonths.Count)
-        {
-            return dataMonths[month - 1];
-        }
-        else
-        {
-            Debug.Log("WaterDataYear.GetDataForMonth()... ERROR: year:" + year + " month:" + month + " dataMonths:" + dataMonths.Count);
-            return null;
-        }
-    }
-
-    public List<WaterDataMonth> GetMonths()
-    {
-        return dataMonths;
-    }
-
-    /// <summary>
-    /// Get total precipitation for year
-    /// </summary>
-    /// <returns></returns>
-    public float GetTotalPrecipitation()
-    {
-        float result = 0f;
-        foreach (WaterDataMonth month in dataMonths)
-        {
-            foreach (WaterDataFrame frame in month.GetFrames())
-            {
-                result += frame.precipitation;
-            }
-        }
-        return result;
-    }
-
-    /// <summary>
-    /// Get total streamflow
-    /// </summary>
-    /// <returns></returns>
-    public float GetTotalStreamflow(int warmIdx)
-    {
-        float result = 0f;
-        foreach (WaterDataMonth month in dataMonths)
-        {
-            foreach (WaterDataFrame frame in month.GetFrames())
-            {
-                result += frame.GetStreamflowForWarmingIdx(warmIdx);
-            }
-        }
-        return result;
-    }
-}
-
-/// <summary>
-/// Terrain simulation data.
-/// </summary>
-[Serializable]
-public class TerrainSimulationData
-{
-    List<SnowDataFrame> snowData;               // Currently unused?
-    List<FireDataFrame> fireData;
-    string name;
-
-    public TerrainSimulationData(List<SnowDataFrame> newSnowData, List<FireDataFrame> newFireData, string newName)
-    {
-        name = newName;
-        snowData = newSnowData;
-        fireData = newFireData;
-    }
-
-    //public void SetWaterData(WaterDataYear[] newWaterData)
-    //{
-    //    wData = newWaterData;
-    //}
-
-    public List<SnowDataFrame> GetSnowData()
-    {
-        return snowData;
-    }
-
-    public List<FireDataFrame> GetFireData()
-    {
-        return fireData;
-    }
-
-    public bool HasPreloadedSnowData()
-    {
-        return !(snowData == null);
-    }
-
-    //public WaterDataYear[] GetWaterData()
-    //{
-    //    return wData;
-    //}
-
-    public string GetName()
-    {
-        return name;
-    }
-}
-#endregion

@@ -1,4 +1,4 @@
-# RHESSys Data Importer Import Pipeline Spec
+# RHESSys Data Importer Import Pipeline
 
 Last updated: 2026-06-13
 

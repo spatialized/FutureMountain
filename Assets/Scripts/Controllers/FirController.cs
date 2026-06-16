@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Assertions;
 using UnityEngine;
@@ -88,6 +88,7 @@ public class FirController : TreeController
         //gameObject.SetActive(false);
         dying = false;
         alive = false;
+        initialized = true;
     }
 
     /// <summary>
@@ -118,7 +119,7 @@ public class FirController : TreeController
             transpiration = newTranspiration;                   // -- Randomize between trees?
 
             //if (leafCarbon < maxLeafCarbon)                   // -- Unused
-            //    alphaCutoff = 1f - MapValue(leafCarbon, 0f, maxLeafCarbon, 0f, 0.6f);
+            //    alphaCutoff = 1f - MathUtil.MapValue(leafCarbon, 0f, maxLeafCarbon, 0f, 0.6f);
             //else
             //    alphaCutoff = 0.1f;
 
@@ -148,7 +149,11 @@ public class FirController : TreeController
 
     public void UpdateETSimulationSpeed(float newSpeed)
     {
-        mainModule.simulationSpeed = newSpeed;
+        if (!initialized || destroyed || etParticles == null)
+            return;
+
+        ParticleSystem.MainModule main = etParticles.main;
+        main.simulationSpeed = newSpeed;
     }
 
     /// <summary>
