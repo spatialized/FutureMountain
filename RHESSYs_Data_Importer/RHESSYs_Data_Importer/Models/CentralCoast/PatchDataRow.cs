@@ -9,7 +9,8 @@ namespace RHESSYs_Data_Importer.Models.CentralCoast
     ///
     /// One row per unique <c>zoneID</c> decoded from Pch30rip90upRN.tiff by
     /// <c>CentralCoastImporter.ImportPatchMapData</c>. The <c>data</c> column
-    /// contains a JSON blob with the following shape (see CCV2-15 spec):
+    /// contains a JSON blob with the following shape (see
+    /// Docs/CentralCoastV2/InitialPatchMapping.md):
     /// <code>
     /// {
     ///   "zoneID": 3497,

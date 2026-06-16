@@ -173,7 +173,7 @@ namespace RHESSYs_Data_Importer.Migrations.CentralCoast
                     b.ToTable("CubeData");
                 });
 
-            modelBuilder.Entity("RHESSYs_Data_Importer.Models.CentralCoast.FireDataRow", b =>
+            modelBuilder.Entity("RHESSYs_Data_Importer.Models.CentralCoast.BurnDataRow", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -224,7 +224,7 @@ namespace RHESSYs_Data_Importer.Migrations.CentralCoast
 
                     b.HasIndex("scenarioRunId", "warmingIdx", "year", "month", "zoneID", "patchID");
 
-                    b.ToTable("FireData");
+                    b.ToTable("BurnData");
                 });
 
             modelBuilder.Entity("RHESSYs_Data_Importer.Models.CentralCoast.ImportRun", b =>

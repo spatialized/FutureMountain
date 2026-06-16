@@ -1,6 +1,6 @@
 # Timeline
 
-Last updated: 2026-06-12
+Last updated: 2026-06-16
 
 ## User Interface Behavior
 
@@ -31,11 +31,18 @@ For web builds:
 2. `SetTimelineWaterData()` deserializes the response into `TimelineWaterData`.
 3. `TimelineControl.CreateTimelineWeb()` instantiates bars and icons.
 
+`WebManager` applies the active `SimulationSettings.apiProfile` to this request,
+so Big Creek uses `/api/waterdata/total` and Central Coast uses
+`/api/centralcoast/waterdata/total`.
+
 Each year is represented by a `graphBarPrefab` named `Point_{index}`. Fire icons are named `Fire_{year}`. Message icons are named `Message_{year}_{warmingDegrees}`.
 
 ## Data Display
 
-Annual precipitation determines bar height. In the web path, `CreateTimelineWeb()` currently uses a hard-coded max precipitation of `2582f`, with a comment noting that this should come from the API.
+Annual precipitation determines bar height. In both local and web paths, the
+maximum precipitation used for scaling is computed from the loaded yearly
+precipitation values. The web path no longer uses the old hard-coded `2582f`
+maximum.
 
 Fire and message years are passed in from `GameController`:
 
@@ -55,7 +62,6 @@ Timeline time is global. In Normal Mode, a timeline jump updates the main landsc
 
 ## Current Constraints
 
-- Web max precipitation is hard-coded.
 - Timeline click resolution is year-level.
 - Icon naming encodes year and warming degrees.
 - Message icon lookup uses the message manager and active warming degree conventions.

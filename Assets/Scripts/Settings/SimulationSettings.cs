@@ -1,6 +1,12 @@
 using System.Collections;
 using UnityEngine;
 
+public enum ScenarioApiProfile
+{
+    BigCreek,
+    CentralCoast
+}
+
 /// <summary>
 /// Tree settings class.
 /// </summary>
@@ -10,12 +16,67 @@ public class SimulationSettings : MonoBehaviour
     [Header("Data")]
     [Tooltip("Load Cube Data Only (for testing)")]
     public bool CubeDataOnly = false;                   // Only load cube data and use test precip data (true) or run full landscape simulation (false)
+    [Tooltip("Selects the API route prefix used by this scene.")]
+    public ScenarioApiProfile apiProfile = ScenarioApiProfile.BigCreek;
+
+    public string ScenarioApiPrefix
+    {
+        get
+        {
+            switch (apiProfile)
+            {
+                case ScenarioApiProfile.CentralCoast:
+                    return "centralcoast/";
+                case ScenarioApiProfile.BigCreek:
+                default:
+                    return "";
+            }
+        }
+    }
+
+    public string GeneralMessagesResourcePath
+    {
+        get
+        {
+            switch (apiProfile)
+            {
+                case ScenarioApiProfile.CentralCoast:
+                    return "Messages/CentralCoastGeneralMessages";
+                case ScenarioApiProfile.BigCreek:
+                default:
+                    return "Messages/GeneralMessages";
+            }
+        }
+    }
+
+    public string FireMessagesResourcePath
+    {
+        get
+        {
+            switch (apiProfile)
+            {
+                case ScenarioApiProfile.CentralCoast:
+                    return "Messages/CentralCoastFireMessages";
+                case ScenarioApiProfile.BigCreek:
+                default:
+                    return "Messages/FireMessages";
+            }
+        }
+    }
+
 #if WEB_VERSION || LOCAL_VERSION
     public bool BuildForWeb => true;
 #else
     public bool BuildForWeb => false;
 #endif
 
+    /* Scenario Feature Settings */
+    [Header("Scenario Features")]
+    [Tooltip("Enable snow visualization and snow-driven cube effects")]
+    public bool SnowEnabled = true;                       // Enable snow visualization
+    [Tooltip("Enable fire simulation and fire data loading")]
+    public bool FireEnabled = true;                       // Enable fire simulation
+    
     /* Fire Settings */
     [Header("Fire")]
     [Tooltip("Pause simulation automatically during fire")]
@@ -52,9 +113,9 @@ public class SimulationSettings : MonoBehaviour
 
     [Header("Carbon")]
     [Tooltip("Stem + leaf carbon per m. of tree height (lower value means more trees)")]
-    public float TreeCarbonFactor = 0.033f;              // Stem + leaf carbon per m. of tree height (lower => more trees)
+    public float TreeCarbonFactor = 0.027f;              // Stem + leaf carbon per m. of tree height (lower => more trees)
     [Tooltip("Carbon per m. of root height")]
-    public float RootsCarbonFactor = 0.005f;              // Carbon per m. of root height
+    public float RootsCarbonFactor = 0.009f;              // Carbon per m. of root height
     [Tooltip("Stem + leaf carbon per m. of shrub height  (lower means more shrubs)")]
     public float ShrubCarbonFactor = 0.004f;              // Stem + leaf carbon per m. of shrub height  (lower => more shrubs)
     [Tooltip("Aggregate Cube Stem + leaf carbon per m. of tree height (lower means more trees)")]
@@ -64,7 +125,7 @@ public class SimulationSettings : MonoBehaviour
     [Tooltip("Aggregate Cube Stem + leaf carbon per m. of shrub height  (lower means more shrubs)")]
     public float CubeAShrubCarbonFactor = 0.005f;        // Aggregate Cube Stem + leaf carbon per m. of shrub height  (lower => more shrubs)
     [Tooltip("Multiplier for carbon factor variables when building for web")]
-    public float WebBuildCarbonMultiplier = 2f;          // Multiplier for decreasing vegetation for web optimization (higher => less vegetation)
+    public float WebBuildCarbonMultiplier = 3f;          // Multiplier for decreasing vegetation for web optimization (higher => less vegetation)
 
     [Header("Emission")]
     [Tooltip("Tree particle emission factor")]

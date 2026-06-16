@@ -67,7 +67,7 @@ namespace RHESSYs_Data_Importer.DAL
         public DbSet<Date> Dates { get; set; }
         public DbSet<CubeDataRow> CubeData { get; set; }
         public DbSet<WaterDataRow> WaterData { get; set; }
-        public DbSet<FireDataRow> FireData { get; set; }
+        public DbSet<BurnDataRow> BurnData { get; set; }
         public DbSet<StratumDataRow> StratumData { get; set; }
         public DbSet<PatchDataRow> PatchData { get; set; }
         public DbSet<TerrainDataRow> TerrainData { get; set; }

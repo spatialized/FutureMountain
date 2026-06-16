@@ -404,10 +404,10 @@ public class LandscapeController : MonoBehaviour
             int warm = WarmingIndexToDegrees(warmingIdx);
             simulationData[warmingIdx] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
             currentSimulationData = simulationData[warmingIdx];
-            //if (debug && currentTimeIdx % 10 == 0)
-            //{
-            //    Debug.Log(("At time: "+currentTimeIdx+"... FinishUpdateFireDataFromWeb ERROR... deserialize failed"));
-            //}
+            if (settings != null && settings.DebugGame && currentTimeIdx % 10 == 0)
+            {
+                Debug.Log(("At time: " + currentTimeIdx + "... FinishUpdateFireDataFromWeb ERROR... deserialize failed"));
+            }
         }
         else
         {
@@ -721,7 +721,7 @@ public class LandscapeController : MonoBehaviour
                 //LoadFireData();
                 //try
                 //{
-                if (loadFireDataFromFile)
+                if (loadFireDataFromFile && settings != null && settings.FireEnabled)
                 {
                     TextAsset[] fireDataFrames = Resources.LoadAll<TextAsset>("FireData");
                     simulationData = new TerrainSimulationData[5];
@@ -841,7 +841,7 @@ public class LandscapeController : MonoBehaviour
         warmingIdx = warmIdx;
         landscapeDataLoadedFromWebAPI = false;
 
-        if (loadFireDataFromFile)
+        if (loadFireDataFromFile && settings != null && settings.FireEnabled)
         {
             TextAsset fireFrameTextAsset =
                 Resources.Load<TextAsset>("FireData/fireDataList_" + i); // List<FireDataFrame> 
@@ -872,10 +872,13 @@ public class LandscapeController : MonoBehaviour
         }
         else // Load from web
         {
-            if (WebManager.Instance)
-                WebManager.Instance.RequestFireData(warmingIdx, this.FinishUpdateFireDataFromWeb);
-            else
-                Debug.Log("LoadLandscapeDataForWarmingIdx()... ERROR... no instance of WebManager!");
+            if (settings != null && settings.FireEnabled)
+            {
+                if (WebManager.Instance)
+                    WebManager.Instance.RequestFireData(warmingIdx, this.FinishUpdateFireDataFromWeb);
+                else
+                    Debug.Log("LoadLandscapeDataForWarmingIdx()... ERROR... no instance of WebManager!");
+            }
         }
 
         if (loadTerrainDataFromFile)
@@ -1256,6 +1259,9 @@ public class LandscapeController : MonoBehaviour
     /// <param name="newFireDates">New fire date list.</param>
     public void SetupFires(Vector3[] fireDates, int warmIdx)        /// -- TO DO: Get fire dates from data!!
     {
+        if (settings != null && !settings.FireEnabled)
+            return;
+
         //List<FireDataPoint>[] firePointLists;
         Assert.IsNotNull(fireDates);
         Assert.IsNotNull(pooler);

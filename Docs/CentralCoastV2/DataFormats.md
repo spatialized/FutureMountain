@@ -59,6 +59,7 @@ The date range reflects the WRF climate data window described by the data provid
 | `spatial_data_point_patchvar.csv` | 3,438,336 | Monthly all-patch burn | 8,954 patch rows per month |
 | `spatial_data_point_stratvar.csv` | 6,876,672 | Monthly all-stratum carbon | 17,908 stratum rows per month |
 | `Pch30rip90upRN.tiff` | n/a | Raster | Patch-family map, used to derive spatial patch extents |
+| `dem30mSBFRbound.tiff` | n/a | Raster | DEM/height raster for shaping the Unity Central Coast terrain |
 
 ## Spatial Identity Model
 
@@ -84,6 +85,57 @@ patchID 1007102 -> stratumID 10071021 and 10071022
 ```
 
 The patch map raster stores `zoneID` / patch-family IDs. It does not separately map `01` and `02` aspatial patch members.
+
+## DEM / Unity Heightmap Notes
+
+`dem30mSBFRbound.tiff` is the Central Coast DEM used to shape the Unity terrain.
+It aligns with `Pch30rip90upRN.tiff`:
+
+| Property | Value |
+| --- | --- |
+| Grid size | 396 columns x 301 rows |
+| Pixel scale | ~30 m |
+| Bands | 1 |
+| TIFF sample type | unsigned 16-bit |
+| Compression | none |
+| Source value range observed | 0..255 |
+| Nodata value observed | none; `65535` count was 0 |
+
+Because the DEM and patch-family raster share the same 396 x 301 grid, no GIS
+reprojection, cropping, or alignment step is needed for the Central Coast
+pre-prototype. Unity terrain heightmaps are square, so the DEM must be resampled
+and scaled before import.
+
+Generated prototype heightmap:
+
+```text
+Assets/Terrains/CentralCoastV2/Heightmaps/CentralCoast_DEM_513_uint16_little_endian.raw
+```
+
+Generation notes:
+
+- Source: `RHESSYs_Data_Importer/Data/CentralCoast/RHESSysOutput-SingleWarmIdx-6-4-2026/dem30mSBFRbound.tiff`
+- Output grid: 513 x 513
+- Format: headerless RAW, unsigned 16-bit, little-endian / Windows byte order
+- Resampling: bilinear
+- Scaling: source min..max scaled to 0..65535
+
+Unity `Import Raw...` settings:
+
+| Setting | Value |
+| --- | --- |
+| Depth | Bit16 |
+| Width | 513 |
+| Height | 513 |
+| Byte order | Windows / Little Endian |
+| Terrain Size X | 11880 |
+| Terrain Size Z | 9030 |
+| Terrain Size Y | Start with 1000 or 1500 and tune visually |
+
+The source DEM values appear normalized rather than true elevation meters, so
+`Terrain Size Y` is a visual scale choice for the prototype. If the terrain
+appears north/south reversed relative to the patch raster or map, regenerate or
+import a vertically flipped heightmap.
 
 ## Cube Locations
 

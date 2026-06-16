@@ -1,5 +1,7 @@
 # Future Mountain API
 
+Last updated: 2026-06-16
+
 The API project is stored at `Services/FutureMountainApi/`. It was moved from
 the former standalone `FutureMountainAPI` repository with `git subtree` to
 preserve project history.
@@ -97,3 +99,90 @@ Examples of prototype mappings:
 projections. Richer Central Coast v2 production endpoints can later expose
 native fields such as `scenarioRunId`, `zoneID`, `patchID`, `basinID`,
 `hillID`, and stratum identifiers without changing these prototype contracts.
+
+## Local Build And Publish
+
+Project folder:
+
+```text
+Services/FutureMountainApi/FutureMountainAPI/FutureMountainAPI/
+```
+
+Build:
+
+```powershell
+dotnet build
+```
+
+Publish to a local folder:
+
+```powershell
+dotnet publish -c Release -o C:\tmp\FutureMountainApiPublish
+```
+
+Before copying the publish output to the server, confirm the published
+configuration contains valid production connection strings:
+
+```json
+{
+  "ConnectionStrings": {
+    "BigCreekDbContext": "<production Big Creek database>",
+    "CentralCoastDbContext": "<production Central Coast database>"
+  }
+}
+```
+
+The required keys are `BigCreekDbContext` and `CentralCoastDbContext`.
+`BigCreekDbContext` is required at startup. `CentralCoastDbContext` is optional
+in code, but Central Coast routes require it to be configured.
+
+Do not commit production credentials. For deployment, use the server-side
+configuration mechanism already approved for the host, or update the
+`appsettings.json` in the local publish folder before copying it to IIS.
+
+## IIS Deployment Runbook
+
+The deployed API is served by IIS for:
+
+```text
+https://data.futuremtn.org/api/
+```
+
+Manual publish workflow:
+
+1. Publish the API locally with `dotnet publish -c Release`.
+2. Confirm the publish folder contains the expected build output and deployment
+   `appsettings.json`.
+3. Log in to `fm01.grit.ucsb.edu` over Remote Desktop.
+4. Open IIS Manager.
+5. Stop the IIS website or application that serves `data.futuremtn.org`.
+6. Back up the current deployed API folder.
+7. Copy all files from the local publish folder into the server folder for
+   `data.futuremtn.org`, replacing the old application files.
+8. Confirm `appsettings.json` in the deployed folder has the production
+   connection strings.
+9. Start the IIS website or application.
+10. Smoke test the API endpoints below.
+
+If deployment fails, restore the backed-up server folder and restart the IIS
+site/application.
+
+Smoke-test URLs:
+
+```text
+https://data.futuremtn.org/api/dates
+https://data.futuremtn.org/api/waterdata/total
+https://data.futuremtn.org/api/cubedata/-1/0
+https://data.futuremtn.org/api/centralcoast/dates
+https://data.futuremtn.org/api/centralcoast/waterdata/total
+```
+
+Use the Unity WebGL build only after the API smoke tests succeed.
+
+## Documentation
+
+Additional API specs live in:
+
+```text
+Specs/FutureMountainAPI/
+```

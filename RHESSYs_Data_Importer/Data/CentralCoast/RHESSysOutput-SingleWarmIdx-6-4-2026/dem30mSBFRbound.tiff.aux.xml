@@ -1,0 +1,12 @@
+<PAMDataset>
+  <PAMRasterBand band="1">
+    <Description>dem30m_SBFRboundary</Description>
+    <Metadata>
+      <MDI key="STATISTICS_MINIMUM">102</MDI>
+      <MDI key="STATISTICS_MAXIMUM">1211</MDI>
+      <MDI key="STATISTICS_MEAN">618.64580354779</MDI>
+      <MDI key="STATISTICS_STDDEV">302.35362276627</MDI>
+      <MDI key="STATISTICS_VALID_PERCENT">15.84</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>

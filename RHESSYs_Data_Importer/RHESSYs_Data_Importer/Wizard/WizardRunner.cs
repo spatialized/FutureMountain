@@ -78,7 +78,7 @@ namespace RHESSYs_Data_Importer.Wizard
             if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
                 Console.WriteLine("  dates: derived from cubeAggregateDaily");
 
-            foreach (var cat in new[] { "cube", "patch", "terrain", "fire", "water", "climate", "stratum" })
+            foreach (var cat in new[] { "cube", "patch", "terrain", "burn", "fire", "water", "climate", "stratum" })
             {
                 if (cat == "stratum" && config.GetProfileKind() != ScenarioProfileKind.CentralCoastV2)
                     continue;
@@ -114,10 +114,11 @@ namespace RHESSYs_Data_Importer.Wizard
                     Console.WriteLine("  [1] Dates");
                     Console.WriteLine("  [2] Cube");
                     Console.WriteLine("  [3] Water");
-                    Console.WriteLine("  [4] Fire");
+                    Console.WriteLine("  [4] Burn");
                     Console.WriteLine("  [5] Patch");
                     Console.WriteLine("  [6] Stratum");
                     Console.WriteLine("  [7] Terrain");
+                    Console.WriteLine("  [8] Fire (configured fire-frame source)");
                 }
                 else
                 {
@@ -139,10 +140,11 @@ namespace RHESSYs_Data_Importer.Wizard
                         case "1": selected.Add("dates"); break;
                         case "2": selected.Add("cube"); break;
                         case "3": selected.Add("water"); break;
-                        case "4": selected.Add("fire"); break;
+                        case "4": selected.Add("burn"); break;
                         case "5": selected.Add("patch"); break;
                         case "6": selected.Add("stratum"); break;
                         case "7": selected.Add("terrain"); break;
+                        case "8": selected.Add("fire"); break;
                         default: Console.WriteLine("[WARN] Unknown selection."); break;
                     }
                 }
@@ -228,7 +230,7 @@ namespace RHESSYs_Data_Importer.Wizard
 
         private static void RunCentralCoastImports(ScenarioConfig config, FileDiscoveryResult discovery, HashSet<string> selected, bool dryrun)
         {
-            string[] catOrder = new[] { "dates", "cube", "water", "fire", "patch", "stratum", "terrain" };
+            string[] catOrder = new[] { "dates", "cube", "water", "burn", "fire", "patch", "stratum", "terrain" };
 
             foreach (var cat in catOrder)
             {
@@ -253,9 +255,12 @@ namespace RHESSYs_Data_Importer.Wizard
                         CentralCoastImporter.EnsureOrPopulateDates(config, dryrun);
                         CentralCoastImporter.ImportWaterData(config, dryrun);
                         break;
-                    case "fire":
+                    case "burn":
                         CentralCoastImporter.ImportBasinBurnData(config, dryrun);
                         CentralCoastImporter.ImportPatchBurnData(config, dryrun);
+                        break;
+                    case "fire":
+                        Console.WriteLine("[INFO] No fire-frame source is configured for this scenario. Use burn for monthly RHESSys burn data.");
                         break;
                     case "patch":
                         CentralCoastImporter.ImportPatchMapData(config, dryrun);
@@ -264,7 +269,7 @@ namespace RHESSYs_Data_Importer.Wizard
                         CentralCoastImporter.ImportStratumCarbonData(config, dryrun);
                         break;
                     case "terrain":
-                        Console.WriteLine("[TerrainData] Requires completed PatchData, FireData, and StratumData.");
+                        Console.WriteLine("[TerrainData] Requires completed PatchData, BurnData, and StratumData.");
                         CentralCoastImporter.GenerateTerrainData(config, dryrun);
                         break;
                 }

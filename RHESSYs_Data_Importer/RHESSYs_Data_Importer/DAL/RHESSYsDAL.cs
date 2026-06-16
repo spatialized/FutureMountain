@@ -132,5 +132,22 @@ namespace RHESSYs_Data_Importer.DAL
                 return false;
             }
         }
+
+        public int AddFireDataFrames(IEnumerable<FireDataFrameJSONRecord> frames)
+        {
+            try
+            {
+                using (var db = new FireDataDbContext(_connectionString))
+                {
+                    db.FireData.AddRange(frames);
+                    return db.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: ex:" + ex.Message);
+                return 0;
+            }
+        }
     }
 }

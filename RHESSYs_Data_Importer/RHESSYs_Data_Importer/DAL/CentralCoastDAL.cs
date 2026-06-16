@@ -173,17 +173,17 @@ namespace RHESSYs_Data_Importer.DAL
             return total;
         }
 
-        public bool AddFireDataRow(FireDataRow row)
+        public bool AddBurnDataRow(BurnDataRow row)
         {
             try
             {
                 using var db = new CentralCoastDbContext(_connectionString);
-                db.FireData.Add(row);
+                db.BurnData.Add(row);
                 return db.SaveChanges() > 0;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] AddFireDataRow failed: {ex.Message}");
+                Console.WriteLine($"[ERROR] AddBurnDataRow failed: {ex.Message}");
                 return false;
             }
         }
@@ -234,21 +234,21 @@ namespace RHESSYs_Data_Importer.DAL
         }
 
         /// <summary>
-        /// Inserts a batch of <see cref="FireDataRow"/> rows in a single
-        /// <c>SaveChanges</c> call. Preferred over <see cref="AddFireDataRow"/>
+        /// Inserts a batch of <see cref="BurnDataRow"/> rows in a single
+        /// <c>SaveChanges</c> call. Preferred over <see cref="AddBurnDataRow"/>
         /// for bulk file imports to avoid per-row round-trips.
         /// </summary>
-        public int AddFireDataRows(IEnumerable<FireDataRow> rows)
+        public int AddBurnDataRows(IEnumerable<BurnDataRow> rows)
         {
             try
             {
                 using var db = new CentralCoastDbContext(_connectionString);
-                db.FireData.AddRange(rows);
+                db.BurnData.AddRange(rows);
                 return db.SaveChanges();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ERROR] AddFireDataRows failed: {ex.Message}");
+                Console.WriteLine($"[ERROR] AddBurnDataRows failed: {ex.Message}");
                 return 0;
             }
         }

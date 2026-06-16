@@ -730,7 +730,7 @@ namespace RHESSYs_Data_Importer.IO
 
         /// <summary>
         /// Imports the monthly basin burn file (<c>bm.csv</c>) into the
-        /// <c>FireData</c> table as <c>level = "basin"</c> rows.
+        /// <c>BurnData</c> table as <c>level = "basin"</c> rows.
         /// </summary>
         public static void ImportBasinBurnData(ScenarioConfig config, bool dryrun = false)
         {
@@ -766,7 +766,7 @@ namespace RHESSYs_Data_Importer.IO
                 return;
             }
 
-            var batch = new List<FireDataRow>();
+            var batch = new List<BurnDataRow>();
             int imported = 0;
             string line;
             while ((line = reader.ReadLine()) != null)
@@ -776,7 +776,7 @@ namespace RHESSYs_Data_Importer.IO
 
                 var parts = line.Split(',');
 
-                var row = new FireDataRow
+                var row = new BurnDataRow
                 {
                     scenarioRunId = config.ScenarioRunId ?? "",
                     warmingIdx = config.WarmingIdx ?? 0,
@@ -803,14 +803,14 @@ namespace RHESSYs_Data_Importer.IO
             }
 
             if (!dryrun && batch.Count > 0)
-                dal.AddFireDataRows(batch);
+                dal.AddBurnDataRows(batch);
 
-            Console.WriteLine($"[FireData/basin] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
+            Console.WriteLine($"[BurnData/basin] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
         }
 
         /// <summary>
         /// Imports the monthly all-patch burn file
-        /// (<c>spatial_data_point_patchvar.csv</c>) into the <c>FireData</c>
+        /// (<c>spatial_data_point_patchvar.csv</c>) into the <c>BurnData</c>
         /// table as <c>level = "patch"</c> rows.
         /// </summary>
         public static void ImportPatchBurnData(ScenarioConfig config, bool dryrun = false)
@@ -851,7 +851,7 @@ namespace RHESSYs_Data_Importer.IO
             }
 
             const int ChunkSize = 10_000;
-            var batch = new List<FireDataRow>(ChunkSize);
+            var batch = new List<BurnDataRow>(ChunkSize);
             int imported = 0;
             int savedRows = 0;
             string line;
@@ -862,7 +862,7 @@ namespace RHESSYs_Data_Importer.IO
 
                 var parts = line.Split(',');
 
-                var row = new FireDataRow
+                var row = new BurnDataRow
                 {
                     scenarioRunId = config.ScenarioRunId ?? "",
                     warmingIdx = config.WarmingIdx ?? 0,
@@ -892,20 +892,62 @@ namespace RHESSYs_Data_Importer.IO
                     batch.Add(row);
                     if (batch.Count >= ChunkSize)
                     {
-                        savedRows += dal.AddFireDataRows(batch);
+                        savedRows += dal.AddBurnDataRows(batch);
                         batch.Clear();
-                        Console.WriteLine($"[FireData/patch] {imported:N0} rows processed, {savedRows:N0} rows written...");
+                        Console.WriteLine($"[BurnData/patch] {imported:N0} rows processed, {savedRows:N0} rows written...");
                     }
                 }
             }
 
             if (!dryrun && batch.Count > 0)
-                savedRows += dal.AddFireDataRows(batch);
+                savedRows += dal.AddBurnDataRows(batch);
 
             if (!dryrun && savedRows != imported)
-                Console.WriteLine($"[ERROR] [FireData/patch] Saved {savedRows:N0} of {imported:N0} source rows.");
+                Console.WriteLine($"[ERROR] [BurnData/patch] Saved {savedRows:N0} of {imported:N0} source rows.");
 
-            Console.WriteLine($"[FireData/patch] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
+            Console.WriteLine($"[BurnData/patch] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
+        }
+
+        /// <summary>
+        /// Central Coast v2 fire-frame import entry point.
+        ///
+        /// FireData is reserved for Unity-compatible instantaneous fire playback
+        /// frames: event date, landscape fire grid dimensions, and serialized
+        /// FireDataPoint values containing patch/zone id, spread, and iter/order.
+        ///
+        /// The current Central Coast source bundle has monthly BurnData, but not
+        /// fire-frame spread/iter source files. This method is intentionally
+        /// present so <c>--fire</c> has a concrete pipeline hook and can report
+        /// the missing source roles clearly.
+        /// </summary>
+        public static void ImportFireData(ScenarioConfig config, bool dryrun = false)
+        {
+            var spreadIterPath = config.GetSourceFilePath("fireFrameSpreadIter");
+
+            bool hasSpreadIterRole = !string.IsNullOrWhiteSpace(spreadIterPath);
+
+            if (!hasSpreadIterRole)
+            {
+                Console.WriteLine("[FireData] Central Coast fire-frame import scaffold is active.");
+                Console.WriteLine("[FireData] No Central Coast fire-frame source is configured yet; 0 FireData rows written.");
+                Console.WriteLine("[FireData] FireData will use existing PatchData as the landscape patch/zone grid map.");
+                Console.WriteLine("[FireData] Expected ScenarioConfig file role when source data exists:");
+                Console.WriteLine("[FireData]   fireFrameSpreadIter -> event rows with date, patch/zone id, spread, and iter/order");
+                Console.WriteLine("[FireData] Monthly RHESSys burn remains separate and is imported with --burn into BurnData.");
+                return;
+            }
+
+            bool spreadIterExists = File.Exists(spreadIterPath);
+
+            if (!spreadIterExists)
+            {
+                Console.WriteLine($"[FireData][WARN] fireFrameSpreadIter file not found: {spreadIterPath}");
+                Console.WriteLine("[FireData] 0 FireData rows written.");
+                return;
+            }
+
+            Console.WriteLine("[FireData][ERROR] Central Coast fire-frame source roles are configured and files exist, but the concrete parser has not been wired for this source format yet.");
+            Console.WriteLine("[FireData][ERROR] Do not import these files as BurnData. FireData requires Unity fire-frame records with spread/iter playback data.");
         }
 
         /// <summary>
@@ -1155,7 +1197,7 @@ namespace RHESSYs_Data_Importer.IO
         /// containing a flat 396x301 float array encoded as
         /// <c>vegIntensity + burnSignal * 100</c>.
         ///
-        /// See <c>Docs/CentralCoastV2/TerrainDataPlan.md</c> for full design.
+        /// See <c>Docs/CentralCoastV2/InitialTerrainData.md</c> for details.
         /// </summary>
         public static void GenerateTerrainData(ScenarioConfig config, bool dryrun = false)
         {
@@ -1252,11 +1294,11 @@ namespace RHESSYs_Data_Importer.IO
                         .ToDictionary(x => x.zoneID, x => x.meanC);
                 }
 
-                // Step 4b: aggregate FireData for this (year, month)
+                // Step 4b: aggregate BurnData for this (year, month)
                 Dictionary<int, float> maxBurnByZone;
                 using (var db = new CentralCoastDbContext())
                 {
-                    maxBurnByZone = db.FireData
+                    maxBurnByZone = db.BurnData
                         .Where(f => f.scenarioRunId == scenarioRunId &&
                                     f.warmingIdx == warmingIdx &&
                                     f.year == year &&

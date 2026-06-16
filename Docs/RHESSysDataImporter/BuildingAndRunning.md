@@ -101,7 +101,8 @@ implemented in wizard mode:
 | --- | --- | --- |
 | Cube (patch + stratum) | Implemented | `--cubes` |
 | Water | Implemented | `--water` |
-| Fire (basin + patch burn) | Implemented | `--fire` |
+| Burn (basin + patch monthly burn) | Implemented | `--burn` |
+| Fire (Unity spread frames) | Placeholder until a fire-frame source is configured | `--fire` |
 | Stratum carbon | Implemented | `--stratum` |
 
 ### Central Coast v2 Config
@@ -194,8 +195,8 @@ Expected console output (approximate row counts):
 | Water | `cube_agg_p.csv` | 11,688 |
 | Cube patch | `cube_p_patch1.csv` + `patch2.csv` | 116,880 |
 | Cube stratum | over/under patch1/2 | 233,760 updates |
-| Fire basin | `bm.csv` | 384 |
-| Fire patch | `spatial_data_point_patchvar.csv` | 3,438,336 |
+| Burn basin | `bm.csv` | 384 |
+| Burn patch | `spatial_data_point_patchvar.csv` | 3,438,336 |
 | Stratum carbon | `spatial_data_point_stratvar.csv` | 6,876,672 |
 
 Category-scoped dry runs:
@@ -203,7 +204,7 @@ Category-scoped dry runs:
 ```powershell
 dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json --dryrun --water
 dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json --dryrun --cubes
-dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json --dryrun --fire
+dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json --dryrun --burn
 dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json --dryrun --stratum
 ```
 
@@ -217,7 +218,8 @@ Auto mode flags:
 | `--cubes` | Enables cube import (CCV2: patch + stratum rows) |
 | `--patch` | Enables legacy patch import |
 | `--terrain` | Enables legacy terrain import |
-| `--fire` | Enables fire import (CCV2: basin burn + patch burn) |
+| `--burn` | Enables Central Coast v2 monthly burn import (`BurnData`: basin + patch burn) |
+| `--fire` | Enables configured fire-frame import. The current CCV2 sample has no fire-frame source file, so this is a clean no-op for that scenario. |
 | `--water` | Enables water import (CCV2: daily aggregate) |
 | `--stratum` | Enables stratum carbon import (CCV2 only) |
 | `--config <path>` | Loads the specified scenario config instead of the default `ScenarioConfig_BigCreek.json` |
@@ -225,7 +227,7 @@ Auto mode flags:
 
 ## Database Behavior
 
-The importer writes through EF Core DbContexts. Central Coast v2 fire, stratum, patch, and terrain data use batch inserts (chunk-based `AddRange` + single `SaveChanges` per chunk) to handle the large row counts efficiently.
+The importer writes through EF Core DbContexts. Central Coast v2 burn, stratum, patch, and terrain data use batch inserts (chunk-based `AddRange` + single `SaveChanges` per chunk) to handle the large row counts efficiently.
 
 Before importing:
 

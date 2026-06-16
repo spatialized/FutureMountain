@@ -92,7 +92,7 @@ namespace RHESSYs_Data_Importer.Migrations.CentralCoast
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "FireData",
+                name: "BurnData",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
@@ -115,7 +115,7 @@ namespace RHESSYs_Data_Importer.Migrations.CentralCoast
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FireData", x => x.id);
+                    table.PrimaryKey("PK_BurnData", x => x.id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -275,8 +275,8 @@ namespace RHESSYs_Data_Importer.Migrations.CentralCoast
                 columns: new[] { "scenarioRunId", "warmingIdx", "dateIdx", "zoneID", "patchID" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_FireData_scenarioRunId_warmingIdx_year_month_zoneID_patchID",
-                table: "FireData",
+                name: "IX_BurnData_scenarioRunId_warmingIdx_year_month_zoneID_patchID",
+                table: "BurnData",
                 columns: new[] { "scenarioRunId", "warmingIdx", "year", "month", "zoneID", "patchID" });
 
             migrationBuilder.CreateIndex(
@@ -310,7 +310,7 @@ namespace RHESSYs_Data_Importer.Migrations.CentralCoast
                 name: "Dates");
 
             migrationBuilder.DropTable(
-                name: "FireData");
+                name: "BurnData");
 
             migrationBuilder.DropTable(
                 name: "ImportRun");

@@ -523,6 +523,12 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     /// </summary>
     public void CreateTimelineWeb(PrecipByYear[] waterData, int warmingIdx, int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
     {
+        if (waterData == null || waterData.Length == 0)
+        {
+            Debug.LogWarning("CreateTimelineWeb()... No water data available.");
+            return;
+        }
+
         messageManager = gameController.messageManager;
 
         resolution = waterData.Length;     
@@ -534,10 +540,15 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         fireYears = newFireYears;
         messageYears = newMessageYears;
 
-        //float minPrecip = 100000f;
-        float maxPrecip = 2582f;                 // -- TO DO: GET FROM WEB!!
-        //Max Precip. 			float
-        //https://data.futuremtn.org/api/WaterData/MaxTotal
+        float maxPrecip = 0f;
+        for (int i = 0; i < waterData.Length; i++)
+        {
+            if (waterData[i].precipitation > maxPrecip)
+                maxPrecip = waterData[i].precipitation;
+        }
+
+        if (maxPrecip <= 0f)
+            maxPrecip = 1f;
         
         fireIcons = new List<GameObject>();
         messageIcons = new List<GameObject>();
@@ -582,7 +593,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             bool even = i % 2 == 0;
             int iconYear = i + startYear;
 
-            if (fireYears.Contains(iconYear) || carryOverFire)
+            if (fireYears != null && (fireYears.Contains(iconYear) || carryOverFire))
             {
                 if (even || carryOverFire)
                 {
