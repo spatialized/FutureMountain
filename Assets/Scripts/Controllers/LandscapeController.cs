@@ -404,10 +404,10 @@ public class LandscapeController : MonoBehaviour
             int warm = WarmingIndexToDegrees(warmingIdx);
             simulationData[warmingIdx] = new TerrainSimulationData(sDataList, fDataList, "Thin_0_Warm_" + warm);
             currentSimulationData = simulationData[warmingIdx];
-            //if (debug && currentTimeIdx % 10 == 0)
-            //{
-            //    Debug.Log(("At time: "+currentTimeIdx+"... FinishUpdateFireDataFromWeb ERROR... deserialize failed"));
-            //}
+            if (settings != null && settings.DebugGame && currentTimeIdx % 10 == 0)
+            {
+                Debug.Log(("At time: " + currentTimeIdx + "... FinishUpdateFireDataFromWeb ERROR... deserialize failed"));
+            }
         }
         else
         {
