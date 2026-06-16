@@ -14,7 +14,6 @@ USE futuremtn_central_coast;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-TRUNCATE TABLE terraindata;-- 
-TRUNCATE TABLE stratumdata;
+TRUNCATE TABLE cubedata;
 
 SET FOREIGN_KEY_CHECKS = 1;
