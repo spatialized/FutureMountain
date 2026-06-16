@@ -113,9 +113,9 @@ public class SimulationSettings : MonoBehaviour
 
     [Header("Carbon")]
     [Tooltip("Stem + leaf carbon per m. of tree height (lower value means more trees)")]
-    public float TreeCarbonFactor = 0.033f;              // Stem + leaf carbon per m. of tree height (lower => more trees)
+    public float TreeCarbonFactor = 0.027f;              // Stem + leaf carbon per m. of tree height (lower => more trees)
     [Tooltip("Carbon per m. of root height")]
-    public float RootsCarbonFactor = 0.005f;              // Carbon per m. of root height
+    public float RootsCarbonFactor = 0.009f;              // Carbon per m. of root height
     [Tooltip("Stem + leaf carbon per m. of shrub height  (lower means more shrubs)")]
     public float ShrubCarbonFactor = 0.004f;              // Stem + leaf carbon per m. of shrub height  (lower => more shrubs)
     [Tooltip("Aggregate Cube Stem + leaf carbon per m. of tree height (lower means more trees)")]
@@ -125,7 +125,7 @@ public class SimulationSettings : MonoBehaviour
     [Tooltip("Aggregate Cube Stem + leaf carbon per m. of shrub height  (lower means more shrubs)")]
     public float CubeAShrubCarbonFactor = 0.005f;        // Aggregate Cube Stem + leaf carbon per m. of shrub height  (lower => more shrubs)
     [Tooltip("Multiplier for carbon factor variables when building for web")]
-    public float WebBuildCarbonMultiplier = 2f;          // Multiplier for decreasing vegetation for web optimization (higher => less vegetation)
+    public float WebBuildCarbonMultiplier = 3f;          // Multiplier for decreasing vegetation for web optimization (higher => less vegetation)
 
     [Header("Emission")]
     [Tooltip("Tree particle emission factor")]
