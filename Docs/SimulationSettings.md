@@ -64,13 +64,13 @@ Carbon-per-metre factors for trees, shrubs, roots, and the aggregate cube. Highe
 
 | Field | Default |
 |---|---|
-| `TreeCarbonFactor` | `0.033` |
-| `RootsCarbonFactor` | `0.005` |
+| `TreeCarbonFactor` | `0.027` |
+| `RootsCarbonFactor` | `0.009` |
 | `ShrubCarbonFactor` | `0.004` |
 | `CubeATreeCarbonFactor` | `0.018` |
 | `CubeARootsCarbonFactor` | `0.0033` |
 | `CubeAShrubCarbonFactor` | `0.005` |
-| `WebBuildCarbonMultiplier` | `2.0` |
+| `WebBuildCarbonMultiplier` | `3.0` |
 
 ### Emission
 Particle emission rate factors for tree and shrub evapotranspiration particles.

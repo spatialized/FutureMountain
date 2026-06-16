@@ -4,9 +4,11 @@ Last updated: 2026-06-15
 
 ## Project Type
 
-Future Mountain is a Unity project using Unity 2022.3.62f3. The active build scene is:
+Future Mountain is a Unity project using Unity 2022.3.62f3. Scenario scenes are
+organized by scenario:
 
-- `Assets/Scenes/FutureMountain/FutureMountain.unity`
+- `Assets/Scenes/BigCreekV1/BigCreekV1.unity`
+- `Assets/Scenes/CentralCoastV2/CentralCoastV2.unity`
 
 The project targets WebGL and standalone/editor workflows. Build symbols in `ProjectSettings/ProjectSettings.asset` include:
 
@@ -92,7 +94,9 @@ The current runtime assumes:
 - Fixed patch and water column order through enum indices in `LandscapeController`.
 - Terrain/fire data shapes that match the existing Big Creek data pipeline.
 
-These assumptions should be reviewed before adding the Central Coast scenario.
+These assumptions should be reviewed before adding another scenario. See
+[AddingFutureScenarios.md](AddingFutureScenarios.md) for the Unity-side scenario
+setup workflow.
 
 ## External and Third-Party Assets
 
