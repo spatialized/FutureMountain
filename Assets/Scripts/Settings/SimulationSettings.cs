@@ -34,6 +34,36 @@ public class SimulationSettings : MonoBehaviour
         }
     }
 
+    public string GeneralMessagesResourcePath
+    {
+        get
+        {
+            switch (apiProfile)
+            {
+                case ScenarioApiProfile.CentralCoast:
+                    return "Messages/CentralCoastGeneralMessages";
+                case ScenarioApiProfile.BigCreek:
+                default:
+                    return "Messages/GeneralMessages";
+            }
+        }
+    }
+
+    public string FireMessagesResourcePath
+    {
+        get
+        {
+            switch (apiProfile)
+            {
+                case ScenarioApiProfile.CentralCoast:
+                    return "Messages/CentralCoastFireMessages";
+                case ScenarioApiProfile.BigCreek:
+                default:
+                    return "Messages/FireMessages";
+            }
+        }
+    }
+
 #if WEB_VERSION || LOCAL_VERSION
     public bool BuildForWeb => true;
 #else

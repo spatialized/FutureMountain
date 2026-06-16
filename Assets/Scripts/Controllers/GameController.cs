@@ -969,8 +969,10 @@ public class GameController : MonoBehaviour
         yield return null;
 
         /* Initialize UI Messages */
-        List<UI_Message> messages = LoadMessagesFile(messagesFile, false);                 // Load messages
-        List<UI_Message> fireMessages = LoadMessagesFile(fireMessagesFile, true);          // Load fire messages 
+        TextAsset resolvedMessagesFile = ResolveScenarioMessagesFile(false);
+        TextAsset resolvedFireMessagesFile = ResolveScenarioMessagesFile(true);
+        List<UI_Message> messages = LoadMessagesFile(resolvedMessagesFile, false);                 // Load messages
+        List<UI_Message> fireMessages = LoadMessagesFile(resolvedFireMessagesFile, true);          // Load fire messages 
         List<UI_Message> currentMessages = new List<UI_Message>();                         // List of messages currently displayed
         yield return null;
 
@@ -1289,6 +1291,12 @@ public class GameController : MonoBehaviour
     {
         //  Debug.Log(name + ".LoadMessagesFile()... name:" + file.name+" fire? "+fire);
 
+        if (file == null)
+        {
+            Debug.LogWarning(name + ".LoadMessagesFile()... No " + (fire ? "fire" : "general") + " messages file configured.");
+            return new List<UI_Message>();
+        }
+
         List<string> rawData = TextAssetToList(file);
 
         List<UI_Message> result = new List<UI_Message>();
@@ -1345,6 +1353,25 @@ public class GameController : MonoBehaviour
         }
 
         return result;
+    }
+
+    private TextAsset ResolveScenarioMessagesFile(bool fire)
+    {
+        TextAsset fallback = fire ? fireMessagesFile : messagesFile;
+
+        if (settings == null)
+            return fallback;
+
+        string resourcePath = fire ? settings.FireMessagesResourcePath : settings.GeneralMessagesResourcePath;
+        TextAsset scenarioFile = Resources.Load<TextAsset>(resourcePath);
+
+        if (scenarioFile == null)
+        {
+            Debug.LogWarning(name + ".ResolveScenarioMessagesFile()... Could not load Resources/" + resourcePath + ". Falling back to scene-assigned messages file.");
+            return fallback;
+        }
+
+        return scenarioFile;
     }
 
     #endregion
