@@ -223,7 +223,7 @@ raw RHESSys source tables
 -> Unity visualization
 ```
 
-For Central Coast v2, `StratumData`, `FireData`, and `PatchData` are raw or source-derived inputs. They later produce precomputed `TerrainData` frames. A future scenario should make the same distinction clear.
+For Central Coast v2, `StratumData`, `BurnData`, and `PatchData` are raw or source-derived inputs. They later produce precomputed `TerrainData` frames. `FireData` is reserved for Unity fire-spread frames, not monthly RHESSys burn.
 
 ## Step 10: Preserve Existing Behavior
 

@@ -10,7 +10,7 @@ This document is the planning deliverable for CCV2-15. It defines:
    become `PatchData` rows.
 2. What `PatchData` must store per `zoneID` footprint.
 3. How `PatchData` footprints enable downstream projection of `StratumData` and
-   `FireData` values into precomputed `TerrainData`.
+   `BurnData` values into precomputed `TerrainData`.
 
 No precomputed `TerrainData` generation is implemented here. That is CCV2-16.
 No DEM (`dem30mSBFRbound.tiff`) work is included in this task.
@@ -28,7 +28,7 @@ No DEM (`dem30mSBFRbound.tiff`) work is included in this task.
 | Source metadata | GRASS GIS 7.8.3 / GDAL 3.0.4 |
 
 Each non-nodata pixel stores a `zoneID` value that matches the `zoneID` column
-in `StratumData` and `FireData`. The raster defines the spatial footprint
+in `StratumData` and `BurnData`. The raster defines the spatial footprint
 (which landscape pixels) for each patch family.
 
 ---
@@ -153,7 +153,7 @@ For a given (scenarioRunId, warmingIdx, year, month):
        Aggregate: mean total_plantc across all patchID and stratumID members
        within that zoneID (avoids double-counting 2 patches x 2 strata).
 
-    2. Look up FireData rows matching
+    2. Look up BurnData rows matching
        (scenarioRunId, warmingIdx, year, month, zoneID, level="patch").
        Aggregate: max burn value across patchID members within zoneID
        (burn is a signal, not an additive quantity).
@@ -166,7 +166,7 @@ For a given (scenarioRunId, warmingIdx, year, month):
 ```
 
 `PatchData.pixels` is the spatial bridge. Without it, `zoneID` values in
-`StratumData` and `FireData` cannot be mapped to output grid coordinates.
+`StratumData` and `BurnData` cannot be mapped to output grid coordinates.
 
 ---
 
@@ -174,7 +174,7 @@ For a given (scenarioRunId, warmingIdx, year, month):
 
 | Must store | Reason |
 | --- | --- |
-| `zoneID` | Links to StratumData and FireData |
+| `zoneID` | Links to StratumData and BurnData |
 | `pixels` | Required by TerrainData generator to write output cells |
 | `pixelCount` | Area metric; validation check |
 | `centroidCol`, `centroidRow` | Point-based fallback and label placement |
@@ -186,7 +186,7 @@ Fields NOT stored in `PatchData`:
 | Not stored | Reason |
 | --- | --- |
 | `warmingIdx` | Spatial footprints are climate-independent |
-| `totalc`, `burn` | Live in StratumData / FireData |
+| `totalc`, `burn` | Live in StratumData / BurnData |
 | UTM coordinates | Can be derived later from pixel (col, row) + raster affine transform |
 
 ---
@@ -198,7 +198,7 @@ The following defaults are set here so CCV2-16 can implement them directly:
 | Question | Decision |
 | --- | --- |
 | StratumData aggregation | Mean `total_plantc` per zoneID / month across all patchID and stratumID members |
-| FireData aggregation | Max `burn` per zoneID / month across patchID members (level="patch") |
+| BurnData aggregation | Max `burn` per zoneID / month across patchID members (level="patch") |
 | Temporal grain | Monthly (do not precompute daily landscape frames in this phase) |
 | Table/concept name | `TerrainData` (keep existing Big Creek name) |
 | Grid shape issue | Raster is 396 x 301 (rectangular). CCV2-16 must decide: extend the TerrainData payload to support `gridWidth`/`gridHeight`, or resample/project into a square Unity terrain grid. This is the first issue CCV2-16 must resolve. |
@@ -217,9 +217,9 @@ When the decoder runs (including dry run), it must verify and report:
 - [ ] Nodata value `65535` is skipped; no `PatchData` row is written for it.
 - [ ] All `zoneID` values in `StratumData` are present in the patch-map
       `zoneID` set; missing IDs are reported by count and sample.
-- [ ] All `zoneID` values in `FireData` (level="patch") are present in the
+- [ ] All `zoneID` values in `BurnData` (level="patch") are present in the
       patch-map `zoneID` set; missing IDs are reported by count and sample.
-- [ ] Extra `zoneID` values in `StratumData` or `FireData` that have no
+- [ ] Extra `zoneID` values in `StratumData` or `BurnData` that have no
       patch-map footprint are reported (they cannot be spatially projected).
 - [ ] No DEM file is read or referenced.
 

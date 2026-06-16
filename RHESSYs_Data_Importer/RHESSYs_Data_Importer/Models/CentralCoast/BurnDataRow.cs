@@ -5,17 +5,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace RHESSYs_Data_Importer.Models.CentralCoast
 {
     /// <summary>
-    /// Central Coast v2 monthly burn row (table <c>FireData</c>).
+    /// Central Coast v2 monthly burn row (table <c>BurnData</c>).
     ///
     /// Combines monthly basin burn (bm.csv) and monthly all-patch burn
     /// (spatial_data_point_patchvar.csv). The <c>level</c> column discriminates
-    /// the two: "basin" rows leave hillID/zoneID/patchID null. Monthly data is
-    /// interpolated to daily at runtime using the existing snow/terrain
-    /// interpolation; no new runtime mechanism is introduced.
+    /// the two: "basin" rows leave hillID/zoneID/patchID null.
+    ///
+    /// This is monthly RHESSys burn state, not Big Creek-style Unity fire-spread
+    /// frame data. FireData remains reserved for instantaneous fire playback
+    /// frames with spread/iter values.
     /// </summary>
-    [Table("FireData")]
+    [Table("BurnData")]
     [Index(nameof(scenarioRunId), nameof(warmingIdx), nameof(year), nameof(month), nameof(zoneID), nameof(patchID))]
-    public class FireDataRow
+    public class BurnDataRow
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

@@ -17,9 +17,9 @@ inventory in `Docs/CentralCoastV2/DataFormats.md`.
   (`centralcoast_rhessys`, parallel to `bigcreek_rhessys`). Nothing here touches
   the Big Creek v1 database or its `CubeData`.
 - **Original EF naming style.** Tables are unprefixed and use the existing
-  Big Creek EF/PascalCase convention (`CubeData`, `WaterData`, `FireData`,
+  Big Creek EF/PascalCase convention (`CubeData`, `WaterData`,
   `PatchData`, `Dates`). New tables that have no Big Creek
-  equivalent reuse the same style (`StratumData`, `ImportRun`).
+  equivalent reuse the same style (`BurnData`, `StratumData`, `ImportRun`).
   This applies to the new Central Coast database only; Big Creek v1 remains
   untouched, including any lowercase table names shown by the current MySQL
   server.
@@ -38,7 +38,7 @@ vs. large-landscape split:
 
 - **Cube scale** (5 detailed cube locations, daily): `CubeData` + `WaterData`.
 - **Landscape scale** (all ~8,954 patches / ~17,908 strata, monthly):
-  `FireData` (burn) + `StratumData` (carbon) + `PatchData` (spatial extents).
+  `BurnData` (monthly burn) + `StratumData` (carbon) + `PatchData` (spatial extents).
 
 This is why `CubeData` stays small/clean and is not overloaded with
 whole-landscape monthly data.
@@ -57,7 +57,7 @@ and spatial assets:
 ```text
 PatchData geometry
 + StratumData monthly vegetation/carbon
-+ FireData monthly burn
++ BurnData monthly burn
 + scenario/warming metadata
 = precomputed Central Coast TerrainData
 ```
@@ -72,7 +72,7 @@ the same thing as importing `spatial_data_point_stratvar.csv`.
 | `Dates` | Daily | derived from daily files | Date dimension; `dateIdx` = `id`. |
 | `CubeData` | Daily, per cube | `cube_p_patch1/2`, `cubes_sc_over_patch1/2`, `cube_sc_under_patch1/2` | Patch + overstory + understory merged into one row. |
 | `WaterData` | Daily, basin | `cube_agg_p` | Aggregate/whole-watershed daily (streamflow, precip, basin summaries). |
-| `FireData` | Monthly, basin + patch | `bm`, `spatial_data_point_patchvar` | Burn; `level` discriminates basin vs patch. |
+| `BurnData` | Monthly, basin + patch | `bm`, `spatial_data_point_patchvar` | RHESSys burn state; `level` discriminates basin vs patch. This is not Unity fire-spread frame data. |
 | `StratumData` | Monthly, per stratum | `spatial_data_point_stratvar` | Whole-landscape stratum carbon over time. |
 | `PatchData` | Static, per patch family | `Pch30rip90upRN.tiff` | Spatial extents (PatchPointCollection contract). |
 | `ImportRun` | per run | n/a | Provenance / batch marker. |
@@ -177,7 +177,7 @@ Index on `(scenarioRunId, warmingIdx, dateIdx)`.
 Column names map the source headers' dots to underscores (e.g. `cs.net_psn` ->
 `cs_net_psn`).
 
-## FireData
+## BurnData
 
 Monthly burn at basin and patch level, combining `bm.csv` and
 `spatial_data_point_patchvar.csv`.
@@ -199,6 +199,12 @@ Index on `(scenarioRunId, warmingIdx, year, month, zoneID, patchID)`.
 `level = 'basin'` rows leave `hillID`/`zoneID`/`patchID` null. This is monthly
 data; runtime interpolates to daily using the existing snow/terrain interpolation
 (config decision 7). No new runtime mechanism.
+
+`FireData` is reserved for Big Creek-style Unity fire playback frames:
+instantaneous fire events with `gridLocation`, `patchId`, `spread`, and `iter`
+inside `_dataList`. The current Central Coast v2 sample does not include that
+fire-frame source data, so monthly RHESSys burn must not be imported into
+`FireData`.
 
 ## StratumData
 
@@ -282,7 +288,7 @@ One row per import execution; the batch marker referenced by `importRunId`.
   stratum carbon, and rasters each retain their native columns).
 - **Does not overload Big Creek v1 `CubeData`:** Central Coast uses its own
   database and its own `CubeData`; whole-landscape monthly data lives in separate
-  tables (`FireData`, `StratumData`).
+  tables (`BurnData`, `StratumData`).
 - **Stores multiple future members:** `scenarioRunId` + `warmingIdx` on every data
   table, plus `ImportRun` provenance, allow many members in one database.
 

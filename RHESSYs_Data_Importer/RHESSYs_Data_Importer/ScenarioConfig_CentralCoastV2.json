@@ -33,7 +33,7 @@
     "Dates",
     "CubeData",
     "WaterData",
-    "FireData",
+    "BurnData",
     "StratumData",
     "PatchData",
     "ImportRun"

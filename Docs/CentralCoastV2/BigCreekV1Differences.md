@@ -183,7 +183,7 @@ PascalCase EF table convention as the existing importer models:
 - `Dates`
 - `CubeData`
 - `WaterData`
-- `FireData`
+- `BurnData`
 - `StratumData`
 - `PatchData`
 - `ImportRun`

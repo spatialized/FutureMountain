@@ -730,7 +730,7 @@ namespace RHESSYs_Data_Importer.IO
 
         /// <summary>
         /// Imports the monthly basin burn file (<c>bm.csv</c>) into the
-        /// <c>FireData</c> table as <c>level = "basin"</c> rows.
+        /// <c>BurnData</c> table as <c>level = "basin"</c> rows.
         /// </summary>
         public static void ImportBasinBurnData(ScenarioConfig config, bool dryrun = false)
         {
@@ -766,7 +766,7 @@ namespace RHESSYs_Data_Importer.IO
                 return;
             }
 
-            var batch = new List<FireDataRow>();
+            var batch = new List<BurnDataRow>();
             int imported = 0;
             string line;
             while ((line = reader.ReadLine()) != null)
@@ -776,7 +776,7 @@ namespace RHESSYs_Data_Importer.IO
 
                 var parts = line.Split(',');
 
-                var row = new FireDataRow
+                var row = new BurnDataRow
                 {
                     scenarioRunId = config.ScenarioRunId ?? "",
                     warmingIdx = config.WarmingIdx ?? 0,
@@ -803,14 +803,14 @@ namespace RHESSYs_Data_Importer.IO
             }
 
             if (!dryrun && batch.Count > 0)
-                dal.AddFireDataRows(batch);
+                dal.AddBurnDataRows(batch);
 
-            Console.WriteLine($"[FireData/basin] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
+            Console.WriteLine($"[BurnData/basin] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
         }
 
         /// <summary>
         /// Imports the monthly all-patch burn file
-        /// (<c>spatial_data_point_patchvar.csv</c>) into the <c>FireData</c>
+        /// (<c>spatial_data_point_patchvar.csv</c>) into the <c>BurnData</c>
         /// table as <c>level = "patch"</c> rows.
         /// </summary>
         public static void ImportPatchBurnData(ScenarioConfig config, bool dryrun = false)
@@ -851,7 +851,7 @@ namespace RHESSYs_Data_Importer.IO
             }
 
             const int ChunkSize = 10_000;
-            var batch = new List<FireDataRow>(ChunkSize);
+            var batch = new List<BurnDataRow>(ChunkSize);
             int imported = 0;
             int savedRows = 0;
             string line;
@@ -862,7 +862,7 @@ namespace RHESSYs_Data_Importer.IO
 
                 var parts = line.Split(',');
 
-                var row = new FireDataRow
+                var row = new BurnDataRow
                 {
                     scenarioRunId = config.ScenarioRunId ?? "",
                     warmingIdx = config.WarmingIdx ?? 0,
@@ -892,20 +892,20 @@ namespace RHESSYs_Data_Importer.IO
                     batch.Add(row);
                     if (batch.Count >= ChunkSize)
                     {
-                        savedRows += dal.AddFireDataRows(batch);
+                        savedRows += dal.AddBurnDataRows(batch);
                         batch.Clear();
-                        Console.WriteLine($"[FireData/patch] {imported:N0} rows processed, {savedRows:N0} rows written...");
+                        Console.WriteLine($"[BurnData/patch] {imported:N0} rows processed, {savedRows:N0} rows written...");
                     }
                 }
             }
 
             if (!dryrun && batch.Count > 0)
-                savedRows += dal.AddFireDataRows(batch);
+                savedRows += dal.AddBurnDataRows(batch);
 
             if (!dryrun && savedRows != imported)
-                Console.WriteLine($"[ERROR] [FireData/patch] Saved {savedRows:N0} of {imported:N0} source rows.");
+                Console.WriteLine($"[ERROR] [BurnData/patch] Saved {savedRows:N0} of {imported:N0} source rows.");
 
-            Console.WriteLine($"[FireData/patch] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
+            Console.WriteLine($"[BurnData/patch] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
         }
 
         /// <summary>
@@ -1252,11 +1252,11 @@ namespace RHESSYs_Data_Importer.IO
                         .ToDictionary(x => x.zoneID, x => x.meanC);
                 }
 
-                // Step 4b: aggregate FireData for this (year, month)
+                // Step 4b: aggregate BurnData for this (year, month)
                 Dictionary<int, float> maxBurnByZone;
                 using (var db = new CentralCoastDbContext())
                 {
-                    maxBurnByZone = db.FireData
+                    maxBurnByZone = db.BurnData
                         .Where(f => f.scenarioRunId == scenarioRunId &&
                                     f.warmingIdx == warmingIdx &&
                                     f.year == year &&

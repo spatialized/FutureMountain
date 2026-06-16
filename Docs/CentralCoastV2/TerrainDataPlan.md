@@ -13,7 +13,7 @@ Inputs available after CCV2-16:
 - `PatchData` -- one row per `zoneID`, `data` JSON with `pixels`, `pixelCount`,
   `centroid`, `boundingBox`, `gridWidth` (396), `gridHeight` (301)
 - `StratumData` -- monthly per-stratum carbon rows (~6.9M rows)
-- `FireData` (level="patch") -- monthly per-patch burn rows
+- `BurnData` (level="patch") -- monthly per-patch burn rows
 - `Dates`, `scenarioRunId`, `warmingIdx`
 
 No implementation is done in this task. That is CCV2-19.
@@ -61,7 +61,7 @@ runtime data grid remains rectangular.
 For the Central Coast pre-prototype, use `dem30mSBFRbound.tiff` to shape the
 duplicated Unity terrain. This is a static scene asset workflow and is separate
 from the monthly `TerrainData` frames generated from `PatchData`, `StratumData`,
-and `FireData`.
+and `BurnData`.
 
 Observed DEM properties:
 
@@ -186,7 +186,7 @@ These defaults were set in CCV2-15. Confirmed here:
 | Source | Aggregation | Reason |
 | --- | --- | --- |
 | `StratumData.total_plantc` | Mean across all patchID and stratumID members per zoneID/month | Avoids double-counting 2 patches x 2 strata |
-| `FireData.burn` (level="patch") | Max across patchID members per zoneID/month | Burn is a signal; max is conservative and intuitive |
+| `BurnData.burn` (level="patch") | Max across patchID members per zoneID/month | Burn is a signal; max is conservative and intuitive |
 
 Normalization for `vegIntensity`:
 
@@ -232,7 +232,7 @@ does not need to know the Unity terrain world dimensions.
 
 ## Decision 6: Temporal Grain
 
-Monthly. Central Coast source data (`StratumData`, `FireData`) is monthly.
+Monthly. Central Coast source data (`StratumData`, `BurnData`) is monthly.
 One `TerrainData` row per `(scenarioRunId, warmingIdx, year, month)`.
 
 384 months x 1 warming case = **384 rows** in `TerrainData` for the initial
@@ -268,7 +268,7 @@ Given (scenarioRunId, warmingIdx):
    b. For each zoneID in PatchData:
       - Query StratumData: mean total_plantc for (scenarioRunId,
         warmingIdx, year, month, zoneID) across all patchID/stratumID.
-      - Query FireData: max burn for (scenarioRunId, warmingIdx,
+      - Query BurnData: max burn for (scenarioRunId, warmingIdx,
         year, month, zoneID, level="patch") across all patchID.
       - vegIntensity = clamp(meanPlantC / globalMaxPlantC, 0, 1)
       - burnSignal = (maxBurn > 0.0) ? 1 : 0
@@ -331,7 +331,7 @@ Add `DbSet<TerrainDataRow> TerrainData` to `CentralCoastDbContext`.
 - Add `[3] Terrain` CCV2 branch in wizard `RunSelectedImports`.
 
 Note: `--terrain` already exists as a flag for the legacy Big Creek path. Wire
-the CCV2 branch the same way `--fire` and `--water` are already split.
+the CCV2 branch the same way `--burn` and `--water` are already split.
 
 ---
 

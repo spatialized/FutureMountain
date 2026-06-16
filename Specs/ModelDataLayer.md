@@ -87,7 +87,10 @@ This means the layer can reveal when the 3D representation is still catching up 
 
 The Timeline is a separate graphing feature. `TimelineControl.CreateTimeline()` and `CreateTimelineWeb()` instantiate one bar per year and map precipitation to bar height.
 
-For local/non-web data, the maximum precipitation is calculated from loaded `WaterDataYear` values. For web data, the current code uses a hard-coded maximum precipitation value of `2582f`, with a code comment noting that this should come from the API.
+For local/non-web data, the maximum precipitation is calculated from loaded
+`WaterDataYear` values. For web data, the maximum precipitation is calculated
+from the returned `PrecipByYear[]` values from the active scenario's
+`waterdata/total` endpoint.
 
 Timeline bars are not a general Show Model graph. They are specifically annual precipitation bars plus event markers for fires and messages.
 

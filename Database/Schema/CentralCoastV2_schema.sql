@@ -1,8 +1,8 @@
 -- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
 --
--- Host: 127.0.0.1    Database: futuremtn_central_coast
+-- Host: 128.111.100.115    Database: futuremtn_central_coast
 -- ------------------------------------------------------
--- Server version	8.0.39
+-- Server version	8.4.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -27,6 +27,32 @@ CREATE TABLE `__efmigrationshistory` (
   `ProductVersion` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`MigrationId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `burndata`
+--
+
+DROP TABLE IF EXISTS `burndata`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `burndata` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `importRunId` int NOT NULL,
+  `scenarioRunId` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `warmingIdx` int NOT NULL,
+  `sourceFile` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `year` int NOT NULL,
+  `month` int NOT NULL,
+  `level` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `basinID` int NOT NULL,
+  `hillID` int DEFAULT NULL,
+  `zoneID` int DEFAULT NULL,
+  `patchID` bigint DEFAULT NULL,
+  `burn` float NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `IX_FireData_scenarioRunId_warmingIdx_year_month_zoneID_patchID` (`scenarioRunId`,`warmingIdx`,`year`,`month`,`zoneID`,`patchID`)
+) ENGINE=InnoDB AUTO_INCREMENT=3438721 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -85,7 +111,7 @@ CREATE TABLE `cubedata` (
   `laiUnder` float NOT NULL,
   PRIMARY KEY (`id`),
   KEY `IX_CubeData_scenarioRunId_warmingIdx_dateIdx_zoneID_patchID` (`scenarioRunId`,`warmingIdx`,`dateIdx`,`zoneID`,`patchID`)
-) ENGINE=InnoDB AUTO_INCREMENT=116881 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=141689 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -102,7 +128,7 @@ CREATE TABLE `dates` (
   `month` int NOT NULL,
   `day` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11689 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -114,21 +140,15 @@ DROP TABLE IF EXISTS `firedata`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `firedata` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `importRunId` int NOT NULL,
-  `scenarioRunId` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `warmingIdx` int NOT NULL,
-  `sourceFile` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `year` int NOT NULL,
-  `month` int NOT NULL,
-  `level` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `basinID` int NOT NULL,
-  `hillID` int DEFAULT NULL,
-  `zoneID` int DEFAULT NULL,
-  `patchID` bigint DEFAULT NULL,
-  `burn` float NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `IX_FireData_scenarioRunId_warmingIdx_year_month_zoneID_patchID` (`scenarioRunId`,`warmingIdx`,`year`,`month`,`zoneID`,`patchID`)
-) ENGINE=InnoDB AUTO_INCREMENT=3438721 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `warmingIdx` int NOT NULL DEFAULT '-1',
+  `year` int NOT NULL DEFAULT '-1',
+  `month` int NOT NULL DEFAULT '-1',
+  `day` int NOT NULL DEFAULT '-1',
+  `gridHeight` int NOT NULL DEFAULT '0',
+  `gridWidth` int NOT NULL DEFAULT '0',
+  `_dataList` mediumtext NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -198,7 +218,7 @@ CREATE TABLE `stratumdata` (
   `total_plantc` float NOT NULL,
   PRIMARY KEY (`id`),
   KEY `IX_StratumData_scenarioRunId_warmingIdx_year_month_stratumID` (`scenarioRunId`,`warmingIdx`,`year`,`month`,`stratumID`)
-) ENGINE=InnoDB AUTO_INCREMENT=4460001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7128085 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -222,7 +242,7 @@ CREATE TABLE `terraindata` (
   `_dataList` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `IX_TerrainData_scenarioRunId_warmingIdx_year_month` (`scenarioRunId`,`warmingIdx`,`year`,`month`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=385 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -268,7 +288,7 @@ CREATE TABLE `waterdata` (
   `fe_canopy_target_prop_c_remain_adjusted_leafc` float NOT NULL,
   PRIMARY KEY (`id`),
   KEY `IX_WaterData_scenarioRunId_warmingIdx_dateIdx` (`scenarioRunId`,`warmingIdx`,`dateIdx`)
-) ENGINE=InnoDB AUTO_INCREMENT=11689 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=23377 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -280,4 +300,4 @@ CREATE TABLE `waterdata` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-14  1:33:59
+-- Dump completed on 2026-06-16  0:42:42
