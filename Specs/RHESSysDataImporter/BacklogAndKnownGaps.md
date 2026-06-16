@@ -115,14 +115,16 @@ Needed:
 
 ### Wizard Mode
 
-Wizard mode is behind auto mode for Central Coast v2.
+Wizard mode has Central Coast v2 coverage, but auto mode remains the primary
+tested path for production imports. The wizard now includes derived `dates`,
+runs date validation/population before cube and water imports, uses the tested
+Central Coast v2 category order, and hides unsupported legacy-only categories
+from the Central Coast v2 selection menu.
 
 Needed:
 
-- include `dates`
-- ensure/validate dates before cube/water imports
-- match the tested auto-mode category order
-- clarify unsupported categories by profile
+- run one end-to-end interactive Central Coast v2 wizard smoke test
+- keep wizard prompts aligned with any future auto-mode import order changes
 
 ### Bulk Insert Performance
 
