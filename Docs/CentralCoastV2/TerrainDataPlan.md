@@ -23,6 +23,9 @@ No implementation is done in this task. That is CCV2-19.
 ## Decision 1: Rectangular Grid Shape
 
 The patch map raster is **396 x 301**, which is rectangular, not square.
+The DEM raster (`dem30mSBFRbound.tiff`) uses the same 396 x 301 grid, so the
+static Unity terrain heightmap and the dynamic Central Coast terrain/splatmap
+frames start from aligned source rasters.
 
 Big Creek's `TerrainData` uses a single `gridSize` field that implies a square
 grid. The Big Creek Unity runtime reads `gridSize` and treats `_dataList` as a
@@ -45,6 +48,72 @@ Rules:
 
 Do NOT resample Central Coast data into a square grid. That would silently
 distort the spatial footprints.
+
+Note: this decision applies to API/database `TerrainData` frames, not to the
+Unity terrain heightmap asset itself. Unity's imported terrain heightmap is
+square, so the DEM can be resampled to a Unity-friendly square RAW while the
+runtime data grid remains rectangular.
+
+---
+
+## Decision 1A: Unity DEM Heightmap Import
+
+For the Central Coast pre-prototype, use `dem30mSBFRbound.tiff` to shape the
+duplicated Unity terrain. This is a static scene asset workflow and is separate
+from the monthly `TerrainData` frames generated from `PatchData`, `StratumData`,
+and `FireData`.
+
+Observed DEM properties:
+
+| Property | Value |
+| --- | --- |
+| Source file | `RHESSYs_Data_Importer/Data/CentralCoast/RHESSysOutput-SingleWarmIdx-6-4-2026/dem30mSBFRbound.tiff` |
+| Grid size | 396 x 301 |
+| Pixel scale | ~30 m |
+| Sample type | unsigned 16-bit, single band |
+| Compression | none |
+| Observed value range | 0..255 |
+| Nodata pixels observed | 0 using `65535` as nodata |
+
+The DEM aligns with the patch-family raster (`Pch30rip90upRN.tiff`), so no
+reprojection, cropping, or raster alignment is needed before making the Unity
+heightmap.
+
+Prototype generated RAW:
+
+```text
+Assets/Terrains/CentralCoastV2/Heightmaps/CentralCoast_DEM_513_uint16_little_endian.raw
+```
+
+Generation method:
+
+- Read source TIFF as 396 x 301 unsigned 16-bit values.
+- Bilinearly resample to 513 x 513 for Unity terrain import.
+- Scale source min..max to 0..65535.
+- Write headerless little-endian 16-bit RAW.
+
+Equivalent GDAL-style command, if GDAL is available:
+
+```text
+gdal_translate dem30mSBFRbound.tiff CentralCoast_DEM_513_uint16_little_endian.raw -of ENVI -ot UInt16 -scale 0 255 0 65535 -outsize 513 513 -r bilinear
+```
+
+Unity `Import Raw...` settings:
+
+| Setting | Value |
+| --- | --- |
+| Depth | Bit16 |
+| Width | 513 |
+| Height | 513 |
+| Byte order | Windows / Little Endian |
+| Terrain Size X | 11880 |
+| Terrain Size Z | 9030 |
+| Terrain Size Y | Start with 1000 or 1500 and tune visually |
+
+The DEM values appear normalized rather than raw meter elevations, so terrain
+height is a visual tuning parameter for this prototype. If the terrain is
+north/south reversed relative to the patch raster or map, regenerate or import a
+vertically flipped RAW.
 
 ---
 
@@ -272,9 +341,6 @@ the CCV2 branch the same way `--fire` and `--water` are already split.
   (`/terraindata/centralcoast/{warmingIdx}`) or can the existing
   `terraindata/{warmingIdx}` route serve Central Coast frames when the active
   scenario is `CentralCoastV2`?
-- What is the Unity terrain world size in meters for Central Coast? The raster
-  is 396 x 301 pixels at ~30 m each = ~11.9 km x ~9.0 km. Unity terrain
-  dimensions and the alphamap resolution need to match.
 - How does Unity interpolate between monthly `TerrainData` frames for Central
   Coast? The existing snow interpolation loop uses `gridSize`; it must be
   updated to use `gridWidth`/`gridHeight`.
@@ -297,5 +363,6 @@ the CCV2 branch the same way `--fire` and `--water` are already split.
 - [x] Generator algorithm stated.
 - [x] `TerrainDataRow` model class defined.
 - [x] Wiring path specified.
+- [x] Static Unity DEM import workflow documented.
 - [x] Open questions for CCV2-20 documented.
 - [x] Big Creek `TerrainData` behavior untouched.
