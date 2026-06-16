@@ -272,6 +272,7 @@ If the app stalls during loading, first check browser/Unity Console logs for fai
 
 API route and deployment documentation:
 
+* [Developer Onboarding](DeveloperOnboarding.md)
 * [Future Mountain API](Services/FutureMountainApi.md)
 * [API Route Spec](../Specs/FutureMountainAPI/Routes.md)
 * [API Deployment Spec](../Specs/FutureMountainAPI/Deployment.md)

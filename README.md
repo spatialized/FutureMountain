@@ -16,6 +16,7 @@ API documentation:
 
 - `Docs/Services/FutureMountainApi.md`
 - `Specs/FutureMountainAPI/`
+- `Docs/DeveloperOnboarding.md`
 
 ## Scenario Documentation
 
