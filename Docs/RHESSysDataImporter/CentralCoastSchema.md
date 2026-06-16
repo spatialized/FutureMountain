@@ -296,4 +296,5 @@ One row per import execution; the batch marker referenced by `importRunId`.
 
 - Model classes for these tables: `CCV2-05`.
 - EF migrations generated from those models (authoritative DDL): after `CCV2-05`.
-- Raster decoder for `PatchData`: later spatial task.
+- Raster decoder for `PatchData`: implemented by the initial patch mapping
+  workflow documented in `Docs/CentralCoastV2/InitialPatchMapping.md`.

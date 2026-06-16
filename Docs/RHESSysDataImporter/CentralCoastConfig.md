@@ -158,8 +158,9 @@ staging tables is handled by `CCV2-04` onward.
 ## How To Run
 
 The canonical run instructions live in
-`Docs/RHESSysDataImporter/Runbook.md`, including the Central Coast v2 wizard flow
-and dry-run command. See the `Central Coast v2 Config` section there.
+`Docs/RHESSysDataImporter/BuildingAndRunning.md`, including the Central Coast v2
+wizard flow and dry-run command. See the `Central Coast v2 Config` section
+there.
 
 ## Schema Setup and Migration Workflow
 

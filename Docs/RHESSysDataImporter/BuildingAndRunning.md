@@ -102,7 +102,7 @@ implemented in wizard mode:
 | Cube (patch + stratum) | Implemented | `--cubes` |
 | Water | Implemented | `--water` |
 | Burn (basin + patch monthly burn) | Implemented | `--burn` |
-| Fire (Unity spread frames) | Supported when a fire-frame source is configured | `--fire` |
+| Fire (Unity spread frames) | Placeholder until a fire-frame source is configured | `--fire` |
 | Stratum carbon | Implemented | `--stratum` |
 
 ### Central Coast v2 Config

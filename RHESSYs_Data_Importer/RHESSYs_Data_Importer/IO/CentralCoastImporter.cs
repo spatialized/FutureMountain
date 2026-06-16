@@ -1197,7 +1197,7 @@ namespace RHESSYs_Data_Importer.IO
         /// containing a flat 396x301 float array encoded as
         /// <c>vegIntensity + burnSignal * 100</c>.
         ///
-        /// See <c>Docs/CentralCoastV2/TerrainDataPlan.md</c> for full design.
+        /// See <c>Docs/CentralCoastV2/InitialTerrainData.md</c> for details.
         /// </summary>
         public static void GenerateTerrainData(ScenarioConfig config, bool dryrun = false)
         {
