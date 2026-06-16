@@ -1196,7 +1196,19 @@ public class GameController : MonoBehaviour
 
     public void SetTimelineWaterData(string jsonString)
     {
+        if (string.IsNullOrWhiteSpace(jsonString))
+        {
+            Debug.LogWarning("SetTimelineWaterData()... Empty timeline water data response.");
+            return;
+        }
+
         TimelineWaterData timelineWaterData = JsonConvert.DeserializeObject<TimelineWaterData>("{\"years\":" + jsonString + "}");
+        if (timelineWaterData == null || timelineWaterData.years == null || timelineWaterData.years.Length == 0)
+        {
+            Debug.LogWarning("SetTimelineWaterData()... No yearly precipitation records found.");
+            return;
+        }
+
         PrecipByYear[] precipByYears = timelineWaterData.years;
 
         uiTimeline.CreateTimelineWeb(precipByYears, warmingIdx, warmingDegrees, fireYears,
