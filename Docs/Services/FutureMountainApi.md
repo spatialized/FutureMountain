@@ -179,6 +179,19 @@ https://data.futuremtn.org/api/centralcoast/waterdata/total
 
 Use the Unity WebGL build only after the API smoke tests succeed.
 
+## Postman Collection
+
+A Postman collection for manual API testing is included at:
+
+```text
+Services/FutureMountainApi/Future Mountain.postman_collection.json
+```
+
+Import this collection into Postman to run the common Big Creek and Central
+Coast API requests against either a local API instance or the deployed
+`data.futuremtn.org` API. Keep exported Postman environments free of passwords,
+connection strings, cookies, and tokens before committing them.
+
 ## Documentation
 
 Additional API specs live in:

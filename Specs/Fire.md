@@ -1,10 +1,8 @@
 # Fire
 
-Last updated: 2026-06-12
+Last updated: 2026-06-16
 
 ## Conceptual Model
-
-Fire in Future Mountain has two distinct meanings that should not be conflated.
 
 RHESSys fire dates are intentionally set by the scenario. In the current Big Creek version, the fires are scheduled on:
 
