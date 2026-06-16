@@ -334,6 +334,7 @@ namespace RHESSYs_Data_Importer.IO
                 const int ChunkSize = 5_000;
                 var chunk = new List<CubeDataRow>(ChunkSize);
                 int imported = 0;
+                int savedRows = 0;
                 string line;
                 while ((line = reader.ReadLine()) != null)
                 {
@@ -410,8 +411,22 @@ namespace RHESSYs_Data_Importer.IO
 
                     imported++;
                     if (!dryrun)
-                        dal.AddCubeDataRow(row);
+                    {
+                        chunk.Add(row);
+                        if (chunk.Count >= ChunkSize)
+                        {
+                            savedRows += dal.AddCubeDataRows(chunk);
+                            chunk.Clear();
+                            Console.WriteLine($"[CubeData/{role}] {imported:N0} rows processed, {savedRows:N0} rows written...");
+                        }
+                    }
                 }
+
+                if (!dryrun && chunk.Count > 0)
+                    savedRows += dal.AddCubeDataRows(chunk);
+
+                if (!dryrun && savedRows != imported)
+                    Console.WriteLine($"[ERROR] [CubeData/{role}] Saved {savedRows:N0} of {imported:N0} source rows.");
 
                 Console.WriteLine($"[CubeData/{role}] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
             }
