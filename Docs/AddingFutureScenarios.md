@@ -12,7 +12,7 @@ Docs/RHESSysDataImporter/ScenarioUpgradeGuide.md
 ```
 
 The importer guide explains how to bring new RHESSys data into the database.
-This guide focuses on the Unity experience: scenes, terrain assets, runtime
+This guide focuses on the Unity editor side: scenes, terrain assets, runtime
 settings, API profile selection, visual tuning, and asset isolation.
 
 ## Current Scenario Pattern
