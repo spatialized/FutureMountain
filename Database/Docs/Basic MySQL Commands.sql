@@ -20,10 +20,10 @@ SHOW CREATE TABLE patchdata;
 
 USE futuremtn_central_coast;
 SET FOREIGN_KEY_CHECKS = 0;
-TRUNCATE TABLE cubedata;
-TRUNCATE TABLE patchdata;
 TRUNCATE TABLE firedata;
+TRUNCATE TABLE patchdata;
 SET FOREIGN_KEY_CHECKS = 1;
+
 
 ALTER TABLE cubedata AUTO_INCREMENT = 1;
 ALTER TABLE firedata AUTO_INCREMENT = 1;

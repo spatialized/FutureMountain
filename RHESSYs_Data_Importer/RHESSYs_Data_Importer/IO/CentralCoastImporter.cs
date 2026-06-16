@@ -665,6 +665,7 @@ namespace RHESSYs_Data_Importer.IO
                 var (db, lookup) = dal.OpenCubeDataLookup(
                     config.ScenarioRunId ?? "", config.WarmingIdx ?? 0);
 
+                var touchedRows = new HashSet<CubeDataRow>();
                 string sline;
                 while ((sline = reader.ReadLine()) != null)
                 {
@@ -718,9 +719,10 @@ namespace RHESSYs_Data_Importer.IO
                             typeof(CubeDataRow).GetProperty(kvp.Value)?.SetValue(row, f);
                     }
                     updated++;
+                    touchedRows.Add(row);
                 }
 
-                int saved = CentralCoastDAL.SaveCubeDataRows(db);
+                int saved = CentralCoastDAL.SaveCubeDataRows(db, touchedRows);
                 db.Dispose();
                 Console.WriteLine($"[CubeData/{def.Role}] Updated {updated:N0} rows (saved {saved:N0}), skipped {skipped:N0}.");
             }
@@ -848,8 +850,10 @@ namespace RHESSYs_Data_Importer.IO
                 return;
             }
 
-            var batch = new List<FireDataRow>();
+            const int ChunkSize = 10_000;
+            var batch = new List<FireDataRow>(ChunkSize);
             int imported = 0;
+            int savedRows = 0;
             string line;
             while ((line = reader.ReadLine()) != null)
             {
@@ -884,11 +888,22 @@ namespace RHESSYs_Data_Importer.IO
 
                 imported++;
                 if (!dryrun)
+                {
                     batch.Add(row);
+                    if (batch.Count >= ChunkSize)
+                    {
+                        savedRows += dal.AddFireDataRows(batch);
+                        batch.Clear();
+                        Console.WriteLine($"[FireData/patch] {imported:N0} rows processed, {savedRows:N0} rows written...");
+                    }
+                }
             }
 
             if (!dryrun && batch.Count > 0)
-                dal.AddFireDataRows(batch);
+                savedRows += dal.AddFireDataRows(batch);
+
+            if (!dryrun && savedRows != imported)
+                Console.WriteLine($"[ERROR] [FireData/patch] Saved {savedRows:N0} of {imported:N0} source rows.");
 
             Console.WriteLine($"[FireData/patch] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
         }
@@ -1088,7 +1103,7 @@ namespace RHESSYs_Data_Importer.IO
             }
 
             var dal = new CentralCoastDAL();
-            int written = 0;
+            var batch = new List<PatchDataRow>(pixelsByZone.Count);
 
             foreach (var kvp in pixelsByZone)
             {
@@ -1122,11 +1137,13 @@ namespace RHESSYs_Data_Importer.IO
                     data = JsonConvert.SerializeObject(footprint)
                 };
 
-                dal.AddPatchDataRow(row);
-                written++;
+                batch.Add(row);
             }
 
-            Console.WriteLine($"[PatchData] Imported {written:N0} rows.");
+            int savedRows = dal.AddPatchDataRows(batch);
+            Console.WriteLine($"[PatchData] Imported {savedRows:N0} of {batch.Count:N0} source rows.");
+            if (savedRows != batch.Count)
+                Console.WriteLine($"[ERROR] PatchData import incomplete: {batch.Count - savedRows:N0} rows were NOT saved. Re-run the import before generating terrain.");
         }
 
         /// <summary>

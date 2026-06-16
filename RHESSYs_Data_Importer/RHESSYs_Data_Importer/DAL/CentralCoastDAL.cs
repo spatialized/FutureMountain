@@ -133,7 +133,7 @@ namespace RHESSYs_Data_Importer.DAL
         {
             var db = new CentralCoastDbContext(_connectionString);
             var lookup = db.CubeData
-                .Where(r => r.scenarioRunId == scenarioRunId && r.warmingIdx == warmingIdx)
+                .Where(r => r.scenarioRunId == scenarioRunId && r.warmingIdx == warmingIdx && r.patchID > 0)
                 .ToDictionary(r => (r.dateIdx, r.zoneID, r.patchID));
             return (db, lookup);
         }
@@ -154,6 +154,20 @@ namespace RHESSYs_Data_Importer.DAL
             {
                 foreach (var e in changed.Skip(i).Take(chunkSize))
                     e.State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+                total += db.SaveChanges();
+            }
+            return total;
+        }
+
+        public static int SaveCubeDataRows(CentralCoastDbContext db, IEnumerable<CubeDataRow> rows, int chunkSize = 5_000)
+        {
+            var changed = rows.Distinct().ToList();
+
+            int total = 0;
+            for (int i = 0; i < changed.Count; i += chunkSize)
+            {
+                foreach (var row in changed.Skip(i).Take(chunkSize))
+                    db.Entry(row).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
                 total += db.SaveChanges();
             }
             return total;
