@@ -18,7 +18,7 @@ namespace Assets.Scripts.Models
         public float qWarm2 { get; set; }
         public float qWarm4 { get; set; }
         public float qWarm6 { get; set; }
-        public int precipitation { get; set; }
+        public float precipitation { get; set; }
     }
 
 }

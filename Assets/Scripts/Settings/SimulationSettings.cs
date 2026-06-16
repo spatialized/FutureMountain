@@ -70,10 +70,15 @@ public class SimulationSettings : MonoBehaviour
     public bool BuildForWeb => false;
 #endif
 
-    /* Fire Settings */
-    [Header("Fire")]
+    /* Scenario Feature Settings */
+    [Header("Scenario Features")]
+    [Tooltip("Enable snow visualization and snow-driven cube effects")]
+    public bool SnowEnabled = true;                       // Enable snow visualization
     [Tooltip("Enable fire simulation and fire data loading")]
     public bool FireEnabled = true;                       // Enable fire simulation
+    
+    /* Fire Settings */
+    [Header("Fire")]
     [Tooltip("Pause simulation automatically during fire")]
     public bool AutoPauseOnFire = false;                  // Pause simulation during fire
     [Tooltip("Minimum fire length in frames (when Auto Pause Off)")]

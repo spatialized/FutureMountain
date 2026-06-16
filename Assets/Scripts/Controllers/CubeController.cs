@@ -430,7 +430,10 @@ public class CubeController : MonoBehaviour
             UpdateCurrentData(timeIdx);
 
         soilController.UpdateParams(timeStep, WaterAccess, DepthToGW);      // Initial update of soil parameters
-        snowManager.snowValue = Mathf.Clamp(MathUtil.MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, 0f, snowScalingFactor), 0f, snowScalingFactor);
+        if (settings != null && settings.SnowEnabled)
+            snowManager.snowValue = Mathf.Clamp(MathUtil.MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, 0f, snowScalingFactor), 0f, snowScalingFactor);
+        else
+            ResetSnow();
 
         if(!settings.BuildForWeb)
             GrowInitialVegetation();
@@ -1416,61 +1419,68 @@ public class CubeController : MonoBehaviour
             if (soilController != null && cubeObject.activeInHierarchy)
                 soilController.UpdateSimulation(timeIdx, curTimeStep, WaterAccess, DepthToGW);
 
-            if (snowValue > 0.0001f)
-                snowValue = Mathf.Clamp(snowValue - snowMeltRate * Mathf.Sqrt(timeStep), 0f, 100000f);      // Melt snow
-
-            /* Add snow from current data */
-            if (timeStep == 1)
+            if (settings == null || settings.SnowEnabled)
             {
-                snowValue = Mathf.Clamp(snowValue + MathUtil.MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, snowValueMin, snowValueMax), snowValueMin, snowValueMax);
-            }
-            else
-            {
-                float combinedSnow = 0f;
-                int step = 0;
-                for (int i = 0; i < timeStep; i++)
+                if (snowValue > 0.0001f)
+                    snowValue = Mathf.Clamp(snowValue - snowMeltRate * Mathf.Sqrt(timeStep), 0f, 100000f);      // Melt snow
+
+                /* Add snow from current data */
+                if (timeStep == 1)
                 {
-                    int idx = timeIdx - i;
-                    if (idx < 0)
-                    {
-                        continue;
-                    }
-
-                    float amount = ReadData((int)DataColumnIdx.Snow, idx);
-                    float val = Mathf.Clamp(MathUtil.MapValue(amount, SnowAmountMin, SnowAmountMax, snowValueMin, snowValueMax), snowValueMin, snowValueMax);
-                    combinedSnow += val;
-                    step++;
-
-                    //if (transform.name.Contains("CubeB"))
-                    //    Debug.Log(transform.name + " Snow... val:" + val + " combinedSnow:" + combinedSnow);
-                    //Debug.Log(transform.name + " GetCurrentData... amount:" + amount);
-                    //Debug.Log(transform.name + " GetCurrentData... snowValueMin:" + snowValueMin + "  snowValueMax:" + snowValueMax);
-                    //Debug.Log(transform.name + " GetCurrentData... SnowAmountMin:" + SnowAmountMin + "  SnowAmountMax:" + SnowAmountMax);
-                }
-
-                if (step == 0)
-                    return;
-
-                if (timeStep <= 7)
-                {
-                    combinedSnow /= step;
-                    snowValue += combinedSnow;
-
-                    //if (isSideCube)
-                    //    Debug.Log(transform.name + " added from combined snow... snowValue:" + snowValue);
+                    snowValue = Mathf.Clamp(snowValue + MathUtil.MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, snowValueMin, snowValueMax), snowValueMin, snowValueMax);
                 }
                 else
                 {
-                    combinedSnow /= step;
-                    combinedSnow *= 5f;
-                    snowValue = combinedSnow;
+                    float combinedSnow = 0f;
+                    int step = 0;
+                    for (int i = 0; i < timeStep; i++)
+                    {
+                        int idx = timeIdx - i;
+                        if (idx < 0)
+                        {
+                            continue;
+                        }
 
-                    //if (transform.name.Contains("CubeB"))
-                    //    Debug.Log(transform.name + " >>> calculated new snowValue:" + snowValue);
+                        float amount = ReadData((int)DataColumnIdx.Snow, idx);
+                        float val = Mathf.Clamp(MathUtil.MapValue(amount, SnowAmountMin, SnowAmountMax, snowValueMin, snowValueMax), snowValueMin, snowValueMax);
+                        combinedSnow += val;
+                        step++;
+
+                        //if (transform.name.Contains("CubeB"))
+                        //    Debug.Log(transform.name + " Snow... val:" + val + " combinedSnow:" + combinedSnow);
+                        //Debug.Log(transform.name + " GetCurrentData... amount:" + amount);
+                        //Debug.Log(transform.name + " GetCurrentData... snowValueMin:" + snowValueMin + "  snowValueMax:" + snowValueMax);
+                        //Debug.Log(transform.name + " GetCurrentData... SnowAmountMin:" + SnowAmountMin + "  SnowAmountMax:" + SnowAmountMax);
+                    }
+
+                    if (step == 0)
+                        return;
+
+                    if (timeStep <= 7)
+                    {
+                        combinedSnow /= step;
+                        snowValue += combinedSnow;
+
+                        //if (isSideCube)
+                        //    Debug.Log(transform.name + " added from combined snow... snowValue:" + snowValue);
+                    }
+                    else
+                    {
+                        combinedSnow /= step;
+                        combinedSnow *= 5f;
+                        snowValue = combinedSnow;
+
+                        //if (transform.name.Contains("CubeB"))
+                        //    Debug.Log(transform.name + " >>> calculated new snowValue:" + snowValue);
+                    }
                 }
-            }
 
-            snowManager.snowValue = snowValue;
+                snowManager.snowValue = snowValue;
+            }
+            else
+            {
+                ResetSnow();
+            }
             //if (name.Equals("CubeC") || name.Equals("CubeC_Side"))
             //{
             //    if (GameController.Instance.sideBySideMode)
@@ -1511,7 +1521,7 @@ public class CubeController : MonoBehaviour
                 Debug.Log("UpdateSimulation()... Invalid time index!  timeIdx: " + timeIdx);
         }
 
-        if (snowValue > 0)
+        if ((settings == null || settings.SnowEnabled) && snowValue > 0)
             UpdatePrecipToGW(snowValue);
     }
 
@@ -1957,6 +1967,9 @@ public class CubeController : MonoBehaviour
                 RootsCarbonUnder = ReadData((int)AggregateDataColumnIdx.RootCarbonUnder, timeIdx);
             }
         }
+
+        if (settings != null && !settings.SnowEnabled)
+            SnowAmount = 0f;
     }
 
     /// <summary>
@@ -3492,7 +3505,16 @@ public class CubeController : MonoBehaviour
         ClearAllLitter();
         SetInitParameterValues();
 
-        snowManager.snowValue = 0f;
+        ResetSnow();
+    }
+
+    public void ResetSnow()
+    {
+        snowValue = 0f;
+        SnowAmount = 0f;
+
+        if (snowManager != null)
+            snowManager.snowValue = 0f;
     }
     #endregion
 

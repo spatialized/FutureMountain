@@ -1754,6 +1754,9 @@ public class GameController : MonoBehaviour
         if (DebugLevel(2))
             Debug.Log("Update()... Calling StartSimulation() for Game Objects... warmingIdx:" + warmingIdx + " warmingDegrees:" + warmingDegrees);
 
+        if (settings != null && !settings.SnowEnabled)
+            ResetCubeSnow();
+
         landscapeController.StartSimulation(timeIdx, simulationStartYear, simulationStartMonth, simulationStartDay, timeStep, warmingIdx, settings.MinFireFrameLength, settings.ImmediateFireTimeThreshold);
         cubes[0].StartSimulation(timeIdx, timeStep);
         cubes[1].StartSimulation(timeIdx, timeStep);
@@ -2996,6 +2999,22 @@ public class GameController : MonoBehaviour
         foreach (CubeController cube in sideCubes)
         {
             cube.ResetCube();
+        }
+    }
+
+    private void ResetCubeSnow()
+    {
+        aggregateCubeController.ResetSnow();
+        aggregateSideCubeController.ResetSnow();
+
+        foreach (CubeController cube in cubes)
+        {
+            cube.ResetSnow();
+        }
+
+        foreach (CubeController cube in sideCubes)
+        {
+            cube.ResetSnow();
         }
     }
 
