@@ -54,6 +54,7 @@ RHESSYs_Data_Importer/**/appsettings.Local.json
 RHESSYs_Data_Importer/**/appsettings.Development.json
 Services/FutureMountainApi/**/appsettings.Local.json
 Services/FutureMountainApi/**/appsettings.Development.json
+Services/FutureMountainApi/**/appsettings.json
 *.tmp
 *.user
 *.userprefs
