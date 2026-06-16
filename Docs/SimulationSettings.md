@@ -1,6 +1,6 @@
 # SimulationSettings
 
-Last updated: 2026-06-15
+Last updated: 2026-06-16
 
 ## Purpose
 
@@ -26,6 +26,12 @@ Other controllers (`CubeController`, etc.) receive a reference through method ar
 | Field | Default | Meaning |
 |---|---|---|
 | `CubeDataOnly` | `false` | Skip the full landscape simulation and use test precipitation data. Useful for rapid iteration on cube visuals. |
+| `apiProfile` | `BigCreek` | Scene-level API route profile. `BigCreek` uses legacy `/api/...` routes; `CentralCoast` prepends `/api/centralcoast/...` for web requests. |
+
+The Big Creek scene should use `apiProfile = BigCreek`. The Central Coast v2
+scene should use `apiProfile = CentralCoast`. This setting affects cube data,
+dates, water data, fire data, patch data, terrain data, and timeline water-data
+requests because they all flow through `WebManager`.
 
 ### BuildForWeb (Compile-Time, Not Inspector)
 `BuildForWeb` is **not** an inspector toggle. It is a read-only C# property whose value is determined at compile time:

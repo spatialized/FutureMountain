@@ -24,6 +24,7 @@ public class WebManager : MonoBehaviour
 
     private static WebManager _instance;
     public static WebManager Instance { get { return _instance; } }
+    private SimulationSettings settings;
 #if LOCAL_VERSION
     private static string connectionStringBase = "http://localhost:5550/api/";
 #elif WEB_VERSION
@@ -52,6 +53,22 @@ public class WebManager : MonoBehaviour
         {
             _instance = this;
         }
+
+        settings = FindObjectOfType<SimulationSettings>();
+    }
+
+    private string BuildUri(string endpoint, params object[] segments)
+    {
+        if (settings == null)
+            settings = FindObjectOfType<SimulationSettings>();
+
+        string scenarioPrefix = settings != null ? settings.ScenarioApiPrefix : "";
+        string uri = connectionStringBase + scenarioPrefix + endpoint.Trim('/');
+
+        foreach (object segment in segments)
+            uri += "/" + segment;
+
+        return uri;
     }
 
     //public void RequestCubeData(int patchIdx, int warmingIdx, int timeIdxStart, int timeIdxEnd, Action<string> callback)
@@ -66,7 +83,7 @@ public class WebManager : MonoBehaviour
     // Gets all data rows for given Patch Id and Warming Idx
     public Coroutine RequestCubeData(int patchIdx, int warmingIdx, Action<string> callback)
     {
-        string uri = connectionStringBase + apiPathCubes + patchIdx + "/" + warmingIdx;
+        string uri = BuildUri(apiPathCubes, patchIdx, warmingIdx);
 
         if(debug)
             Debug.Log("RequestCubeData()... uri:  " + uri);
@@ -78,7 +95,7 @@ public class WebManager : MonoBehaviour
     // Gets precipitation data for given data warmingIdx
     public Coroutine RequestWaterData(int index, Action<string> callback)
     {
-        string uri = connectionStringBase + apiPathWater + index;
+        string uri = BuildUri(apiPathWater, index);
 
         if (debug)
             Debug.Log("RequestWaterData()... uri:  " + uri);
@@ -89,7 +106,7 @@ public class WebManager : MonoBehaviour
     // Gets precipitation data for whole timeline
     public Coroutine GetTimelineWaterData(Action<string> callback)
     {
-        string uri = connectionStringBase + apiPathWater + "total";
+        string uri = BuildUri(apiPathWater, "total");
 
         if (debug)
             Debug.Log("GetTimelineWaterData()... uri:  " + uri);
@@ -102,7 +119,7 @@ public class WebManager : MonoBehaviour
     public Coroutine RequestFireData(int warmingIdx, Action<string> callback)
     {
         //https://data.futuremtn.org/api/FireData/2
-        string uri = connectionStringBase + apiPathFire + warmingIdx;
+        string uri = BuildUri(apiPathFire, warmingIdx);
 
         if (debug)
             Debug.Log("RequestFireData()... uri:  " + uri);
@@ -116,7 +133,7 @@ public class WebManager : MonoBehaviour
     public Coroutine RequestTerrainData(int warmingIdx, Action<string> callback)
     {
         //https://data.futuremtn.org/api/TerrainData/1
-        string uri = connectionStringBase + apiPathTerrain + warmingIdx;
+        string uri = BuildUri(apiPathTerrain, warmingIdx);
 
         if (debug)
             Debug.Log("RequestTerrainData()... uri:  " + uri);
@@ -130,7 +147,7 @@ public class WebManager : MonoBehaviour
     public Coroutine RequestAllPatchData(Action<string> callback)
     {
         //https://data.futuremtn.org/api/PatchData
-        string uri = connectionStringBase + apiPathPatch;
+        string uri = BuildUri(apiPathPatch);
 
         if (debug)
             Debug.Log("RequestAllPatchData()... uri:  " + uri);
@@ -142,7 +159,7 @@ public class WebManager : MonoBehaviour
     public Coroutine RequestPatchData(int patchId, Action<string> callback)
     {
         //https://data.futuremtn.org/api/PatchData/{patchId}
-        string uri = connectionStringBase + apiPathPatch + "/" + patchId;
+        string uri = BuildUri(apiPathPatch, patchId);
 
         if (debug && debugDetailed)
             Debug.Log("RequestPatchData()... /" + patchId+" uri:  " + uri);
@@ -153,7 +170,7 @@ public class WebManager : MonoBehaviour
     // Unused
     public Coroutine GetDateIndex(int year, int month, int day, Action<string> callback)
     {
-        string uri = connectionStringBase + apiPathDates + year + "/" + month + "/" + day;
+        string uri = BuildUri(apiPathDates, year, month, day);
         if(debug)
             Debug.Log("GetDateIndex()... uri:  " + uri);
 
@@ -162,7 +179,7 @@ public class WebManager : MonoBehaviour
 
     public Coroutine GetDataDates(Action<string> callback)
     {
-        string uri = connectionStringBase + apiPathDates;
+        string uri = BuildUri(apiPathDates);
         if(debug)
             Debug.Log("GetDataDates()... uri:  " + uri);
 

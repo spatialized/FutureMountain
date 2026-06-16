@@ -1,6 +1,12 @@
 using System.Collections;
 using UnityEngine;
 
+public enum ScenarioApiProfile
+{
+    BigCreek,
+    CentralCoast
+}
+
 /// <summary>
 /// Tree settings class.
 /// </summary>
@@ -10,6 +16,24 @@ public class SimulationSettings : MonoBehaviour
     [Header("Data")]
     [Tooltip("Load Cube Data Only (for testing)")]
     public bool CubeDataOnly = false;                   // Only load cube data and use test precip data (true) or run full landscape simulation (false)
+    [Tooltip("Selects the API route prefix used by this scene.")]
+    public ScenarioApiProfile apiProfile = ScenarioApiProfile.BigCreek;
+
+    public string ScenarioApiPrefix
+    {
+        get
+        {
+            switch (apiProfile)
+            {
+                case ScenarioApiProfile.CentralCoast:
+                    return "centralcoast/";
+                case ScenarioApiProfile.BigCreek:
+                default:
+                    return "";
+            }
+        }
+    }
+
 #if WEB_VERSION || LOCAL_VERSION
     public bool BuildForWeb => true;
 #else
