@@ -26,6 +26,7 @@
     "cubeStratumUnder02": "cube_sc_under_patch2.csv",
     "basinMonthlyBurn": "bm.csv",
     "patchMonthlyBurn": "spatial_data_point_patchvar.csv",
+    "fireFrameSpreadIter": "",
     "stratumMonthlyCarbon": "spatial_data_point_stratvar.csv",
     "patchFamilyRaster": "Pch30rip90upRN.tiff"
   },
@@ -33,6 +34,7 @@
     "Dates",
     "CubeData",
     "WaterData",
+    "FireData",
     "BurnData",
     "StratumData",
     "PatchData",

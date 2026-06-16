@@ -909,6 +909,48 @@ namespace RHESSYs_Data_Importer.IO
         }
 
         /// <summary>
+        /// Central Coast v2 fire-frame import entry point.
+        ///
+        /// FireData is reserved for Unity-compatible instantaneous fire playback
+        /// frames: event date, landscape fire grid dimensions, and serialized
+        /// FireDataPoint values containing patch/zone id, spread, and iter/order.
+        ///
+        /// The current Central Coast source bundle has monthly BurnData, but not
+        /// fire-frame spread/iter source files. This method is intentionally
+        /// present so <c>--fire</c> has a concrete pipeline hook and can report
+        /// the missing source roles clearly.
+        /// </summary>
+        public static void ImportFireData(ScenarioConfig config, bool dryrun = false)
+        {
+            var spreadIterPath = config.GetSourceFilePath("fireFrameSpreadIter");
+
+            bool hasSpreadIterRole = !string.IsNullOrWhiteSpace(spreadIterPath);
+
+            if (!hasSpreadIterRole)
+            {
+                Console.WriteLine("[FireData] Central Coast fire-frame import scaffold is active.");
+                Console.WriteLine("[FireData] No Central Coast fire-frame source is configured yet; 0 FireData rows written.");
+                Console.WriteLine("[FireData] FireData will use existing PatchData as the landscape patch/zone grid map.");
+                Console.WriteLine("[FireData] Expected ScenarioConfig file role when source data exists:");
+                Console.WriteLine("[FireData]   fireFrameSpreadIter -> event rows with date, patch/zone id, spread, and iter/order");
+                Console.WriteLine("[FireData] Monthly RHESSys burn remains separate and is imported with --burn into BurnData.");
+                return;
+            }
+
+            bool spreadIterExists = File.Exists(spreadIterPath);
+
+            if (!spreadIterExists)
+            {
+                Console.WriteLine($"[FireData][WARN] fireFrameSpreadIter file not found: {spreadIterPath}");
+                Console.WriteLine("[FireData] 0 FireData rows written.");
+                return;
+            }
+
+            Console.WriteLine("[FireData][ERROR] Central Coast fire-frame source roles are configured and files exist, but the concrete parser has not been wired for this source format yet.");
+            Console.WriteLine("[FireData][ERROR] Do not import these files as BurnData. FireData requires Unity fire-frame records with spread/iter playback data.");
+        }
+
+        /// <summary>
         /// Imports the monthly all-stratum carbon file
         /// (<c>spatial_data_point_stratvar.csv</c>) into the
         /// <c>StratumData</c> table.

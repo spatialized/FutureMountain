@@ -61,6 +61,18 @@ Landscape fire data is loaded by warming index:
 
 `SERI_FireManager.Initialize(...)` receives fire frames and creates one `SERI_FireGrid` per fire frame. In data-controlled mode, `SERI_FireGrid` uses `FireDataPoint` and `FireDataPointCollection` data to decide active cells, patch IDs, spread values, and burn order.
 
+## Importer Contract
+
+`FireData` means Unity-compatible fire playback frames. It should contain event dates, landscape fire grid dimensions, and serialized `FireDataPoint` values with patch/zone id, spread, and iter/order. This is the data used for instantaneous fire animation after a scheduled ignition.
+
+`BurnData` is separate. In Central Coast v2, monthly RHESSys burn values from `bm.csv` and `spatial_data_point_patchvar.csv` are imported with `--burn` into `BurnData`. These rows can inform terrain state, but they are not fire spread/iter playback frames.
+
+The Central Coast v2 importer now has a `--fire` scaffold. The scenario config reserves two file roles for future fire-frame sources:
+
+- `fireFrameSpreadIter`: event rows with date, patch/zone id, spread, and iter/order.
+
+That role is empty in the current Central Coast sample bundle because no Central Coast fire-frame source has been provided yet. Central Coast fire-frame generation should reuse existing `PatchData` as the landscape patch/zone grid map; `PatchData` is currently derived from `patchFamilyRaster`.
+
 ## Cube Fire Behavior
 
 Cube fires are less spatially data-driven than landscape fires. The cube fire grid is ignited immediately because cube-level spread data is not currently used. The data-driven part is the amount of vegetation to remove:
@@ -105,5 +117,5 @@ After fire stops, `SetToBurnt()` marks the terrain burned and stops grid fires. 
 - Big Creek has exactly two scheduled fire dates.
 - Landscape fire spread is data-driven by warming index; cube spread is visually immediate and biomass-driven.
 - The fire system is adapted from a third-party Fire Propagation System and has project-specific SERI modifications.
-- Future scenarios need explicit fire-date configuration and a clear decision about whether fire spread data will match Big Creek's grid/patch model.
+- Future scenarios need explicit fire-date configuration and a concrete fire-frame source format that can populate `FireData`.
 

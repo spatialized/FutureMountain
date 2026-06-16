@@ -234,7 +234,7 @@ if (importFireData)
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
         Console.WriteLine("[AUTO MODE] --- Importing fire data ---");
-        Console.WriteLine("[INFO] No fire-frame source is configured for this scenario. Use --burn for monthly RHESSys burn data.");
+        CentralCoastImporter.ImportFireData(activeConfig, dryrun);
     }
     else
     {

@@ -61,6 +61,7 @@ Recognized flags:
 - `--patch`
 - `--terrain`
 - `--fire`
+- `--burn`
 - `--water`
 - `--climate`
 
@@ -101,9 +102,19 @@ Auto cube behavior:
 - If config exists but no cube files are discovered, warn and fall back to legacy cube import unless dry-run is enabled.
 - If no config exists, run legacy cube import unless dry-run is enabled.
 
-Auto patch, terrain, fire, and water behavior:
+Auto patch, terrain, fire, burn, and water behavior:
 
 - These call legacy methods in `TextFileInput` unless dry-run is enabled.
+
+Central Coast v2 overrides this legacy behavior:
+
+- `--fire` calls `CentralCoastImporter.ImportFireData`.
+- `--burn` calls `CentralCoastImporter.ImportBasinBurnData` and `CentralCoastImporter.ImportPatchBurnData`.
+- `--fire` is reserved for Unity-compatible fire-frame playback data: event date, fire grid dimensions, patch/zone id, spread, and iter/order.
+- `--burn` imports monthly RHESSys burn state into `BurnData`; it is not fire playback data.
+- Central Coast fire-frame generation should use existing `PatchData` as the landscape patch/zone grid map.
+- The current Central Coast v2 config includes one empty placeholder file role for future fire-frame source data: `fireFrameSpreadIter`.
+- Until that role points at a real source file and a concrete parser is wired for its format, `--fire` writes zero rows and logs the expected role.
 
 ## Cube Import Pipeline
 

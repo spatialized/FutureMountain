@@ -24,6 +24,11 @@ namespace RHESSYs_Data_Importer.IO
         private static readonly int[] ExpectedZoneIDs = new[] { 12166, 12771, 6492, 18891, 10071 };
         private static readonly long ExpectedPatchCount = 8954;
         private static readonly long ExpectedStratumCount = 17908;
+        private static readonly HashSet<string> OptionalSourceRoles =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                "fireFrameSpreadIter"
+            };
 
         /// <summary>
         /// Validates all configured Central Coast source files and returns a report.
@@ -45,6 +50,12 @@ namespace RHESSYs_Data_Importer.IO
                 var path = config.GetSourceFilePath(role);
                 if (string.IsNullOrWhiteSpace(path))
                 {
+                    if (OptionalSourceRoles.Contains(role))
+                    {
+                        report.Info.Add($"Optional file role '{role}' is not mapped to a path.");
+                        continue;
+                    }
+
                     report.Errors.Add($"File role '{role}' is not mapped to a path.");
                     continue;
                 }
@@ -54,6 +65,12 @@ namespace RHESSYs_Data_Importer.IO
 
                 if (!result.Exists)
                 {
+                    if (OptionalSourceRoles.Contains(role))
+                    {
+                        report.Info.Add($"Optional file role '{role}' not found: {path}");
+                        continue;
+                    }
+
                     report.Errors.Add($"File not found for role '{role}': {path}");
                     continue;
                 }
