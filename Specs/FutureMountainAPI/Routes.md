@@ -2,6 +2,12 @@
 
 Last updated: 2026-06-16
 
+Manual request examples are also available in the Postman collection:
+
+```text
+Services/FutureMountainApi/Future Mountain.postman_collection.json
+```
+
 ## Big Creek Routes
 
 ### CubeData

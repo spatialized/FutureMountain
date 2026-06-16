@@ -63,6 +63,18 @@ Central Coast routes are scenario-explicit:
 Unity applies this route selection through `SimulationSettings.apiProfile` and
 `WebManager`.
 
+## Manual Testing
+
+A Postman collection for API smoke testing is stored at:
+
+```text
+Services/FutureMountainApi/Future Mountain.postman_collection.json
+```
+
+The collection is intended for quick local and deployed API checks. Any Postman
+environment files committed with it should contain only non-secret example
+values.
+
 ## Current Constraints
 
 - There is no explicit `/api/bigcreek/...` route family yet.
