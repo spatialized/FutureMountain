@@ -1,4 +1,4 @@
-# Data Mappings Spec
+# Data Mappings
 
 Last updated: 2026-06-12
 

@@ -1,4 +1,4 @@
-# RHESSys Data Importer Scenario Config Schema Spec
+# RHESSys Data Importer Scenario Config Schema
 
 Last updated: 2026-06-13
 
@@ -88,6 +88,28 @@ climate
 ```
 
 These categories must be present in `filePatterns` to avoid missing-pattern warnings.
+
+## Central Coast Source File Roles
+
+Central Coast v2 uses `sourceRoot` plus logical `files` roles instead of the legacy `inputFolders`/`filePatterns` discovery path.
+
+Current roles include:
+
+| Role | Current meaning |
+| --- | --- |
+| `cubeAggregateDaily` | Daily aggregate cube/water source (`cube_agg_p.csv`) |
+| `cubePatchDaily01`, `cubePatchDaily02` | Daily cube patch sources |
+| `cubeStratumOver01`, `cubeStratumOver02` | Overstory cube stratum sources |
+| `cubeStratumUnder01`, `cubeStratumUnder02` | Understory cube stratum sources |
+| `basinMonthlyBurn` | Monthly basin burn source for `BurnData` |
+| `patchMonthlyBurn` | Monthly patch/zone burn source for `BurnData` |
+| `stratumMonthlyCarbon` | Monthly stratum carbon source for `StratumData` |
+| `patchFamilyRaster` | TIFF patch/zone footprint source for `PatchData` |
+| `fireFrameSpreadIter` | Placeholder for future fire event rows with date, patch/zone id, spread, and iter/order |
+
+The fire-frame role is intentionally present even though the current Central Coast bundle has no such file. It makes the intended `--fire` pipeline explicit. Monthly RHESSys burn belongs to `--burn`/`BurnData`; Unity fire playback belongs to `--fire`/`FireData`.
+
+Central Coast fire-frame generation should reuse existing `PatchData` for the landscape patch/zone grid map. `PatchData` currently comes from `patchFamilyRaster`, so a separate fire-specific patch map role is not required unless a future data bundle supplies a different fire-only spatial index.
 
 ## Column Mapping Contract
 

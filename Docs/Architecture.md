@@ -1,12 +1,14 @@
 # Future Mountain Architecture
 
-Last updated: 2026-06-12
+Last updated: 2026-06-15
 
 ## Project Type
 
-Future Mountain is a Unity project using Unity 2022.3.62f3. The active build scene is:
+Future Mountain is a Unity project using Unity 2022.3.62f3. Scenario scenes are
+organized by scenario:
 
-- `Assets/Scenes/FutureMountain/FutureMountain.unity`
+- `Assets/Scenes/BigCreekV1/BigCreekV1.unity`
+- `Assets/Scenes/CentralCoastV2/CentralCoastV2.unity`
 
 The project targets WebGL and standalone/editor workflows. Build symbols in `ProjectSettings/ProjectSettings.asset` include:
 
@@ -33,10 +35,19 @@ The project targets WebGL and standalone/editor workflows. Build symbols in `Pro
   - Tree, shrub, stream, soil, camera, and water-to-groundwater controllers.
 - `Assets/Scripts/Models`
   - JSON/data transfer classes for cube, date, fire, terrain, water, and patch data.
+  - `FireModels.cs` — `FireDataPoint`, `FireDataPointCollection`, `FireDataFrame`, `FireDataFrameRecord`
+  - `SnowData.cs` — `SnowDataFrame`
+  - `WaterDataFrames.cs` — `WaterDataFrame`, `WaterDataMonth`, `WaterDataYear`
+  - `TerrainSimulationData.cs` — `TerrainSimulationData`
+  - `PatchDataModels.cs` — `PatchDataFrame`, `PatchDataMonth`, `PatchDataYear`
+  - (Pre-existing) `FireData.cs`, `PatchData.cs`, `WaterData.cs`, `CubeData.cs`, `DateModel.cs`, `TerrainDataFrame.cs`, and timeline transfer classes.
 - `Assets/Scripts/UI`
   - Timeline, warming/time knobs, pause/continue buttons, and message management.
+- `Assets/Scripts/Utilities`
+  - `MathUtils.cs` — shared `MapValue(value, from1, to1, from2, to2)` used across controllers and UI. Previously duplicated in ~10 files.
+  - `GameUtilities.cs`, `GameObjectPool.cs`, `GameObjectExtensions.cs` — pre-existing general helpers.
 - `Assets/Scripts/Settings`
-  - `SimulationSettings` MonoBehaviour with inspector-tuned parameters.
+  - `SimulationSettings` MonoBehaviour with inspector-tuned parameters. See [SimulationSettings.md](SimulationSettings.md) for full field reference.
 - `Assets/Scripts/Fire`
   - SERI fire grid, cells, nodes, terrain texture integration, visual manager, and ignition helpers.
 
@@ -83,17 +94,12 @@ The current runtime assumes:
 - Fixed patch and water column order through enum indices in `LandscapeController`.
 - Terrain/fire data shapes that match the existing Big Creek data pipeline.
 
-These assumptions should be reviewed before adding the Central Coast scenario.
+These assumptions should be reviewed before adding another scenario. See
+[AddingFutureScenarios.md](AddingFutureScenarios.md) for the Unity-side scenario
+setup workflow.
 
 ## External and Third-Party Assets
 
 The project includes several Unity asset/plugin areas, including Standard Assets, Dynamic Fog, PostProcessing, Dynamic Snow System, River Auto Material, Terrain Stitch, NatCorder, Horizon[ON], NatureManufacture/Dynamic Nature assets, and utility/editor packages. These are not all necessarily active in the final scene, but they are part of the repository and should be handled carefully during refactors.
 
-## Refactor Priorities For Handoff
-
-- Introduce a scenario configuration layer used by runtime code, not only by importer/config files.
-- Replace duplicated warming-level switch statements with a shared data structure.
-- Consolidate data contracts so importer, database/API, and Unity DTOs cannot drift silently.
-- Separate Big Creek content and labels from reusable visualization code.
-- Decide whether the data importer should live in this repo as a utility project or remain a separate repo with clear versioning and setup docs.
 

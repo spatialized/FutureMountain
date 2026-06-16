@@ -1,4 +1,4 @@
-﻿//using System.Collections;
+//using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -159,7 +159,7 @@ public class WarmingKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler,
         if (result < 0f)
             result = result * -1f;
         else if (result > 0f)
-            result = MapValue(180f - result, 0f, 180f, 180f, 360f);
+            result = MathUtil.MapValue(180f - result, 0f, 180f, 180f, 360f);
 
         return result;
     }
@@ -342,17 +342,4 @@ public class WarmingKnobSlider : MonoBehaviour, IBeginDragHandler, IDragHandler,
 
     }
 
-    /// <summary>
-    /// Maps value from one range to another.
-    /// </summary>
-    /// <returns>The value.</returns>
-    /// <param name="value">Value.</param>
-    /// <param name="from1">From1.</param>
-    /// <param name="to1">To1.</param>
-    /// <param name="from2">From2.</param>
-    /// <param name="to2">To2.</param>
-    public static float MapValue(float value, float from1, float to1, float from2, float to2)
-    {
-        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-    }
 }

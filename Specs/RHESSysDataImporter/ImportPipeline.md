@@ -1,6 +1,6 @@
-# RHESSys Data Importer Import Pipeline Spec
+# RHESSys Data Importer Import Pipeline
 
-Last updated: 2026-06-13
+Last updated: 2026-06-16
 
 ## Scope
 
@@ -20,7 +20,7 @@ Startup responsibilities:
 
 - Initialize import-category booleans.
 - Define legacy folder paths.
-- Load `ScenarioConfig_BigCreek.json` if present.
+- Load the requested scenario config, defaulting to `ScenarioConfig_BigCreek.json`.
 - Set the active DB connection override.
 - Discover files through `FileDiscovery`.
 - Parse command-line flags.
@@ -34,7 +34,8 @@ Default path:
 ScenarioConfig_BigCreek.json
 ```
 
-`ScenarioConfigLoader.Load(path)` uses Newtonsoft.Json to deserialize the file into `ScenarioConfig`.
+`--config <path>` overrides the default path. `ScenarioConfigLoader.Load(path)`
+uses Newtonsoft.Json to deserialize the file into `ScenarioConfig`.
 
 If the config loads:
 
@@ -57,12 +58,16 @@ Recognized flags:
 - `--auto`
 - `--dryrun`
 - `--force`
+- `--config <path>`
+- `--dates`
 - `--cubes`
 - `--patch`
 - `--terrain`
 - `--fire`
+- `--burn`
 - `--water`
 - `--climate`
+- `--stratum`
 
 If `--auto` is absent and a config is active, `WizardRunner.Run(activeConfig, dryrun)` is called and `Program.cs` returns afterward.
 
@@ -75,14 +80,27 @@ If `--auto` is absent and a config is active, `WizardRunner.Run(activeConfig, dr
 3. Existing database vs simulated new database choice.
 4. File discovery.
 5. Data category selection.
-6. Optional cube column-mapping preview.
-7. Final confirmation.
-8. Selected import execution.
+6. Central Coast v2 pre-import validation when that profile is active.
+7. Optional cube column-mapping preview.
+8. Final confirmation.
+9. Selected import execution.
 
 Current `RunSelectedImports` implementation:
 
-- `cube`: imports discovered cube files through `TextFileInput.ReadCubeDataFiles`.
-- `patch`, `terrain`, `fire`, `water`, `climate`: logs that import is not implemented in wizard mode.
+- Big Creek v1 `cube`: imports discovered cube files through
+  `TextFileInput.ReadCubeDataFiles`.
+- Big Creek v1 `patch`, `terrain`, `fire`, `water`, `climate`: logs that import
+  is not implemented in wizard mode.
+- Central Coast v2 `dates`: derives dates from `cubeAggregateDaily`.
+- Central Coast v2 `cube`: imports patch rows and applies stratum values.
+- Central Coast v2 `water`: imports daily aggregate water data.
+- Central Coast v2 `burn`: imports basin and patch monthly burn data.
+- Central Coast v2 `patch`: imports patch-map spatial data.
+- Central Coast v2 `stratum`: imports stratum carbon data.
+- Central Coast v2 `terrain`: generates terrain data from completed upstream
+  Central Coast tables.
+- Central Coast v2 `fire`: currently reports that no fire-frame source is
+  configured for the checked-in scenario.
 
 ## Auto Pipeline
 
@@ -92,7 +110,8 @@ When `--auto` is present:
 2. `--dryrun` and `--force` are logged if present.
 3. Category flags are checked.
 4. If any category flag exists, only those categories are enabled.
-5. If no category flag exists, cube, patch, terrain, fire, and water are enabled.
+5. If no category flag exists, cube, patch, terrain, fire, water, dates, and
+   stratum are enabled. Burn is also enabled for Central Coast v2.
 6. Climate is recognized as a placeholder but not imported.
 
 Auto cube behavior:
@@ -101,9 +120,28 @@ Auto cube behavior:
 - If config exists but no cube files are discovered, warn and fall back to legacy cube import unless dry-run is enabled.
 - If no config exists, run legacy cube import unless dry-run is enabled.
 
-Auto patch, terrain, fire, and water behavior:
+Auto patch, terrain, fire, burn, and water behavior:
 
 - These call legacy methods in `TextFileInput` unless dry-run is enabled.
+
+Central Coast v2 overrides this legacy behavior:
+
+- `--dates` calls `CentralCoastImporter.ImportDates`.
+- `--cubes` ensures dates exist, then calls
+  `CentralCoastImporter.ImportCubePatchData` and
+  `CentralCoastImporter.ImportCubeStratumData`.
+- `--water` ensures dates exist, then calls
+  `CentralCoastImporter.ImportWaterData`.
+- `--fire` calls `CentralCoastImporter.ImportFireData`.
+- `--burn` calls `CentralCoastImporter.ImportBasinBurnData` and `CentralCoastImporter.ImportPatchBurnData`.
+- `--patch` calls `CentralCoastImporter.ImportPatchMapData`.
+- `--stratum` calls `CentralCoastImporter.ImportStratumCarbonData`.
+- `--terrain` calls `CentralCoastImporter.GenerateTerrainData`.
+- `--fire` is reserved for Unity-compatible fire-frame playback data: event date, fire grid dimensions, patch/zone id, spread, and iter/order.
+- `--burn` imports monthly RHESSys burn state into `BurnData`; it is not fire playback data.
+- Central Coast fire-frame generation should use existing `PatchData` as the landscape patch/zone grid map.
+- The current Central Coast v2 config includes one empty placeholder file role for future fire-frame source data: `fireFrameSpreadIter`.
+- Until that role points at a real source file and a concrete parser is wired for its format, `--fire` writes zero rows and logs the expected role.
 
 ## Cube Import Pipeline
 

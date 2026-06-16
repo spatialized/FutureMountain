@@ -1,4 +1,4 @@
-# Side-by-Side Mode Spec
+# Side-by-Side Mode
 
 Last updated: 2026-06-12
 

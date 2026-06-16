@@ -194,7 +194,8 @@ Project documentation should be committed alongside source code whenever possibl
 
 * Repository root: `D:\Git\FutureMountain` on this workstation.
 * Unity solution: `FutureMountain.sln`.
-* Active scene: `Assets/Scenes/FutureMountain/FutureMountain.unity`.
+* Big Creek scene: `Assets/Scenes/BigCreekV1/BigCreekV1.unity`.
+* Central Coast scene: `Assets/Scenes/CentralCoastV2/CentralCoastV2.unity`.
 * Unity version: `2022.3.62f3`.
 * Scenario config reference: `ScenarioConfig_BigCreek.json`.
 
@@ -229,7 +230,8 @@ Current API base URLs in `Assets/Scripts/Controllers/WebManager.cs`:
 
 1. Open the repository folder in Unity Hub.
 2. Use Unity `2022.3.62f3`.
-3. Open `Assets/Scenes/FutureMountain/FutureMountain.unity`.
+3. Open the scenario scene you are testing, such as
+   `Assets/Scenes/BigCreekV1/BigCreekV1.unity`.
 4. Wait for Unity to finish importing assets and compiling scripts.
 5. Confirm that the scene loads without missing-script errors in the Console.
 
@@ -239,7 +241,7 @@ The project can run in the Unity Editor, but current runtime settings are orient
 
 Before pressing Play, confirm:
 
-* The active scene is `Assets/Scenes/FutureMountain/FutureMountain.unity`.
+* The active scene is the scenario scene you intend to test.
 * The intended scripting symbol is active for the target being tested.
 * The API target is reachable if using web/API data.
 * The Console is visible for data-loading errors.
@@ -268,6 +270,13 @@ For the deployed Big Creek API, these endpoints are expected by Unity:
 
 If the app stalls during loading, first check browser/Unity Console logs for failed API requests, JSON parse failures, or missing fields.
 
+API route and deployment documentation:
+
+* [Developer Onboarding](DeveloperOnboarding.md)
+* [Future Mountain API](Services/FutureMountainApi.md)
+* [API Route Spec](../Specs/FutureMountainAPI/Routes.md)
+* [API Deployment Spec](../Specs/FutureMountainAPI/Deployment.md)
+
 ## Local API Testing
 
 `LOCAL_VERSION` points Unity to:
@@ -291,7 +300,7 @@ Before building:
 
 * Confirm active build target is WebGL.
 * Confirm `WEB_VERSION` is present for WebGL scripting define symbols.
-* Confirm `Assets/Scenes/FutureMountain/FutureMountain.unity` is included in Build Settings.
+* Confirm the intended scenario scene is included in Build Settings.
 * Confirm `SimulationSettings.BuildForWeb` is true.
 * Confirm the deployed API is reachable.
 * Confirm no local-only API URL is selected.
@@ -315,7 +324,7 @@ Before building:
 * Confirm active build target is Standalone.
 * Confirm `LOCAL_VERSION` is present for Standalone scripting define symbols if testing a local API.
 * Confirm a local API is running at `http://localhost:5550/api/`, or adjust the code/config intentionally.
-* Confirm `Assets/Scenes/FutureMountain/FutureMountain.unity` is included in Build Settings.
+* Confirm the intended scenario scene is included in Build Settings.
 
 Smoke test the same primary features as WebGL, with extra attention to any local/non-web paths such as background snow and legacy data-loading behavior.
 

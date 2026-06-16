@@ -25,14 +25,14 @@ optional fields (all unused by Big Creek v1, which leaves them null):
 | `delimiter` | string | Field delimiter for source files (`,` for Central Coast CSVs). |
 | `files` | object | Logical file role -> file name, resolved relative to `sourceRoot`. |
 | `database` | object | Central Coast database connection (separate DB: `centralcoast_rhessys`). |
-| `outputTables` | array | Target tables, named to match the existing EF/Big Creek table convention (`Dates`, `CubeData`, `PatchData`, `FireData`, `WaterData`). See `CCV2-04`. |
+| `outputTables` | array | Target tables, named to match the existing EF/Big Creek table convention where applicable (`Dates`, `CubeData`, `PatchData`, `WaterData`). Monthly burn uses `BurnData`; Unity spread frames remain `FireData`. See `CCV2-04`. |
 
 ### Table Naming
 
 Tables reuse the original Big Creek EF naming convention so the schema and any
-later API/adapter stay familiar: `Dates`, `CubeData`, `PatchData`, `FireData`,
-`WaterData`. Central Coast-only tables use the same PascalCase style:
-`StratumData` and `ImportRun`.
+later API/adapter stay familiar: `Dates`, `CubeData`, `PatchData`, `WaterData`.
+Central Coast-only tables use the same PascalCase style:
+`BurnData`, `StratumData`, and `ImportRun`.
 
 This is a Central Coast v2 decision only. Big Creek v1 remains untouched, even if
 an existing MySQL instance displays its tables in lowercase.
@@ -95,15 +95,20 @@ The aggregate cube represents the whole watershed, so `streamflow` in
 category. Per-warming streamflow columns become per-member rows as more members
 arrive.
 
-### 3. Burn is imported as monthly source columns; runtime fire is deferred
+### 3. BurnData is monthly source burn; FireData is runtime fire spread
 
 Burn is present spatially and monthly (`bm.csv`, `spatial_data_point_patchvar.csv`
 are non-zero; daily cube `burn` is zero in the sample). It is not Big Creek's
 fire-frame/`spread`/`iter` format. Monthly per-patch burn is conceptually the
 burned-terrain field and will be interpolated to daily at runtime using the same
 mechanism as snow (see decision 7). Import preserves `burn` columns now; the
-config is built so it works once fuller data arrives. There is no `fire`
-category.
+config is built so it works once fuller data arrives.
+
+For Central Coast v2, these files import into `BurnData` via `--burn`. `FireData`
+is reserved for Big Creek-style Unity fire playback frames: instantaneous events
+with `gridLocation`, `patchId`, `spread`, and `iter`. Central Coast v2 currently
+has no configured fire-frame source file, so `--fire` is a clean no-op for this
+sample and must not import monthly burn.
 
 ### 4. Patch identity: `zoneID` is the spatial cube identity
 
@@ -153,44 +158,63 @@ staging tables is handled by `CCV2-04` onward.
 ## How To Run
 
 The canonical run instructions live in
-`Docs/RHESSysDataImporter/Runbook.md`, including the Central Coast v2 wizard flow
-and dry-run command. See the `Central Coast v2 Config` section there.
+`Docs/RHESSysDataImporter/BuildingAndRunning.md`, including the Central Coast v2
+wizard flow and dry-run command. See the `Central Coast v2 Config` section
+there.
 
 ## Schema Setup and Migration Workflow
 
 The Central Coast v2 tables live in a dedicated schema: **`futuremtn_central_coast`**.
 Do not create or touch these tables in `defaultdb` (Big Creek).
 
-### One-time schema creation (MySQL Workbench or CLI)
+### One-time schema creation (recommended MySQL Workbench path)
+
+The checked-in schema export is:
+
+```text
+Database/Schema/CentralCoastV2_schema.sql
+```
+
+Use MySQL Workbench unless there is a specific reason to use the CLI:
+
+1. Connect to the target MySQL server.
+2. In the Schemas panel, choose **Create Schema**.
+3. Name the schema exactly `futuremtn_central_coast`.
+4. Click **Apply**.
+5. Open `Database/Schema/CentralCoastV2_schema.sql`.
+6. Make `futuremtn_central_coast` the active/default schema, or add this line near the top of the SQL editor:
 
 ```sql
-CREATE SCHEMA IF NOT EXISTS futuremtn_central_coast
-  DEFAULT CHARACTER SET utf8mb4
-  DEFAULT COLLATE utf8mb4_0900_ai_ci;
+USE futuremtn_central_coast;
 ```
 
-### Apply EF Core migration (creates all CCV2 tables)
+7. Run the script.
+8. Verify tables were created:
 
-Run from the `RHESSYs_Data_Importer/RHESSYs_Data_Importer` directory:
-
-```powershell
-dotnet ef database update --context CentralCoastDbContext
+```sql
+SHOW TABLES;
 ```
 
-This applies `Migrations/CentralCoast/20260613094310_CentralCoast_InitialCreate.cs`
-which creates: `CubeData`, `Dates`, `FireData`, `ImportRun`, `PatchData`,
-`StratumData`, `TerrainData`, `WaterData` in `futuremtn_central_coast`.
+Expected tables include `burndata`, `cubedata`, `dates`, `importrun`,
+`patchdata`, `stratumdata`, `terraindata`, `waterdata`, and
+`__efmigrationshistory`.
 
-The migration connection is defined in `DAL/CentralCoastDbContextFactory.cs`.
-Update the password there before applying if the local `admin` account has one.
+The schema export does not create the database and does not contain a `USE`
+statement, so the schema must exist and must be selected before running it.
 
-### Generate a SQL script instead of applying directly
+### EF Core migration alternative
 
-```powershell
-dotnet ef migrations script --context CentralCoastDbContext --output schema_centralcoast.sql
+The EF migration artifacts also exist under:
+
+```text
+RHESSYs_Data_Importer/RHESSYs_Data_Importer/Migrations/CentralCoast/
 ```
 
-Useful for reviewing the DDL before applying, or for applying via a DBA.
+However, `dotnet ef database update --context CentralCoastDbContext` uses the
+design-time connection in `DAL/CentralCoastDbContextFactory.cs`, which is local
+development oriented. For production/staging servers, prefer the exported SQL
+file above unless the design-time connection has been intentionally updated for
+the target server.
 
 ### Import sequence (after schema exists)
 
@@ -201,13 +225,13 @@ dotnet run -- --auto --config ScenarioConfig_CentralCoastV2.json --dryrun
 # 2. Patch map (spatial footprints -- fast, ~4,477 rows)
 dotnet run -- --patch --config ScenarioConfig_CentralCoastV2.json
 
-# 3. Fire (basin + patch monthly burn)
-dotnet run -- --fire --config ScenarioConfig_CentralCoastV2.json
+# 3. Burn (basin + patch monthly burn)
+dotnet run -- --burn --config ScenarioConfig_CentralCoastV2.json
 
 # 4. Stratum (6.9M rows -- chunked 10k, takes minutes)
 dotnet run -- --stratum --config ScenarioConfig_CentralCoastV2.json
 
-# 5. Terrain (reads PatchData + StratumData + FireData -- must be last)
+# 5. Terrain (reads PatchData + StratumData + BurnData -- must be last)
 dotnet run -- --terrain --config ScenarioConfig_CentralCoastV2.json
 
 # 6. Full import (all of the above in dependency order)

@@ -1,4 +1,4 @@
-﻿/* Adapted from FireNodeChain.cs
+/* Adapted from FireNodeChain.cs
 // Fire Propagation System
 // Copyright (c) 2016-2017 Lewis Ward
 // author: Lewis Ward

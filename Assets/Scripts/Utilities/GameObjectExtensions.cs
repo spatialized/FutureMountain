@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 static public class GameObjectExtensions
 {
     static public void ClearChildren(this GameObject go)

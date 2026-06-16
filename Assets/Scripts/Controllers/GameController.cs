@@ -534,7 +534,7 @@ public class GameController : MonoBehaviour
         if (DebugLevel(1))
             Debug.Log(name + ".FinishStarting()...");
 
-        int offset = fireCubes ? 5 : 0;                                  // Use fire or non-fire data
+        int offset = (settings != null && settings.FireEnabled && fireCubes) ? 5 : 0;                                  // Use fire or non-fire data
         int idx = offset;
         int warmingRange = 5;//cubeDataList.data[idx].list.Count;           // Find warming range
 
@@ -900,7 +900,7 @@ public class GameController : MonoBehaviour
 
         yield return new WaitForSeconds(loadingWaitInterval);
 
-        offset = fireCubes ? 1 : 0;
+        offset = (settings != null && settings.FireEnabled && fireCubes) ? 1 : 0;
         idx = offset;
         if (aggregateCubeObject != null)
         {
@@ -969,8 +969,10 @@ public class GameController : MonoBehaviour
         yield return null;
 
         /* Initialize UI Messages */
-        List<UI_Message> messages = LoadMessagesFile(messagesFile, false);                 // Load messages
-        List<UI_Message> fireMessages = LoadMessagesFile(fireMessagesFile, true);          // Load fire messages 
+        TextAsset resolvedMessagesFile = ResolveScenarioMessagesFile(false);
+        TextAsset resolvedFireMessagesFile = ResolveScenarioMessagesFile(true);
+        List<UI_Message> messages = LoadMessagesFile(resolvedMessagesFile, false);                 // Load messages
+        List<UI_Message> fireMessages = LoadMessagesFile(resolvedFireMessagesFile, true);          // Load fire messages 
         List<UI_Message> currentMessages = new List<UI_Message>();                         // List of messages currently displayed
         yield return null;
 
@@ -1196,7 +1198,19 @@ public class GameController : MonoBehaviour
 
     public void SetTimelineWaterData(string jsonString)
     {
+        if (string.IsNullOrWhiteSpace(jsonString))
+        {
+            Debug.LogWarning("SetTimelineWaterData()... Empty timeline water data response.");
+            return;
+        }
+
         TimelineWaterData timelineWaterData = JsonConvert.DeserializeObject<TimelineWaterData>("{\"years\":" + jsonString + "}");
+        if (timelineWaterData == null || timelineWaterData.years == null || timelineWaterData.years.Length == 0)
+        {
+            Debug.LogWarning("SetTimelineWaterData()... No yearly precipitation records found.");
+            return;
+        }
+
         PrecipByYear[] precipByYears = timelineWaterData.years;
 
         uiTimeline.CreateTimelineWeb(precipByYears, warmingIdx, warmingDegrees, fireYears,
@@ -1206,6 +1220,9 @@ public class GameController : MonoBehaviour
 
     private void SetupFires()
     {
+        if (settings != null && !settings.FireEnabled)
+            return;
+
         landscapeController.ResetFire();
 
         fireDates = new Vector3[2];                         // -- TO DO: Get from web!
@@ -1277,6 +1294,12 @@ public class GameController : MonoBehaviour
     {
         //  Debug.Log(name + ".LoadMessagesFile()... name:" + file.name+" fire? "+fire);
 
+        if (file == null)
+        {
+            Debug.LogWarning(name + ".LoadMessagesFile()... No " + (fire ? "fire" : "general") + " messages file configured.");
+            return new List<UI_Message>();
+        }
+
         List<string> rawData = TextAssetToList(file);
 
         List<UI_Message> result = new List<UI_Message>();
@@ -1333,6 +1356,25 @@ public class GameController : MonoBehaviour
         }
 
         return result;
+    }
+
+    private TextAsset ResolveScenarioMessagesFile(bool fire)
+    {
+        TextAsset fallback = fire ? fireMessagesFile : messagesFile;
+
+        if (settings == null)
+            return fallback;
+
+        string resourcePath = fire ? settings.FireMessagesResourcePath : settings.GeneralMessagesResourcePath;
+        TextAsset scenarioFile = Resources.Load<TextAsset>(resourcePath);
+
+        if (scenarioFile == null)
+        {
+            Debug.LogWarning(name + ".ResolveScenarioMessagesFile()... Could not load Resources/" + resourcePath + ". Falling back to scene-assigned messages file.");
+            return fallback;
+        }
+
+        return scenarioFile;
     }
 
     #endregion
@@ -1567,7 +1609,7 @@ public class GameController : MonoBehaviour
     private bool ShouldFinishStarting()
     {
         if(landscapeController.IsBackgroundSnowOn() && dataDates != null && dataDates.Count > 0)
-            return !finishingStarting;
+            return !finishingStarting && landscapeController.IsLandscapeDataLoaded();
         else
             return !finishingStarting && landscapeController.IsLandscapeDataLoaded();
     }
@@ -1711,6 +1753,9 @@ public class GameController : MonoBehaviour
     {
         if (DebugLevel(2))
             Debug.Log("Update()... Calling StartSimulation() for Game Objects... warmingIdx:" + warmingIdx + " warmingDegrees:" + warmingDegrees);
+
+        if (settings != null && !settings.SnowEnabled)
+            ResetCubeSnow();
 
         landscapeController.StartSimulation(timeIdx, simulationStartYear, simulationStartMonth, simulationStartDay, timeStep, warmingIdx, settings.MinFireFrameLength, settings.ImmediateFireTimeThreshold);
         cubes[0].StartSimulation(timeIdx, timeStep);
@@ -1883,6 +1928,9 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void UpdateFireIgnition()
     {
+        if (settings != null && !settings.FireEnabled)
+            return;
+
         bool igniteFire = false;
         int fireFrameIdx = 0;
 
@@ -2860,6 +2908,9 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void ResetFireManagers()
     {
+        if (settings != null && !settings.FireEnabled)
+            return;
+
         aggregateCubeController.GetFireManager().Reset();
         foreach (CubeController cube in cubes)
         {
@@ -2948,6 +2999,22 @@ public class GameController : MonoBehaviour
         foreach (CubeController cube in sideCubes)
         {
             cube.ResetCube();
+        }
+    }
+
+    private void ResetCubeSnow()
+    {
+        aggregateCubeController.ResetSnow();
+        aggregateSideCubeController.ResetSnow();
+
+        foreach (CubeController cube in cubes)
+        {
+            cube.ResetSnow();
+        }
+
+        foreach (CubeController cube in sideCubes)
+        {
+            cube.ResetSnow();
         }
     }
 
@@ -3309,19 +3376,6 @@ public class GameController : MonoBehaviour
     #endregion
 
     #region Utilities
-    /// <summary>
-    /// Maps value from one range to another.
-    /// </summary>
-    /// <returns>The value.</returns>
-    /// <param name="value">Value.</param>
-    /// <param name="from1">From1.</param>
-    /// <param name="to1">To1.</param>
-    /// <param name="from2">From2.</param>
-    /// <param name="to2">To2.</param>
-    public static float MapValue(float value, float from1, float to1, float from2, float to2)
-    {
-        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-    }
 
     /// <summary>
     /// Text asset to list.

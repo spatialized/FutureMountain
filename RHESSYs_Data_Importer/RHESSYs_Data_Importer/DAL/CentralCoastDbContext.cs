@@ -45,14 +45,29 @@ namespace RHESSYs_Data_Importer.DAL
             {
                 var cs = _connectionString ?? ConnectionHelper.GetConnectionString();
                 var serverVersion = new MySqlServerVersion(new Version(8, 0, 36));
-                optionsBuilder.UseMySql(cs, serverVersion);
+                optionsBuilder.UseMySql(cs, serverVersion, mySqlOptions =>
+                {
+                    // Transient resiliency: retry automatically on dropped/interrupted
+                    // connections (e.g. a VPN reconnect mid-import) instead of silently
+                    // losing a batch of rows.
+                    mySqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 10,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorNumbersToAdd: null);
+
+                    // Large aggregate scans over multi-million-row StratumData
+                    // (e.g. the globalMaxPlantC Max() during terrain generation)
+                    // exceed the default 30s command timeout on the production
+                    // server. Allow up to 10 minutes per command.
+                    mySqlOptions.CommandTimeout(600);
+                });
             }
         }
 
         public DbSet<Date> Dates { get; set; }
         public DbSet<CubeDataRow> CubeData { get; set; }
         public DbSet<WaterDataRow> WaterData { get; set; }
-        public DbSet<FireDataRow> FireData { get; set; }
+        public DbSet<BurnDataRow> BurnData { get; set; }
         public DbSet<StratumDataRow> StratumData { get; set; }
         public DbSet<PatchDataRow> PatchData { get; set; }
         public DbSet<TerrainDataRow> TerrainData { get; set; }

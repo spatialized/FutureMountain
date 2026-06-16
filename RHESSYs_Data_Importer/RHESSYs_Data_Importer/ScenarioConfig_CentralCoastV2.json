@@ -7,7 +7,7 @@
   "version": "2.0",
   "database": {
     "name": "futuremtn_central_coast",
-    "host": "127.0.0.1",
+    "host": "128.111.100.115",
     "port": 3306,
     "user": "admin",
     "password": "",
@@ -26,6 +26,7 @@
     "cubeStratumUnder02": "cube_sc_under_patch2.csv",
     "basinMonthlyBurn": "bm.csv",
     "patchMonthlyBurn": "spatial_data_point_patchvar.csv",
+    "fireFrameSpreadIter": "",
     "stratumMonthlyCarbon": "spatial_data_point_stratvar.csv",
     "patchFamilyRaster": "Pch30rip90upRN.tiff"
   },
@@ -34,6 +35,7 @@
     "CubeData",
     "WaterData",
     "FireData",
+    "BurnData",
     "StratumData",
     "PatchData",
     "ImportRun"

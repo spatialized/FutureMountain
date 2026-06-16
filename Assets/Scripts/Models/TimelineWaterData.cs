@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +15,6 @@ namespace Assets.Scripts.Models
     public class PrecipByYear
     {
         public int year { get; set; }
-        public int precipitation { get; set; }
+        public float precipitation { get; set; }
     }
 }

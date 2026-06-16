@@ -456,7 +456,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
             pt.localScale = scale;                                      // Set width to default and height to 0
             float prevHeight = pt.localScale.y;
-            float scaleDelta = MapValue(precip, 0f, maxPrecip, 0f, heightScale);
+            float scaleDelta = MathUtil.MapValue(precip, 0f, maxPrecip, 0f, heightScale);
             pt.localScale += new Vector3(0f, scaleDelta, 0f);
 
             pt.name = "Point_" + i;
@@ -523,6 +523,12 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     /// </summary>
     public void CreateTimelineWeb(PrecipByYear[] waterData, int warmingIdx, int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
     {
+        if (waterData == null || waterData.Length == 0)
+        {
+            Debug.LogWarning("CreateTimelineWeb()... No water data available.");
+            return;
+        }
+
         messageManager = gameController.messageManager;
 
         resolution = waterData.Length;     
@@ -534,10 +540,15 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         fireYears = newFireYears;
         messageYears = newMessageYears;
 
-        //float minPrecip = 100000f;
-        float maxPrecip = 2582f;                 // -- TO DO: GET FROM WEB!!
-        //Max Precip. 			float
-        //https://data.futuremtn.org/api/WaterData/MaxTotal
+        float maxPrecip = 0f;
+        for (int i = 0; i < waterData.Length; i++)
+        {
+            if (waterData[i].precipitation > maxPrecip)
+                maxPrecip = waterData[i].precipitation;
+        }
+
+        if (maxPrecip <= 0f)
+            maxPrecip = 1f;
         
         fireIcons = new List<GameObject>();
         messageIcons = new List<GameObject>();
@@ -565,7 +576,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
             pt.localScale = scale;                                      // Set width to default and height to 0
             float prevHeight = pt.localScale.y;
-            float scaleDelta = MapValue(precip, 0f, maxPrecip, 0f, heightScale);
+            float scaleDelta = MathUtil.MapValue(precip, 0f, maxPrecip, 0f, heightScale);
             pt.localScale += new Vector3(0f, scaleDelta, 0f);
 
             pt.name = "Point_" + i;
@@ -582,7 +593,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             bool even = i % 2 == 0;
             int iconYear = i + startYear;
 
-            if (fireYears.Contains(iconYear) || carryOverFire)
+            if (fireYears != null && (fireYears.Contains(iconYear) || carryOverFire))
             {
                 if (even || carryOverFire)
                 {
@@ -722,7 +733,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
             pt.localScale = scale;                                      // Set width to default and height to 0
             float prevHeight = pt.localScale.y;                                         
-            float scaleDelta = MapValue(precip, 0f, maxPrecip, 0f, heightScale);
+            float scaleDelta = MathUtil.MapValue(precip, 0f, maxPrecip, 0f, heightScale);
             pt.localScale += new Vector3(0f, scaleDelta, 0f);
 
             pt.name = "Point_" + i;
@@ -909,17 +920,4 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         image.color = color;
     }
 
-    /// <summary>
-    /// Maps value from one range to another.
-    /// </summary>
-    /// <returns>The value.</returns>
-    /// <param name="value">Value.</param>
-    /// <param name="from1">From1.</param>
-    /// <param name="to1">To1.</param>
-    /// <param name="from2">From2.</param>
-    /// <param name="to2">To2.</param>
-    public static float MapValue(float value, float from1, float to1, float from2, float to2)
-    {
-        return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-    }
 }

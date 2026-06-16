@@ -1,4 +1,4 @@
-# Messages Spec
+# Messages
 
 Last updated: 2026-06-12
 

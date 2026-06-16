@@ -1,4 +1,4 @@
-﻿/* Copyright (c) 2016-2017 Lewis Ward
+/* Copyright (c) 2016-2017 Lewis Ward
 // Fire Propagation System
 // author: Lewis Ward
 // date  : 11/02/2017

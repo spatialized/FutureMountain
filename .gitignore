@@ -51,6 +51,10 @@ RHESSYs_Data_Importer/**/[Oo]bj/
 RHESSYs_Data_Importer/**/.vs/
 # Local dev credentials - never commit
 RHESSYs_Data_Importer/**/appsettings.Local.json
+RHESSYs_Data_Importer/**/appsettings.Development.json
+Services/FutureMountainApi/**/appsettings.Local.json
+Services/FutureMountainApi/**/appsettings.Development.json
+Services/FutureMountainApi/**/appsettings.json
 *.tmp
 *.user
 *.userprefs

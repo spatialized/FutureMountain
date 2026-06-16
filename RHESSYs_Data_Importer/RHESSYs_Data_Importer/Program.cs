@@ -12,6 +12,7 @@ bool importDates = importAll;
 bool importCubeData = importAll;
 bool importWaterData = importAll;
 bool importFireData = importAll;
+bool importBurnData = importAll;
 bool importPatchData = importAll;
 bool importTerrainData = importAll;
 bool importStratumData = importAll;
@@ -102,9 +103,11 @@ bool flagCubes = arguments.Contains("--cubes");
 bool flagPatch = arguments.Contains("--patch");
 bool flagTerrain = arguments.Contains("--terrain");
 bool flagFire = arguments.Contains("--fire");
+bool flagBurn = arguments.Contains("--burn");
 bool flagWater = arguments.Contains("--water");
 bool flagClimate = arguments.Contains("--climate");
 bool flagStratum = arguments.Contains("--stratum");
+bool flagDates = arguments.Contains("--dates");
 
 if (!auto)
 {
@@ -136,15 +139,17 @@ else
     }
 
     // Set category imports based on flags; if none specified, import all
-    bool anyCategoryFlag = flagCubes || flagPatch || flagTerrain || flagFire || flagWater || flagClimate || flagStratum;
+    bool anyCategoryFlag = flagCubes || flagPatch || flagTerrain || flagFire || flagBurn || flagWater || flagClimate || flagStratum || flagDates;
     if (anyCategoryFlag)
     {
         importCubeData = flagCubes;
         importPatchData = flagPatch;
         importTerrainData = flagTerrain;
         importFireData = flagFire;
+        importBurnData = flagBurn;
         importWaterData = flagWater;
         importStratumData = flagStratum;
+        importDates = flagDates;
         // Climate not yet implemented; placeholder only
     }
     else
@@ -153,20 +158,33 @@ else
         importPatchData = true;
         importTerrainData = true;
         importFireData = true;
+        importBurnData = activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2;
         importWaterData = true;
         importStratumData = true;
+        importDates = true;
     }
 }
 
 // -- TO DO: Check that Dates table exists
 //           Check that CubeData table exists
 
-if(importDates)
-    TextFileInput.ReadDates(folderAggregate);
+if (importDates)
+{
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    {
+        Console.WriteLine("[AUTO MODE] --- Importing dates ---");
+        CentralCoastImporter.ImportDates(activeConfig, dryrun);
+    }
+    else
+    {
+        TextFileInput.ReadDates(folderAggregate);
+    }
+}
 if(importCubeData)
 {
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
+        CentralCoastImporter.EnsureOrPopulateDates(activeConfig, dryrun);
         Console.WriteLine("[AUTO MODE] --- Importing cube patch data ---");
         CentralCoastImporter.ImportCubePatchData(activeConfig, dryrun);
         Console.WriteLine("[AUTO MODE] --- Importing cube stratum data ---");
@@ -199,6 +217,7 @@ if (importWaterData)
 {
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
+        CentralCoastImporter.EnsureOrPopulateDates(activeConfig, dryrun);
         Console.WriteLine("[AUTO MODE] --- Importing water data ---");
         CentralCoastImporter.ImportWaterData(activeConfig, dryrun);
     }
@@ -215,8 +234,7 @@ if (importFireData)
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
         Console.WriteLine("[AUTO MODE] --- Importing fire data ---");
-        CentralCoastImporter.ImportBasinBurnData(activeConfig, dryrun);
-        CentralCoastImporter.ImportPatchBurnData(activeConfig, dryrun);
+        CentralCoastImporter.ImportFireData(activeConfig, dryrun);
     }
     else
     {
@@ -224,6 +242,19 @@ if (importFireData)
             Console.WriteLine("[DRY RUN] Would import Fire data (legacy)");
         else
             TextFileInput.ReadFireData(folderFire);
+    }
+}
+if (importBurnData)
+{
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    {
+        Console.WriteLine("[AUTO MODE] --- Importing burn data ---");
+        CentralCoastImporter.ImportBasinBurnData(activeConfig, dryrun);
+        CentralCoastImporter.ImportPatchBurnData(activeConfig, dryrun);
+    }
+    else
+    {
+        Console.WriteLine("[INFO] No BurnData source is configured for this scenario. Use --fire for fire-frame data.");
     }
 }
 if (importPatchData)
@@ -258,7 +289,7 @@ if (importTerrainData)
 {
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
-        // CCV2: terrain generation reads from PatchData, StratumData, FireData
+        // CCV2: terrain generation reads from PatchData, StratumData, BurnData
         // -- must run after patch, stratum, and fire imports
         Console.WriteLine("[AUTO MODE] --- Generating terrain data ---");
         CentralCoastImporter.GenerateTerrainData(activeConfig, dryrun);

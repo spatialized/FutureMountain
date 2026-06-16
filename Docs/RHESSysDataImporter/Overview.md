@@ -1,6 +1,6 @@
 # RHESSys Data Importer Overview
 
-Last updated: 2026-06-13
+Last updated: 2026-06-16
 
 ## Purpose
 
@@ -10,7 +10,8 @@ The RHESSys Data Importer is a standalone .NET console utility embedded in the F
 RHESSYs_Data_Importer/
 ```
 
-Its current purpose is to import RHESSys-derived Big Creek data into a MySQL database used by the Future Mountain API and Unity runtime.
+Its current purpose is to import RHESSys-derived Big Creek v1 and Central Coast
+v2 data into MySQL databases used by the Future Mountain API and Unity runtime.
 
 This documentation describes the current checked-in importer behavior only. It does not define a future generalized importer model.
 
@@ -57,8 +58,8 @@ The project uses Entity Framework Core with Pomelo/MySQL for database writes. Ol
 5. `FileDiscovery` searches configured input folders for known data categories.
 6. In interactive mode, `WizardRunner` prompts the user for config, database, data type, and confirmation choices.
 7. In auto mode, command-line flags select the data categories to import.
-8. `TextFileInput` parses source files.
-9. `RHESSYsDAL` writes records through EF Core DbContexts.
+8. Big Creek v1 paths primarily use `TextFileInput` and `RHESSYsDAL`.
+9. Central Coast v2 paths use `CentralCoastImporter` and `CentralCoastDAL`.
 
 ## Main Code Areas
 
@@ -79,18 +80,24 @@ The project uses Entity Framework Core with Pomelo/MySQL for database writes. Ol
 
 The current config/discovery model recognizes these categories:
 
+- `dates`
 - `cube`
 - `patch`
 - `terrain`
 - `fire`
+- `burn`
 - `water`
 - `climate`
+- `stratum`
 
-Cube data is the most complete config-driven path. Other categories exist in discovery/config and some legacy import methods, but not all are implemented through the wizard path.
+Big Creek v1 still has cube as the most complete config-driven wizard path.
+Central Coast v2 has implemented paths for dates, cube patch/stratum updates,
+water, burn, patch-map, stratum carbon, and terrain generation. Climate remains
+a recognized placeholder.
 
 ## Current Database Targets
 
-The scenario config lists these output tables:
+The Big Creek v1 scenario config lists these output tables:
 
 - `cubedata`
 - `patchdata`
@@ -101,6 +108,9 @@ The scenario config lists these output tables:
 
 Each major table currently has a dedicated EF Core DbContext.
 
+Central Coast v2 uses a dedicated schema/database and additional tables such as
+`BurnData`, `StratumData`, and `ImportRun`.
+
 ## Current Operation Modes
 
 ### Interactive Mode
@@ -109,7 +119,13 @@ Interactive mode is the default when `--auto` is not provided.
 
 If `ScenarioConfig_BigCreek.json` is found, the importer opens the wizard. The wizard can load another config, simulate database creation, discover files, preview cube mappings, and run selected imports.
 
-Only cube import is currently implemented in wizard mode. Other categories are shown in the wizard but report that their import is not yet implemented there.
+For Big Creek v1, only cube import is currently implemented in wizard mode.
+Other categories are shown in the wizard but report that their import is not yet
+implemented there.
+
+For Central Coast v2, wizard mode supports dates, cube, water, burn, patch,
+stratum, and terrain. Fire-frame import is exposed only as a placeholder until a
+source file is configured.
 
 ### Auto Mode
 
@@ -123,14 +139,20 @@ Supported flags include:
 
 - `--dryrun`
 - `--force`
+- `--config <path>`
+- `--dates`
 - `--cubes`
 - `--patch`
 - `--terrain`
 - `--fire`
+- `--burn`
 - `--water`
 - `--climate`
+- `--stratum`
 
-If no category flag is provided in auto mode, the importer enables cube, patch, terrain, fire, and water imports. Climate remains a placeholder.
+If no category flag is provided in auto mode, the importer enables cube, patch,
+terrain, fire, water, dates, and stratum. Burn is also enabled for
+Central Coast v2. Climate remains a placeholder.
 
 ### Legacy Fallback Mode
 
@@ -148,7 +170,7 @@ Those paths are currently local workstation paths in `Program.cs`.
 
 ## Related Documentation
 
-- [Runbook](Runbook.md)
+- [Building And Running](BuildingAndRunning.md)
 - [Scenario Config](ScenarioConfig.md)
 - [Data Sources](DataSources.md)
 - [Scenario Upgrade Guide](ScenarioUpgradeGuide.md)
@@ -156,4 +178,4 @@ Those paths are currently local workstation paths in `Program.cs`.
 - [Scenario Config Schema Spec](../../Specs/RHESSysDataImporter/ScenarioConfigSchema.md)
 - [File Naming And Discovery Spec](../../Specs/RHESSysDataImporter/FileNamingAndDiscovery.md)
 - [Database Write Contract Spec](../../Specs/RHESSysDataImporter/DatabaseWriteContract.md)
-- [Backlog And Known Gaps](../../Specs/RHESSysDataImporter/BacklogAndKnownGaps.md)
+- [Roadmap](../../Specs/RHESSysDataImporter/Roadmap.md)

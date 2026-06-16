@@ -1,4 +1,4 @@
-# Lighting Spec
+# Lighting
 
 Last updated: 2026-06-12
 

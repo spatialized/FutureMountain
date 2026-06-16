@@ -11,9 +11,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using RHESSYs_Data_Importer.Configuration;
 using RHESSYs_Data_Importer.Parsing;
+using System.Globalization;
+using System.Numerics;
 
 public static class TextFileInput
 {
+    private const int BigCreekLandscapeFireGridWidth = 50;
+    private const int BigCreekLandscapeFireGridHeight = 50;
+
     /// <summary>
     /// Initializes cube data arrays from data file.
     /// </summary>
@@ -637,43 +642,324 @@ public static class TextFileInput
 
     public static void ReadFireData(string folderFire)
     {
+        string fullExtentFolder = Path.GetFullPath("../Data/BigCreek/full_extent");
+        ReadFireData(folderFire, fullExtentFolder);
+    }
+
+    public static void ReadFireData(string folderFire, string fullExtentFolder)
+    {
         RHESSYsDAL dal = new RHESSYsDAL();
 
         try
         {
-            foreach (string file in Directory.EnumerateFiles(folderFire))
+            if (Directory.Exists(folderFire) && Directory.EnumerateFiles(folderFire, "*.json").Any())
             {
-                int warmingIdx = -1;
-
-                string fileName = Path.GetFileNameWithoutExtension(file);
-                Console.WriteLine("ReadFireData()... fileName: " + fileName);
-
-                string[] parts = file.Split('.')[0].Split("_fire");
-                string warmingStr = parts[0].Substring(parts[0].Length - 1);
-                warmingIdx = int.Parse(warmingStr);
-
-                string text = ReadFile(file);
-
-                List<FireDataFrameRecord> fireData = JsonConvert.DeserializeObject<List<FireDataFrameRecord>>(text);
-                List<FireDataFrameJSONRecord> jsonRecords = ConvertFireDataFrameRecordsToJSONRecords(fireData, warmingIdx);
-
-                foreach (FireDataFrameJSONRecord record in jsonRecords)
+                foreach (string file in Directory.EnumerateFiles(folderFire, "*.json"))
                 {
-                    try
+                    int warmingIdx = -1;
+
+                    string fileName = Path.GetFileNameWithoutExtension(file);
+                    Console.WriteLine("ReadFireData()... fileName: " + fileName);
+
+                    string[] parts = file.Split('.')[0].Split("_fire");
+                    string warmingStr = parts[0].Substring(parts[0].Length - 1);
+                    warmingIdx = int.Parse(warmingStr);
+
+                    string text = ReadFile(file);
+
+                    List<FireDataFrameRecord> fireData = JsonConvert.DeserializeObject<List<FireDataFrameRecord>>(text);
+                    List<FireDataFrameJSONRecord> jsonRecords = ConvertFireDataFrameRecordsToJSONRecords(fireData, warmingIdx);
+
+                    foreach (FireDataFrameJSONRecord record in jsonRecords)
                     {
-                        dal.AddFireDataFrame(record);
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("ReadFireData()... ERROR... ex: " + ex.Message);
+                        try
+                        {
+                            dal.AddFireDataFrame(record);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("ReadFireData()... ERROR... ex: " + ex.Message);
+                        }
                     }
                 }
+
+                return;
             }
+
+            Console.WriteLine("[FireData] No prebuilt fire-frame JSON files found. Generating from Big Creek full_extent source data...");
+            ReadBigCreekFullExtentFireData(fullExtentFolder);
         }
         catch (Exception e)
         {
+            Console.WriteLine("ReadFireData()... ERROR... ex: " + e.Message);
         }
     }
+
+    private static void ReadBigCreekFullExtentFireData(string fullExtentFolder)
+    {
+        string patchMapPath = Path.Combine(fullExtentFolder, "Spatial_data", "patches100m.txt");
+        string patchOutputFolder = Path.Combine(fullExtentFolder, "patch_output");
+
+        if (!File.Exists(patchMapPath))
+        {
+            Console.WriteLine($"[FireData] Missing patch map: {patchMapPath}");
+            return;
+        }
+
+        if (!Directory.Exists(patchOutputFolder))
+        {
+            Console.WriteLine($"[FireData] Missing patch output folder: {patchOutputFolder}");
+            return;
+        }
+
+        Dictionary<int, List<Vector2>> patchFireLocations = LoadBigCreekPatchFireLocations(
+            patchMapPath,
+            BigCreekLandscapeFireGridWidth,
+            BigCreekLandscapeFireGridHeight);
+
+        Console.WriteLine($"[FireData] Loaded {patchFireLocations.Count:N0} landscape patches from {Path.GetFileName(patchMapPath)}.");
+        Console.WriteLine($"[FireData] Generating large-landscape fire frames at {BigCreekLandscapeFireGridWidth}x{BigCreekLandscapeFireGridHeight}.");
+
+        RHESSYsDAL dal = new RHESSYsDAL();
+        int totalFrames = 0;
+        int totalRowsWithSpread = 0;
+        int totalPoints = 0;
+        int totalSaved = 0;
+
+        foreach (string file in Directory.EnumerateFiles(patchOutputFolder, "*WFire.txt").OrderBy(f => f))
+        {
+            int warmingIdx = BigCreekFireWarmingIndexFromFileName(Path.GetFileNameWithoutExtension(file));
+            if (warmingIdx < 0)
+            {
+                Console.WriteLine($"[FireData] Skipping {Path.GetFileName(file)}; could not infer warming index.");
+                continue;
+            }
+
+            var frames = BuildBigCreekFireFrames(file, warmingIdx, patchFireLocations);
+            if (frames.Count == 0)
+            {
+                Console.WriteLine($"[FireData] {Path.GetFileName(file)} produced 0 fire frames.");
+                continue;
+            }
+
+            int saved = dal.AddFireDataFrames(frames.Select(f => f.Record));
+            totalSaved += saved;
+            totalFrames += frames.Count;
+            totalRowsWithSpread += frames.Sum(f => f.SourceRowsWithSpread);
+            totalPoints += frames.Sum(f => f.PointCount);
+
+            Console.WriteLine($"[FireData] Imported {saved} frames from {Path.GetFileName(file)} ({frames.Sum(f => f.PointCount):N0} grid points from {frames.Sum(f => f.SourceRowsWithSpread):N0} spread rows).");
+            if (saved != frames.Count)
+                Console.WriteLine($"[FireData][ERROR] Expected to save {frames.Count} frames from {Path.GetFileName(file)}, but saved {saved}.");
+        }
+
+        Console.WriteLine($"[FireData] Finished: saved {totalSaved:N0}/{totalFrames:N0} frames, {totalPoints:N0} grid points, {totalRowsWithSpread:N0} source rows with spread.");
+    }
+
+    private static Dictionary<int, List<Vector2>> LoadBigCreekPatchFireLocations(string patchMapPath, int fireGridWidth, int fireGridHeight)
+    {
+        string[] lines = File.ReadAllLines(patchMapPath);
+        int rows = ParseHeaderInt(lines, "rows");
+        int cols = ParseHeaderInt(lines, "cols");
+
+        if (rows <= 0 || cols <= 0)
+            throw new InvalidOperationException($"Could not parse rows/cols from {patchMapPath}");
+
+        Dictionary<int, List<Vector2>> patchFireLocations = new Dictionary<int, List<Vector2>>();
+
+        for (int row = 0; row < rows; row++)
+        {
+            int lineIndex = 6 + row;
+            if (lineIndex >= lines.Length)
+                break;
+
+            string[] parts = SplitRhessysLine(lines[lineIndex]);
+            if (parts.Length < cols)
+                Console.WriteLine($"[FireData][WARN] Patch map row {row + 1} has {parts.Length} columns; expected {cols}.");
+
+            int maxCol = Math.Min(cols, parts.Length);
+            for (int col = 0; col < maxCol; col++)
+            {
+                if (!int.TryParse(parts[col], NumberStyles.Integer, CultureInfo.InvariantCulture, out int patchId) || patchId <= 0)
+                    continue;
+
+                Vector2 fireLocation = GetBigCreekFireLocationForPatchLocation(col, row, cols, rows, fireGridWidth, fireGridHeight);
+                if (!patchFireLocations.TryGetValue(patchId, out List<Vector2>? locations))
+                {
+                    locations = new List<Vector2>();
+                    patchFireLocations[patchId] = locations;
+                }
+
+                locations.Add(fireLocation);
+            }
+        }
+
+        return patchFireLocations;
+    }
+
+    private static List<BigCreekFireFrameBuildResult> BuildBigCreekFireFrames(
+        string file,
+        int warmingIdx,
+        Dictionary<int, List<Vector2>> patchFireLocations)
+    {
+        Dictionary<(int Year, int Month), BigCreekFireFrameBuildState> frames = new Dictionary<(int Year, int Month), BigCreekFireFrameBuildState>();
+        int missingPatchRows = 0;
+
+        foreach (string line in File.ReadLines(file).Skip(1))
+        {
+            if (string.IsNullOrWhiteSpace(line))
+                continue;
+
+            string[] parts = SplitRhessysLine(line);
+            if (parts.Length < 7)
+                continue;
+
+            int month = ParseInt(parts[0]);
+            int year = ParseInt(parts[1]);
+            int patchId = ParseInt(parts[2]);
+            float spread = ParseFloat(parts[5]);
+            int iter = ParseInt(parts[6]);
+
+            if (Math.Abs(spread) <= 0.000001f)
+                continue;
+
+            if (!patchFireLocations.TryGetValue(patchId, out List<Vector2>? locations))
+            {
+                missingPatchRows++;
+                continue;
+            }
+
+            var key = (year, month);
+            if (!frames.TryGetValue(key, out BigCreekFireFrameBuildState? state))
+            {
+                state = new BigCreekFireFrameBuildState(year, month);
+                frames[key] = state;
+            }
+
+            state.SourceRowsWithSpread++;
+            foreach (Vector2 fireLocation in locations)
+            {
+                state.Points.Add(new FireDataPoint
+                {
+                    gridLocation = fireLocation,
+                    patchId = patchId,
+                    spread = spread,
+                    iter = iter
+                });
+            }
+        }
+
+        if (missingPatchRows > 0)
+            Console.WriteLine($"[FireData][WARN] {Path.GetFileName(file)} had {missingPatchRows:N0} spread rows whose patchID was not found in patches100m.txt.");
+
+        return frames.Values
+            .OrderBy(f => f.Year)
+            .ThenBy(f => f.Month)
+            .Select(f =>
+            {
+                f.Points.Sort();
+                FireDataFrameJSONRecord record = new FireDataFrameJSONRecord
+                {
+                    warmingIdx = warmingIdx,
+                    year = f.Year,
+                    month = f.Month,
+                    day = 1,
+                    gridHeight = BigCreekLandscapeFireGridHeight,
+                    gridWidth = BigCreekLandscapeFireGridWidth
+                };
+                record.SetDataList(f.Points);
+                return new BigCreekFireFrameBuildResult(record, f.SourceRowsWithSpread, f.Points.Count);
+            })
+            .ToList();
+    }
+
+    private static Vector2 GetBigCreekFireLocationForPatchLocation(
+        int patchCol,
+        int patchRow,
+        int patchDataCols,
+        int patchDataRows,
+        int fireGridWidth,
+        int fireGridHeight)
+    {
+        int rows = fireGridHeight - 1;
+        int cols = fireGridWidth - 1;
+        int xLoc = cols - Clamp((int)MapValue(patchCol, 0, patchDataCols, 0, cols), 0, cols);
+        int yLoc = Clamp((int)MapValue(patchRow, 0, patchDataRows, 0, rows), 0, rows);
+        return new Vector2(xLoc, yLoc);
+    }
+
+    private static int BigCreekFireWarmingIndexFromFileName(string fileName)
+    {
+        if (fileName.Contains("historic", StringComparison.OrdinalIgnoreCase))
+            return WarmingDegreesToIndex(0);
+
+        int warmIndex = fileName.IndexOf("warm", StringComparison.OrdinalIgnoreCase);
+        if (warmIndex < 0)
+            return -1;
+
+        int digitStart = warmIndex + "warm".Length;
+        string digits = new string(fileName.Skip(digitStart).TakeWhile(char.IsDigit).ToArray());
+        return int.TryParse(digits, NumberStyles.Integer, CultureInfo.InvariantCulture, out int warmingDegrees)
+            ? WarmingDegreesToIndex(warmingDegrees)
+            : -1;
+    }
+
+    private static int ParseHeaderInt(string[] lines, string key)
+    {
+        foreach (string line in lines.Take(6))
+        {
+            string[] parts = line.Split(':', StringSplitOptions.TrimEntries);
+            if (parts.Length == 2 && parts[0].Equals(key, StringComparison.OrdinalIgnoreCase) &&
+                int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out int result))
+                return result;
+        }
+
+        return -1;
+    }
+
+    private static string[] SplitRhessysLine(string line)
+    {
+        return line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+    }
+
+    private static int ParseInt(string value)
+    {
+        return int.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+    }
+
+    private static float ParseFloat(string value)
+    {
+        return float.Parse(value, NumberStyles.Float, CultureInfo.InvariantCulture);
+    }
+
+    private static float MapValue(float value, float inputMin, float inputMax, float outputMin, float outputMax)
+    {
+        return outputMin + (value - inputMin) * (outputMax - outputMin) / (inputMax - inputMin);
+    }
+
+    private static int Clamp(int value, int min, int max)
+    {
+        return Math.Min(Math.Max(value, min), max);
+    }
+
+    private sealed class BigCreekFireFrameBuildState
+    {
+        public BigCreekFireFrameBuildState(int year, int month)
+        {
+            Year = year;
+            Month = month;
+        }
+
+        public int Year { get; }
+        public int Month { get; }
+        public int SourceRowsWithSpread { get; set; }
+        public List<FireDataPoint> Points { get; } = new List<FireDataPoint>();
+    }
+
+    private sealed record BigCreekFireFrameBuildResult(
+        FireDataFrameJSONRecord Record,
+        int SourceRowsWithSpread,
+        int PointCount);
 
     public static void ReadTerrainData(string folderTerrain)
     {
