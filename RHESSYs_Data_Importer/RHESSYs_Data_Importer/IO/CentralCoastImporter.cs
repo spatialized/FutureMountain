@@ -290,11 +290,16 @@ namespace RHESSYs_Data_Importer.IO
         /// <summary>
         /// Imports daily cube patch files (<c>cube_p_patch1.csv</c>,
         /// <c>cube_p_patch2.csv</c>) into the <c>CubeData</c> table.
+        /// Also imports the daily aggregate cube file (<c>cube_agg_p.csv</c>)
+        /// with <c>patchID = -1</c>, matching the legacy Big Creek aggregate
+        /// cube convention used by Unity.
         /// Stratum columns (overstory/understory) are not populated here;
         /// they are filled by the stratum importer (CCV2-09).
         /// </summary>
         public static void ImportCubePatchData(ScenarioConfig config, bool dryrun = false)
         {
+            ImportCubeAggregateData(config, dryrun);
+
             foreach (var role in new[] { "cubePatchDaily01", "cubePatchDaily02" })
             {
                 var path = config.GetSourceFilePath(role);
@@ -410,6 +415,121 @@ namespace RHESSYs_Data_Importer.IO
 
                 Console.WriteLine($"[CubeData/{role}] {(dryrun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
             }
+        }
+
+        private static void ImportCubeAggregateData(ScenarioConfig config, bool dryrun = false)
+        {
+            var path = config.GetSourceFilePath("cubeAggregateDaily");
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            {
+                Console.WriteLine($"[WARN] cubeAggregateDaily file not found: {path}");
+                return;
+            }
+
+            var dal = new CentralCoastDAL();
+            using var reader = new StreamReader(path);
+            string headerLine = reader.ReadLine();
+            if (string.IsNullOrWhiteSpace(headerLine))
+            {
+                Console.WriteLine("[WARN] cubeAggregateDaily file has empty header.");
+                return;
+            }
+
+            var headers = headerLine.Split(',');
+            var colMap = BuildColumnIndex(headers);
+            int dayIdx = GetColumnIndex(colMap, "day");
+            int monthIdx = GetColumnIndex(colMap, "month");
+            int yearIdx = GetColumnIndex(colMap, "year");
+
+            const int ChunkSize = 5_000;
+            var chunk = new List<CubeDataRow>(ChunkSize);
+            int imported = 0;
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+
+                var parts = line.Split(',');
+                if (dayIdx < 0 || monthIdx < 0 || yearIdx < 0)
+                    throw new InvalidOperationException(
+                        "[CubeData/cubeAggregateDaily] Source file is missing day/month/year column(s). Cannot compute dateIdx.");
+
+                if (!int.TryParse(GetSafe(parts, dayIdx), out var day) ||
+                    !int.TryParse(GetSafe(parts, monthIdx), out var month) ||
+                    !int.TryParse(GetSafe(parts, yearIdx), out var year))
+                    throw new InvalidOperationException(
+                        $"[CubeData/cubeAggregateDaily] Row {imported + 1}: could not parse day/month/year.");
+
+                DateTime dt;
+                try { dt = new DateTime(year, month, day); }
+                catch
+                {
+                    throw new InvalidOperationException(
+                        $"[CubeData/cubeAggregateDaily] Row {imported + 1}: invalid date {year}-{month:D2}-{day:D2}.");
+                }
+
+                var dateIndex = GetDateIndex(config);
+                if (!dateIndex.TryGetValue(dt, out var dateIdx))
+                    throw new InvalidOperationException(
+                        $"[CubeData/cubeAggregateDaily] Row {imported + 1}: date {dt:yyyy-MM-dd} not found in derived calendar.");
+
+                var liveStem = GetFloat(parts, colMap, "cs_live_stemc");
+                var deadStem = GetFloat(parts, colMap, "cs_dead_stemc");
+                var fineRoot = GetFloat(parts, colMap, "cs_frootc");
+                var liveRoot = GetFloat(parts, colMap, "cs_live_crootc");
+                var deadRoot = GetFloat(parts, colMap, "cs_dead_crootc");
+                var evaporation = GetFloat(parts, colMap, "evaporation");
+                var surfaceEvap = GetFloat(parts, colMap, "evaporation_surf");
+                var streamflow = GetFloat(parts, colMap, "streamflow");
+
+                var row = new CubeDataRow
+                {
+                    scenarioRunId = config.ScenarioRunId ?? "",
+                    warmingIdx = config.WarmingIdx ?? 0,
+                    importRunId = 0,
+                    dateIdx = dateIdx,
+                    basinID = GetInt(parts, colMap, "basinID"),
+                    hillID = -1,
+                    zoneID = -1,
+                    patchID = -1,
+                    coverfract = GetFloat(parts, colMap, "family_pct_cover"),
+                    litterc = GetFloat(parts, colMap, "litter_cs_totalc"),
+                    burn = GetFloat(parts, colMap, "burn"),
+                    soilc = GetFloat(parts, colMap, "soil_cs_totalc"),
+                    depthToGW = GetFloat(parts, colMap, "sat_deficit_z"),
+                    canopyevap = evaporation - surfaceEvap,
+                    streamflow = streamflow,
+                    rootdepth = GetFloat(parts, colMap, "rootzone_depth"),
+                    groundevap = surfaceEvap,
+                    vegAccessWater = GetFloat(parts, colMap, "rz_storage"),
+                    Qin = 0,
+                    Qout = streamflow,
+                    rain = GetFloat(parts, colMap, "rain"),
+                    netpsnOver = GetFloat(parts, colMap, "cs_net_psn"),
+                    heightOver = GetFloat(parts, colMap, "epv_height"),
+                    leafCOver = GetFloat(parts, colMap, "cs_leafc") + GetFloat(parts, colMap, "cs_leafc_store"),
+                    stemCOver = liveStem + deadStem,
+                    rootCOver = fineRoot + liveRoot + deadRoot
+                };
+
+                imported++;
+                if (!dryrun)
+                {
+                    chunk.Add(row);
+                    if (chunk.Count >= ChunkSize)
+                    {
+                        dal.AddCubeDataRows(chunk);
+                        chunk.Clear();
+                        Console.WriteLine($"[CubeData/cubeAggregateDaily] {imported:N0} aggregate rows written...");
+                    }
+                }
+            }
+
+            if (!dryrun && chunk.Count > 0)
+                dal.AddCubeDataRows(chunk);
+
+            Console.WriteLine($"[CubeData/cubeAggregateDaily] {(dryrun ? "Would import" : "Imported")} {imported:N0} aggregate rows from {Path.GetFileName(path)}.");
         }
 
         /// <summary>
@@ -1197,6 +1317,35 @@ namespace RHESSYs_Data_Importer.IO
                 }
             }
             return map;
+        }
+
+        private static Dictionary<string, int> BuildColumnIndex(string[] headers)
+        {
+            var result = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < headers.Length; i++)
+            {
+                var normalized = headers[i].Trim().Replace('.', '_');
+                if (!result.ContainsKey(normalized))
+                    result.Add(normalized, i);
+            }
+            return result;
+        }
+
+        private static int GetColumnIndex(Dictionary<string, int> colMap, string name)
+        {
+            return colMap.TryGetValue(name, out var idx) ? idx : -1;
+        }
+
+        private static int GetInt(string[] parts, Dictionary<string, int> colMap, string name)
+        {
+            var idx = GetColumnIndex(colMap, name);
+            return int.TryParse(GetSafe(parts, idx), out var value) ? value : 0;
+        }
+
+        private static float GetFloat(string[] parts, Dictionary<string, int> colMap, string name)
+        {
+            var idx = GetColumnIndex(colMap, name);
+            return float.TryParse(GetSafe(parts, idx), out var value) ? value : 0f;
         }
 
         private static string GetSafe(string[] parts, int index)

@@ -32,7 +32,7 @@ namespace FutureMountainAPI.Models.CentralCoast
                 id = row.id,
                 dateIdx = row.dateIdx,
                 warmingIdx = row.warmingIdx,
-                patchIdx = row.zoneID,
+                patchIdx = (int)row.patchID,
                 snow = 0,
                 evap = row.canopyevap + row.groundevap,
                 netpsn = row.netpsnOver + row.netpsnUnder,

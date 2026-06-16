@@ -30,7 +30,7 @@ namespace FutureMountainAPI.Controllers
                     id = row.id,
                     dateIdx = row.dateIdx,
                     warmingIdx = row.warmingIdx,
-                    patchIdx = row.zoneID,
+                    patchIdx = (int)row.patchID,
                     snow = 0,
                     evap = row.canopyevap + row.groundevap,
                     netpsn = row.netpsnOver + row.netpsnUnder,
@@ -70,13 +70,13 @@ namespace FutureMountainAPI.Controllers
         public async Task<ActionResult<IEnumerable<CentralCoastCubeDataPrototypeDto>>> GetCubeData(int patchIdx, int warmingIdx)
         {
             var cubeData = await _context.CubeData
-                .Where(row => row.zoneID == patchIdx && row.warmingIdx == warmingIdx)
+                .Where(row => row.patchID == patchIdx && row.warmingIdx == warmingIdx)
                 .Select(row => new CentralCoastCubeDataPrototypeDto
                 {
                     id = row.id,
                     dateIdx = row.dateIdx,
                     warmingIdx = row.warmingIdx,
-                    patchIdx = row.zoneID,
+                    patchIdx = (int)row.patchID,
                     snow = 0,
                     evap = row.canopyevap + row.groundevap,
                     netpsn = row.netpsnOver + row.netpsnUnder,
@@ -113,13 +113,13 @@ namespace FutureMountainAPI.Controllers
             int dateIdx)
         {
             var cubeData = await _context.CubeData
-                .Where(row => row.zoneID == patchIdx && row.warmingIdx == warmingIdx && row.dateIdx == dateIdx)
+                .Where(row => row.patchID == patchIdx && row.warmingIdx == warmingIdx && row.dateIdx == dateIdx)
                 .Select(row => new CentralCoastCubeDataPrototypeDto
                 {
                     id = row.id,
                     dateIdx = row.dateIdx,
                     warmingIdx = row.warmingIdx,
-                    patchIdx = row.zoneID,
+                    patchIdx = (int)row.patchID,
                     snow = 0,
                     evap = row.canopyevap + row.groundevap,
                     netpsn = row.netpsnOver + row.netpsnUnder,
@@ -158,7 +158,7 @@ namespace FutureMountainAPI.Controllers
         {
             var cubeData = await _context.CubeData
                 .Where(row =>
-                    row.zoneID == patchIdx &&
+                    row.patchID == patchIdx &&
                     row.warmingIdx == warmingIdx &&
                     row.dateIdx > dateIdxStart &&
                     row.dateIdx < dateIdxEnd)
@@ -167,7 +167,7 @@ namespace FutureMountainAPI.Controllers
                     id = row.id,
                     dateIdx = row.dateIdx,
                     warmingIdx = row.warmingIdx,
-                    patchIdx = row.zoneID,
+                    patchIdx = (int)row.patchID,
                     snow = 0,
                     evap = row.canopyevap + row.groundevap,
                     netpsn = row.netpsnOver + row.netpsnUnder,
