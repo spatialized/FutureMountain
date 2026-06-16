@@ -75,7 +75,7 @@ Get-Content -LiteralPath $ManifestPath | ForEach-Object {
     $sectionLevel = [Math]::Min(6, $currentHeadingLevel + 1)
     $sectionPrefix = "#" * $sectionLevel
 
-    "`n`n$sectionPrefix $title`n`n_Source: `$line`_`n`n" |
+    "`n`n$sectionPrefix $title`n`n_Source: $($line)_`n`n" |
         Add-Content -Path $OutPath -Encoding utf8
 
     $withoutFirstTitle = $false
