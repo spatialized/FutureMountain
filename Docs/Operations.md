@@ -270,6 +270,12 @@ For the deployed Big Creek API, these endpoints are expected by Unity:
 
 If the app stalls during loading, first check browser/Unity Console logs for failed API requests, JSON parse failures, or missing fields.
 
+API route and deployment documentation:
+
+* [Future Mountain API](Services/FutureMountainApi.md)
+* [API Route Spec](../Specs/FutureMountainAPI/Routes.md)
+* [API Deployment Spec](../Specs/FutureMountainAPI/Deployment.md)
+
 ## Local API Testing
 
 `LOCAL_VERSION` points Unity to:

@@ -12,6 +12,11 @@ strings were removed from the imported history. Configure the API connection
 string outside source control, for example with user secrets, environment
 variables, or a local ignored `appsettings.Development.json`.
 
+API documentation:
+
+- `Docs/Services/FutureMountainApi.md`
+- `Specs/FutureMountainAPI/`
+
 ## Scenario Documentation
 
 - Version snapshots: `Docs/Versions/`
