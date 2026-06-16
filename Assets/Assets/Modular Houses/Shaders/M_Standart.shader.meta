@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 88ea5ee4dc4f19b4e8b08efb97e2f7fa
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures:
+  - _NormalMap: {fileID: 2800000, guid: abc00000000017553435523729309959, type: 3}
+  - _Albedo: {fileID: 2800000, guid: abc00000000017592079722636743404, type: 3}
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 225821
+  packageName: Modular Houses (Residential Update)
+  packageVersion: 1.2
+  assetPath: Assets/Modular Houses/Shaders/M_Standart.shader
+  uploadId: 606579

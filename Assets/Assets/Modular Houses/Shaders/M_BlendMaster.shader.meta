@@ -1,0 +1,25 @@
+fileFormatVersion: 2
+guid: 71a4e521d2e067e47b0887d29a219bec
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures:
+  - _Mat2_Base_Normal: {fileID: 2800000, guid: e12563ccf97f87a4683eed1673a7b8c7, type: 3}
+  - _Mat1_Base_Normal: {fileID: 2800000, guid: e12563ccf97f87a4683eed1673a7b8c7, type: 3}
+  - _T_VertexBlend_Mask: {fileID: 2800000, guid: 1035ac5893f531b40b3553688a0545c8,
+      type: 3}
+  - _BakedNormal: {fileID: 2800000, guid: 9d43bd232e090b64f8aec41af6a64ae1, type: 3}
+  - _Mat2_BaseTexture: {fileID: 2800000, guid: c92b9a382c23f1046add6d7b821e10bb, type: 3}
+  - _Mat1_BaseTexture: {fileID: 2800000, guid: c92b9a382c23f1046add6d7b821e10bb, type: 3}
+  - _AO: {fileID: 2800000, guid: 44b950def6060664cab938e7e3ca7961, type: 3}
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 225821
+  packageName: Modular Houses (Residential Update)
+  packageVersion: 1.2
+  assetPath: Assets/Modular Houses/Shaders/M_BlendMaster.shader
+  uploadId: 606579
