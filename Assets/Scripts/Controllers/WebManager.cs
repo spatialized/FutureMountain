@@ -21,6 +21,8 @@ public class WebManager : MonoBehaviour
 
     private static bool debug = false;
     private static bool debugDetailed = false;
+    private const int MaxRequestAttempts = 3;
+    private const float RetryDelaySeconds = 1.5f;
 
     private static WebManager _instance;
     public static WebManager Instance { get { return _instance; } }
@@ -188,31 +190,56 @@ public class WebManager : MonoBehaviour
 
     private IEnumerator GetRequest(string uri, Action<string> callback)
     {
-        using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
+        for (int attempt = 1; attempt <= MaxRequestAttempts; attempt++)
         {
-            webRequest.SetRequestHeader("Access-Control-Allow-Origin", "*");
-
-            // Request and wait for the desired page.
-            yield return webRequest.SendWebRequest();
-
-            var data = webRequest.downloadHandler.text;
-
-            if (debug && debugDetailed)
-                Debug.Log("GetRequest()... uri: " + uri);
-
-            if (webRequest.result == UnityWebRequest.Result.ConnectionError)
+            using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
             {
-                Debug.Log("GetRequest()... Connection Error: " + webRequest.error);
+                webRequest.SetRequestHeader("Access-Control-Allow-Origin", "*");
+
+                // Request and wait for the desired page.
+                yield return webRequest.SendWebRequest();
+
+                var data = webRequest.downloadHandler.text;
+
+                if (debug && debugDetailed)
+                    Debug.Log("GetRequest()... uri: " + uri);
+
+                if (webRequest.result == UnityWebRequest.Result.Success)
+                {
+                    if(debug && debugDetailed)
+                        Debug.Log("GetRequest()... data: " + data);
+
+                    if (callback != null)
+                        callback(data);
+                    yield break;
+                }
+
+                Debug.LogWarning(
+                    "GetRequest()... Request failed. attempt:" + attempt +
+                    "/" + MaxRequestAttempts +
+                    " uri:" + uri +
+                    " result:" + webRequest.result +
+                    " status:" + webRequest.responseCode +
+                    " error:" + webRequest.error +
+                    " responsePreview:" + PreviewResponse(data));
             }
-            else
-            {
-                if(debug && debugDetailed)
-                    Debug.Log("GetRequest()... data: " + data);
 
-                if (callback != null)
-                    callback(data);
+            if (attempt < MaxRequestAttempts)
+            {
+                yield return new WaitForSeconds(RetryDelaySeconds * attempt);
             }
         }
+
+        Debug.LogError("GetRequest()... Failed after retries. uri:" + uri);
+    }
+
+    private static string PreviewResponse(string data)
+    {
+        if (string.IsNullOrEmpty(data))
+            return "";
+
+        data = data.Replace("\r", " ").Replace("\n", " ");
+        return data.Length <= 200 ? data : data.Substring(0, 200);
     }
 
 
