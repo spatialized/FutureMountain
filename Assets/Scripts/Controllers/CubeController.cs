@@ -677,6 +677,9 @@ public class CubeController : MonoBehaviour
 
     public void ResetFireManager()
     {
+        if (settings != null && !settings.FireEnabled)
+            return;
+
         try
         {
             fireManager.Reset();
@@ -1773,19 +1776,11 @@ public class CubeController : MonoBehaviour
         }
     }
 
-    //public bool ShouldUpdateDataFromWeb()    // Unused
-    //{
-    //    if (timeIdx + timeStep > lastCurrentDataIdx)
-    //        return true;
-    //    else
-    //        return false;
-    //}
-
     public void UpdateDataFromWeb(int newTimeIdx, bool first, bool full) 
     {
         if (full)  // Always true
         {
-            //Debug.Log(name+".UpdateDataFromWeb()... warmingIdx: "+warmingIdx);
+            Debug.Log(name + ".UpdateDataFromWeb()... patchID:"+ patchID+" warmingIdx: " + warmingIdx);
             WebManager.Instance.RequestCubeData(patchID, warmingIdx, this.FinishUpdateDataFromWeb);
         }
     }
@@ -2065,7 +2060,7 @@ public class CubeController : MonoBehaviour
 
         nodeChain.fireNodes = new SERI_FireNode[1];
         nodeChain.fireNodes[0] = treeFireNodeChain.transform.GetChild(0).GetComponent<SERI_FireNode>();
-        nodeChain.Initialize(fireManager, true, true);
+        nodeChain.Initialize(settings != null && settings.FireEnabled ? fireManager : null, true, true);
 
         newTree.tag = "Fire";
         newTree.AddComponent<BoxCollider>();
@@ -2349,7 +2344,7 @@ public class CubeController : MonoBehaviour
         newRotation.eulerAngles.Set(0f, Random.Range(0f, 360f), 0f);                                     // Choose random rotation
         newGrassObj.transform.localRotation = newRotation;
 
-        newGrassObj.GetComponent<SERI_FireNodeChain>().Initialize(fireManager, false, true);
+        newGrassObj.GetComponent<SERI_FireNodeChain>().Initialize(settings != null && settings.FireEnabled ? fireManager : null, false, true);
 
         float grassSize = Random.Range(minGrassFullSize, maxGrassFullSize);
         if (immediate)
@@ -2486,7 +2481,7 @@ public class CubeController : MonoBehaviour
         newShrubObj.transform.localRotation = newRotation;
 
         newShrubObj.AddComponent<ShrubController>();
-        newShrubObj.GetComponent<SERI_FireNodeChain>().Initialize(fireManager, false, true);
+        newShrubObj.GetComponent<SERI_FireNodeChain>().Initialize(settings != null && settings.FireEnabled ? fireManager : null, false, true);
 
         float shrubSize = Random.Range(minShrubFullSize, maxShrubFullSize);
         if (immediate)

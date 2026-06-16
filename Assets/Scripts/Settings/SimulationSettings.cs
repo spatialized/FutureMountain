@@ -72,6 +72,8 @@ public class SimulationSettings : MonoBehaviour
 
     /* Fire Settings */
     [Header("Fire")]
+    [Tooltip("Enable fire simulation and fire data loading")]
+    public bool FireEnabled = true;                       // Enable fire simulation
     [Tooltip("Pause simulation automatically during fire")]
     public bool AutoPauseOnFire = false;                  // Pause simulation during fire
     [Tooltip("Minimum fire length in frames (when Auto Pause Off)")]

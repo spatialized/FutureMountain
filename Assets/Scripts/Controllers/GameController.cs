@@ -534,7 +534,7 @@ public class GameController : MonoBehaviour
         if (DebugLevel(1))
             Debug.Log(name + ".FinishStarting()...");
 
-        int offset = fireCubes ? 5 : 0;                                  // Use fire or non-fire data
+        int offset = (settings != null && settings.FireEnabled && fireCubes) ? 5 : 0;                                  // Use fire or non-fire data
         int idx = offset;
         int warmingRange = 5;//cubeDataList.data[idx].list.Count;           // Find warming range
 
@@ -900,7 +900,7 @@ public class GameController : MonoBehaviour
 
         yield return new WaitForSeconds(loadingWaitInterval);
 
-        offset = fireCubes ? 1 : 0;
+        offset = (settings != null && settings.FireEnabled && fireCubes) ? 1 : 0;
         idx = offset;
         if (aggregateCubeObject != null)
         {
@@ -1220,6 +1220,9 @@ public class GameController : MonoBehaviour
 
     private void SetupFires()
     {
+        if (settings != null && !settings.FireEnabled)
+            return;
+
         landscapeController.ResetFire();
 
         fireDates = new Vector3[2];                         // -- TO DO: Get from web!
@@ -1922,6 +1925,9 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void UpdateFireIgnition()
     {
+        if (settings != null && !settings.FireEnabled)
+            return;
+
         bool igniteFire = false;
         int fireFrameIdx = 0;
 
@@ -2899,6 +2905,9 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void ResetFireManagers()
     {
+        if (settings != null && !settings.FireEnabled)
+            return;
+
         aggregateCubeController.GetFireManager().Reset();
         foreach (CubeController cube in cubes)
         {

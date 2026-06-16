@@ -593,7 +593,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             bool even = i % 2 == 0;
             int iconYear = i + startYear;
 
-            if (fireYears.Contains(iconYear) || carryOverFire)
+            if (fireYears != null && (fireYears.Contains(iconYear) || carryOverFire))
             {
                 if (even || carryOverFire)
                 {
