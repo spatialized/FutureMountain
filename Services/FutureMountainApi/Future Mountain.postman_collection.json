@@ -1,4 +1,4 @@
-{
+﻿{
   "info": {
     "_postman_id": "628b21c2-e0f2-458d-8850-76f0a238ef42",
     "name": "Future Mountain",
@@ -18,12 +18,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "http://localhost:5550/api/CubeData",
+                  "raw": "http://localhost:13198/api/CubeData",
                   "protocol": "http",
                   "host": [
                     "localhost"
                   ],
-                  "port": "5550",
+                  "port": "13198",
                   "path": [
                     "api",
                     "CubeData"
@@ -38,12 +38,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "http://localhost:5550/api/CubeData/100",
+                  "raw": "http://localhost:13198/api/CubeData/100",
                   "protocol": "http",
                   "host": [
                     "localhost"
                   ],
-                  "port": "5550",
+                  "port": "13198",
                   "path": [
                     "api",
                     "CubeData",
@@ -59,12 +59,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "http://localhost:5550/api/dates/",
+                  "raw": "http://localhost:13198/api/dates/",
                   "protocol": "http",
                   "host": [
                     "localhost"
                   ],
-                  "port": "5550",
+                  "port": "13198",
                   "path": [
                     "api",
                     "dates",
@@ -80,12 +80,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "http://localhost:5550/api/FireData/2",
+                  "raw": "http://localhost:13198/api/FireData/2",
                   "protocol": "http",
                   "host": [
                     "localhost"
                   ],
-                  "port": "5550",
+                  "port": "13198",
                   "path": [
                     "api",
                     "FireData",
@@ -101,12 +101,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "http://localhost:5550/api/terraindata/0",
+                  "raw": "http://localhost:13198/api/terraindata/0",
                   "protocol": "http",
                   "host": [
                     "localhost"
                   ],
-                  "port": "5550",
+                  "port": "13198",
                   "path": [
                     "api",
                     "terraindata",
@@ -122,12 +122,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "http://localhost:5550/api/terraindata/1/1",
+                  "raw": "http://localhost:13198/api/terraindata/1/1",
                   "protocol": "http",
                   "host": [
                     "localhost"
                   ],
-                  "port": "5550",
+                  "port": "13198",
                   "path": [
                     "api",
                     "terraindata",
@@ -144,12 +144,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "http://localhost:5550/api/WaterData/total",
+                  "raw": "http://localhost:13198/api/WaterData/total",
                   "protocol": "http",
                   "host": [
                     "localhost"
                   ],
-                  "port": "5550",
+                  "port": "13198",
                   "path": [
                     "api",
                     "WaterData",
@@ -170,12 +170,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "http://localhost:3306/api/centralcoast/Dates/1",
+                  "raw": "http://localhost:13198/api/centralcoast/Dates/1",
                   "protocol": "http",
                   "host": [
                     "localhost"
                   ],
-                  "port": "3306",
+                  "port": "13198",
                   "path": [
                     "api",
                     "centralcoast",
@@ -192,12 +192,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "http://localhost:3306/api/centralcoast/CubeData",
+                  "raw": "http://localhost:13198/api/centralcoast/CubeData",
                   "protocol": "http",
                   "host": [
                     "localhost"
                   ],
-                  "port": "3306",
+                  "port": "13198",
                   "path": [
                     "api",
                     "centralcoast",
@@ -213,12 +213,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "http://localhost:3306/api/centralcoast/CubeData/5",
+                  "raw": "http://localhost:13198/api/centralcoast/CubeData/5",
                   "protocol": "http",
                   "host": [
                     "localhost"
                   ],
-                  "port": "3306",
+                  "port": "13198",
                   "path": [
                     "api",
                     "centralcoast",
@@ -235,12 +235,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "http://localhost:5550/api/FireData/2",
+                  "raw": "http://localhost:13198/api/FireData/2",
                   "protocol": "http",
                   "host": [
                     "localhost"
                   ],
-                  "port": "5550",
+                  "port": "13198",
                   "path": [
                     "api",
                     "FireData",
@@ -256,12 +256,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "http://localhost:5550/api/terraindata/0",
+                  "raw": "http://localhost:13198/api/terraindata/0",
                   "protocol": "http",
                   "host": [
                     "localhost"
                   ],
-                  "port": "5550",
+                  "port": "13198",
                   "path": [
                     "api",
                     "terraindata",
@@ -277,12 +277,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "http://localhost:5550/api/terraindata/1/1",
+                  "raw": "http://localhost:13198/api/terraindata/1/1",
                   "protocol": "http",
                   "host": [
                     "localhost"
                   ],
-                  "port": "5550",
+                  "port": "13198",
                   "path": [
                     "api",
                     "terraindata",
@@ -299,12 +299,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "http://localhost:3306/api/centralcoast/WaterData/total",
+                  "raw": "http://localhost:13198/api/centralcoast/WaterData/total",
                   "protocol": "http",
                   "host": [
                     "localhost"
                   ],
-                  "port": "3306",
+                  "port": "13198",
                   "path": [
                     "api",
                     "centralcoast",

@@ -55,7 +55,7 @@ The project targets WebGL and standalone/editor workflows. Build symbols in `Pro
 
 The current web API base URL is selected by scripting symbol:
 
-- `LOCAL_VERSION`: `http://localhost:5550/api/`
+- `LOCAL_VERSION`: `http://localhost:13198/api/`
 - `WEB_VERSION` or default: `https://data.futuremtn.org/api/`
 
 Known API paths:

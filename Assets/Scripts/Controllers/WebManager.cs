@@ -28,7 +28,7 @@ public class WebManager : MonoBehaviour
     public static WebManager Instance { get { return _instance; } }
     private SimulationSettings settings;
 #if LOCAL_VERSION
-    private static string connectionStringBase = "http://localhost:5550/api/";
+    private static string connectionStringBase = "http://localhost:13198/api/";
 #elif WEB_VERSION
     private static string connectionStringBase = "https://data.futuremtn.org/api/";
 #else
