@@ -221,7 +221,7 @@ Known symbols:
 
 Current API base URLs in `Assets/Scripts/Controllers/WebManager.cs`:
 
-* `LOCAL_VERSION`: `http://localhost:5550/api/`
+* `LOCAL_VERSION`: `http://localhost:13198/api/`
 * `WEB_VERSION` or default: `https://data.futuremtn.org/api/`
 
 `SimulationSettings.BuildForWeb` is currently true by default. In web builds, `SimulationSettings.OptimizeForWeb()` reduces vegetation density and increases carbon factors to improve performance.
@@ -282,7 +282,7 @@ API route and deployment documentation:
 `LOCAL_VERSION` points Unity to:
 
 ```text
-http://localhost:5550/api/
+http://localhost:13198/api/
 ```
 
 Use this path when testing a local API/database copy. The local API should match the same endpoint and JSON field contract as the deployed API unless Unity code is being intentionally updated.
@@ -323,7 +323,7 @@ Before building:
 
 * Confirm active build target is Standalone.
 * Confirm `LOCAL_VERSION` is present for Standalone scripting define symbols if testing a local API.
-* Confirm a local API is running at `http://localhost:5550/api/`, or adjust the code/config intentionally.
+* Confirm a local API is running at `http://localhost:13198/api/`, or adjust the code/config intentionally.
 * Confirm the intended scenario scene is included in Build Settings.
 
 Smoke test the same primary features as WebGL, with extra attention to any local/non-web paths such as background snow and legacy data-loading behavior.
