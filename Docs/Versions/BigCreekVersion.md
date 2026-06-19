@@ -44,7 +44,7 @@ Feature-level specs:
 - Fire, snow, river/streamflow, vegetation, roots, groundwater, and cube
   statistics appear consistently with the deployed Big Creek behavior.
 - Web builds use `https://data.futuremtn.org/api/`.
-- Local standalone builds use `http://localhost:5550/api/`.
+- Local standalone builds use `http://localhost:13198/api/`.
 - Web optimization reduces vegetation density and increases carbon factors in
   `SimulationSettings.OptimizeForWeb`.
 
