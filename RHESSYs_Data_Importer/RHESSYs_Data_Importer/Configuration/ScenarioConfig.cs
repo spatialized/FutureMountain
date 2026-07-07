@@ -40,6 +40,13 @@ namespace RHESSYs_Data_Importer.Configuration
         /// is imported with an explicit assumed value of 0.
         /// </summary>
         public int? WarmingIdx { get; set; }
+        
+        /// <summary>
+        /// Scenario member index for Central Coast v3+. Replaces the older WarmingIdx
+        /// naming for profiles where the user-facing dimension is the scenario, not a
+        /// warming case. Null when not applicable (e.g. Big Creek / v2).
+        /// </summary>
+        public int? ScenarioIdx { get; set; }
 
         /// <summary>
         /// Base folder that the entries in <see cref="Files"/> are resolved against.

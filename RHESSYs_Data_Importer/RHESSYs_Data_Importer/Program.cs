@@ -137,6 +137,19 @@ else
         }
         Console.WriteLine("[AUTO MODE] Validation passed. Starting import...");
     }
+    // Central Coast V3 pre-import validation
+    else if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV3)
+    {
+        Console.WriteLine("[AUTO MODE] Running Central Coast V3 validation...");
+        var validation = CentralCoastV3Validator.Validate(activeConfig);
+        validation.Print();
+        if (!validation.IsValid && !force)
+        {
+            Console.WriteLine("[AUTO MODE] Validation failed. Use --force to proceed anyway.");
+            return;
+        }
+        Console.WriteLine("[AUTO MODE] Validation passed. Starting import...");
+    }
 
     // Set category imports based on flags; if none specified, import all
     bool anyCategoryFlag = flagCubes || flagPatch || flagTerrain || flagFire || flagBurn || flagWater || flagClimate || flagStratum || flagDates;
@@ -170,7 +183,12 @@ else
 
 if (importDates)
 {
-    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV3)
+    {
+        Console.WriteLine("[AUTO MODE] --- Importing dates (V3) ---");
+        CentralCoastV3Importer.ImportDates(activeConfig, dryrun);
+    }
+    else if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
         Console.WriteLine("[AUTO MODE] --- Importing dates ---");
         CentralCoastImporter.ImportDates(activeConfig, dryrun);
@@ -182,7 +200,13 @@ if (importDates)
 }
 if(importCubeData)
 {
-    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV3)
+    {
+        Console.WriteLine("[AUTO MODE] --- Importing cube data(V3) ---");
+        CentralCoastV3Importer.ImportCubeData(activeConfig, dryrun);
+    }
+    
+    else if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
         CentralCoastImporter.EnsureOrPopulateDates(activeConfig, dryrun);
         Console.WriteLine("[AUTO MODE] --- Importing cube patch data ---");

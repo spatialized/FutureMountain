@@ -1,0 +1,31 @@
+{
+  "scenarioName": "CentralCoast",
+  "scenarioProfile": "CentralCoastV3",
+  "scenarioRunId": "scenario_WRF",
+  "scenarioIdx": 0,
+  "description": "Central Coast v3 RHESSys fire output. Single WRF climate scenario.",
+  "version": "3.0",
+  "database": {
+    "name": "futuremtn_central_coast_v3",
+    "host": "localhost",
+    "port": 3306,
+    "user": "admin",
+    "password": "",
+    "charset": "utf8mb4",
+    "collation": "utf8mb4_0900_ai_ci"
+  },
+  "sourceRoot": "../Data/CentralCoast/RHESSysOutput-SingleScenario-WRF-7-1-2026/",
+  "delimiter": ",",
+  "files": {
+    "cubeAggregateDaily": "aggregate_cube_bd.csv",
+    "cubePatchDaily01": "cubes_p1d.csv",
+    "cubePatchDaily02": "cubes_p2d.csv",
+    "allPatchMonthly01": "allPatches_p1m.csv",
+    "allPatchMonthly02": "allPatches_p2m.csv",
+    "patchFamilyRaster": "Pch30rip90upRN.tiff"
+  },
+  "outputTables": [
+    "Dates",
+    "CubeData"
+  ]
+}

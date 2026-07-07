@@ -16,7 +16,9 @@ namespace RHESSYs_Data_Importer.Configuration
         BigCreekV1,
 
         /// <summary>Central Coast v2 RHESSys-derived data model.</summary>
-        CentralCoastV2
+        CentralCoastV2,
+
+        CentralCoastV3
     }
 
     /// <summary>
@@ -26,6 +28,7 @@ namespace RHESSYs_Data_Importer.Configuration
     {
         public const string BigCreekV1 = "BigCreekV1";
         public const string CentralCoastV2 = "CentralCoastV2";
+        public const string CentralCoastV3 = "CentralCoastV3";
 
         /// <summary>
         /// Big Creek v1 is the default so existing configs that omit an explicit
@@ -55,6 +58,10 @@ namespace RHESSYs_Data_Importer.Configuration
                 case "centralcoast_v2":
                     kind = ScenarioProfileKind.CentralCoastV2;
                     return true;
+                case "centralcoastv3":
+                case "centralcoast_v3":
+                    kind = ScenarioProfileKind.CentralCoastV3;
+                    return true;
                 default:
                     return false;
             }
@@ -73,6 +80,7 @@ namespace RHESSYs_Data_Importer.Configuration
         public static string ToCanonicalString(ScenarioProfileKind kind) => kind switch
         {
             ScenarioProfileKind.CentralCoastV2 => CentralCoastV2,
+            ScenarioProfileKind.CentralCoastV3 => CentralCoastV3,
             _ => BigCreekV1
         };
     }

@@ -103,6 +103,23 @@ namespace RHESSYs_Data_Importer.Wizard
                     }
                 }
             }
+            else if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV3)
+                {
+                    Console.WriteLine("\n[CentralCoastV3] Running pre-import validation...");
+                    var validation = CentralCoastV3Validator.Validate(config);
+                    validation.Print();
+
+                    if (!validation.IsValid)
+                    {
+                        Console.WriteLine("\nValidation failed. Continue anyway? [y/N]");
+                        var cont = Console.ReadLine();
+                        if (!string.Equals(cont, "y", StringComparison.OrdinalIgnoreCase))
+                        {
+                            Console.WriteLine("Import canceled.");
+                            return;
+                        }
+                    }
+                }
 
             // 4. Confirm which categories to import
             var selected = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -199,6 +216,13 @@ namespace RHESSYs_Data_Importer.Wizard
             if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
             {
                 RunCentralCoastImports(config, discovery, selected, dryrun);
+                return;
+            }
+
+            if (config.GetProfileKind() == ScenarioProfileKind.CentralCoastV3)
+            {
+                if (selected.Contains("cube"))
+                    CentralCoastV3Importer.ImportCubeData(config, dryrun);
                 return;
             }
 
