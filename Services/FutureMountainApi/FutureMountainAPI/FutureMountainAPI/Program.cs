@@ -98,6 +98,16 @@ if (!string.IsNullOrWhiteSpace(centralCoastConnectionString))
             .UseMySql(centralCoastConnectionString, centralCoastServerVersion));
 }
 
+string centralCoastV3ConnectionString = builder.Configuration.GetConnectionString("CentralCoastV3DbContext") ?? "";
+if (!string.IsNullOrWhiteSpace(centralCoastV3ConnectionString))
+{
+    var centralCoastV3ServerVersion = ServerVersion.AutoDetect(centralCoastV3ConnectionString);
+
+    builder.Services.AddDbContext<CentralCoastV3DbContext>(
+        dbContextOptions => dbContextOptions
+            .UseMySql(centralCoastV3ConnectionString, centralCoastV3ServerVersion));
+}
+
 //builder.Services.AddDbContext<CubeDataDbContext>(options => options.UseMySql(connectionString, serverVersion).EnableDetailedErrors(true));
 //builder.Services.AddDbContext<DateDbContext>(options => options.UseMySql(connectionString, serverVersion).EnableDetailedErrors(true));
 
