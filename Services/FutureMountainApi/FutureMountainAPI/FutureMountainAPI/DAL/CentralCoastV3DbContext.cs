@@ -33,7 +33,7 @@ namespace FutureMountainAPI.DAL
         public DbSet<CentralCoastV3CubeDataRow> CubeData { get; set; }
         // public DbSet<CentralCoastV3WaterDataRow> WaterData { get; set; }
         // public DbSet<CentralCoastV3PatchDataRow> PatchData { get; set; }
-        
-        // public DbSet<CentralCoastV3TerrainDataRow> TerrainData { get; set; }
+
+        public DbSet<CentralCoastV3TerrainDataRow> TerrainData { get; set; }
     }
 }

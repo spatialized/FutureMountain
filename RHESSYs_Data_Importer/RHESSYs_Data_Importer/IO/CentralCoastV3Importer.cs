@@ -459,6 +459,7 @@ namespace RHESSYs_Data_Importer.IO
             const int GridHeight = 301;
             const int PixelGrainSize = 30;
             const int DecimalPrecision = 4;
+            int scale = (int)Math.Pow(10, DecimalPrecision); 
             const int TotalPixels = GridWidth * GridHeight; // 119,196
 
             var scenarioRunId = config.ScenarioRunId ?? "";
@@ -549,7 +550,7 @@ namespace RHESSYs_Data_Importer.IO
                 }
 
                 // Step 4c: draw grid
-                float[] output = new float[TotalPixels]; // 默认 0
+                int[] output = new int[TotalPixels]; 
                 foreach (var kvp in zonePixels)
                 {
                     int zoneID = kvp.Key;
@@ -558,8 +559,7 @@ namespace RHESSYs_Data_Importer.IO
 
                     float vegIntensity = Math.Clamp(meanC / globalMaxPlantC, 0f, 1f);
                     float burnSignal = maxBurn > 0f ? 1f : 0f;
-                    float value = (float)Math.Round(vegIntensity + burnSignal * 100f, DecimalPrecision);
-
+                    int value = (int)Math.Round((vegIntensity + burnSignal * 100f) * scale); 
                     foreach (int idx in kvp.Value)
                         if (idx >= 0 && idx < TotalPixels)
                             output[idx] = value;

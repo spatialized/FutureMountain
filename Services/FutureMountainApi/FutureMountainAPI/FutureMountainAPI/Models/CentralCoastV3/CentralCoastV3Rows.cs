@@ -70,6 +70,30 @@ namespace FutureMountainAPI.Models.CentralCoastV3
         public float fire { get; set; }
     }
 
+    
+  [Table("TerrainData")]
+  [Index(nameof(scenarioRunId), nameof(scenarioIdx), nameof(year), nameof(month))]
+  public class CentralCoastV3TerrainDataRow
+  {
+      [Key]
+      [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+      public int id { get; set; }
+
+      public string scenarioRunId { get; set; }
+      public int scenarioIdx { get; set; } 
+      public int year { get; set; }
+      public int month { get; set; }
+
+      public int gridSize { get; set; }
+      public int gridWidth { get; set; }
+      public int gridHeight { get; set; }
+      public int pixelGrainSize { get; set; }
+      public int decimalPrecision { get; set; }
+
+      [Column(TypeName = "longtext")]
+      public string _dataList { get; set; }
+  }
+
     // [Table("WaterData")]
     // [Index(nameof(scenarioRunId), nameof(warmingIdx), nameof(dateIdx))]
     // public class CentralCoastWaterDataRow
@@ -128,25 +152,4 @@ namespace FutureMountainAPI.Models.CentralCoastV3
     //     public string data { get; set; }
     // }
 
-    // [Table("TerrainData")]
-    // [Index(nameof(scenarioRunId), nameof(warmingIdx), nameof(year), nameof(month))]
-    // public class CentralCoastTerrainDataRow
-    // {
-    //     [Key]
-    //     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    //     public int id { get; set; }
-
-    //     public string scenarioRunId { get; set; }
-    //     public int warmingIdx { get; set; }
-    //     public int year { get; set; }
-    //     public int month { get; set; }
-    //     public int gridSize { get; set; }
-    //     public int gridWidth { get; set; }
-    //     public int gridHeight { get; set; }
-    //     public int pixelGrainSize { get; set; }
-    //     public int decimalPrecision { get; set; }
-
-    //     [Column(TypeName = "longtext")]
-    //     public string _dataList { get; set; }
-    // }
 }
