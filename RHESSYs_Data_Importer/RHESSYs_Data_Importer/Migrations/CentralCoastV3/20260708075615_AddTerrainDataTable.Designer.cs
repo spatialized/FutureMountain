@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RHESSYs_Data_Importer.DAL;
 
@@ -11,9 +12,11 @@ using RHESSYs_Data_Importer.DAL;
 namespace RHESSYs_Data_Importer.Migrations.CentralCoastV3
 {
     [DbContext(typeof(CentralCoastV3DbContext))]
-    partial class CentralCoastV3DbContextModelSnapshot : ModelSnapshot
+    [Migration("20260708075615_AddTerrainDataTable")]
+    partial class AddTerrainDataTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

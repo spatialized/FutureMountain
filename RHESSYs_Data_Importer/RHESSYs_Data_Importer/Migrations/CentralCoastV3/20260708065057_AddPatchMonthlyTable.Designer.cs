@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RHESSYs_Data_Importer.DAL;
 
@@ -11,9 +12,11 @@ using RHESSYs_Data_Importer.DAL;
 namespace RHESSYs_Data_Importer.Migrations.CentralCoastV3
 {
     [DbContext(typeof(CentralCoastV3DbContext))]
-    partial class CentralCoastV3DbContextModelSnapshot : ModelSnapshot
+    [Migration("20260708065057_AddPatchMonthlyTable")]
+    partial class AddPatchMonthlyTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -258,53 +261,6 @@ namespace RHESSYs_Data_Importer.Migrations.CentralCoastV3
                     b.HasIndex("scenarioRunId", "scenarioIdx", "year", "month", "zoneID");
 
                     b.ToTable("PatchMonthly");
-                });
-
-            modelBuilder.Entity("RHESSYs_Data_Importer.Models.CentralCoastV3.TerrainDataRowV3", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("id"));
-
-                    b.Property<string>("_dataList")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("decimalPrecision")
-                        .HasColumnType("int");
-
-                    b.Property<int>("gridHeight")
-                        .HasColumnType("int");
-
-                    b.Property<int>("gridSize")
-                        .HasColumnType("int");
-
-                    b.Property<int>("gridWidth")
-                        .HasColumnType("int");
-
-                    b.Property<int>("month")
-                        .HasColumnType("int");
-
-                    b.Property<int>("pixelGrainSize")
-                        .HasColumnType("int");
-
-                    b.Property<int>("scenarioIdx")
-                        .HasColumnType("int");
-
-                    b.Property<string>("scenarioRunId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<int>("year")
-                        .HasColumnType("int");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("scenarioRunId", "scenarioIdx", "year", "month");
-
-                    b.ToTable("TerrainData");
                 });
 
             modelBuilder.Entity("RHESSYs_Data_Importer.Models.Date", b =>

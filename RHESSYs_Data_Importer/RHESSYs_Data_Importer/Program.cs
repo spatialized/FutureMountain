@@ -16,6 +16,7 @@ bool importBurnData = importAll;
 bool importPatchData = importAll;
 bool importTerrainData = importAll;
 bool importStratumData = importAll;
+bool importPatchMonthlyData = importAll;
 
 // Data Folders
 string folderAggregate = Path.GetFullPath("../Data/BigCreek/aggregate");
@@ -108,6 +109,7 @@ bool flagWater = arguments.Contains("--water");
 bool flagClimate = arguments.Contains("--climate");
 bool flagStratum = arguments.Contains("--stratum");
 bool flagDates = arguments.Contains("--dates");
+bool flagMonthly = arguments.Contains("--monthly");
 
 if (!auto)
 {
@@ -152,7 +154,7 @@ else
     }
 
     // Set category imports based on flags; if none specified, import all
-    bool anyCategoryFlag = flagCubes || flagPatch || flagTerrain || flagFire || flagBurn || flagWater || flagClimate || flagStratum || flagDates;
+    bool anyCategoryFlag = flagCubes || flagPatch || flagTerrain || flagFire || flagBurn || flagWater || flagClimate || flagStratum || flagDates || flagMonthly;
     if (anyCategoryFlag)
     {
         importCubeData = flagCubes;
@@ -163,6 +165,7 @@ else
         importWaterData = flagWater;
         importStratumData = flagStratum;
         importDates = flagDates;
+        importPatchMonthlyData = flagMonthly;
         // Climate not yet implemented; placeholder only
     }
     else
@@ -175,6 +178,7 @@ else
         importWaterData = true;
         importStratumData = true;
         importDates = true;
+        importPatchMonthlyData = flagMonthly;
     }
 }
 
@@ -301,6 +305,14 @@ if (importPatchData)
             TextFileInput.ReadPatchData(folderPatchData);
     }
 }
+if (importPatchMonthlyData)
+  {
+      if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV3)
+      {
+          Console.WriteLine("[AUTO MODE] --- Importing patch monthly data (V3) ---");
+          CentralCoastV3Importer.ImportPatchMonthly(activeConfig, dryrun);
+      }
+  }
 if (importStratumData)
 {
     if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
@@ -316,7 +328,12 @@ if (importStratumData)
 }
 if (importTerrainData)
 {
-    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV3)
+    {
+        Console.WriteLine("[AUTO MODE] --- Generating terrain data (V3) ---");
+        CentralCoastV3Importer.GenerateTerrainData(activeConfig, dryrun);
+    }
+    else if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
         // CCV2: terrain generation reads from PatchData, StratumData, BurnData
         // -- must run after patch, stratum, and fire imports

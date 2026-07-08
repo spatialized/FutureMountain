@@ -337,24 +337,39 @@ namespace RHESSYs_Data_Importer.DAL
             }
         }
 
-        // /// <summary>
-        // /// Inserts a batch of <see cref="TerrainDataRow"/> rows in a single
-        // /// <c>SaveChanges</c> call.
-        // /// </summary>
-        // public int AddTerrainDataRows(IEnumerable<TerrainDataRow> rows)
-        // {
-        //     try
-        //     {
-        //         using var db = new CentralCoastDbContext(_connectionString);
-        //         db.TerrainData.AddRange(rows);
-        //         return db.SaveChanges();
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Console.WriteLine($"[ERROR] AddTerrainDataRows failed: {ex.Message}");
-        //         return 0;
-        //     }
-        // }
+        public int AddPatchMonthlyRows(IEnumerable<PatchMonthlyRowV3> rows)
+        {
+            try
+            {
+                using var db = new CentralCoastV3DbContext(_connectionString);
+                db.PatchMonthly.AddRange(rows);
+                return db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddPatchMonthlyRows (V3) failed: {ex.Message}");
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Inserts a batch of <see cref="TerrainDataRow"/> rows in a single
+        /// <c>SaveChanges</c> call.
+        /// </summary>
+        public int AddTerrainDataRows(IEnumerable<TerrainDataRowV3> rows)
+        {
+            try
+            {
+                using var db = new CentralCoastV3DbContext(_connectionString);
+                db.TerrainData.AddRange(rows);
+                return db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddTerrainDataRows (V3) failed: {ex.Message}");
+                return 0;
+            }
+        }
 
         /// <summary>
         /// Returns the current row count in the shared <c>Dates</c> table.

@@ -387,6 +387,215 @@ namespace RHESSYs_Data_Importer.IO
                 Console.WriteLine($"[ERROR] PatchData import incomplete: {batch.Count - savedRows:N0} rows NOT saved.");
        }
 
+       public static void ImportPatchMonthly(ScenarioConfig config, bool dryRun = false)
+        {
+            int scenarioIdx = config.ScenarioIdx ?? 0;
+            string scenarioRunId = config.ScenarioRunId ?? "";
+
+            foreach (var role in new[] { "allPatchMonthly01", "allPatchMonthly02" })
+            {
+                var path = config.GetSourceFilePath(role);
+                if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+                {
+                    Console.WriteLine($"[WARN] {role} file not found: {path}");
+                    continue;
+                }
+
+                var dal = new CentralCoastV3DAL();
+                using var reader = new StreamReader(path);
+                var colMap = BuildColumnIndex(reader.ReadLine());
+
+                const int ChunkSize = 5000;
+                var chunk = new List<PatchMonthlyRowV3>(ChunkSize);
+                int imported = 0, saved = 0;
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (string.IsNullOrWhiteSpace(line)) continue;
+                    var parts = line.Split(',');
+
+                    var row = new PatchMonthlyRowV3
+                    {
+                        scenarioRunId = scenarioRunId,
+                        scenarioIdx   = scenarioIdx,
+                        importRunId   = 0,
+
+                        year   = GetInt(parts, colMap, "year"),
+                        month  = GetInt(parts, colMap, "month"),
+                        wy     = GetInt(parts, colMap, "wy"),
+                        zoneID = GetInt(parts, colMap, "zoneID"),
+                        patchID = GetLong(parts, colMap, "patchID"),
+
+                        totalCover  = GetFloat(parts, colMap, "totalCover"),
+                        totalCunder = GetFloat(parts, colMap, "totalCunder"),
+                        plantCover  = GetFloat(parts, colMap, "plantCover"),
+                        plantCunder = GetFloat(parts, colMap, "plantCunder"),
+
+                        burned = GetFloat(parts, colMap, "burned"),
+                        fire   = GetFloat(parts, colMap, "fire"),
+                    };
+
+                    imported++;
+                    if (!dryRun)
+                    {
+                        chunk.Add(row);
+                        if (chunk.Count >= ChunkSize)
+                        {
+                            saved += dal.AddPatchMonthlyRows(chunk);
+                            chunk.Clear();
+                            if (imported % 500000 == 0)
+                                Console.WriteLine($"[PatchMonthly/{role}] {imported:N0} processed, {saved:N0} written...");
+                        }
+                    }
+                }
+                if (!dryRun && chunk.Count > 0) saved += dal.AddPatchMonthlyRows(chunk);
+                Console.WriteLine($"[PatchMonthly/{role}] {(dryRun ? "Would import" : "Imported")} {imported:N0} rows from {Path.GetFileName(path)}.");
+            }
+        }
+
+         public static void GenerateTerrainData(ScenarioConfig config, bool dryRun = false)
+        {
+            const int GridWidth = 396;
+            const int GridHeight = 301;
+            const int PixelGrainSize = 30;
+            const int DecimalPrecision = 4;
+            const int TotalPixels = GridWidth * GridHeight; // 119,196
+
+            var scenarioRunId = config.ScenarioRunId ?? "";
+            int scenarioIdx = config.ScenarioIdx ?? 0;
+
+            if (dryRun)
+            {
+                Console.WriteLine("[TerrainData] Dry run: terrain generation skipped.");
+                return;
+            }
+
+            // Step 1: PatchData → zoneID -> row*GridWidth + col
+            Console.WriteLine($"[TerrainData] Loading PatchData footprints for scenarioRunId={scenarioRunId}...");
+            var zonePixels = new Dictionary<int, List<int>>();
+            using (var db = new CentralCoastV3DbContext())
+            {
+                var patchRows = db.PatchData.Where(p => p.scenarioRunId == scenarioRunId).ToList();
+                foreach (var prow in patchRows)
+                {
+                    if (string.IsNullOrWhiteSpace(prow.data)) continue;
+                    dynamic footprint = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(prow.data);
+                    var pixelList = new List<int>();
+                    foreach (var px in footprint.pixels)   // px = [col, row]
+                    {
+                        int col = (int)px[0];
+                        int row = (int)px[1];
+                        pixelList.Add(row * GridWidth + col);
+                    }
+                    zonePixels[prow.zoneID] = pixelList;
+                }
+            }
+            Console.WriteLine($"[TerrainData] Loaded {zonePixels.Count:N0} zoneID footprints.");
+
+            // Step 2: globalMaxPlantC —— max plantCover + plantCunder
+            float globalMaxPlantC;
+            using (var db = new CentralCoastV3DbContext())
+            {
+                globalMaxPlantC = db.PatchMonthly
+                    .Where(s => s.scenarioRunId == scenarioRunId && s.scenarioIdx == scenarioIdx)
+                    .Max(s => (float?)(s.plantCover + s.plantCunder)) ?? 1f;
+            }
+            if (globalMaxPlantC <= 0f) globalMaxPlantC = 1f;
+            Console.WriteLine($"[TerrainData] globalMaxPlantC = {globalMaxPlantC:F4}");
+
+            // Step 3: (year, month)
+            List<(int year, int month)> timePeriods;
+            using (var db = new CentralCoastV3DbContext())
+            {
+                timePeriods = db.PatchMonthly
+                    .Where(s => s.scenarioRunId == scenarioRunId && s.scenarioIdx == scenarioIdx)
+                    .Select(s => new { s.year, s.month })
+                    .Distinct()
+                    .OrderBy(x => x.year).ThenBy(x => x.month)
+                    .ToList()
+                    .Select(x => (x.year, x.month))
+                    .ToList();
+            }
+            Console.WriteLine($"[TerrainData] {timePeriods.Count:N0} monthly frames to generate.");
+
+            var dal = new CentralCoastV3DAL();
+            var terrainBatch = new List<TerrainDataRowV3>();
+            int written = 0;
+
+            foreach (var (year, month) in timePeriods)
+            {
+                // Step 4a: plant C mean by zone
+                Dictionary<int, float> meanPlantCByZone;
+                using (var db = new CentralCoastV3DbContext())
+                {
+                    meanPlantCByZone = db.PatchMonthly
+                        .Where(s => s.scenarioRunId == scenarioRunId && s.scenarioIdx == scenarioIdx
+                                    && s.year == year && s.month == month)
+                        .GroupBy(s => s.zoneID)
+                        .Select(g => new { zoneID = g.Key, meanC = g.Average(s => s.plantCover + s.plantCunder) })
+                        .ToDictionary(x => x.zoneID, x => x.meanC);
+                }
+
+                // Step 4b: max burn by zone
+                Dictionary<int, float> maxBurnByZone;
+                using (var db = new CentralCoastV3DbContext())
+                {
+                    maxBurnByZone = db.PatchMonthly
+                        .Where(s => s.scenarioRunId == scenarioRunId && s.scenarioIdx == scenarioIdx
+                                    && s.year == year && s.month == month)
+                        .GroupBy(s => s.zoneID)
+                        .Select(g => new { zoneID = g.Key, maxBurn = g.Max(s => s.burned) })
+                        .ToDictionary(x => x.zoneID, x => x.maxBurn);
+                }
+
+                // Step 4c: draw grid
+                float[] output = new float[TotalPixels]; // 默认 0
+                foreach (var kvp in zonePixels)
+                {
+                    int zoneID = kvp.Key;
+                    float meanC = meanPlantCByZone.TryGetValue(zoneID, out var mc) ? mc : 0f;
+                    float maxBurn = maxBurnByZone.TryGetValue(zoneID, out var mb) ? mb : 0f;
+
+                    float vegIntensity = Math.Clamp(meanC / globalMaxPlantC, 0f, 1f);
+                    float burnSignal = maxBurn > 0f ? 1f : 0f;
+                    float value = (float)Math.Round(vegIntensity + burnSignal * 100f, DecimalPrecision);
+
+                    foreach (int idx in kvp.Value)
+                        if (idx >= 0 && idx < TotalPixels)
+                            output[idx] = value;
+                }
+
+                // Step 4d: save
+                terrainBatch.Add(new TerrainDataRowV3
+                {
+                    scenarioRunId = scenarioRunId,
+                    scenarioIdx = scenarioIdx,
+                    year = year,
+                    month = month,
+                    gridSize = 0,
+                    gridWidth = GridWidth,
+                    gridHeight = GridHeight,
+                    pixelGrainSize = PixelGrainSize,
+                    decimalPrecision = DecimalPrecision,
+                    _dataList = Newtonsoft.Json.JsonConvert.SerializeObject(output)
+                });
+                written++;
+
+                // Step 4e: batch write every 24 frames
+                if (terrainBatch.Count >= 24)
+                {
+                    dal.AddTerrainDataRows(terrainBatch);
+                    terrainBatch.Clear();
+                    Console.WriteLine($"[TerrainData] {written:N0}/{timePeriods.Count:N0} frames written...");
+                }
+            }
+
+            if (terrainBatch.Count > 0)
+                dal.AddTerrainDataRows(terrainBatch);
+
+            Console.WriteLine($"[TerrainData] Generated {written:N0} TerrainData rows.");
+        }
+
         private static string GetSafe(string[] parts, int idx) 
             => (parts != null && idx >= 0 && idx < parts.Length) ? parts[idx].Trim().Trim('"') : "";
         private static int GetInt(string[] parts, Dictionary<string, int> col, string name)
