@@ -4,7 +4,8 @@ using UnityEngine;
 public enum ScenarioApiProfile
 {
     BigCreek,
-    CentralCoast
+    CentralCoast,
+    CentralCoastV3
 }
 
 /// <summary>
@@ -27,6 +28,8 @@ public class SimulationSettings : MonoBehaviour
             {
                 case ScenarioApiProfile.CentralCoast:
                     return "centralcoast/";
+                case ScenarioApiProfile.CentralCoastV3:
+                    return "centralcoastv3/";
                 case ScenarioApiProfile.BigCreek:
                 default:
                     return "";
@@ -41,6 +44,7 @@ public class SimulationSettings : MonoBehaviour
             switch (apiProfile)
             {
                 case ScenarioApiProfile.CentralCoast:
+                case ScenarioApiProfile.CentralCoastV3:
                     return "Messages/CentralCoastGeneralMessages";
                 case ScenarioApiProfile.BigCreek:
                 default:
@@ -57,6 +61,8 @@ public class SimulationSettings : MonoBehaviour
             {
                 case ScenarioApiProfile.CentralCoast:
                     return "Messages/CentralCoastFireMessages";
+                case ScenarioApiProfile.CentralCoastV3:
+                    return "Messages/CentralCoastV3FireMessages";
                 case ScenarioApiProfile.BigCreek:
                 default:
                     return "Messages/FireMessages";

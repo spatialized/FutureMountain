@@ -283,7 +283,12 @@ if (importBurnData)
 }
 if (importPatchData)
 {
-    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
+    if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV3)
+      {
+          Console.WriteLine("[AUTO MODE] --- Importing patch data (V3) ---");
+          CentralCoastV3Importer.ImportPatchMapData(activeConfig, dryrun);
+      }
+    else if (activeConfig != null && activeConfig.GetProfileKind() == ScenarioProfileKind.CentralCoastV2)
     {
         Console.WriteLine("[AUTO MODE] --- Importing patch data ---");
         CentralCoastImporter.ImportPatchMapData(activeConfig, dryrun);

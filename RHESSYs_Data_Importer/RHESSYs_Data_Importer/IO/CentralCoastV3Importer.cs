@@ -10,6 +10,7 @@ using RHESSYs_Data_Importer.Configuration;
 using RHESSYs_Data_Importer.DAL;
 using RHESSYs_Data_Importer.Models;
 using RHESSYs_Data_Importer.Models.CentralCoastV3;
+using System.Buffers;
 
 namespace RHESSYs_Data_Importer.IO
 {
@@ -287,6 +288,105 @@ namespace RHESSYs_Data_Importer.IO
             }               
             return map;
         }
+
+        public static void ImportPatchMapData(ScenarioConfig config, bool dryRun = false)
+        {
+            var path = config.GetSourceFilePath("patchFamilyRaster");
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+            {
+                Console.WriteLine($"[WARN] patchFamilyRaster file not found: {path}");
+                return;
+            }
+
+            var pixelsByZone = new Dictionary<int, List<int[]>>();
+            int gridWidth = 0, gridHeight = 0;
+            
+            using (var tiff = Tiff.Open(path, "r"))
+            {
+                if (tiff == null)
+                {
+                    Console.WriteLine($"[WARN] Failed to open TIFF file: {path}");
+                    return;
+                }
+            
+                gridWidth = tiff.GetField(TiffTag.IMAGEWIDTH)[0].ToInt();
+                gridHeight = tiff.GetField(TiffTag.IMAGELENGTH)[0].ToInt();
+
+                int scanlineSize = tiff.ScanlineSize();
+                byte[] buf = new byte[scanlineSize];
+
+                for (int row = 0; row < gridHeight; row++)
+                {
+                    tiff.ReadScanline(buf, row);
+                    for (int col = 0; col < gridWidth; col++)
+                    {
+                        int byteOffset = col * 2;
+                        if (byteOffset + 1 >= buf.Length)
+                            continue;
+                        int value = buf[byteOffset] | (buf[byteOffset + 1] << 8);
+                        if (value ==65535) // NoData value
+                            continue;
+                        if (!pixelsByZone.TryGetValue(value, out var list))
+                        {
+                            list = new List<int[]>();
+                            pixelsByZone[value] = list;
+                        }
+                        list.Add(new int[] { col, row });
+                    }
+                }
+            }
+
+            int totalPixels =pixelsByZone.Values.Sum(list => list.Count);
+            Console.WriteLine($"[PatchData] Decoded {pixelsByZone.Count:N0} unique zoneIDs from {gridWidth}x{gridHeight} grid ({totalPixels:N0} pixels).");
+
+            if (dryRun)
+            {
+                Console.WriteLine($"[PatchData] Dry run: would write {pixelsByZone.Count:N0} rows to PatchData.");
+                return;
+            }
+
+            var dal = new CentralCoastV3DAL();
+            var batch = new List<PatchDataRowV3>(pixelsByZone.Count);
+
+            foreach (var kvp in pixelsByZone)
+            {
+                int zoneID = kvp.Key;
+                var pixels = kvp.Value;
+
+                int colMin = pixels.Min(p => p[0]);
+                int colMax = pixels.Max(p => p[0]);
+                int rowMin = pixels.Min(p => p[1]);
+                int rowMax = pixels.Max(p => p[1]);
+                double centroidCol = pixels.Average(p => p[0]);
+                double centroidRow = pixels.Average(p => p[1]);
+
+                var footprint = new
+                {
+                    zoneID,
+                    gridWidth,
+                    gridHeight,
+                    pixelCount = pixels.Count,
+                    centroidCol,
+                    centroidRow,
+                    boundingBox = new { colMin, colMax, rowMin, rowMax },
+                    pixels
+                };
+
+                 batch.Add(new PatchDataRowV3
+                {
+                    scenarioRunId = config.ScenarioRunId ?? "",
+                    importRunId = 0,
+                    zoneID = zoneID,
+                    data = JsonConvert.SerializeObject(footprint)
+                });
+            }
+
+            int savedRows = dal.AddPatchDataRows(batch);
+            Console.WriteLine($"[PatchData] Imported {savedRows:N0} of {batch.Count:N0} rows.");
+            if (savedRows != batch.Count)
+                Console.WriteLine($"[ERROR] PatchData import incomplete: {batch.Count - savedRows:N0} rows NOT saved.");
+       }
+
         private static string GetSafe(string[] parts, int idx) 
             => (parts != null && idx >= 0 && idx < parts.Length) ? parts[idx].Trim().Trim('"') : "";
         private static int GetInt(string[] parts, Dictionary<string, int> col, string name)

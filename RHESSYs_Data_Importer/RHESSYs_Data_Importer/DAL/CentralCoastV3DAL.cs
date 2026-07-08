@@ -318,24 +318,24 @@ namespace RHESSYs_Data_Importer.DAL
         //     return string.Join(" -> ", parts);
         // }
 
-        // /// <summary>
-        // /// Inserts a batch of <see cref="PatchDataRow"/> rows in a single
-        // /// <c>SaveChanges</c> call.
-        // /// </summary>
-        // public int AddPatchDataRows(IEnumerable<PatchDataRow> rows)
-        // {
-        //     try
-        //     {
-        //         using var db = new CentralCoastDbContext(_connectionString);
-        //         db.PatchData.AddRange(rows);
-        //         return db.SaveChanges();
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Console.WriteLine($"[ERROR] AddPatchDataRows failed: {ex.Message}");
-        //         return 0;
-        //     }
-        // }
+        /// <summary>
+        /// Inserts a batch of <see cref="PatchDataRow"/> rows in a single
+        /// <c>SaveChanges</c> call.
+        /// </summary>
+        public int AddPatchDataRows(IEnumerable<PatchDataRowV3> rows)
+        {
+            try
+            {
+                using var db = new CentralCoastV3DbContext(_connectionString);
+                db.PatchData.AddRange(rows);
+                return db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] AddPatchDataRows(V3) failed: {ex.Message}");
+                return 0;
+            }
+        }
 
         // /// <summary>
         // /// Inserts a batch of <see cref="TerrainDataRow"/> rows in a single

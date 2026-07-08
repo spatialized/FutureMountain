@@ -35,6 +35,7 @@ namespace Assets.Scripts.Models
         public int id;
         public int dateIdx;
         public int warmingIdx;
+        public int scenarioIdx;
         public int patchIdx;
         public float snow;
         public float evap;
@@ -54,6 +55,27 @@ namespace Assets.Scripts.Models
         public float leafCUnder;
         public float stemCUnder;
         public float rootCUnder;
+
+        // add for Central Coast V3
+        public float burn;
+        public float fire;
+        public float gppOver;
+        public float gppUnder;
+        public float respOver;
+        public float respUnder;
+        public float netpsnOver;
+        public float netpsnUnder;
+        public float laiOver;
+        public float laiUnder;
+        public float rootdepthCOver;
+        public float rootdepthUnder;
+        public float tmax;
+        public float tmin;
+        public float relHumidity;
+        public float windSpeed;
+        public float windDirection;
+        public float groundevap;
+        public float canopyevap;
     }
 
     [Serializable]

@@ -69,7 +69,7 @@ namespace RHESSYs_Data_Importer.DAL
         // public DbSet<WaterDataRow> WaterData { get; set; }
         // public DbSet<BurnDataRow> BurnData { get; set; }
         // public DbSet<StratumDataRow> StratumData { get; set; }
-        // public DbSet<PatchDataRow> PatchData { get; set; }
+        public DbSet<PatchDataRowV3> PatchData { get; set; }
         // public DbSet<TerrainDataRow> TerrainData { get; set; }
         // public DbSet<ImportRun> ImportRun { get; set; }
     }
