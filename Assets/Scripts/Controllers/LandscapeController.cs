@@ -26,7 +26,7 @@ public class LandscapeController : MonoBehaviour
     private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
     private static bool landscapeSimulationWeb = true;               // Optimized landscape simulation for web
     private static bool landscapeSimulationLocal = false;            // Local landscape simulation
-    private static bool backgroundSnowOn = true;                     // Toggle Local build background snow On / Off
+    private static bool backgroundSnowOn = false;                     // Toggle Local build background snow On / Off
     private static bool loadTerrainDataFromFile = false;
 #elif WEB_VERSION
     private static bool landscapeSimulationOn = true;                // Landscape Simulation On / Off
@@ -541,8 +541,13 @@ public class LandscapeController : MonoBehaviour
         }
         else if (landscapeSimulationWeb && backgroundSnowOn)
         {
-            int startYear = 1942;
-            int monthIdx = curMonth + (curYear - startYear) * 12 - 10;
+            int startYear = 1942, startMonthOffeset =10;
+            if (settings != null &&(settings.apiProfile == ScenarioApiProfile.CentralCoast || settings.apiProfile == ScenarioApiProfile.CentralCoastV3))
+            {
+                startYear = 1987;
+                startMonthOffeset = 7;
+            }
+            int monthIdx = curMonth + (curYear - startYear) * 12 - startMonthOffeset;
 
             if (currentSplatmaps == null || currentSplatmaps.Count == 0)
             {
@@ -1275,11 +1280,25 @@ public class LandscapeController : MonoBehaviour
         {
             //firePointLists = new List<FireDataPoint>[fireDates.Length];
 
-            List<FireDataFrame> frames;
+            // List<FireDataFrame> frames;
+            // if (landscapeSimulationWeb)
+            //     frames = currentSimulationData.GetFireData();
+            // else
+            //     frames = simulationData[warmIdx].GetFireData();
+
+            List<FireDataFrame> frames = null;
             if (landscapeSimulationWeb)
-                frames = currentSimulationData.GetFireData();
+            {
+                if (currentSimulationData != null)
+                    frames = currentSimulationData.GetFireData();
+            }
             else
+            {
                 frames = simulationData[warmIdx].GetFireData();
+            }
+
+            if (frames == null) 
+                frames = new List<FireDataFrame>();
 
             foreach (FireDataFrame fire in frames)
             {
@@ -1311,7 +1330,13 @@ public class LandscapeController : MonoBehaviour
                 }
             }
 
-            fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, terrain.transform.position, frames, this, true, false);
+            // fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, terrain.transform.position, frames, this, true, false);
+            if (settings == null || (settings.apiProfile != ScenarioApiProfile.CentralCoast
+                        && settings.apiProfile != ScenarioApiProfile.CentralCoastV3))
+            {
+                fireManager.Initialize(pooler, firePrefab, fireGridCenterLocation, terrain.transform.position, frames, this, true,
+            false);
+            }
 
             patchesToBurnDict = new Dictionary<Vector3, List<int>>();
         }
@@ -2070,6 +2095,7 @@ public class LandscapeController : MonoBehaviour
     {
         int[,,] reducedGrid = Unflatten1DIntArrayTo3D(flatArray, inputWidth, 4);
         float[,,] result = new float[terrainWidth, terrainWidth, 4];
+        //float[,,] result = new float[terrainWidth, terrainWidth, terrain.terrainData.alphamapLayers];
 
         // Iterate over reduced size array and fill in full-size array
         for (int x = 0; x < reducedGrid.GetLength(0); x++)

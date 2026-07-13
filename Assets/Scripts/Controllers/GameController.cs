@@ -1225,9 +1225,37 @@ public class GameController : MonoBehaviour
 
         landscapeController.ResetFire();
 
-        fireDates = new Vector3[2];                         // -- TO DO: Get from web!
-        fireDates[0] = new Vector3(7, 15, 1969);
-        fireDates[1] = new Vector3(11, 20, 1988);
+        // fireDates = new Vector3[2];                         // -- TO DO: Get from web!
+        // fireDates[0] = new Vector3(7, 15, 1969);
+        // fireDates[1] = new Vector3(11, 20, 1988);
+
+        if (settings != null && (settings.apiProfile == ScenarioApiProfile.CentralCoast
+                        || settings.apiProfile == ScenarioApiProfile.CentralCoastV3))
+        {
+            // Central Coast V3
+            fireDates = new Vector3[]
+            {
+                new Vector3(8, 1, 1991),
+                new Vector3(9, 1, 1993),
+                new Vector3(11, 1, 1995),
+                new Vector3(9, 1, 1997),
+                new Vector3(10, 1, 1999),
+                new Vector3(9, 1, 2001),
+                new Vector3(7, 1, 2002),
+                new Vector3(3, 1, 2006),
+                new Vector3(6, 1, 2009),
+                new Vector3(8, 1, 2009),
+                new Vector3(12, 1, 2011),
+            };
+        }
+        else
+        {
+            // BigCreek
+            fireDates = new Vector3[2];
+            fireDates[0] = new Vector3(7, 15, 1969);
+            fireDates[1] = new Vector3(11, 20, 1988);
+        }
+
 
         fireFrames = new List<int>();
         fireFrameSet = new HashSet<int>();
@@ -1238,6 +1266,7 @@ public class GameController : MonoBehaviour
         foreach (Vector3 date in fireDates)
         {
             int frame = GetTimeIdxForDay((int)date.y, (int)date.x, (int)date.z);
+            Debug.Log($"[V3FIRE] date:{date} -> frame:{frame} valid:{IsValidTimeIdx(frame)} dataDates.Count:{(dataDates==null?-1:dataDates.Count)}");
             if (!IsValidTimeIdx(frame))
             {
                 Debug.LogWarning(name + ".SetupFires()... Skipping fire outside simulation dates. date:" + date + " frame:" + frame + " endTimeIdx:" + endTimeIdx);
@@ -1973,7 +2002,10 @@ public class GameController : MonoBehaviour
             if (settings.AutoPauseOnFire)                                    // Auto Pause on fire
                 pausedAuto = true;
 
-            landscapeController.IgniteTerrain(date, timeStep, settings.AutoPauseOnFire, settings.MaxFireLengthInSec, fireFrameIdx);        // Start fire in large landscape
+            bool isCentralCoastFire = settings != null && (settings.apiProfile == ScenarioApiProfile.CentralCoast
+                                              || settings.apiProfile == ScenarioApiProfile.CentralCoastV3);
+            if (!isCentralCoastFire)
+            landscapeController.IgniteTerrain(date, timeStep, settings.AutoPauseOnFire, settings.MaxFireLengthInSec, fireFrameIdx);        // Start fire in large landscape only big creek
 
             if (landscapeController.LandscapeSimulationIsOn())
             {
@@ -2010,7 +2042,8 @@ public class GameController : MonoBehaviour
                         {
                             if (settings.DebugFire)
                                 Debug.Log(cube.name + ".ShouldBurnFireAtDate()? " + cube.ShouldBurnFireOnDate(date) + " date:" + date);
-                            if (cube.ShouldBurnFireOnDate(date))                // Only burn cube if in (manual) list of cubes to burn for fire
+                            //if (cube.ShouldBurnFireOnDate(date))                // Only burn cube if in (manual) list of cubes to burn for fire
+                            if (CubeShouldBurn(cube, date, fireTimeIdx))
                             {
                                 cube.IgniteTerrain(fireTimeIdx, false);
 
@@ -2038,7 +2071,8 @@ public class GameController : MonoBehaviour
                         {
                             if (DebugLevel(1))
                                 Debug.Log(cube.name + ".ShouldBurnFireAtDate()? " + cube.ShouldBurnFireOnDate(date) + " date:" + date);
-                            if (cube.ShouldBurnFireOnDate(date))                // Only burn cube if in (manual) list of cubes to burn for fire
+                            //if (cube.ShouldBurnFireOnDate(date))                // Only burn cube if in (manual) list of cubes to burn for fire
+                            if (CubeShouldBurn(cube, date, fireTimeIdx))
                             {
                                 cube.IgniteTerrain(fireTimeIdx, false);
 
@@ -2050,7 +2084,8 @@ public class GameController : MonoBehaviour
                 }
             }
 
-            if (aggregateCubeController.ShouldBurnFireOnDate(date))
+            //if (aggregateCubeController.ShouldBurnFireOnDate(date))
+            if (CubeShouldBurn(aggregateCubeController, date, fireTimeIdx))
             {
                 aggregateCubeController.IgniteTerrain(fireTimeIdx, false);                         // Start fire in aggregate cube
                 if(aggregateSideCubeController.simulationOn)
@@ -3775,4 +3810,13 @@ public class GameController : MonoBehaviour
         landscapeController.SetSnowVisibility(false);
     }
     #endregion
+
+    // profile-based burn. CentralCoast - real data, Big Creek as it is.
+    private bool CubeShouldBurn(CubeController cube, Vector3 date, int fireTimeIdx)
+  {
+      if (settings != null && (settings.apiProfile == ScenarioApiProfile.CentralCoast
+                            || settings.apiProfile == ScenarioApiProfile.CentralCoastV3))
+          return cube.ShouldBurnFireFromData(fireTimeIdx);
+      return cube.ShouldBurnFireOnDate(date);
+  }
 }

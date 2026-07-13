@@ -3275,6 +3275,13 @@ public class CubeController : MonoBehaviour
     }
     #endregion
 
+    // centralCoastV3 data-driven fire. If fire > 0, then burn.
+        public bool ShouldBurnFireFromData(int timeIdx)
+    {
+        CubeData row = GetDataRow(timeIdx + 1);
+        return row != null && row.fire > 0f;
+    }
+
     #region Animation
 
     /// <summary>
