@@ -539,6 +539,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         points = new GameObject[resolution];
         fireYears = newFireYears;
         messageYears = newMessageYears;
+        Debug.Log($"[TL] startYear:{startYear} resolution:{resolution} fireYears:[{string.Join(",", fireYears)}]"); 
 
         float maxPrecip = 0f;
         for (int i = 0; i < waterData.Length; i++)

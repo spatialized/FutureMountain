@@ -2072,7 +2072,7 @@ MonoBehaviour:
   debugStream: 0
   simulationOn: 0
   isAggregate: 0
-  patchID: 1803001
+  patchID: 1326001
   isSideCube: 0
   cubeObject: {fileID: 1210328268}
   cubeLabel: {fileID: 2112823910}
@@ -2080,34 +2080,14 @@ MonoBehaviour:
   drivewayPrefab: {fileID: 0}
   vegetation:
     species:
-    - name: Fir
+    - name: Chaparral
       isShrub: 0
       list:
-      - {fileID: 1862648418451654, guid: 3a3e245c77a8f4ed793f25e2eba0fd07, type: 3}
-      - {fileID: 1601854496961328, guid: fb1690940d233434ca207399de351e86, type: 3}
-      - {fileID: 1759527095229760, guid: 03062794db13a491d96f59570011a1e6, type: 3}
-      - {fileID: 1973708058709388, guid: 42549e065299c42019e02bd21d9f18f6, type: 3}
-      - {fileID: 1508632783637986, guid: 77608e5457bec4d32ad26afa6d70234c, type: 3}
-    - name: Manzanita
-      isShrub: 1
-      list:
-      - {fileID: 4994749857120407132, guid: 0696fd98230b14579aed79a469f7c7db, type: 3}
-      - {fileID: 1132961617801885093, guid: a36801c9d842e49c4ba254cf38706c2a, type: 3}
-      - {fileID: 8803375708051066858, guid: 6141ac5e2350f47dba7080f70724a4bf, type: 3}
-      - {fileID: 2085551558586184280, guid: c538b9cd3d1ec4615b5fd8f107d9402d, type: 3}
-      - {fileID: 6598778674650589780, guid: 7098ca27f69fe45e4bb4d649dfdc207b, type: 3}
-    - name: Chamise
-      isShrub: 1
-      list:
-      - {fileID: 8074419476909052192, guid: bff8dfc3c23c54d3d93b3a34705d5c58, type: 3}
-    - name: Nettle
-      isShrub: 1
-      list:
-      - {fileID: 1740581588875022, guid: 93b7b81d117d745e8b5583a1e2d3a61a, type: 3}
-    - name: Herb
-      isShrub: 1
-      list:
-      - {fileID: 1000013588328178, guid: 7e08c12cd2bfa43c0b9806a75ad4e7da, type: 3}
+      - {fileID: 4994749857120407132, guid: 017d34dee6d1a4624a65f82a27656681, type: 3}
+      - {fileID: 1132961617801885093, guid: ba8584da88db144e68c17f5ccc9df19d, type: 3}
+      - {fileID: 8803375708051066858, guid: 93908f88e725041fd94f6313630ffb8f, type: 3}
+      - {fileID: 2085551558586184280, guid: 81189005849f1463394af45b9a42a95a, type: 3}
+      - {fileID: 6598778674650589780, guid: bb47f9b2ee806429ba64d099a29e32f7, type: 3}
   deadTreePrefab: {fileID: 1773988963777952, guid: 581f2c14601044b8a812384e0126fcdf,
     type: 3}
   grassPrefab: {fileID: 1000014035261830, guid: a1b19120aec324a189edfc37152f5ed1,
@@ -2162,6 +2142,12 @@ MonoBehaviour:
   NetTranspiration: 0
   TransOver: 0
   TransUnder: 0
+  patch1:
+    overstorySpecies: Chaparral
+    percent: 15
+  patch2:
+    overstorySpecies: 
+    percent: 85
 --- !u!114 &25701575
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7715,12 +7701,12 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: -2981
+  m_Depth: -3100
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 0
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 497034267}
+  m_TargetTexture: {fileID: 131729122}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -11761,6 +11747,44 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 131008503}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!84 &131729122
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 5
+  m_Width: 1140
+  m_Height: 638
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 0
+  m_ColorFormat: 8
+  m_MipMap: 0
+  m_GenerateMips: 0
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_EnableRandomWrite: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 0
 --- !u!1 &134138199
 GameObject:
   m_ObjectHideFlags: 0
@@ -25797,7 +25821,7 @@ MonoBehaviour:
   debugStream: 0
   simulationOn: 0
   isAggregate: 0
-  patchID: 1326001
+  patchID: 1803001
   isSideCube: 0
   cubeObject: {fileID: 103805336}
   cubeLabel: {fileID: 1461982823}
@@ -25805,34 +25829,10 @@ MonoBehaviour:
   drivewayPrefab: {fileID: 0}
   vegetation:
     species:
-    - name: Fir
-      isShrub: 0
-      list:
-      - {fileID: 1862648418451654, guid: a061a555adeef4d98ba6e06cbffbbd46, type: 3}
-      - {fileID: 1601854496961328, guid: 9c070a50009d34375824f249273ecf8b, type: 3}
-      - {fileID: 1759527095229760, guid: 929bcb3a68a1a42fb830b001b49cf892, type: 3}
-      - {fileID: 1973708058709388, guid: b36e2513128614bb194334f917776a4b, type: 3}
-      - {fileID: 1508632783637986, guid: 7e8ed2780a75c4b53a8fa3f0b2193cd3, type: 3}
-    - name: Manzanita
-      isShrub: 1
-      list:
-      - {fileID: 4994749857120407132, guid: 63a291511234347a5acd2f8c59566f14, type: 3}
-      - {fileID: 1132961617801885093, guid: 1e4655ee6a0ee485395af63789c15a2b, type: 3}
-      - {fileID: 8803375708051066858, guid: 62902cb0e534746d8ba843df361f54e1, type: 3}
-      - {fileID: 2085551558586184280, guid: 034e78c7ab7b845c09f834c0e6251a29, type: 3}
-      - {fileID: 6598778674650589780, guid: 1ebf2d50ba99c430d83c2a850ec5ef46, type: 3}
     - name: Chamise
       isShrub: 1
       list:
       - {fileID: 8074419476909052192, guid: 932934f6a213b4c6eb7e26674fc7cc30, type: 3}
-    - name: Nettle
-      isShrub: 1
-      list:
-      - {fileID: 1740581588875022, guid: 54338a153657b4de7a55df0b5c66737e, type: 3}
-    - name: Herb
-      isShrub: 1
-      list:
-      - {fileID: 1000013588328178, guid: d5b208016675140fc8b87742b69358cd, type: 3}
   deadTreePrefab: {fileID: 1773988963777952, guid: 581f2c14601044b8a812384e0126fcdf,
     type: 3}
   grassPrefab: {fileID: 1000014035261830, guid: 623d8c6ea52354aeb836ac2fe556b169,
@@ -25887,6 +25887,12 @@ MonoBehaviour:
   NetTranspiration: 0
   TransOver: 0
   TransUnder: 0
+  patch1:
+    overstorySpecies: Chaparral
+    percent: 50
+  patch2:
+    overstorySpecies: Chaparral
+    percent: 50
 --- !u!114 &316321984
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28745,6 +28751,12 @@ MonoBehaviour:
   NetTranspiration: 0
   TransOver: 0
   TransUnder: 0
+  patch1:
+    overstorySpecies: Chaparral
+    percent: 50
+  patch2:
+    overstorySpecies: Chaparral
+    percent: 50
 --- !u!1 &348135079
 GameObject:
   m_ObjectHideFlags: 0
@@ -41605,44 +41617,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1920308097}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!84 &497034267
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 5
-  m_Width: 1124
-  m_Height: 704
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthStencilFormat: 0
-  m_ColorFormat: 8
-  m_MipMap: 0
-  m_GenerateMips: 0
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_EnableRandomWrite: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
-  m_ShadowSamplingMode: 0
 --- !u!1 &498454595
 GameObject:
   m_ObjectHideFlags: 0
@@ -46078,7 +46052,7 @@ MonoBehaviour:
   MessageMinLength: 15
   DebugGame: 0
   DebugModel: 0
-  DebugFire: 1
+  DebugFire: 0
   DebugDetailed: 0
 --- !u!1 &550790617
 GameObject:
@@ -66786,34 +66760,18 @@ MonoBehaviour:
   drivewayPrefab: {fileID: 0}
   vegetation:
     species:
-    - name: Fir
+    - name: Chaparral
       isShrub: 0
-      list:
-      - {fileID: 1862648418451654, guid: a152f6fde33b34aceb3c53b2a031b4e4, type: 3}
-      - {fileID: 1601854496961328, guid: 03e200fabd7de4f57b277b2825811e59, type: 3}
-      - {fileID: 1759527095229760, guid: 2923183cf5a734de28361ad9a0e01b21, type: 3}
-      - {fileID: 1973708058709388, guid: e85d9b4e44a95426bbf655443aaa22f8, type: 3}
-      - {fileID: 1508632783637986, guid: 9e9bff884610c4d24975727fd03f014d, type: 3}
-    - name: Manzanita
-      isShrub: 1
       list:
       - {fileID: 4994749857120407132, guid: 585218a5854fb4eae8ce3c81402de64e, type: 3}
       - {fileID: 1132961617801885093, guid: 0aea5a441d679444d89735da6d35256a, type: 3}
       - {fileID: 8803375708051066858, guid: 1f5758b84e5b1455a96c341a7d7e0a83, type: 3}
       - {fileID: 2085551558586184280, guid: e408b5c734f16495dbd6c5768dfc94c3, type: 3}
       - {fileID: 6598778674650589780, guid: 832b96c0991874fb98bad55202656ef0, type: 3}
-    - name: Chamise
-      isShrub: 1
+    - name: Oak
+      isShrub: 0
       list:
-      - {fileID: 8074419476909052192, guid: ab6c8579b74394113a37b5c5e7df2a17, type: 3}
-    - name: Nettle
-      isShrub: 1
-      list:
-      - {fileID: 1740581588875022, guid: 918b9e9ba0a3e4314b401e34fb15f238, type: 3}
-    - name: Herb
-      isShrub: 1
-      list:
-      - {fileID: 1000013588328178, guid: 4e778c64e238b469bb053a65d18a4ef6, type: 3}
+      - {fileID: 1508632783637986, guid: 3a898c38f2fc0a44a8796c8ff7415c09, type: 3}
   deadTreePrefab: {fileID: 1773988963777952, guid: 581f2c14601044b8a812384e0126fcdf,
     type: 3}
   grassPrefab: {fileID: 1000014035261830, guid: a8f4aa5af8a3f4b8bbe0cd0ddb4ab05c,
@@ -66868,6 +66826,12 @@ MonoBehaviour:
   NetTranspiration: 0
   TransOver: 0
   TransUnder: 0
+  patch1:
+    overstorySpecies: Chaparral
+    percent: 50
+  patch2:
+    overstorySpecies: Chaparral
+    percent: 50
 --- !u!114 &818852886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75336,7 +75300,7 @@ MonoBehaviour:
   debugStream: 0
   simulationOn: 0
   isAggregate: 0
-  patchID: 1409401
+  patchID: 648701
   isSideCube: 0
   cubeObject: {fileID: 1158823016}
   cubeLabel: {fileID: 833359999}
@@ -75346,15 +75310,7 @@ MonoBehaviour:
     type: 3}
   vegetation:
     species:
-    - name: Fir
-      isShrub: 0
-      list:
-      - {fileID: 1862648418451654, guid: 0ea904294503f4108a0dedde96ca8305, type: 3}
-      - {fileID: 1601854496961328, guid: 8d5d6316a8ffc44969f34ca379b60602, type: 3}
-      - {fileID: 1759527095229760, guid: ce13fc8b60f4d4734b0bac699758f2fd, type: 3}
-      - {fileID: 1973708058709388, guid: d8f0b0f3a886143e7abbfe43ea5cbf26, type: 3}
-      - {fileID: 1508632783637986, guid: 5915c18903e7c49ae9dea5c812843df5, type: 3}
-    - name: Manzanita
+    - name: Chaparral
       isShrub: 1
       list:
       - {fileID: 4994749857120407132, guid: 26aa35b9290c1402d8a444476318d562, type: 3}
@@ -75362,18 +75318,6 @@ MonoBehaviour:
       - {fileID: 8803375708051066858, guid: 698bd36171b6749a3b7b6ccbe7a42cd9, type: 3}
       - {fileID: 2085551558586184280, guid: 8122b7f9779ae4af39ad461054a6b1f0, type: 3}
       - {fileID: 6598778674650589780, guid: 1ac7d7abf901d44c083ddc1dcb565878, type: 3}
-    - name: Chamise
-      isShrub: 1
-      list:
-      - {fileID: 8074419476909052192, guid: 9ff0ecef35d06475d885ca3172a07430, type: 3}
-    - name: Nettle
-      isShrub: 1
-      list:
-      - {fileID: 1740581588875022, guid: 6711ef20289a1433f9987035e7c787ed, type: 3}
-    - name: Herb
-      isShrub: 1
-      list:
-      - {fileID: 1000013588328178, guid: e80b68d612238489a8f71256bdf9faad, type: 3}
   deadTreePrefab: {fileID: 1773988963777952, guid: 581f2c14601044b8a812384e0126fcdf,
     type: 3}
   grassPrefab: {fileID: 1000014035261830, guid: 022ad973d05ab46fcac32f34fd4f33b8,
@@ -75428,6 +75372,12 @@ MonoBehaviour:
   NetTranspiration: 0
   TransOver: 0
   TransUnder: 0
+  patch1:
+    overstorySpecies: Chaparral
+    percent: 50
+  patch2:
+    overstorySpecies: Chaparral
+    percent: 50
 --- !u!114 &922290044
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -94271,6 +94221,12 @@ MonoBehaviour:
   NetTranspiration: 0
   TransOver: 0
   TransUnder: 0
+  patch1:
+    overstorySpecies: Chaparral
+    percent: 50
+  patch2:
+    overstorySpecies: Chaparral
+    percent: 50
 --- !u!1 &1177846298
 GameObject:
   m_ObjectHideFlags: 0
@@ -98816,6 +98772,12 @@ MonoBehaviour:
   NetTranspiration: 0
   TransOver: 0
   TransUnder: 0
+  patch1:
+    overstorySpecies: Chaparral
+    percent: 50
+  patch2:
+    overstorySpecies: Chaparral
+    percent: 50
 --- !u!1 &1217973331
 GameObject:
   m_ObjectHideFlags: 0
@@ -99761,7 +99723,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1228805329
 Transform:
   m_ObjectHideFlags: 0
@@ -102137,6 +102099,12 @@ MonoBehaviour:
   NetTranspiration: 0
   TransOver: 0
   TransUnder: 0
+  patch1:
+    overstorySpecies: Chaparral
+    percent: 50
+  patch2:
+    overstorySpecies: Chaparral
+    percent: 50
 --- !u!1 &1263028418
 GameObject:
   m_ObjectHideFlags: 0
@@ -109065,7 +109033,7 @@ MonoBehaviour:
   debugStream: 0
   simulationOn: 0
   isAggregate: 0
-  patchID: 648701
+  patchID: 1409401
   isSideCube: 0
   cubeObject: {fileID: 1228805328}
   cubeLabel: {fileID: 1954909720}
@@ -109073,34 +109041,14 @@ MonoBehaviour:
   drivewayPrefab: {fileID: 0}
   vegetation:
     species:
-    - name: Fir
+    - name: Chaparral
       isShrub: 0
-      list:
-      - {fileID: 1862648418451654, guid: 823214dcf158e4cd6b6088f3319480bf, type: 3}
-      - {fileID: 1601854496961328, guid: 67091c0408d004a178db7064f3e29221, type: 3}
-      - {fileID: 1759527095229760, guid: 6ac5be25e849142afb856538ee0eb6f9, type: 3}
-      - {fileID: 1973708058709388, guid: 9e367075da81a4b4298c082ddd9b2925, type: 3}
-      - {fileID: 1508632783637986, guid: eb35615cb758b4fc68d8e009a1e11b78, type: 3}
-    - name: Manzanita
-      isShrub: 1
       list:
       - {fileID: 4994749857120407132, guid: 017d34dee6d1a4624a65f82a27656681, type: 3}
       - {fileID: 1132961617801885093, guid: ba8584da88db144e68c17f5ccc9df19d, type: 3}
       - {fileID: 8803375708051066858, guid: 93908f88e725041fd94f6313630ffb8f, type: 3}
       - {fileID: 2085551558586184280, guid: 81189005849f1463394af45b9a42a95a, type: 3}
       - {fileID: 6598778674650589780, guid: bb47f9b2ee806429ba64d099a29e32f7, type: 3}
-    - name: Chamise
-      isShrub: 1
-      list:
-      - {fileID: 8074419476909052192, guid: a235f84040e57493893e0fdc876b0b60, type: 3}
-    - name: Nettle
-      isShrub: 1
-      list:
-      - {fileID: 1740581588875022, guid: d983770b16c1f4245ae8c1adc8e797f9, type: 3}
-    - name: Herb
-      isShrub: 1
-      list:
-      - {fileID: 1000013588328178, guid: c8122706b1123458682bfa19c152376e, type: 3}
   deadTreePrefab: {fileID: 1773988963777952, guid: 581f2c14601044b8a812384e0126fcdf,
     type: 3}
   grassPrefab: {fileID: 1000014035261830, guid: 9dbeb63e1d0d74a67a9c35eac2af27ad,
@@ -109155,6 +109103,12 @@ MonoBehaviour:
   NetTranspiration: 0
   TransOver: 0
   TransUnder: 0
+  patch1:
+    overstorySpecies: Chaparral
+    percent: 50
+  patch2:
+    overstorySpecies: Chaparral
+    percent: 50
 --- !u!114 &1350354514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112488,12 +112442,12 @@ PrefabInstance:
     - target: {fileID: 870732775016302443, guid: 9850ef45c82bb2942a9df15e129dc5bd,
         type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.402
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 870732775016302443, guid: 9850ef45c82bb2942a9df15e129dc5bd,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1128374149644845835, guid: 9850ef45c82bb2942a9df15e129dc5bd,
         type: 3}
@@ -112513,12 +112467,12 @@ PrefabInstance:
     - target: {fileID: 1653354534837462796, guid: 9850ef45c82bb2942a9df15e129dc5bd,
         type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.402
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1653354534837462796, guid: 9850ef45c82bb2942a9df15e129dc5bd,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1909458863043391233, guid: 9850ef45c82bb2942a9df15e129dc5bd,
         type: 3}
@@ -112643,12 +112597,12 @@ PrefabInstance:
     - target: {fileID: 2966910979033615948, guid: 9850ef45c82bb2942a9df15e129dc5bd,
         type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.402
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2966910979033615948, guid: 9850ef45c82bb2942a9df15e129dc5bd,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3194332254508280203, guid: 9850ef45c82bb2942a9df15e129dc5bd,
         type: 3}
@@ -112688,12 +112642,12 @@ PrefabInstance:
     - target: {fileID: 7484098735266664101, guid: 9850ef45c82bb2942a9df15e129dc5bd,
         type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.402
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7484098735266664101, guid: 9850ef45c82bb2942a9df15e129dc5bd,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7774867763979842061, guid: 9850ef45c82bb2942a9df15e129dc5bd,
         type: 3}
@@ -116394,34 +116348,18 @@ MonoBehaviour:
   drivewayPrefab: {fileID: 0}
   vegetation:
     species:
-    - name: Fir
+    - name: Oak
       isShrub: 0
       list:
-      - {fileID: 1862648418451654, guid: 33da2ef5829a24a218790115db639784, type: 3}
-      - {fileID: 1601854496961328, guid: 15f3cae0401d44679a577c471bad8cb4, type: 3}
-      - {fileID: 1759527095229760, guid: 503f1897d1b3a44bd83a1c8c9e1d63b7, type: 3}
-      - {fileID: 1973708058709388, guid: 9f038c0478fc34f3e87274991101fd03, type: 3}
-      - {fileID: 1508632783637986, guid: 93a6353ef10614a21a1daa912142c641, type: 3}
-    - name: Manzanita
-      isShrub: 1
+      - {fileID: 1508632783637986, guid: 3a898c38f2fc0a44a8796c8ff7415c09, type: 3}
+    - name: Chaparral
+      isShrub: 0
       list:
-      - {fileID: 4994749857120407132, guid: 3befe14f9d3ab4a4a8b3d7fcef99179c, type: 3}
-      - {fileID: 1132961617801885093, guid: 3531dcb0f1c474dfdab6d57fab686dd4, type: 3}
-      - {fileID: 8803375708051066858, guid: 86a3fc23bdbf84f38b6a364743759723, type: 3}
-      - {fileID: 2085551558586184280, guid: 1712853d9bc6e4bad9c8a362ea795660, type: 3}
-      - {fileID: 6598778674650589780, guid: da11ab574388f4a348f1fd6c7ca45074, type: 3}
-    - name: Chamise
-      isShrub: 1
-      list:
-      - {fileID: 8074419476909052192, guid: bdcae41614cb245eababb59867eb4122, type: 3}
-    - name: Nettle
-      isShrub: 1
-      list:
-      - {fileID: 1740581588875022, guid: 06f617274a91344f0b5fe840d930de2a, type: 3}
-    - name: Herb
-      isShrub: 1
-      list:
-      - {fileID: 1000013588328178, guid: 777b71edcabf6496299efb02d1bfac89, type: 3}
+      - {fileID: 4994749857120407132, guid: 017d34dee6d1a4624a65f82a27656681, type: 3}
+      - {fileID: 1132961617801885093, guid: ba8584da88db144e68c17f5ccc9df19d, type: 3}
+      - {fileID: 8803375708051066858, guid: 93908f88e725041fd94f6313630ffb8f, type: 3}
+      - {fileID: 2085551558586184280, guid: 81189005849f1463394af45b9a42a95a, type: 3}
+      - {fileID: 6598778674650589780, guid: bb47f9b2ee806429ba64d099a29e32f7, type: 3}
   deadTreePrefab: {fileID: 1773988963777952, guid: 581f2c14601044b8a812384e0126fcdf,
     type: 3}
   grassPrefab: {fileID: 1000014035261830, guid: 1ddc252ab3708404c93d50af6fe7e5aa,
@@ -116476,6 +116414,12 @@ MonoBehaviour:
   NetTranspiration: 0
   TransOver: 0
   TransUnder: 0
+  patch1:
+    overstorySpecies: Oak
+    percent: 50
+  patch2:
+    overstorySpecies: Chaparral
+    percent: 50
 --- !u!114 &1448652326
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -149683,6 +149627,12 @@ MonoBehaviour:
   NetTranspiration: 0
   TransOver: 0
   TransUnder: 0
+  patch1:
+    overstorySpecies: Chaparral
+    percent: 50
+  patch2:
+    overstorySpecies: Chaparral
+    percent: 50
 --- !u!1 &1920633267
 GameObject:
   m_ObjectHideFlags: 0
@@ -165416,6 +165366,12 @@ MonoBehaviour:
   NetTranspiration: 0
   TransOver: 0
   TransUnder: 0
+  patch1:
+    overstorySpecies: Chaparral
+    percent: 50
+  patch2:
+    overstorySpecies: Chaparral
+    percent: 50
 --- !u!1 &2115406390
 GameObject:
   m_ObjectHideFlags: 0

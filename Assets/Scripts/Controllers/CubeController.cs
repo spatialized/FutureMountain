@@ -475,19 +475,21 @@ public class CubeController : MonoBehaviour
 
             int treesToGrow = (int)Mathf.Round(combinedCarbonOver / treeAverageCarbonAmount);           // Use Overstory Data for Trees
             
-            if (debugTrees && debugDetailed)
-                Debug.Log(transform.name + ".GrowInitialVegetation()... treeAverageCarbonAmount:" + treeAverageCarbonAmount + " combinedCarbonOver:" + combinedCarbonOver + " treesToGrow:" + treesToGrow);
+            // if (debugTrees && debugDetailed)
+            //     Debug.Log(transform.name + ".GrowInitialVegetation()... treeAverageCarbonAmount:" + treeAverageCarbonAmount + " combinedCarbonOver:" + combinedCarbonOver + " treesToGrow:" + treesToGrow);
 
-            for (int i = 0; i < treesToGrow; i++)            /* Grow Initial Trees */
-            {
-                bool spawned = GrowAFir(true);
-                if (!spawned)
-                {
-                    if (debugTrees)
-                        Debug.Log(transform.name + ".GrowInitialVegetation()... Couldn't grow tree!");
-                    break;
-                }
-            }
+            // for (int i = 0; i < treesToGrow; i++)            /* Grow Initial Trees */
+            // {
+            //     bool spawned = GrowAFir(true);
+            //     if (!spawned)
+            //     {
+            //         if (debugTrees)
+            //             Debug.Log(transform.name + ".GrowInitialVegetation()... Couldn't grow tree!");
+            //         break;
+            //     }
+            // }
+
+             GrowOverstoryByPatch(combinedCarbonOver);
 
             /* Grow Initial Shrubs */
             int shrubsToGrow = (int)Mathf.Round(combinedCarbonUnder / shrubAverageCarbonAmount);        // Use Understory Data for Shrubs
@@ -504,6 +506,95 @@ public class CubeController : MonoBehaviour
 
         //Debug.Log(name + ".GrowInitialVegetation()... dataType: "+ dataType);
     }
+
+        private int GetTreeSpeciesIndex(string speciesName)
+    {
+        if (speciesName != null && treeSpeciesIndexByName.TryGetValue(speciesName, out int idx))
+            return idx;
+        return -1; 
+    }
+
+    // patch 1 & 2 mixed together per percentage
+    // private void GrowOverstoryByPatch(float combinedCarbonOver)
+    // {
+    //     int treesToGrow = (int)Mathf.Round(combinedCarbonOver / treeAverageCarbonAmount);
+    //     float p1Percent = (patch1 != null) ? patch1.percent : 100f;
+
+    //     for (int i = 0; i < treesToGrow; i++)
+    //     {
+    //         // randomly select patch 1 or patch 2 based on percentage
+    //         PatchDisplayInfo patch = (patch2 != null && Random.value * 100f >= p1Percent) ? patch2 : patch1;
+
+    //         int speciesIdx = (patch != null) ? GetTreeSpeciesIndex(patch.overstorySpecies) : 0;
+    //         if (speciesIdx < 0) continue;   // Skip if species not found
+
+    //         bool spawned = GrowAFir(true, speciesIdx);
+    //         if (!spawned) break;
+    //     }
+    // }
+
+     // Grows overstory plants for patch1/patch2, mixed by area percentage.
+    // private void GrowOverstoryByPatch(float combinedCarbonOver)
+    // {
+    //     int treesToGrow = (int)Mathf.Round(combinedCarbonOver / treeAverageCarbonAmount);
+    //     float p1Percent = (patch1 != null) ? patch1.percent : 100f;
+
+    //     Debug.Log($"[VEG2] {name} p1:{(patch1 != null ? patch1.overstorySpecies + " " + patch1.percent + "%" : "NULL")} p2:{(patch2!= null ? patch2.overstorySpecies + " " + patch2.percent + "%" : "NULL")}");
+    //      string ts = "";
+    //     foreach (var kv in treeSpeciesIndexByName) ts += kv.Key + "=" + kv.Value + "  ";
+    //     Debug.Log($"[VEG3] {name} treeSpecies:[{ts}] chaparralIdx:{GetTreeSpeciesIndex("Chaparral")} oakIdx:{GetTreeSpeciesIndex("Oak")}");
+
+    //     for (int i = 0; i < treesToGrow; i++)
+    //     {
+    //         // Randomly assign this slot to patch1 or patch2 based on area percentage.
+    //         PatchDisplayInfo patch = (patch2 != null && Random.value * 100f >= p1Percent) ? patch2 : patch1;
+
+    //         // Grass-dominated patch: grow grass instead of trees.
+    //         if (patch != null && patch.overstorySpecies == "Grass")
+    //         {
+    //             GrowAGrassPatch(true);
+    //             continue;
+    //         }
+
+    //         int speciesIdx = (patch != null) ? GetTreeSpeciesIndex(patch.overstorySpecies) : 0;
+    //         if (speciesIdx < 0) continue;   // Species not found in vegetation list, skip.
+
+    //         // bool spawned = GrowAFir(true, speciesIdx);
+    //         // if (!spawned) break;
+    //         bool spawned = GrowAFir(true, speciesIdx);
+    //         if (!spawned) continue;   // One failed slot shouldn't stop the whole loop
+    //     }
+    // }
+
+    private void GrowOverstoryByPatch(float combinedCarbonOver)
+  {
+      int treesToGrow = (int)Mathf.Round(combinedCarbonOver / treeAverageCarbonAmount);
+      float p1Percent = (patch1 != null) ? patch1.percent : 100f;
+
+      int grownP1 = 0, grownP2 = 0, fails = 0;   // TEMP diagnostic
+
+      for (int i = 0; i < treesToGrow; i++)
+      {
+          PatchDisplayInfo patch = (patch2 != null && Random.value * 100f >= p1Percent) ? patch2 : patch1;
+
+          // Grass-dominated patch: grow grass instead of trees.
+          if (patch != null && patch.overstorySpecies == "Grass")
+          {
+              GrowAGrassPatch(true);
+              continue;
+          }
+
+          int speciesIdx = (patch != null) ? GetTreeSpeciesIndex(patch.overstorySpecies) : 0;
+          if (speciesIdx < 0) continue;
+
+          bool spawned = GrowAFir(true, speciesIdx);
+          if (spawned) { if (patch == patch1) grownP1++; else grownP2++; }   // TEMP
+          else fails++;                                                       // TEMP: no more break
+      }
+
+      // TEMP diagnostic
+      Debug.Log($"[VEG4] {name} {(patch1 != null ? patch1.overstorySpecies : "?")}:{grownP1} {(patch2 != null ? patch2.overstorySpecies : "?")}:{grownP2} fails:{fails} / {treesToGrow}");
+  }
 
     /// <summary>
     /// Sets the initial cube parameter values.
@@ -624,6 +715,7 @@ public class CubeController : MonoBehaviour
                     growthStageList.Add(obj);
                 }
                 treeList.Add(growthStageList);
+                treeSpeciesIndexByName[species.name] = treeList.Count - 1;
             }
         }
 
@@ -639,11 +731,24 @@ public class CubeController : MonoBehaviour
         shrubAverageCarbonAmount = (maxShrubFullSize + minShrubFullSize) / 2f * GetShrubCarbonFactor();
         grassAverageCarbonAmount = shrubAverageCarbonAmount * 0.01f;
 
-        lodGroup = treeList[0][treeList[0].Count - 1];
-        lod0 = lodGroup.transform.GetChild(0).gameObject as GameObject;
-        float fullTreeHeight = lod0.transform.GetComponent<Renderer>().bounds.size.y;            // Get height of prefab (m.)
-        treeAverageCarbonAmount = (settings.MaxTreeFullHeightScale + settings.MinTreeFullHeightScale) / 2f * fullTreeHeight * GetTreeCarbonFactor();    // -- WHY CAUSES FREEZING BUG??
-
+        // lodGroup = treeList[0][treeList[0].Count - 1];
+        // lod0 = lodGroup.transform.GetChild(0).gameObject as GameObject;
+        // float fullTreeHeight = lod0.transform.GetComponent<Renderer>().bounds.size.y;            // Get height of prefab (m.)
+        // lodGroup = treeList[0][treeList[0].Count - 1];
+        // float fullTreeHeight = lodGroup.GetComponentInChildren<Renderer>().bounds.size.y;
+        // treeAverageCarbonAmount = (settings.MaxTreeFullHeightScale + settings.MinTreeFullHeightScale) / 2f * fullTreeHeight * GetTreeCarbonFactor();    // -- WHY CAUSES FREEZING BUG??
+        
+        // Default height; avoids out-of-range when a cube has no tree species (e.g. grass-only or aggregate).
+        float fullTreeHeight = 1f;
+        if (treeList.Count > 0 && treeList[0].Count > 0)
+        {
+            lodGroup = treeList[0][treeList[0].Count - 1];
+            Renderer treeRend = lodGroup.GetComponentInChildren<Renderer>();
+            if (treeRend != null) fullTreeHeight = treeRend.bounds.size.y;
+        }
+        treeAverageCarbonAmount = (settings.MaxTreeFullHeightScale + settings.MinTreeFullHeightScale) / 2f * fullTreeHeight *
+        GetTreeCarbonFactor();
+        
         burntSplatmap = CreateBurntSplatmap();
         unburntSplatmap = CreateUnburntSplatmap();
         ResetTerrainSplatmap();
@@ -2062,7 +2167,8 @@ public class CubeController : MonoBehaviour
         FirController firController = newTree.GetComponent<FirController>() as FirController;
         firController.InitializeSettings(settings);
         firController.InitializeGeometry();
-        firController.InitializePrefabs(treeList[0], rootsPrefabs, deadTreePrefab);
+        //firController.InitializePrefabs(treeList[0], rootsPrefabs, deadTreePrefab);
+        firController.InitializePrefabs(treeList[prefabListID], rootsPrefabs, deadTreePrefab);
         firController.locationID = treeID;
 
         GameObject treeFireNodeChain = Instantiate(fireNodeChainPrefab, newTree.transform);         // Add fire node chain to tree
@@ -2143,8 +2249,14 @@ public class CubeController : MonoBehaviour
     /// <summary>
     /// Grows a fir tree.
     /// </summary>
-    private bool GrowAFir(bool immediate)
+    private bool GrowAFir(bool immediate, int speciesIdx = 0)
     {
+        //if (speciesIdx < 0 || speciesIdx >= treeList.Count) speciesIdx = 0; 
+        // No valid tree species for this cube (e.g. grass-only or aggregate): can't grow a tree.
+        if (treeList == null || treeList.Count == 0) return false;
+        if (speciesIdx < 0 || speciesIdx >= treeList.Count) speciesIdx = 0;
+        if (treeList[speciesIdx] == null || treeList[speciesIdx].Count == 0) return false;
+
         if (debugTrees && debugDetailed)
             Debug.Log(transform.name + " CubeController.GrowAFir()...  Growing fir" + (immediate ? " immediately..." : " at time:" + Time.time));
 
@@ -2168,8 +2280,9 @@ public class CubeController : MonoBehaviour
         Quaternion newRotation = Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0));
 
         /* Instantiate fir */
-        GameObject treePrefab = treeList[0][treeList[0].Count - 1];
-        GameObject newTree = InstantiateTreeFromPrefab(index, 0, firLocations[index], newRotation, gameObject.transform);
+        GameObject treePrefab = treeList[speciesIdx][treeList[speciesIdx].Count - 1];
+        //GameObject newTree = InstantiateTreeFromPrefab(index, 0, firLocations[index], newRotation, gameObject.transform);
+        GameObject newTree = InstantiateTreeFromPrefab(index, speciesIdx, firLocations[index], newRotation, gameObject.transform);
 
         newTree.name = "Fir_" + index;
         FirController firController = newTree.GetComponent<FirController>();
@@ -2478,6 +2591,8 @@ public class CubeController : MonoBehaviour
     /// <param name="immediate">If true, create instantaneously, otherwise grow from zero scale.</param>
     private void AddShrub(Vector3 location, bool immediate)
     {
+        if (shrubPrefabs == null || shrubPrefabs.Count == 0)   // No shrub prefabs available (CC seperate trees & shrubs in Patch 1 and 2)
+        return;
         GameObject shrubPrefab;
 
         /* Choose random shrub prefab */
@@ -3060,20 +3175,54 @@ public class CubeController : MonoBehaviour
     {
         if (dataType == CubeDataType.Veg1)
         {
-            float fireLeafCarbon = ReadData((int)DataColumnIdx.LeafCarbonOver, fireTimeIdx);        // Read carbon data at fireTimeIdx
-            float fireStemCarbon = ReadData((int)DataColumnIdx.StemCarbonOver, fireTimeIdx);
+            // float fireLeafCarbon = ReadData((int)DataColumnIdx.LeafCarbonOver, fireTimeIdx);        // Read carbon data at fireTimeIdx
+            // float fireStemCarbon = ReadData((int)DataColumnIdx.StemCarbonOver, fireTimeIdx);
+            float fireLeafCarbon, fireStemCarbon;
+            if (settings.BuildForWeb)
+            {
+                CubeData fireRow = GetDataRow(fireTimeIdx + 1);   // web： Get data row at fireTimeIdx + 1 (since fireTimeIdx is 0-based, and data rows are 1-based)
+                fireLeafCarbon = fireRow != null ? fireRow.leafCOver : 0f;
+                fireStemCarbon = fireRow != null ? fireRow.stemCOver : 0f;
+            }
+            else   // bigcreek
+            {
+                fireLeafCarbon = ReadData((int)DataColumnIdx.LeafCarbonOver, fireTimeIdx);
+                fireStemCarbon = ReadData((int)DataColumnIdx.StemCarbonOver, fireTimeIdx);
+            }
+                
 
             float shrubCarbonInData = fireStemCarbon + fireLeafCarbon;    // Get combined stem + leaf carbon in data
                                                                           //float shrubCarbonInData = StemCarbon + LeafCarbon;    // Get combined stem + leaf carbon in data
             float shrubCarbonInViz = GetShrubCarbonAmountVisualized();      // Get carbon amount represented by shrubs in current simulation
             shrubsToKill = (int)Mathf.Round((shrubCarbonInViz - shrubCarbonInData) / shrubAverageCarbonAmount);
+             Debug.Log($"[V3FIRE] DieFromFire idx:{fireTimeIdx} " +
+            $"leafCoverRead:{ReadData((int)DataColumnIdx.LeafCarbonOver, fireTimeIdx)} " +
+            $"treeViz:{GetTreeCarbonAmountVisualized()} shrubViz:{GetShrubCarbonAmountVisualized()} " +
+            $"firsToKill:{firsToKill} shrubsToKill:{shrubsToKill}");
         }
         else if (dataType == CubeDataType.Veg2)
         {
-            float fireLeafCarbonOver = ReadData((int)DataColumnIdx.LeafCarbonOver, fireTimeIdx);
-            float fireLeafCarbonUnder = ReadData((int)DataColumnIdx.LeafCarbonUnder, fireTimeIdx);
-            float fireStemCarbonOver = ReadData((int)DataColumnIdx.StemCarbonOver, fireTimeIdx);
-            float fireStemCarbonUnder = ReadData((int)DataColumnIdx.StemCarbonUnder, fireTimeIdx);
+            // float fireLeafCarbonOver = ReadData((int)DataColumnIdx.LeafCarbonOver, fireTimeIdx);
+            // float fireLeafCarbonUnder = ReadData((int)DataColumnIdx.LeafCarbonUnder, fireTimeIdx);
+            // float fireStemCarbonOver = ReadData((int)DataColumnIdx.StemCarbonOver, fireTimeIdx);
+            // float fireStemCarbonUnder = ReadData((int)DataColumnIdx.StemCarbonUnder, fireTimeIdx);
+
+            float fireLeafCarbonOver, fireLeafCarbonUnder, fireStemCarbonOver, fireStemCarbonUnder;
+            if (settings.BuildForWeb)
+            {
+                CubeData fireRow = GetDataRow(fireTimeIdx + 1);
+                fireLeafCarbonOver  = fireRow != null ? fireRow.leafCOver  : 0f;
+                fireLeafCarbonUnder = fireRow != null ? fireRow.leafCUnder : 0f;
+                fireStemCarbonOver  = fireRow != null ? fireRow.stemCOver  : 0f;
+                fireStemCarbonUnder = fireRow != null ? fireRow.stemCUnder : 0f;
+            }
+            else
+            {
+                fireLeafCarbonOver  = ReadData((int)DataColumnIdx.LeafCarbonOver,  fireTimeIdx);
+                fireLeafCarbonUnder = ReadData((int)DataColumnIdx.LeafCarbonUnder, fireTimeIdx);
+                fireStemCarbonOver  = ReadData((int)DataColumnIdx.StemCarbonOver,  fireTimeIdx);
+                fireStemCarbonUnder = ReadData((int)DataColumnIdx.StemCarbonUnder, fireTimeIdx);
+            }
 
             float combinedCarbonOverInData = fireStemCarbonOver + fireLeafCarbonOver;       // Get combined stem + leaf carbon in overstory data
             float combinedCarbonUnderInData = fireStemCarbonUnder + fireLeafCarbonUnder;    // Get combined stem + leaf carbon in understory data
@@ -3082,6 +3231,10 @@ public class CubeController : MonoBehaviour
 
             shrubsToKill = (int)Mathf.Round((shrubCarbonInViz - combinedCarbonUnderInData) / shrubAverageCarbonAmount);
             firsToKill = (int)Mathf.Round((treeCarbonInViz - combinedCarbonOverInData) / treeAverageCarbonAmount);
+            Debug.Log($"[V3FIRE] DieFromFire idx:{fireTimeIdx} " +
+            $"leafCoverRead:{ReadData((int)DataColumnIdx.LeafCarbonOver, fireTimeIdx)} " +
+            $"treeViz:{GetTreeCarbonAmountVisualized()} shrubViz:{GetShrubCarbonAmountVisualized()} " +
+            $"firsToKill:{firsToKill} shrubsToKill:{shrubsToKill}");
         }
         else if (dataType == CubeDataType.Agg)
         {
@@ -4947,7 +5100,15 @@ public class CubeController : MonoBehaviour
         public bool isShrub = false;
         public List<GameObject> list;               // Prefabs at different growth stages (i.e. idx 0: small to idx n: large)
     }
-
+    [System.Serializable]
+    public class PatchDisplayInfo
+    {
+        public string overstorySpecies = "Chaparral";   // "Oak" / "Chaparral" / "Grass"
+        [Range(0f, 100f)] public float percent = 50f;    // Percent of patch area covered by this species
+    }
+    public PatchDisplayInfo patch1;
+    public PatchDisplayInfo patch2;
+    private Dictionary<string, int> treeSpeciesIndexByName = new Dictionary<string, int>();
     /// <summary>
     /// Vegetation species list for this cube.
     /// </summary>
@@ -4956,6 +5117,7 @@ public class CubeController : MonoBehaviour
     {
         public List<Species> species;
     }
+
     #endregion
 
     #region Debugging
