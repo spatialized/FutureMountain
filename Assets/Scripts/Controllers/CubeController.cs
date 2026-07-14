@@ -152,6 +152,10 @@ public class CubeController : MonoBehaviour
     private float[][,] dataArray;               // Data arrays by [warming idx][row, col] in desktop version OR [time idx offset][row, col] in web version
     private float[][,] nextDataArray;           // Used for pre-loading data in web version
     private Dictionary<int, CubeData> cubeData;              // Data access for web loaded data
+    private Dictionary<int, CubeData> cubeDataP2;
+    private bool p1Loaded = false;   // member 01 (patch1) data loaded
+    private bool p2Loaded = false;   // member 02 (patch2) data loaded
+    public bool useCentralCoastPatches = false;   // Enable per-patch (patch1/patch2) growth. CC display cubes only.
     private CubeData[] dataRows;             // Data rows for calculating paramater ranges
     private int dataBuffer = 500;                 // Frames of cube data to preload
 
@@ -566,35 +570,85 @@ public class CubeController : MonoBehaviour
     //     }
     // }
 
+//     private void GrowOverstoryByPatch(float combinedCarbonOver)
+//   {
+//       int treesToGrow = (int)Mathf.Round(combinedCarbonOver / treeAverageCarbonAmount);
+//       float p1Percent = (patch1 != null) ? patch1.percent : 100f;
+
+//       int grownP1 = 0, grownP2 = 0, fails = 0;   // TEMP diagnostic
+
+//       for (int i = 0; i < treesToGrow; i++)
+//       {
+//           PatchDisplayInfo patch = (patch2 != null && Random.value * 100f >= p1Percent) ? patch2 : patch1;
+
+//           // Grass-dominated patch: grow grass instead of trees.
+//           if (patch != null && patch.overstorySpecies == "Grass")
+//           {
+//               GrowAGrassPatch(true);
+//               continue;
+//           }
+
+//           int speciesIdx = (patch != null) ? GetTreeSpeciesIndex(patch.overstorySpecies) : 0;
+//           if (speciesIdx < 0) continue;
+
+//           bool spawned = GrowAFir(true, speciesIdx);
+//           if (spawned) { if (patch == patch1) grownP1++; else grownP2++; }   // TEMP
+//           else fails++;                                                       // TEMP: no more break
+//       }
+
+//       // TEMP diagnostic
+//       Debug.Log($"[VEG4] {name} {(patch1 != null ? patch1.overstorySpecies : "?")}:{grownP1} {(patch2 != null ? patch2.overstorySpecies : "?")}:{grownP2} fails:{fails} / {treesToGrow}");
+//   }
+
     private void GrowOverstoryByPatch(float combinedCarbonOver)
-  {
-      int treesToGrow = (int)Mathf.Round(combinedCarbonOver / treeAverageCarbonAmount);
-      float p1Percent = (patch1 != null) ? patch1.percent : 100f;
+    {
+        // BigCreek (no patch config): grow the single tree species as before.
+        //if (patch1 == null && patch2 == null)
+        if (!useCentralCoastPatches)   // BigCreek / aggregate: single species, original behavior
+        {
+            int count = (int)Mathf.Round(combinedCarbonOver / treeAverageCarbonAmount);
+            for (int i = 0; i < count; i++)
+                if (!GrowAFir(true, 0)) break;
+            return;
+        }
 
-      int grownP1 = 0, grownP2 = 0, fails = 0;   // TEMP diagnostic
+        // Central Coast: patch1 = this cube's member (member 01), patch2 = second member (member 02).
+        GrowPatchOverstory(patch1, combinedCarbonOver);
+        GrowPatchOverstory(patch2, GetOverstoryCarbonP2(timeIdx));
+    }
 
-      for (int i = 0; i < treesToGrow; i++)
-      {
-          PatchDisplayInfo patch = (patch2 != null && Random.value * 100f >= p1Percent) ? patch2 : patch1;
+    // Grows one patch's overstory from its own carbon, scaled by its area percentage.
+    private void GrowPatchOverstory(PatchDisplayInfo patch, float carbonOver)
+    {
+        if (patch == null) return;
 
-          // Grass-dominated patch: grow grass instead of trees.
-          if (patch != null && patch.overstorySpecies == "Grass")
-          {
-              GrowAGrassPatch(true);
-              continue;
-          }
+        int count = (int)Mathf.Round(carbonOver / treeAverageCarbonAmount * patch.percent / 100f);
+        for (int i = 0; i < count; i++)
+        {
+            // Grass-dominated patch: grow grass instead of trees.
+            if (patch.overstorySpecies == "Grass")
+            {
+                GrowAGrassPatch(true);
+                continue;
+            }
 
-          int speciesIdx = (patch != null) ? GetTreeSpeciesIndex(patch.overstorySpecies) : 0;
-          if (speciesIdx < 0) continue;
+            int speciesIdx = GetTreeSpeciesIndex(patch.overstorySpecies);
+            if (speciesIdx < 0) continue;
 
-          bool spawned = GrowAFir(true, speciesIdx);
-          if (spawned) { if (patch == patch1) grownP1++; else grownP2++; }   // TEMP
-          else fails++;                                                       // TEMP: no more break
-      }
+            GrowAFir(true, speciesIdx);   // No break: one failed slot shouldn't stop the rest
+        }
 
-      // TEMP diagnostic
-      Debug.Log($"[VEG4] {name} {(patch1 != null ? patch1.overstorySpecies : "?")}:{grownP1} {(patch2 != null ? patch2.overstorySpecies : "?")}:{grownP2} fails:{fails} / {treesToGrow}");
-  }
+        Debug.Log($"[PATCH] {name} {patch.overstorySpecies} carbon:{carbonOver:F3} pct:{patch.percent} count:{count}");
+    }
+
+    // Reads patch2 (second member) overstory carbon at the given 0-based sim time index.
+    private float GetOverstoryCarbonP2(int idx)
+    {
+        if (cubeDataP2 == null) return 0f;
+        if (cubeDataP2.TryGetValue(idx + 1, out CubeData row))   // +1: 0-based timeIdx -> 1-based dateIdx
+            return row.leafCOver + row.stemCOver;
+        return 0f;
+    }
 
     /// <summary>
     /// Sets the initial cube parameter values.
@@ -1275,6 +1329,7 @@ public class CubeController : MonoBehaviour
         //nextDataRows = new CubeDataRow[0];
 
         cubeData = new Dictionary<int, CubeData>();
+        
         //nextCubeData = new Dictionary<int, CubeDataRow>();
 
         if (isAggregate)
@@ -1895,8 +1950,17 @@ public class CubeController : MonoBehaviour
     {
         if (full)  // Always true
         {
+            p1Loaded = false;
+          p2Loaded = false;
             Debug.Log(name + ".UpdateDataFromWeb()... patchID:"+ patchID+" warmingIdx: " + warmingIdx);
             WebManager.Instance.RequestCubeData(patchID, warmingIdx, this.FinishUpdateDataFromWeb);
+
+            // Central Coast: also load the second patch member (patchID + 1) to drive patch2.
+            // if (patch2 != null)
+            // WebManager.Instance.RequestCubeData(patchID + 1, warmingIdx, this.FinishUpdateDataFromWebP2);
+            // Central Coast: also load the second patch member (patchID + 1) to drive patch2.
+        if (useCentralCoastPatches)
+            WebManager.Instance.RequestCubeData(patchID + 1, warmingIdx, this.FinishUpdateDataFromWebP2);
         }
     }
 
@@ -1947,9 +2011,24 @@ public class CubeController : MonoBehaviour
     {
         UpdateDataRowsFromJSON(jsonString);     // Update data for parameter range finding
         FindParameterRanges();
-        UpdateDataFromJSON(jsonString);         // Update data for simulation
+        UpdateDataFromJSON(jsonString);         // Sets cubeData
+        p1Loaded = true;
 
-        UpdateVegetationFromData();    
+        // Grow only when all needed members are loaded (so we never reset later).
+        if (!useCentralCoastPatches || p2Loaded)
+            UpdateVegetationFromData();    
+    }
+
+    // Loads the second patch member's data, then re-grows so patch2 uses its own carbon.
+    private void FinishUpdateDataFromWebP2(string jsonString)
+    {
+        CubeDataModelList rowsObj = JsonUtility.FromJson<CubeDataModelList>("{\"rows\":" + jsonString + "}");
+        cubeDataP2 = LoadData(rowsObj.rows);
+        p2Loaded = true;
+
+        // Both members now loaded: grow once (no repeated reset).
+        if (p1Loaded)
+            UpdateVegetationFromData();
     }
 
     /// <summary>
@@ -2284,7 +2363,7 @@ public class CubeController : MonoBehaviour
         //GameObject newTree = InstantiateTreeFromPrefab(index, 0, firLocations[index], newRotation, gameObject.transform);
         GameObject newTree = InstantiateTreeFromPrefab(index, speciesIdx, firLocations[index], newRotation, gameObject.transform);
 
-        newTree.name = "Fir_" + index;
+        newTree.name = "Tree_sp" + speciesIdx + "_" + index;   // sp0 = patch1 species, sp1 = patch2 species
         FirController firController = newTree.GetComponent<FirController>();
         firs.Add(firController);                                                      // Save reference to FirController component
 

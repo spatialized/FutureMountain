@@ -2115,6 +2115,7 @@ MonoBehaviour:
   RootsCarbonOver: 0
   RootsCarbonUnder: 0
   dataType: 1
+  useCentralCoastPatches: 1
   warmingIdx: 0
   warmingDegrees: 0
   warmingRange: 0
@@ -7701,12 +7702,12 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: -3100
+  m_Depth: -3110
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 0
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 131729122}
+  m_TargetTexture: {fileID: 490012931}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -11747,44 +11748,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 131008503}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
---- !u!84 &131729122
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 5
-  m_Width: 1140
-  m_Height: 638
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthStencilFormat: 0
-  m_ColorFormat: 8
-  m_MipMap: 0
-  m_GenerateMips: 0
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_EnableRandomWrite: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
-  m_ShadowSamplingMode: 0
 --- !u!1 &134138199
 GameObject:
   m_ObjectHideFlags: 0
@@ -25860,6 +25823,7 @@ MonoBehaviour:
   RootsCarbonOver: 0
   RootsCarbonUnder: 0
   dataType: 0
+  useCentralCoastPatches: 1
   warmingIdx: 0
   warmingDegrees: 0
   warmingRange: 0
@@ -28724,6 +28688,7 @@ MonoBehaviour:
   RootsCarbonOver: 0
   RootsCarbonUnder: 0
   dataType: 2
+  useCentralCoastPatches: 0
   warmingIdx: 0
   warmingDegrees: 0
   warmingRange: 0
@@ -41120,6 +41085,44 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 488054039}
   m_Mesh: {fileID: 4300000, guid: 06ac7a963c5161f448c03dd4e84f3950, type: 3}
+--- !u!84 &490012931
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 5
+  m_Width: 1139
+  m_Height: 638
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 0
+  m_ColorFormat: 8
+  m_MipMap: 0
+  m_GenerateMips: 0
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_EnableRandomWrite: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 0
 --- !u!1001 &491040983
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -66799,6 +66802,7 @@ MonoBehaviour:
   RootsCarbonOver: 0
   RootsCarbonUnder: 0
   dataType: 2
+  useCentralCoastPatches: 0
   warmingIdx: 0
   warmingDegrees: 0
   warmingRange: 0
@@ -75345,6 +75349,7 @@ MonoBehaviour:
   RootsCarbonOver: 0
   RootsCarbonUnder: 0
   dataType: 0
+  useCentralCoastPatches: 1
   warmingIdx: 0
   warmingDegrees: 0
   warmingRange: 0
@@ -94194,6 +94199,7 @@ MonoBehaviour:
   RootsCarbonOver: 0
   RootsCarbonUnder: 0
   dataType: 1
+  useCentralCoastPatches: 0
   warmingIdx: 0
   warmingDegrees: 0
   warmingRange: 0
@@ -98745,6 +98751,7 @@ MonoBehaviour:
   RootsCarbonOver: 0
   RootsCarbonUnder: 0
   dataType: 1
+  useCentralCoastPatches: 0
   warmingIdx: 0
   warmingDegrees: 0
   warmingRange: 0
@@ -102072,6 +102079,7 @@ MonoBehaviour:
   RootsCarbonOver: 0
   RootsCarbonUnder: 0
   dataType: 1
+  useCentralCoastPatches: 0
   warmingIdx: 0
   warmingDegrees: 0
   warmingRange: 0
@@ -109076,6 +109084,7 @@ MonoBehaviour:
   RootsCarbonOver: 0
   RootsCarbonUnder: 0
   dataType: 1
+  useCentralCoastPatches: 1
   warmingIdx: 0
   warmingDegrees: 0
   warmingRange: 0
@@ -116355,11 +116364,8 @@ MonoBehaviour:
     - name: Chaparral
       isShrub: 0
       list:
-      - {fileID: 4994749857120407132, guid: 017d34dee6d1a4624a65f82a27656681, type: 3}
-      - {fileID: 1132961617801885093, guid: ba8584da88db144e68c17f5ccc9df19d, type: 3}
-      - {fileID: 8803375708051066858, guid: 93908f88e725041fd94f6313630ffb8f, type: 3}
       - {fileID: 2085551558586184280, guid: 81189005849f1463394af45b9a42a95a, type: 3}
-      - {fileID: 6598778674650589780, guid: bb47f9b2ee806429ba64d099a29e32f7, type: 3}
+      - {fileID: 2085551558586184280, guid: 3b9ecd77a1bf9934e8a4866da600e475, type: 3}
   deadTreePrefab: {fileID: 1773988963777952, guid: 581f2c14601044b8a812384e0126fcdf,
     type: 3}
   grassPrefab: {fileID: 1000014035261830, guid: 1ddc252ab3708404c93d50af6fe7e5aa,
@@ -116387,6 +116393,7 @@ MonoBehaviour:
   RootsCarbonOver: 0
   RootsCarbonUnder: 0
   dataType: 1
+  useCentralCoastPatches: 1
   warmingIdx: 0
   warmingDegrees: 0
   warmingRange: 0
@@ -149599,7 +149606,8 @@ MonoBehaviour:
   lastBurnEndedTime: -1
   RootsCarbonOver: 0
   RootsCarbonUnder: 0
-  dataType: 0
+  dataType: 1
+  useCentralCoastPatches: 0
   warmingIdx: 0
   warmingDegrees: 0
   warmingRange: 0
@@ -165338,7 +165346,8 @@ MonoBehaviour:
   lastBurnEndedTime: -1
   RootsCarbonOver: 0
   RootsCarbonUnder: 0
-  dataType: 0
+  dataType: 1
+  useCentralCoastPatches: 0
   warmingIdx: 0
   warmingDegrees: 0
   warmingRange: 0
