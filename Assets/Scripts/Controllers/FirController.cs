@@ -11,12 +11,17 @@ public class FirController : TreeController
 {
     /* General */
     public bool destroyed = false;
+    /* Death animation (Central Coast) — off by default so BigCreek firs keep their original behaviour */
+      public bool enableFallAnimation = false;
+      private Quaternion deathStartRotation;
+      private Vector3 fallAxis = Vector3.right;
 
     /* Position */
     private float treeYOffset;
     private float aggregateTreeYOffset;
     private bool initialized = false;
     public int locationID = -1;
+    public int speciesIdx = 0;      // Index into CubeController.treeList; identifies which patch grew this tree
 
     /* Layers */                                                                  // -- TO DO
     private bool showETLayer = true;                 
@@ -214,9 +219,19 @@ public class FirController : TreeController
     {
         float dist = (Time.time - deathStartTime) * settings.TreeDeathSpeed;
 
+        // if (dist < 1.0f)
+        // {
+        //     // -- TO DO: FALL TO GROUND, ETC
+        // }
         if (dist < 1.0f)
         {
-            // -- TO DO: FALL TO GROUND, ETC
+            if (enableFallAnimation)
+            {
+                // Topple from upright to flat. t*t eases in, so the trunk hangs then accelerates like a real fall.
+                float t = Mathf.Clamp01(dist);
+                float angle = Mathf.Lerp(0f, 90f, t * t);
+                transform.localRotation = deathStartRotation * Quaternion.AngleAxis(angle, fallAxis);
+            }
         }
         else
         {
@@ -231,6 +246,8 @@ public class FirController : TreeController
     public void SetTreeToDead(bool turnToLitter)
     {
         SetTreeScale(0f, 0f, false);
+        if (enableFallAnimation)
+              transform.localRotation = deathStartRotation;   // Reset before the litter log is spawned at this transform
         SetRootsScale(0f, 0f, false);
 
         HideDeadTreeObjects();
@@ -283,7 +300,20 @@ public class FirController : TreeController
 
                 deathStartTime = Time.time;
 
+                // Remember the upright pose and pick a random horizontal axis to topple around.
+                  deathStartRotation = transform.localRotation;
+                  float fallAngle = UnityEngine.Random.Range(0f, 360f) * Mathf.Deg2Rad;
+                  fallAxis = new Vector3(Mathf.Cos(fallAngle), 0f, Mathf.Sin(fallAngle));
+
+                // Capture the live size before the swap: if the dead model ends up larger than the tree
+                // it replaces, a "dead tree" appears to pop up in what looked like empty ground.
+                float liveHeight = GetTreeActualHeight();
+
                 SetDeadPrefab();
+
+                if (debugTree)
+                    Debug.Log($"[TREEDEATH] {name} liveHeight:{liveHeight:F2} deadHeightAfter:{GetTreeActualHeight():F2} " +
+                              $"localScale:{transform.localScale.y:F2} heightScale:{treeHeightScale:F2}");
 
                 if (debugTree && debugDetailed)
                     Debug.Log(transform.parent.transform.parent.transform.name + "... " + transform.name + ".Kill() over time... immediate? "+ immediate);

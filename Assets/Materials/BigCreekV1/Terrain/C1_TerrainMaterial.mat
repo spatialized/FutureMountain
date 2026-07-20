@@ -25,20 +25,20 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _Albedo_1RGBSmothnessA:
-        m_Texture: {fileID: 2800000, guid: a955c1bb506cd4ceaadcb5f878aa06d7, type: 3}
-        m_Scale: {x: 6, y: 6}
+        m_Texture: {fileID: 2800000, guid: aee508037598a469780c6f08b82f053c, type: 3}
+        m_Scale: {x: 5, y: 5}
         m_Offset: {x: 0, y: 0}
     - _Albedo_2RGBSmothnessA:
-        m_Texture: {fileID: 2800000, guid: 758ba695e27984e5bbfe4842c1745c83, type: 3}
-        m_Scale: {x: 4, y: 4}
+        m_Texture: {fileID: 2800000, guid: c1c8f17c3be3840bcb8dc4555c6ab843, type: 3}
+        m_Scale: {x: 11, y: 11}
         m_Offset: {x: 0, y: 0}
     - _Albedo_3RGBSmothnessA:
-        m_Texture: {fileID: 2800000, guid: 38d45ea3354d14023ae003f8e68ccd77, type: 3}
-        m_Scale: {x: 10, y: 10}
+        m_Texture: {fileID: 2800000, guid: d282dee1f8a2d490688859db476a8ea2, type: 3}
+        m_Scale: {x: 5, y: 5}
         m_Offset: {x: 0, y: 0}
     - _Albedo_4RGBSmothnessA:
-        m_Texture: {fileID: 2800000, guid: 7b7714a7553a741f999ae3fcfd8c7ce2, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Texture: {fileID: 2800000, guid: 6b935121ac7554c6cbbab1dab20667d6, type: 3}
+        m_Scale: {x: 4, y: 4}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
@@ -69,20 +69,20 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Normal_1RGB:
-        m_Texture: {fileID: 2800000, guid: f4f09f2a1131e4271b6d29869281ea47, type: 3}
-        m_Scale: {x: 6, y: 6}
+        m_Texture: {fileID: 2800000, guid: 1161f2783e0ad45cdb3f4c24f1d0de55, type: 3}
+        m_Scale: {x: 5, y: 5}
         m_Offset: {x: 0, y: 0}
     - _Normal_2RGB:
-        m_Texture: {fileID: 2800000, guid: 9f9aecc4a2ebc4edab546f2e8f62c1ce, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Texture: {fileID: 2800000, guid: ab03a16b56215446e936e3c107d2c253, type: 3}
+        m_Scale: {x: 11, y: 11}
         m_Offset: {x: 0, y: 0}
     - _Normal_3RGB:
-        m_Texture: {fileID: 2800000, guid: eadf12b5da50e4caea87275161b44696, type: 3}
-        m_Scale: {x: 10, y: 10}
+        m_Texture: {fileID: 2800000, guid: f7205a5dcfbb745338818b1816dde7f3, type: 3}
+        m_Scale: {x: 5, y: 5}
         m_Offset: {x: 0, y: 0}
     - _Normal_4RGB:
-        m_Texture: {fileID: 2800000, guid: dfda3894abca142d3be7833d5576d9ad, type: 3}
-        m_Scale: {x: 1, y: 1}
+        m_Texture: {fileID: 2800000, guid: 16c9229d183c540e1af457f2618d01f4, type: 3}
+        m_Scale: {x: 4, y: 4}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
@@ -105,7 +105,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Splat_Map_1:
-        m_Texture: {fileID: 28631169838956646, guid: f3bd6c29168134be78672f484b3a3d48,
+        m_Texture: {fileID: 28811700464134838, guid: 0403323e501094979a18b3d7e00d2992,
           type: 2}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -115,10 +115,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Albedo1SnowReduction: -0.046
-    - _Albedo2SnowReduction: 0.372
-    - _Albedo3SnowReduction: -0.5
-    - _Albedo4SnowReduction: 0.294
+    - _Albedo1SnowReduction: 0
+    - _Albedo2SnowReduction: -0.47
+    - _Albedo3SnowReduction: 1
+    - _Albedo4SnowReduction: 1
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -128,15 +128,15 @@ Material:
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0
-    - _Normal1Power: 1.65
-    - _Normal2Power: 0.81
-    - _Normal3Power: 0.29
+    - _Normal1Power: 1.58
+    - _Normal2Power: 0.96
+    - _Normal3Power: 0.46
     - _Normal4Power: 1.43
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _Smoothness: 0.275
     - _SmoothnessTextureChannel: 0
-    - _SnowAngleHardness: 1.18
+    - _SnowAngleHardness: 1.93
     - _SnowMaxAngle: 11.9
     - _SnowNoiseTilling: 0
     - _SnowNormalPower: 0.51

@@ -62,7 +62,8 @@ public class CubeController : MonoBehaviour
     private List<List<GameObject>> shrubList;    // List of shrub game object lists
     private List<GameObject> shrubPrefabs;       // Shrub prefabs           // -- TEMPORARY      
 
-    public GameObject deadTreePrefab;            // Dead tree prefab            
+    public GameObject deadTreePrefab;            // Dead tree prefab (shared fallback for species with no deadPrefab)
+    private List<GameObject> deadTreePrefabsBySpecies;   // Per-species dead prefabs, index-aligned with treeList
     public GameObject grassPrefab;               // Grass prefab
     private GameObject etPrefab;                 // ET emitter prefab
     private GameObject shrubETPrefab;            // Shrub ET emitter
@@ -156,6 +157,21 @@ public class CubeController : MonoBehaviour
     private bool p1Loaded = false;   // member 01 (patch1) data loaded
     private bool p2Loaded = false;   // member 02 (patch2) data loaded
     public bool useCentralCoastPatches = false;   // Enable per-patch (patch1/patch2) growth. CC display cubes only.
+    // Central Coast tuning: multiplies grass count on a grass-dominated patch. Inspector-tunable.
+    public float grassPatchDensityScale = 1f;
+    public int maxGrassesPerPatch = 300;
+    public int maxGrassGrowthPerStep = 5;   // Cap grass spawned per update so a carbon spike can't freeze the editor
+    // Central Coast: fixed background grass fill. Replaces the random 2..250 roll so that patch-driven grass (GrowPatchOverstory) is actually visible against it.
+    public int ccBackgroundGrassPatches = 60;
+    // Central Coast: per-cube carbon calibration. Each display cube stands for a different patch
+        // area and density, so one shared factor cannot fit a dense riparian cube and a sparse
+        // chaparral cube at once. 0 = fall back to the shared settings value.
+        public float cubeTreeCarbonFactorOverride = 0f;
+      // Central Coast: overstory carbon must fall this fraction below the visualised amount before
+      // drought kills trees. Without it every small carbon wobble queued a kill and trees died
+      // constantly. Fire deaths are handled separately by IgniteFire / SetTreesToBurn.
+      public float droughtDeathThreshold = 0.25f;
+
     private CubeData[] dataRows;             // Data rows for calculating paramater ranges
     private int dataBuffer = 500;                 // Frames of cube data to preload
 
@@ -227,6 +243,10 @@ public class CubeController : MonoBehaviour
     public float streamZeroHeight = 6.5f;        // Height (transform.position.y) of stream spline at zero water level
     public float streamFaceFullScale = 2.6f;     // Scale (transform.scale.y) of stream face at full water level
     public float streamFaceZeroScale = 0f;       // Scale of stream face for zero water level
+    // Streamflow is heavily skewed: most days sit near the minimum and a few storms reach the peak, so a
+    // linear map leaves the water pinned at the bed. Values below 1 lift ordinary flows into a visible
+    // range without changing their order; 1 = linear (BigCreek behaviour).
+    public float streamLevelCurve = 1f;
     private float StreamHeightMin = 100000f;     // Min. stream level in current data file
     private float StreamHeightMax = -100000f;    // Max. stream level in current data file
 
@@ -251,6 +271,8 @@ public class CubeController : MonoBehaviour
     private Vector3[] firLocations;              // Tree locations
     private List<int> activeFirLocations;        // Used fir location IDs
     public int firsToKill = 0;                   // Trees to kill
+    private int[] firsToKillBySpecies;           // Central Coast: per-species kill queue, indexed by speciesIdx
+     private int[] lastFirGrownTimeIdxBySpecies;  // Central Coast: per-species growth throttle so patch1 can't starve patch2
     public int shrubsToKill = 0;                 // Shrubs to kill
     public int grassesToKill = 0;            // Grass patches to kill
     public float LeafCarbonOver;                 // Leaf carbon amount (Used for tree/bush leaf amount and grass height)
@@ -506,7 +528,11 @@ public class CubeController : MonoBehaviour
             //UpdateShrubRenderers();
         }
 
-        GrowInitialGrass(cubeInitialGrassPatches);
+        // GrowInitialGrass(cubeInitialGrassPatches);
+        if (useCentralCoastPatches)
+              GrowGrassPatches(ccBackgroundGrassPatches);      // Central Coast: deterministic fill
+        else
+            GrowInitialGrass(cubeInitialGrassPatches);       // BigCreek: unchanged random fill
 
         //Debug.Log(name + ".GrowInitialVegetation()... dataType: "+ dataType);
     }
@@ -617,29 +643,65 @@ public class CubeController : MonoBehaviour
         GrowPatchOverstory(patch2, GetOverstoryCarbonP2(timeIdx));
     }
 
-    // Grows one patch's overstory from its own carbon, scaled by its area percentage.
-    private void GrowPatchOverstory(PatchDisplayInfo patch, float carbonOver)
-    {
-        if (patch == null) return;
+    // // Grows one patch's overstory from its own carbon, scaled by its area percentage.
+    // private void GrowPatchOverstory(PatchDisplayInfo patch, float carbonOver)
+    // {
+    //     if (patch == null) return;
 
-        int count = (int)Mathf.Round(carbonOver / treeAverageCarbonAmount * patch.percent / 100f);
-        for (int i = 0; i < count; i++)
-        {
-            // Grass-dominated patch: grow grass instead of trees.
-            if (patch.overstorySpecies == "Grass")
-            {
-                GrowAGrassPatch(true);
-                continue;
-            }
+    //     int count = (int)Mathf.Round(carbonOver / treeAverageCarbonAmount * patch.percent / 100f);
+    //     for (int i = 0; i < count; i++)
+    //     {
+    //         // Grass-dominated patch: grow grass instead of trees.
+    //         if (patch.overstorySpecies == "Grass")
+    //         {
+    //             GrowAGrassPatch(true);
+    //             continue;
+    //         }
 
-            int speciesIdx = GetTreeSpeciesIndex(patch.overstorySpecies);
-            if (speciesIdx < 0) continue;
+    //         int speciesIdx = GetTreeSpeciesIndex(patch.overstorySpecies);
+    //         if (speciesIdx < 0) continue;
 
-            GrowAFir(true, speciesIdx);   // No break: one failed slot shouldn't stop the rest
-        }
+    //         GrowAFir(true, speciesIdx);   // No break: one failed slot shouldn't stop the rest
+    //     }
 
-        Debug.Log($"[PATCH] {name} {patch.overstorySpecies} carbon:{carbonOver:F3} pct:{patch.percent} count:{count}");
-    }
+    //     Debug.Log($"[PATCH] {name} {patch.overstorySpecies} carbon:{carbonOver:F3} pct:{patch.percent} count:{count}");
+    // }
+
+    
+      // Grows one patch's overstory from its own carbon, scaled by its area percentage.
+      private void GrowPatchOverstory(PatchDisplayInfo patch, float carbonOver)
+      {
+          if (patch == null) return;
+
+          // On a Central Coast grass patch the RHESSys overstory IS grass, so the count must be sized
+          // against the grass average. Using treeAverageCarbonAmount here makes the patch nearly empty.
+          bool isGrassPatch = (patch.overstorySpecies == "Grass");
+          float avgCarbon = isGrassPatch ? grassAverageCarbonAmount : treeAverageCarbonAmount;
+          if (avgCarbon <= 0f) return;
+
+          int count = (int)Mathf.Round(carbonOver / avgCarbon * patch.percent / 100f);
+
+          if (isGrassPatch)
+              count = Mathf.Clamp((int)(count * grassPatchDensityScale), 0, maxGrassesPerPatch);
+          else
+              count = Mathf.Clamp(count, 0, settings.MaxTrees);
+
+          for (int i = 0; i < count; i++)
+          {
+              if (isGrassPatch)
+              {
+                  GrowAGrassPatch(true);
+                  continue;
+              }
+
+              int speciesIdx = GetTreeSpeciesIndex(patch.overstorySpecies);
+              if (speciesIdx < 0) continue;
+
+              GrowAFir(true, speciesIdx);   // No break: one failed slot shouldn't stop the rest
+          }
+
+          Debug.Log($"[PATCH] {name} {patch.overstorySpecies} carbon:{carbonOver:F3} pct:{patch.percent} avg:{avgCarbon:F5} count:{count}");
+      }
 
     // Reads patch2 (second member) overstory carbon at the given 0-based sim time index.
     private float GetOverstoryCarbonP2(int idx)
@@ -659,6 +721,8 @@ public class CubeController : MonoBehaviour
         lastFirGrownTimeIdx = 0;
         lastShrubGrownTimeIdx = 0;
         lastKilledTreeFrame = 0;
+        if (lastFirGrownTimeIdxBySpecies != null)
+              System.Array.Clear(lastFirGrownTimeIdxBySpecies, 0, lastFirGrownTimeIdxBySpecies.Length);
 
         snowValue = 0f;
         SnowAmount = 0f;
@@ -769,6 +833,7 @@ public class CubeController : MonoBehaviour
                     growthStageList.Add(obj);
                 }
                 treeList.Add(growthStageList);
+                deadTreePrefabsBySpecies.Add(species.deadPrefab);   // Kept index-aligned with treeList; null = use the shared prefab
                 treeSpeciesIndexByName[species.name] = treeList.Count - 1;
             }
         }
@@ -802,6 +867,8 @@ public class CubeController : MonoBehaviour
         }
         treeAverageCarbonAmount = (settings.MaxTreeFullHeightScale + settings.MinTreeFullHeightScale) / 2f * fullTreeHeight *
         GetTreeCarbonFactor();
+        firsToKillBySpecies = new int[Mathf.Max(1, treeList.Count)];
+        lastFirGrownTimeIdxBySpecies = new int[Mathf.Max(1, treeList.Count)];
         
         burntSplatmap = CreateBurntSplatmap();
         unburntSplatmap = CreateUnburntSplatmap();
@@ -940,6 +1007,7 @@ public class CubeController : MonoBehaviour
     private void SetupCube()
     {
         treeList = new List<List<GameObject>>();
+        deadTreePrefabsBySpecies = new List<GameObject>();   // Parallel to treeList; entries may be null
         shrubList = new List<List<GameObject>>();
         shrubPrefabs = new List<GameObject>();
 
@@ -1201,9 +1269,63 @@ public class CubeController : MonoBehaviour
             }
         }
 
+         // Central Coast: cluster patch1 into groves; near the stream if the cube has one, else random.
+        if (useCentralCoastPatches)
+        {
+            Debug.Log($"[CLUSTER] {name} useCCP:{useCentralCoastPatches} hasStream:{hasStream} trees:{firLocations.Length}");
+            int numClumps = 4;   // number of patch1 groves; tune to taste
+            Vector3[] clumpCenters = new Vector3[numClumps];
+            for (int c = 0; c < numClumps; c++)
+            {
+                if (hasStream)
+                {
+                    // Clump centers hug the stream line.
+                    float sx = Random.Range(streamCenter - streamWidth, streamCenter + streamWidth) + offsetX;
+                    float sz = Random.Range(cubeZMin, cubeZMax) + offsetZ;
+                    clumpCenters[c] = new Vector3(sx, 0f, sz);
+                }
+                else
+                {
+                    clumpCenters[c] = firLocations[Random.Range(0, firLocations.Length)];
+                }
+            }
+
+            // Sort so locations nearest a clump come first: patch1 (grown first) fills the clumps, patch2 fills the rest.
+            System.Array.Sort(firLocations, (a, b) =>
+                NearestClumpDist(a, clumpCenters).CompareTo(NearestClumpDist(b, clumpCenters)));
+        }
+
         firs = new List<FirController>();
     }
 
+    // // Distance from p to the closest clump center (for Central Coast patch1 clustering).
+    // private float NearestClumpDist(Vector3 p, Vector3[] centers)
+    // {
+    //     float min = float.MaxValue;
+    //     foreach (Vector3 c in centers)
+    //     {
+    //         float d = Vector3.Distance(p, c);
+    //         if (d < min) min = d;
+    //     }
+    //     return min;
+    // }
+    
+    // Anisotropic distance to the nearest clump center. On a stream cube the cross-stream (X)
+    // term dominates, so the sort runs "near the stream" -> "far from the stream" on BOTH banks;
+    // the weakened along-stream (Z) term only groups trees into groves. Plain distance otherwise.
+    private float NearestClumpDist(Vector3 p, Vector3[] centers)
+    {
+        float zWeight = hasStream ? 0.25f : 1f;
+        float min = float.MaxValue;
+        foreach (Vector3 c in centers)
+        {
+            float dx = p.x - c.x;
+            float dz = (p.z - c.z) * zWeight;
+            float d = Mathf.Sqrt(dx * dx + dz * dz);
+            if (d < min) min = d;
+        }
+        return min;
+    }
 
     /// <summary>
     /// Sets the warming index.
@@ -1745,7 +1867,18 @@ public class CubeController : MonoBehaviour
         if (!simulationOn)
             return;
 
-        float streamPos = Mathf.Clamp(MathUtil.MapValue(Mathf.Log(StreamHeight) * 20f, StreamHeightMin, StreamHeightMax, 0f, 1f), 0f, 1f);  // -- TESTING
+        // float streamPos = Mathf.Clamp(MathUtil.MapValue(Mathf.Log(StreamHeight) * 20f, StreamHeightMin, StreamHeightMax, 0f, 1f), 0f, 1f);  // -- TESTING
+        // StreamHeightMin/Max are collected from raw qout (FindParameterRanges), so StreamHeight must be
+        // fed in raw as well. Scaling only this side pinned streamPos at 1 and the water never moved.
+        float streamRange = StreamHeightMax - StreamHeightMin;
+        float streamLinear = (streamRange > Mathf.Epsilon)
+                           ? Mathf.Clamp(MathUtil.MapValue(StreamHeight, StreamHeightMin, StreamHeightMax, 0f, 1f), 0f, 1f)
+                           : 0f;                                     // MapValue has no divide-by-zero guard
+
+        // Apply the response curve after normalising, so the 0..1 bounds and the ordering are preserved.
+        float streamPos = (streamLevelCurve > 0f && !Mathf.Approximately(streamLevelCurve, 1f))
+                        ? Mathf.Pow(streamLinear, streamLevelCurve)
+                        : streamLinear;
         float streamSplineHeight = Mathf.Clamp(MathUtil.MapValue(streamPos, 0f, 1f, streamZeroHeight, streamFullHeight), streamZeroHeight, streamFullHeight);
         float streamFaceScale = Mathf.Clamp(MathUtil.MapValue(streamPos, 0f, 1f, streamFaceZeroScale, streamFaceFullScale), streamFaceZeroScale, streamFaceFullScale);
 
@@ -1758,7 +1891,10 @@ public class CubeController : MonoBehaviour
                                                              streamFaceObject.transform.localScale.z);
 
         if (debugStream)
-            Debug.Log(transform.parent.name + " UpdateStream()... streamPos:" + streamPos + " StreamHeight:" + StreamHeight + " streamObject.y:" + streamObject.transform.localPosition.y + " streamFaceObject.y:" + streamFaceObject.transform.localPosition.y);
+            Debug.Log($"{transform.parent.name} UpdateStream()... StreamHeight:{StreamHeight:E3} " +
+                      $"range:[{StreamHeightMin:E3}, {StreamHeightMax:E3}] linear:{streamLinear:F3} " +
+                      $"streamPos:{streamPos:F3} splineY:{streamObject.transform.localPosition.y:F2} " +
+                      $"faceScaleY:{streamFaceObject.transform.localScale.y:F2}");
     }
 
     /// <summary>
@@ -1769,6 +1905,50 @@ public class CubeController : MonoBehaviour
         if (!simulationOn)
             return;
 
+        if (useCentralCoastPatches)
+            UpdateVegetationCentralCoast();     // Trees balanced per patch; grass stands in for the understory
+        else
+            UpdateVegetationDefault();          // BigCreek / aggregate: original single-patch behaviour
+
+        GrowRoots();
+        GrowShrubs();
+        GrowGrass();
+    }
+
+    /// <summary>
+    /// Central Coast vegetation balance. Each patch's overstory is balanced against its own carbon
+    /// (patch1 from this cube's rows, patch2 from the second member's rows) so neither species starves
+    /// the other, and grass stands in for the whole understory because no Central Coast species is
+    /// flagged isShrub.
+    /// </summary>
+    private void UpdateVegetationCentralCoast()
+    {
+        if (firsToKillBySpecies != null)                     // Each patch has its own kill queue
+        {
+            for (int s = 0; s < firsToKillBySpecies.Length; s++)
+            {
+                if (firsToKillBySpecies[s] > 0)
+                    KillAFir(false, s);
+            }
+        }
+
+        if (shrubsToKill > 0)                                // Inert unless a fire queued shrubs
+            KillAShrub();
+
+        if (grassesToKill > 0)
+            KillAGrassPatch();
+
+        UpdatePatchOverstory(patch1, StemCarbonOver + LeafCarbonOver);
+        UpdatePatchOverstory(patch2, GetOverstoryCarbonP2(timeIdx));
+
+        UpdateCentralCoastGrass();
+    }
+
+    /// <summary>
+    /// BigCreek / aggregate vegetation balance. Unchanged from the original single-patch behaviour.
+    /// </summary>
+    private void UpdateVegetationDefault()
+    {
         if (firsToKill > 0)
         {
             bool killed = KillAFir(false);
@@ -1897,12 +2077,115 @@ public class CubeController : MonoBehaviour
                     lastDataUpdate = timeIdx;
                 }
             }
-        }
-
-        GrowRoots();
-        GrowShrubs();
-        GrowGrass();        
+        }        
     }
+
+     /// <summary>
+      /// Central Coast: balances one patch's overstory independently against its own carbon.
+      /// </summary>
+      /// <param name="patch">Patch display info (species + area percentage).</param>
+      /// <param name="patchCarbonRaw">Unscaled stem + leaf overstory carbon for this patch.</param>
+      private void UpdatePatchOverstory(PatchDisplayInfo patch, float patchCarbonRaw)
+      {
+          if (patch == null) return;
+          if (patch.overstorySpecies == "Grass") return;    // Grass-dominated patch: handled by UpdateCentralCoastGrass
+
+          if (firsToKillBySpecies == null || lastFirGrownTimeIdxBySpecies == null) return;   // Initialize() hasn't run yet
+
+          int speciesIdx = GetTreeSpeciesIndex(patch.overstorySpecies);
+          if (speciesIdx < 0 || speciesIdx >= firsToKillBySpecies.Length) return;
+
+          float carbonInData = patchCarbonRaw * patch.percent / 100f;
+          float carbonInViz = GetTreeCarbonAmountVisualized(speciesIdx);          // What the stand is worth right now
+          float carbonAtMaturity = GetTreePotentialCarbonVisualized(speciesIdx);  // What it will be worth fully grown
+          float halfStep = treeAverageCarbonAmount * 0.5f;
+
+           // Plant against carbon at maturity, not current carbon: saplings contribute almost nothing
+           // today, so comparing carbonInViz here re-plants every frame until the stand is overstocked
+           // and then has to be culled, which is why trees never reached full size.
+           if (carbonAtMaturity < carbonInData - halfStep)
+            {
+                // Per-species throttle: a shared lastFirGrownTimeIdx lets patch1 consume every growth
+                // slot before patch2 ever gets a turn.
+                if (timeIdx - lastFirGrownTimeIdxBySpecies[speciesIdx] > firGrowthWaitTime)
+                {
+                    if (GrowAFir(false, speciesIdx))
+                    {
+                        lastFirGrownTimeIdxBySpecies[speciesIdx] = timeIdx;
+                    }
+                    else if (debugTrees)
+                    {
+                        Debug.Log($"[PATCHBAL] {name} sp{speciesIdx}({patch.overstorySpecies}) couldn't grow — " +
+                                  $"cube may be at MaxTrees:{settings.MaxTrees} activeLocations:{activeFirLocations.Count}");
+                    }
+                }
+            }
+          else if (carbonAtMaturity > carbonInData + halfStep)
+          {
+              // This branch is drought death only. Fire deaths run through IgniteFire / SetTreesToBurn,
+              // so skip while the cube is burning or still in its post-fire recovery window, otherwise
+              // the fire's carbon crash would be charged to drought as well. Requiring a large shortfall
+              // stops ordinary carbon wobble from queueing a kill every few frames.
+              bool fireInvolved = terrainBurning || terrainBurnt;
+              bool bigEnoughDrop = (carbonAtMaturity - carbonInData) > carbonInData * droughtDeathThreshold;
+
+              if (!fireInvolved && bigEnoughDrop && firsToKillBySpecies[speciesIdx] == 0)
+              {
+                  int toKill = (int)Mathf.Round((carbonAtMaturity - carbonInData) / treeAverageCarbonAmount);
+                  int aliveOfSpecies = GetAliveTrees(speciesIdx).Count;
+                  // Clamp(x, 1, 0) would queue a kill that can never run, so guard the empty case.
+                  firsToKillBySpecies[speciesIdx] = (aliveOfSpecies > 0) ? Mathf.Clamp(toKill, 1, aliveOfSpecies) : 0;
+              }
+          }
+
+          if (debugTrees)
+          {
+              // grown = how far the stand is from maturity (1.0 = every tree full size).
+              // needed = trees required at full size to hit the target; compare with settings.MaxTrees.
+              int aliveNow = GetAliveTrees(speciesIdx).Count;
+              float grown = (carbonAtMaturity > 0f) ? carbonInViz / carbonAtMaturity : 0f;
+              float needed = (treeAverageCarbonAmount > 0f) ? carbonInData / treeAverageCarbonAmount : -1f;
+
+              Debug.Log($"[PATCHBAL] {name} t:{timeIdx} sp{speciesIdx}({patch.overstorySpecies}) " +
+                        $"viz:{carbonInViz:F3} mature:{carbonAtMaturity:F3} data:{carbonInData:F3} " +
+                        $"avg:{treeAverageCarbonAmount:F4} alive:{aliveNow} grown:{grown:F2} " +
+                        $"needed:{needed:F0}/{settings.MaxTrees} toKill:{firsToKillBySpecies[speciesIdx]} burnt:{terrainBurnt}");
+          }
+      }
+    /// <summary>
+      /// Central Coast grass balance. CC has no shrub layer (no species is flagged isShrub), so grass
+      /// is the entire understory: balance it against understory carbon, plus patch2's overstory carbon
+      /// when that patch is grass-dominated. Mirrors the tree/shrub feedback loop used elsewhere.
+      /// </summary>
+      private void UpdateCentralCoastGrass()
+      {
+          if (grassAverageCarbonAmount <= 0f || grasses == null) return;
+
+          float grassCarbonInData = StemCarbonUnder + LeafCarbonUnder;   // NOTE: V3 has no stemCUnder column, so this is leaf carbon only
+
+          if (patch2 != null && patch2.overstorySpecies == "Grass")
+              grassCarbonInData += GetOverstoryCarbonP2(timeIdx) * patch2.percent / 100f;
+
+          float grassCarbonInViz = GetGrassCarbonAmountVisualized();
+          float halfStep = grassAverageCarbonAmount * 0.5f;
+
+          if (grassCarbonInViz < grassCarbonInData - halfStep)
+          {
+              int toGrow = (int)((grassCarbonInData - grassCarbonInViz) / grassAverageCarbonAmount);
+              toGrow = Mathf.Clamp(toGrow, 0, maxGrassGrowthPerStep);
+              for (int i = 0; i < toGrow; i++)
+                  GrowAGrassPatch(false);
+          }
+          else if (grassCarbonInViz > grassCarbonInData + halfStep)
+          {
+              grassesToKill = (int)((grassCarbonInViz - grassCarbonInData) / grassAverageCarbonAmount);
+              grassesToKill = Mathf.Clamp(grassesToKill, 0, grasses.Count);
+          }
+
+          if (debugTrees)
+              Debug.Log($"[GRASS] {name} viz:{grassCarbonInViz:F3} data:{grassCarbonInData:F3} " +
+                        $"avg:{grassAverageCarbonAmount:F5} count:{grasses.Count} toKill:{grassesToKill}");
+      }
 
     /// <summary>
     /// Updates the litter for current simulation frame.
@@ -2204,6 +2487,24 @@ public class CubeController : MonoBehaviour
     /// <param name="treeLocation">Tree location.</param>
     /// <param name="newRotation">New rotation.</param>
     /// <param name="parent">Parent.</param>
+    /// <summary>
+    /// Gets the dead/snag prefab for a tree species, falling back to the cube's shared one when that
+    /// species has no dedicated model assigned.
+    /// </summary>
+    /// <param name="speciesIdx">Index into treeList.</param>
+    /// <returns>The dead tree prefab to use.</returns>
+    private GameObject GetDeadTreePrefab(int speciesIdx)
+    {
+        if (deadTreePrefabsBySpecies != null
+            && speciesIdx >= 0 && speciesIdx < deadTreePrefabsBySpecies.Count
+            && deadTreePrefabsBySpecies[speciesIdx] != null)
+        {
+            return deadTreePrefabsBySpecies[speciesIdx];
+        }
+
+        return deadTreePrefab;
+    }
+
     private GameObject InstantiateTreeFromPrefab(int treeID, int prefabListID, Vector3 treeLocation, Quaternion newRotation, Transform parent)
     {
         /* Instantiate trunks and leaves */
@@ -2222,10 +2523,22 @@ public class CubeController : MonoBehaviour
             count++;
         }
 
-        GameObject newDeadTreePrefab = Instantiate(deadTreePrefab, firLocations[treeID], newRotation, newTree.transform);
-        newDeadTreePrefab.transform.localRotation = newRotation;
-        newDeadTreePrefab.name = "LODGroup_DeadTree";
-        newDeadTreePrefab.SetActive(false);
+        GameObject speciesDeadPrefab = GetDeadTreePrefab(prefabListID);   // Oak and chaparral leave different snags
+
+        if (speciesDeadPrefab != null)
+        {
+            GameObject newDeadTreePrefab = Instantiate(speciesDeadPrefab, firLocations[treeID], newRotation, newTree.transform);
+            newDeadTreePrefab.transform.localRotation = newRotation;
+            newDeadTreePrefab.name = "LODGroup_DeadTree";
+            newDeadTreePrefab.SetActive(false);
+        }
+        else
+        {
+            // Without this child the tree cannot switch to a dead model, so death would crash later in
+            // TreeController.HideDeadTreeObjects. Fail loudly here where the cause is still visible.
+            Debug.LogError($"{name}.InstantiateTreeFromPrefab()... no dead tree prefab for species {prefabListID}. " +
+                           $"Assign Species[{prefabListID}].deadPrefab, or the cube's shared Dead Tree Prefab.");
+        }
 
         /* Add roots */
         for (int i = 0; i < rootsPrefabs.Count; i++)
@@ -2247,7 +2560,7 @@ public class CubeController : MonoBehaviour
         firController.InitializeSettings(settings);
         firController.InitializeGeometry();
         //firController.InitializePrefabs(treeList[0], rootsPrefabs, deadTreePrefab);
-        firController.InitializePrefabs(treeList[prefabListID], rootsPrefabs, deadTreePrefab);
+        firController.InitializePrefabs(treeList[prefabListID], rootsPrefabs, speciesDeadPrefab);
         firController.locationID = treeID;
 
         GameObject treeFireNodeChain = Instantiate(fireNodeChainPrefab, newTree.transform);         // Add fire node chain to tree
@@ -2339,22 +2652,62 @@ public class CubeController : MonoBehaviour
         if (debugTrees && debugDetailed)
             Debug.Log(transform.name + " CubeController.GrowAFir()...  Growing fir" + (immediate ? " immediately..." : " at time:" + Time.time));
 
-        int index = 0;
-        while (activeFirLocations.Contains(index))
-        {
-            index++;
-            if (index >= settings.MaxTrees)
-            {
-                if (debugTrees)
-                    Debug.Log(name + ".GrowAFir()... Can't grow tree, max trees already grown!  activeFirLocations:" + activeFirLocations.Count);
-                return false;
-            }
-            if (index > 1000)
-            {
-                Debug.Log(name + ".GrowAFir()... While loop error");
-                return false;
-            }
-        }
+        // int index = 0;
+        // while (activeFirLocations.Contains(index))
+        // {
+        //     index++;
+        //     if (index >= settings.MaxTrees)
+        //     {
+        //         if (debugTrees)
+        //             Debug.Log(name + ".GrowAFir()... Can't grow tree, max trees already grown!  activeFirLocations:" + activeFirLocations.Count);
+        //         return false;
+        //     }
+        //     if (index > 1000)
+        //     {
+        //         Debug.Log(name + ".GrowAFir()... While loop error");
+        //         return false;
+        //     }
+        // }
+
+         // Central Coast: firLocations are sorted nearest-stream-first (see CreateTreeLocations).
+          // Patch1 (sp0) fills from the near end; patch2 (sp1) fills from the far end,
+          // so understory species never crowd the riparian strip.
+          bool fillFromFarEnd = useCentralCoastPatches && speciesIdx > 0;
+
+          int index;
+          if (fillFromFarEnd)
+          {
+              index = settings.MaxTrees - 1;
+              while (activeFirLocations.Contains(index))
+              {
+                  index--;
+                  if (index < 0)
+                  {
+                      if (debugTrees)
+                          Debug.Log(name + ".GrowAFir()... Can't grow tree, max trees already grown! activeFirLocations:" + activeFirLocations.Count);
+                      return false;
+                  }
+              }
+          }
+          else
+          {
+              index = 0;
+              while (activeFirLocations.Contains(index))
+              {
+                  index++;
+                  if (index >= settings.MaxTrees)
+                  {
+                      if (debugTrees)
+                          Debug.Log(name + ".GrowAFir()... Can't grow tree, max trees already grown! activeFirLocations:" + activeFirLocations.Count);
+                      return false;
+                  }
+                  if (index > 1000)
+                  {
+                      Debug.Log(name + ".GrowAFir()... While loop error");
+                      return false;
+                  }
+              }
+          }
 
         Quaternion newRotation = Quaternion.Euler(new Vector3(0, Random.Range(0, 360), 0));
 
@@ -2365,6 +2718,7 @@ public class CubeController : MonoBehaviour
 
         newTree.name = "Tree_sp" + speciesIdx + "_" + index;   // sp0 = patch1 species, sp1 = patch2 species
         FirController firController = newTree.GetComponent<FirController>();
+        firController.speciesIdx = speciesIdx;   // Needed for per-patch carbon balance
         firs.Add(firController);                                                      // Save reference to FirController component
 
         bool isFront = (index < settings.MinFrontTrees) ? true : false;                 // Check whether tree is front tree (at beginning of list)
@@ -2533,6 +2887,14 @@ public class CubeController : MonoBehaviour
         }
     }
 
+    // Grows an exact number of grass patches. Unlike GrowInitialGrass this does not randomise the
+      // count, so the Central Coast background fill stays comparable between runs and between cubes.
+      private void GrowGrassPatches(int count)
+      {
+          for (int i = 0; i < count; i++)
+              GrowAGrassPatch(true);
+      }
+
     /// <summary>
     /// Adds grass patch.
     /// </summary>
@@ -2549,7 +2911,12 @@ public class CubeController : MonoBehaviour
         newRotation.eulerAngles.Set(0f, Random.Range(0f, 360f), 0f);                                     // Choose random rotation
         newGrassObj.transform.localRotation = newRotation;
 
-        newGrassObj.GetComponent<SERI_FireNodeChain>().Initialize(settings != null && settings.FireEnabled ? fireManager : null, false, true);
+        // Same as AddShrub: a grass prefab with no fire node chain simply won't burn.
+        SERI_FireNodeChain grassFireChain = newGrassObj.GetComponent<SERI_FireNodeChain>();
+        if (grassFireChain != null)
+            grassFireChain.Initialize(settings != null && settings.FireEnabled ? fireManager : null, false, true);
+        else
+            Debug.LogWarning($"{name}.AddGrass()... grass prefab '{grassPrefab.name}' has no SERI_FireNodeChain component; it will not burn.");
 
         float grassSize = Random.Range(minGrassFullSize, maxGrassFullSize);
         if (immediate)
@@ -2680,7 +3047,8 @@ public class CubeController : MonoBehaviour
 
         if (shrubPrefab == null)
         {
-            Debug.Log(name+"... ERROR shrubPrefab at idx "+randIdx+" is null!");
+            Debug.LogWarning(name + ".AddShrub()... ERROR shrubPrefab at idx " + randIdx + " is null!");
+            return;                                          // Instantiating null throws; nothing to add
         }
         Quaternion newRotation = new Quaternion(0f, 0f, 0f, 0f);
         GameObject newShrubObj = Instantiate(shrubPrefab, location, newRotation, cubeObject.transform);     // Instantiate shrub
@@ -2688,7 +3056,14 @@ public class CubeController : MonoBehaviour
         newShrubObj.transform.localRotation = newRotation;
 
         newShrubObj.AddComponent<ShrubController>();
-        newShrubObj.GetComponent<SERI_FireNodeChain>().Initialize(settings != null && settings.FireEnabled ? fireManager : null, false, true);
+
+        // A shrub prefab without a fire node chain can't burn, but it shouldn't take the whole cube's
+        // initialisation down with it.
+        SERI_FireNodeChain shrubFireChain = newShrubObj.GetComponent<SERI_FireNodeChain>();
+        if (shrubFireChain != null)
+            shrubFireChain.Initialize(settings != null && settings.FireEnabled ? fireManager : null, false, true);
+        else
+            Debug.LogWarning($"{name}.AddShrub()... shrub prefab '{shrubPrefab.name}' has no SERI_FireNodeChain component; it will not burn.");
 
         float shrubSize = Random.Range(minShrubFullSize, maxShrubFullSize);
         if (immediate)
@@ -2768,6 +3143,8 @@ public class CubeController : MonoBehaviour
         }
 
         firsToKill = 0;
+        if (firsToKillBySpecies != null)                                          // Central Coast: clear the per-patch queues too
+            System.Array.Clear(firsToKillBySpecies, 0, firsToKillBySpecies.Length);
         lastKilledTreeFrame = timeIdx;
 
         UpdateETList();
@@ -2864,7 +3241,19 @@ public class CubeController : MonoBehaviour
         }
         return result;
     }
-
+    /// <summary>
+    /// Returns alive trees of one species (Central Coast per-patch balance).
+    /// </summary>
+    private List<FirController> GetAliveTrees(int speciesIdx)
+    {
+        List<FirController> result = new List<FirController>();
+        foreach (FirController fir in firs)
+        {
+            if (fir.IsAlive() && fir.speciesIdx == speciesIdx)
+                result.Add(fir);
+        }
+        return result;
+    }
     ///// <summary>
     ///// Gets the available trees.
     ///// </summary>
@@ -3005,6 +3394,32 @@ public class CubeController : MonoBehaviour
 
     }
 
+     /// <summary>
+      /// Central Coast: kills a tree of a given species, so each patch's overstory decays on its own data
+      /// instead of the shared random pick used by KillAFir(bool).
+      /// </summary>
+      private bool KillAFir(bool immediate, int speciesIdx)
+      {
+          List<FirController> aliveTrees = GetAliveTrees(speciesIdx);
+
+          if (aliveTrees.Count == 0)
+          {
+              firsToKillBySpecies[speciesIdx] = 0;   // Nothing left to kill; clear the queue
+              return false;
+          }
+
+          FirController fir = aliveTrees[Random.Range(0, aliveTrees.Count)];
+          fir.Kill(immediate);
+
+          if (immediate)
+              activeFirLocations.Remove(fir.locationID);
+
+          lastKilledTreeFrame = timeIdx;
+          firsToKillBySpecies[speciesIdx]--;
+
+          UpdateETList();
+          return true;
+      }
     /// <summary>
     /// Destroys the fir.
     /// </summary>
@@ -3252,6 +3667,12 @@ public class CubeController : MonoBehaviour
     /// <param name="fireTimeIdx">Time index of fire</param>
     private void SetVegetationToDieFromFire(int fireTimeIdx)            // TO DO: Fix for web (?)
     {
+        if (useCentralCoastPatches)
+        {
+            SetCentralCoastVegetationToDieFromFire(fireTimeIdx);
+            return;
+        }
+
         if (dataType == CubeDataType.Veg1)
         {
             // float fireLeafCarbon = ReadData((int)DataColumnIdx.LeafCarbonOver, fireTimeIdx);        // Read carbon data at fireTimeIdx
@@ -3365,6 +3786,54 @@ public class CubeController : MonoBehaviour
     }
 
     /// <summary>
+    /// Central Coast: works out how many trees the fire should take, per patch, on the same
+    /// percent-scaled maturity basis as UpdatePatchOverstory. The shared path compares every species'
+    /// current carbon against patch1's raw (unscaled) carbon, which makes the difference negative, so
+    /// firsToKill came out <= 0 and SetTreesToBurn disabled burning on every tree instead of igniting it.
+    /// </summary>
+    /// <param name="fireTimeIdx">Time index of the fire.</param>
+    private void SetCentralCoastVegetationToDieFromFire(int fireTimeIdx)
+    {
+        firsToKill = 0;
+
+        CubeData fireRow = GetDataRow(fireTimeIdx + 1);          // +1: 0-based timeIdx -> 1-based dateIdx
+        float carbonP1AfterFire = (fireRow != null) ? fireRow.leafCOver + fireRow.stemCOver : 0f;
+
+        QueuePatchFireDeaths(patch1, carbonP1AfterFire);
+        QueuePatchFireDeaths(patch2, GetOverstoryCarbonP2(fireTimeIdx));
+
+        if (debugFire || debugTrees)
+            Debug.Log($"[CCFIRE] {name} fireIdx:{fireTimeIdx} carbonP1After:{carbonP1AfterFire:F3} " +
+                      $"carbonP2After:{GetOverstoryCarbonP2(fireTimeIdx):F3} firsToKill:{firsToKill}");
+    }
+
+    /// <summary>
+    /// Adds one patch's share of fire deaths to the shared firsToKill counter consumed by SetTreesToBurn.
+    /// </summary>
+    /// <param name="patch">Patch display info (species + area percentage).</param>
+    /// <param name="patchCarbonRaw">Unscaled overstory carbon for this patch at the time of the fire.</param>
+    private void QueuePatchFireDeaths(PatchDisplayInfo patch, float patchCarbonRaw)
+    {
+        if (patch == null || patch.overstorySpecies == "Grass") return;
+        if (firsToKillBySpecies == null || treeAverageCarbonAmount <= 0f) return;
+
+        int speciesIdx = GetTreeSpeciesIndex(patch.overstorySpecies);
+        if (speciesIdx < 0 || speciesIdx >= firsToKillBySpecies.Length) return;
+
+        float carbonAfterFire = patchCarbonRaw * patch.percent / 100f;      // What the patch is worth once burnt
+        float carbonNow = GetTreePotentialCarbonVisualized(speciesIdx);     // What the standing trees are worth
+
+        int toKill = (int)Mathf.Round((carbonNow - carbonAfterFire) / treeAverageCarbonAmount);
+        toKill = Mathf.Clamp(toKill, 0, GetAliveTrees(speciesIdx).Count);
+
+        firsToKill += toKill;
+
+        if (debugFire || debugTrees)
+            Debug.Log($"[CCFIRE] {name} sp{speciesIdx}({patch.overstorySpecies}) " +
+                      $"standing:{carbonNow:F3} afterFire:{carbonAfterFire:F3} toKill:{toKill}");
+    }
+
+    /// <summary>
     /// Set trees to burn
     /// </summary>
     /// <param name="fireLengthInFrames"></param>
@@ -3377,7 +3846,11 @@ public class CubeController : MonoBehaviour
             if (debugFire || debugTrees)
                 Debug.Log(name + ".SetTreesToBurn()... fireLengthInFrames:" + fireLengthInFrames + " aliveTrees.Count:" + aliveTrees.Count + " firsToKill:" + firsToKill + " shrubsToKill:" + shrubsToKill + " time:" + Time.time);
 
-            for (int i = aliveTrees.Count - 1; i > 0f; i--)      // Select firs to burn starting from last idx
+            // BigCreek's loop stops before index 0, so one tree always survives even a total burn.
+            // Keep that quirk for BigCreek and let Central Coast reach the whole list.
+            int lastBurnableIdx = useCentralCoastPatches ? 0 : 1;
+
+            for (int i = aliveTrees.Count - 1; i >= lastBurnableIdx; i--)      // Select firs to burn starting from last idx
             {
                 FirController fir = aliveTrees[i];
 
@@ -4737,14 +5210,21 @@ public class CubeController : MonoBehaviour
     /// Gets the tree carbon factor.
     /// </summary>
     /// <returns>The tree carbon factor.</returns>
+    // public float GetTreeCarbonFactor()
+    // {
+    //     if (isAggregate)
+    //         return settings.CubeATreeCarbonFactor;
+    //     else
+    //         return settings.TreeCarbonFactor;
+    // }
     public float GetTreeCarbonFactor()
-    {
-        if (isAggregate)
-            return settings.CubeATreeCarbonFactor;
-        else
-            return settings.TreeCarbonFactor;
-    }
-
+      {
+          if (isAggregate)
+              return settings.CubeATreeCarbonFactor;
+          if (cubeTreeCarbonFactorOverride > 0f)
+              return cubeTreeCarbonFactorOverride;
+          return settings.TreeCarbonFactor;
+      }
     /// <summary>
     /// Gets the roots carbon factor.
     /// </summary>
@@ -4876,6 +5356,36 @@ public class CubeController : MonoBehaviour
     }
 
     /// <summary>
+    /// Gets the carbon represented by living trees of one species (Central Coast per-patch balance).
+    /// </summary>
+    public float GetTreeCarbonAmountVisualized(int speciesIdx)
+    {
+        float treeCarbonAmount = 0f;
+        for (int x = 0; x < firs.Count; x++)
+        {
+            if (firs[x] != null && firs[x].speciesIdx == speciesIdx)
+                treeCarbonAmount += firs[x].GetCarbonAmount();
+        }
+        return treeCarbonAmount;
+    }
+
+    /// <summary>
+    /// Gets the carbon that living trees of one species will represent once fully grown. Planting
+    /// decisions use this so saplings already count toward the target and the stand isn't overplanted.
+    /// </summary>
+    /// <returns>The carbon amount at maturity.</returns>
+    public float GetTreePotentialCarbonVisualized(int speciesIdx)
+    {
+        float treeCarbonAmount = 0f;
+        for (int x = 0; x < firs.Count; x++)
+        {
+            if (firs[x] != null && firs[x].speciesIdx == speciesIdx)
+                treeCarbonAmount += firs[x].GetPotentialCarbonAmount();
+        }
+        return treeCarbonAmount;
+    }
+
+    /// <summary>
     /// Gets the carbon amount represented by currently living shrubs.
     /// </summary>
     /// <returns>The shrub carbon amount.</returns>
@@ -4899,6 +5409,35 @@ public class CubeController : MonoBehaviour
 
         return shrubCarbonAmount;
     }
+
+    /// <summary>
+      /// Gets the carbon amount represented by currently visualized grass patches.
+      /// </summary>
+      /// <returns>The grass carbon amount.</returns>
+      public float GetGrassCarbonAmountVisualized()
+      {
+          float grassCarbonAmount = 0f;
+
+          if (grasses == null)
+              return 0f;
+
+          foreach (GameObject grass in grasses)
+          {
+              if (grass == null) continue;
+
+              LODGroup lod = grass.GetComponent<LODGroup>();
+              if (lod == null) continue;
+
+              LOD[] lods = lod.GetLODs();
+              if (lods.Length == 0 || lods[0].renderers.Length == 0) continue;
+
+              Renderer rend = lods[0].renderers[0];
+              if (rend != null)
+                  grassCarbonAmount += rend.bounds.size.y * GetShrubCarbonFactor();
+          }
+
+          return grassCarbonAmount;
+      }
 
     /// <summary>
     /// Gets the roots carbon amount currently visualized.
@@ -5178,6 +5717,7 @@ public class CubeController : MonoBehaviour
         public string name = "Tree";
         public bool isShrub = false;
         public List<GameObject> list;               // Prefabs at different growth stages (i.e. idx 0: small to idx n: large)
+        public GameObject deadPrefab;               // Dead/snag model for this species. Leave empty to use the cube's shared deadTreePrefab.
     }
     [System.Serializable]
     public class PatchDisplayInfo

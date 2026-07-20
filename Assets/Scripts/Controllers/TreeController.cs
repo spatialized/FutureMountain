@@ -172,6 +172,24 @@ public abstract class TreeController : MonoBehaviour
     }
 
     /// <summary>
+    /// Carbon this tree will represent once fully grown. The Central Coast balance counts saplings at
+    /// this value so they already fill their share of the target: comparing current carbon instead makes
+    /// the loop plant again every frame while everything is still growing, so the stand is permanently
+    /// overplanted with trees that never reach full size. Deliberately omits the zero-scale check used by
+    /// GetCarbonAmount, because a freshly planted tree starts at scale zero.
+    /// </summary>
+    /// <returns>The carbon amount at full size.</returns>
+    public float GetPotentialCarbonAmount()
+    {
+        if (!alive)
+            return 0f;
+        else if (dying)
+            return 0f;
+        else
+            return treeFullHeightScale * GetFullTreeHeight() * treeCarbonFactor;
+    }
+
+    /// <summary>
     /// Sets whether to destroy fir after fire.
     /// </summary>
     /// <param name="destroyAfter">If set to <c>true</c> destroy after.</param>
@@ -860,8 +878,15 @@ public abstract class TreeController : MonoBehaviour
         //Debug.Log(transform.name + " SetDeadPrefab()... currentPrefabIdx:" + currentPrefabIdx + " deadTreePrefabSize:"+ deadTreePrefabSize);
         treePrefabIdx = 0;                   // Reset prefab index
 
+        Transform newLODGroupTransform = transform.Find("LODGroup_DeadTree");
+        if (newLODGroupTransform == null)
+        {
+            Debug.LogWarning(transform.name + ".SetDeadPrefab()... no LODGroup_DeadTree child; keeping the live model. Is a dead tree prefab assigned for this species?");
+            return;
+        }
+
         curLODGroup.SetActive(false);
-        GameObject newLODGroup = transform.Find("LODGroup_DeadTree").gameObject;
+        GameObject newLODGroup = newLODGroupTransform.gameObject;
         float newLODsScale = currentHeight / deadTreePrefabHeight * 0.75f;             // -- Why 0.75?
 
         /* Set dead tree object LOD scale */
@@ -884,17 +909,31 @@ public abstract class TreeController : MonoBehaviour
     /// </summary>
     protected void HideDeadTreeObjects()
     {
-        GameObject oldLODGroup = transform.Find("LODGroup_DeadTree").gameObject;      // Reset dead tree object LOD scale
-        for (int i = 0; i < oldLODGroup.transform.childCount; i++)
+        // The dead model is created in CubeController.InstantiateTreeFromPrefab; it is missing when
+        // neither the species' deadPrefab nor the cube's shared deadTreePrefab is assigned.
+        Transform oldLODGroupTransform = transform.Find("LODGroup_DeadTree");
+        if (oldLODGroupTransform != null)
         {
-            GetLODInGroup(i, oldLODGroup).transform.localScale = Vector3.one;
+            GameObject oldLODGroup = oldLODGroupTransform.gameObject;                 // Reset dead tree object LOD scale
+            for (int i = 0; i < oldLODGroup.transform.childCount; i++)
+            {
+                GetLODInGroup(i, oldLODGroup).transform.localScale = Vector3.one;
+            }
+            oldLODGroup.SetActive(false);
         }
-        oldLODGroup.SetActive(false);
-        for (int i = 0; i < curRootsObject.transform.childCount; i++)
+        else
         {
-            GetLODInGroup(i, curRootsObject).transform.localScale = Vector3.one;
+            Debug.LogWarning(transform.name + ".HideDeadTreeObjects()... no LODGroup_DeadTree child; is a dead tree prefab assigned for this species?");
         }
-        curRootsObject.SetActive(false);
+
+        if (curRootsObject != null)
+        {
+            for (int i = 0; i < curRootsObject.transform.childCount; i++)
+            {
+                GetLODInGroup(i, curRootsObject).transform.localScale = Vector3.one;
+            }
+            curRootsObject.SetActive(false);
+        }
     }
 
     /// <summary>

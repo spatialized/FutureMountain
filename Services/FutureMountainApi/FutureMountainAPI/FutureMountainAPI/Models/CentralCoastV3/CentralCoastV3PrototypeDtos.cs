@@ -8,8 +8,8 @@ namespace FutureMountainAPI.Models.CentralCoastV3
         public int patchIdx { get; set; }
 
         public float snow { get; set; }
-        //public float groundevap { get; set; }
-        //public float canopyevap { get; set; }
+        public float groundevap { get; set; }
+        public float canopyevap { get; set; }
         public float evap { get; set; } // groudevap + canopyevap + transOver +transUnder
         public float netpsn { get; set; } // netpsnOver + netpsnUnder
         public float depthToGW { get; set; }
@@ -25,9 +25,10 @@ namespace FutureMountainAPI.Models.CentralCoastV3
         public float rootCOver { get; set; }
         public float rootdepthCOver { get; set; }
         public float laiOver { get; set; }
-        //public float gppOver { get; set; }
-        //public float respOver { get; set; } 
-        //public float netpsnOver { get; set; }
+        public float gppOver { get; set; }
+        public float respOver { get; set; } 
+        public float netpsnOver { get; set; }
+        public float streamflow { get; set; } // V3 stores streamflow in the `streamflow` column, not Qout
 
         public float heightUnder { get; set; }
         public float transUnder { get; set; }
@@ -36,15 +37,15 @@ namespace FutureMountainAPI.Models.CentralCoastV3
         public float rootCUnder { get; set; }
         public float rootdepthUnder { get; set; }
         public float laiUnder { get; set; }
-        //public float gppUnder { get; set; } 
-        //public float respUnder { get; set; } 
-        //public float netpsnUnder { get; set; }
+        public float gppUnder { get; set; } 
+        public float respUnder { get; set; } 
+        public float netpsnUnder { get; set; }
 
-        // public float tmax { get; set; }
-        // public float tmin { get; set; }
-        // public float relHumidity { get; set; }
-        // public float windSpeed { get; set; }
-        // public float windDirection { get; set; }
+        public float tmax { get; set; }
+        public float tmin { get; set; }
+        public float relHumidity { get; set; }
+        public float windSpeed { get; set; }
+        public float windDirection { get; set; }
 
         public float burn { get; set; }
         public float fire { get; set; } 
@@ -59,12 +60,13 @@ namespace FutureMountainAPI.Models.CentralCoastV3
                   patchIdx = (int)row.patchID,
 
                   snow = 0f,
-                  //groundevap = row.groundevap,
-                  //canopyevap = row.canopyevap,
+                  groundevap = row.groundevap,
+                  canopyevap = row.canopyevap,
                   evap = row.canopyevap + row.groundevap + row.transOver + row.transUnder,
                   depthToGW = row.depthToGW,
                   vegAccessWater = row.vegAccessWater,
-                  qout = row.Qout,
+                  qout = row.streamflow, //placeholder for V3 streamflow, which is stored in the `streamflow` column, not Qout
+                  streamflow = row.streamflow, 
                   litter = row.litterc,
                   soil = row.soilc,
                   netpsn = row.netpsnOver + row.netpsnUnder,
@@ -76,9 +78,9 @@ namespace FutureMountainAPI.Models.CentralCoastV3
                   rootCOver = row.rootCOver,
                   rootdepthCOver = row.rootdepthCOver,
                   laiOver = row.laiOver,
-                  //gppOver = row.gppOver,
-                  //respOver = row.respOver,
-                  //netpsnOver = row.netpsnOver,
+                  gppOver = row.gppOver,
+                  respOver = row.respOver,
+                  netpsnOver = row.netpsnOver,
 
                   heightUnder = row.heightUnder,
                   transUnder = row.transUnder,
@@ -87,15 +89,15 @@ namespace FutureMountainAPI.Models.CentralCoastV3
                   rootCUnder = row.rootCUnder,
                   rootdepthUnder = row.rootdepthUnder,
                   laiUnder = row.laiUnder,
-                  //gppUnder = row.gppUnder,
-                  //respUnder = row.respUnder,
-                  //netpsnUnder = row.netpsnUnder,
+                  gppUnder = row.gppUnder,
+                  respUnder = row.respUnder,
+                  netpsnUnder = row.netpsnUnder,
 
-                //   tmax = row.tmax,
-                //   tmin = row.tmin,
-                //   relHumidity = row.relHumidity,
-                //   windSpeed = row.windSpeed,
-                //   windDirection = row.windDirection,
+                  tmax = row.tmax,
+                  tmin = row.tmin,
+                  relHumidity = row.relHumidity,
+                  windSpeed = row.windSpeed,
+                  windDirection = row.windDirection,
 
                   burn = row.burn,
                   fire = row.fire
