@@ -208,8 +208,8 @@ public class FirController : TreeController
     protected void UpdateGrowth()
     {
         GrowTree();
-        if (isFrontTree) 
-            GrowRoots(); 
+        if (isFrontTree)
+            GrowRoots();
     }
 
     /// <summary>
@@ -376,6 +376,20 @@ public class FirController : TreeController
 
         float heightScale = GetTreeActualHeight() / deadTreePrefabHeight;
         float widthScale = GetTreeActualWidth() / deadTreePrefabWidth;
+
+        // Diagnostic + safety net for the giant "DeadTreeLog" flash: a live/dead prefab height
+        // mismatch (or a ~0 dead prefab height) makes this ratio explode. Log the inputs and clamp
+        // so the litter log can't fill the screen. Healthy trees stay well under the cap.
+        const float maxLitterScale = 12f;
+        if (heightScale > maxLitterScale || widthScale > maxLitterScale)
+        {
+            Debug.LogWarning(name + ".TurnToLitter()... oversized litter scale clamped (giant-tree guard). " +
+                "actualHeight:" + GetTreeActualHeight() + " deadTreePrefabHeight:" + deadTreePrefabHeight +
+                " actualWidth:" + GetTreeActualWidth() + " deadTreePrefabWidth:" + deadTreePrefabWidth +
+                " heightScale:" + heightScale + " widthScale:" + widthScale);
+            heightScale = Mathf.Min(heightScale, maxLitterScale);
+            widthScale = Mathf.Min(widthScale, maxLitterScale);
+        }
 
         newDeadTree.transform.localScale = new Vector3(widthScale, heightScale, widthScale);
         newDeadTree.transform.localScale *= 0.75f;

@@ -128,7 +128,7 @@ public class CubeController : MonoBehaviour
     private float maxETSpeed = 11f;
 
     /* Timing */
-    private int timeIdx = 0;                        // Current index of simulation in data time series
+    protected int timeIdx = 0;                        // Current index of simulation in data time series
     private int firGrowthWaitTime = 30;             // Frames to wait between tree instantiations (avoid spawning too many all at once)
     private int shrubGrowthWaitTime = 10;           // Frames to wait between shrub instantiations (avoid spawning too many all at once)
     private float grassGrowthPercentChance = 10f;   // Likelihood (out of 100) of spawning grass patch
@@ -155,7 +155,7 @@ public class CubeController : MonoBehaviour
     private Dictionary<int, CubeData> cubeData;              // Data access for web loaded data
     private Dictionary<int, CubeData> cubeDataP2;
     private bool p1Loaded = false;   // member 01 (patch1) data loaded
-    private bool p2Loaded = false;   // member 02 (patch2) data loaded
+    protected bool p2Loaded = false;   // member 02 (patch2) data loaded
     public bool useCentralCoastPatches = false;   // Enable per-patch (patch1/patch2) growth. CC display cubes only.
     // Central Coast tuning: multiplies grass count on a grass-dominated patch. Inspector-tunable.
     public float grassPatchDensityScale = 1f;
@@ -247,8 +247,8 @@ public class CubeController : MonoBehaviour
     // linear map leaves the water pinned at the bed. Values below 1 lift ordinary flows into a visible
     // range without changing their order; 1 = linear (BigCreek behaviour).
     public float streamLevelCurve = 1f;
-    private float StreamHeightMin = 100000f;     // Min. stream level in current data file
-    private float StreamHeightMax = -100000f;    // Max. stream level in current data file
+    protected float StreamHeightMin = 100000f;     // Min. stream level in current data file
+    protected float StreamHeightMax = -100000f;    // Max. stream level in current data file
 
     private float WaterAccessMin = 100000f;
     private float WaterAccessMax = -100000f;
@@ -262,13 +262,13 @@ public class CubeController : MonoBehaviour
     public float drivewayWidth = 5f;              // Driveway width (m.)
 
     /* Vegetation */
-    private List<FirController> firs;                // Array of all fir controllers
+    protected List<FirController> firs;                // Array of all fir controllers
     private ManzanitaController[] manzanitas;    // Array of all fir controllers
     private List<ShrubController> shrubs;         // List of active (simple) shrub objects
     private List<GameObject> grasses;         // List of active (simple) shrub objects
 
     private List<GameObject> litter;             // List of active (simple) shrub objects
-    private Vector3[] firLocations;              // Tree locations
+    protected Vector3[] firLocations;              // Tree locations
     private List<int> activeFirLocations;        // Used fir location IDs
     public int firsToKill = 0;                   // Trees to kill
     private int[] firsToKillBySpecies;           // Central Coast: per-species kill queue, indexed by speciesIdx
@@ -515,7 +515,7 @@ public class CubeController : MonoBehaviour
             //     }
             // }
 
-             GrowOverstoryByPatch(combinedCarbonOver);
+             GrowInitialOverstory(combinedCarbonOver);
 
             /* Grow Initial Shrubs */
             int shrubsToGrow = (int)Mathf.Round(combinedCarbonUnder / shrubAverageCarbonAmount);        // Use Understory Data for Shrubs
@@ -528,13 +528,18 @@ public class CubeController : MonoBehaviour
             //UpdateShrubRenderers();
         }
 
-        // GrowInitialGrass(cubeInitialGrassPatches);
-        if (useCentralCoastPatches)
-              GrowGrassPatches(ccBackgroundGrassPatches);      // Central Coast: deterministic fill
-        else
-            GrowInitialGrass(cubeInitialGrassPatches);       // BigCreek: unchanged random fill
+        GrowInitialGrassLayer();
 
         //Debug.Log(name + ".GrowInitialVegetation()... dataType: "+ dataType);
+    }
+
+    /// <summary>
+    /// Grows the initial grass layer. BigCreek scatters grass patches randomly; CubeController_CCV3
+    /// overrides this with a deterministic fill so the Central Coast understory reads consistently.
+    /// </summary>
+    protected virtual void GrowInitialGrassLayer()
+    {
+        GrowInitialGrass(cubeInitialGrassPatches);       // BigCreek: unchanged random fill
     }
 
         private int GetTreeSpeciesIndex(string speciesName)
@@ -626,21 +631,16 @@ public class CubeController : MonoBehaviour
 //       Debug.Log($"[VEG4] {name} {(patch1 != null ? patch1.overstorySpecies : "?")}:{grownP1} {(patch2 != null ? patch2.overstorySpecies : "?")}:{grownP2} fails:{fails} / {treesToGrow}");
 //   }
 
-    private void GrowOverstoryByPatch(float combinedCarbonOver)
+    /// <summary>
+    /// Grows the initial overstory from carbon. BigCreek grows a single tree species sized by the
+    /// combined overstory carbon; CubeController_CCV3 grows each patch (patch1 / patch2) from its own
+    /// carbon and area percentage.
+    /// </summary>
+    protected virtual void GrowInitialOverstory(float combinedCarbonOver)
     {
-        // BigCreek (no patch config): grow the single tree species as before.
-        //if (patch1 == null && patch2 == null)
-        if (!useCentralCoastPatches)   // BigCreek / aggregate: single species, original behavior
-        {
-            int count = (int)Mathf.Round(combinedCarbonOver / treeAverageCarbonAmount);
-            for (int i = 0; i < count; i++)
-                if (!GrowAFir(true, 0)) break;
-            return;
-        }
-
-        // Central Coast: patch1 = this cube's member (member 01), patch2 = second member (member 02).
-        GrowPatchOverstory(patch1, combinedCarbonOver);
-        GrowPatchOverstory(patch2, GetOverstoryCarbonP2(timeIdx));
+        int count = (int)Mathf.Round(combinedCarbonOver / treeAverageCarbonAmount);
+        for (int i = 0; i < count; i++)
+            if (!GrowAFir(true, 0)) break;
     }
 
     // // Grows one patch's overstory from its own carbon, scaled by its area percentage.
@@ -669,7 +669,7 @@ public class CubeController : MonoBehaviour
 
     
       // Grows one patch's overstory from its own carbon, scaled by its area percentage.
-      private void GrowPatchOverstory(PatchDisplayInfo patch, float carbonOver)
+      protected void GrowPatchOverstory(PatchDisplayInfo patch, float carbonOver)
       {
           if (patch == null) return;
 
@@ -704,7 +704,7 @@ public class CubeController : MonoBehaviour
       }
 
     // Reads patch2 (second member) overstory carbon at the given 0-based sim time index.
-    private float GetOverstoryCarbonP2(int idx)
+    protected float GetOverstoryCarbonP2(int idx)
     {
         if (cubeDataP2 == null) return 0f;
         if (cubeDataP2.TryGetValue(idx + 1, out CubeData row))   // +1: 0-based timeIdx -> 1-based dateIdx
@@ -1269,34 +1269,18 @@ public class CubeController : MonoBehaviour
             }
         }
 
-         // Central Coast: cluster patch1 into groves; near the stream if the cube has one, else random.
-        if (useCentralCoastPatches)
-        {
-            Debug.Log($"[CLUSTER] {name} useCCP:{useCentralCoastPatches} hasStream:{hasStream} trees:{firLocations.Length}");
-            int numClumps = 4;   // number of patch1 groves; tune to taste
-            Vector3[] clumpCenters = new Vector3[numClumps];
-            for (int c = 0; c < numClumps; c++)
-            {
-                if (hasStream)
-                {
-                    // Clump centers hug the stream line.
-                    float sx = Random.Range(streamCenter - streamWidth, streamCenter + streamWidth) + offsetX;
-                    float sz = Random.Range(cubeZMin, cubeZMax) + offsetZ;
-                    clumpCenters[c] = new Vector3(sx, 0f, sz);
-                }
-                else
-                {
-                    clumpCenters[c] = firLocations[Random.Range(0, firLocations.Length)];
-                }
-            }
-
-            // Sort so locations nearest a clump come first: patch1 (grown first) fills the clumps, patch2 fills the rest.
-            System.Array.Sort(firLocations, (a, b) =>
-                NearestClumpDist(a, clumpCenters).CompareTo(NearestClumpDist(b, clumpCenters)));
-        }
+        // Central Coast clusters patch1 into groves (near the stream if the cube has one); BigCreek does not.
+        ClusterTreeLocations(offsetX, offsetZ, cubeZMin, cubeZMax);
 
         firs = new List<FirController>();
     }
+
+    /// <summary>
+    /// Re-orders <see cref="firLocations"/> after they are created. BigCreek leaves them as-is;
+    /// CubeController_CCV3 sorts them into stream-hugging groves so patch1 fills the riparian strip
+    /// and patch2 fills the outer banks.
+    /// </summary>
+    protected virtual void ClusterTreeLocations(float offsetX, float offsetZ, float cubeZMin, float cubeZMax) { }
 
     // // Distance from p to the closest clump center (for Central Coast patch1 clustering).
     // private float NearestClumpDist(Vector3 p, Vector3[] centers)
@@ -1313,7 +1297,7 @@ public class CubeController : MonoBehaviour
     // Anisotropic distance to the nearest clump center. On a stream cube the cross-stream (X)
     // term dominates, so the sort runs "near the stream" -> "far from the stream" on BOTH banks;
     // the weakened along-stream (Z) term only groups trees into groves. Plain distance otherwise.
-    private float NearestClumpDist(Vector3 p, Vector3[] centers)
+    protected float NearestClumpDist(Vector3 p, Vector3[] centers)
     {
         float zWeight = hasStream ? 0.25f : 1f;
         float min = float.MaxValue;
@@ -1857,7 +1841,16 @@ public class CubeController : MonoBehaviour
         terrainBurnt = true;
 
         ResetFireManager();         // Added 12-27-24
+
+        OnFireExtinguished();       // Hook: Central Coast kills any still-burning trees now (no trailing burn)
     }
+
+    /// <summary>
+    /// Called once when the cube's fire goes out. BigCreek does nothing extra (ignited trees finish
+    /// their own burn); CubeController_CCV3 overrides this to kill any still-burning trees immediately
+    /// so the fire stopping and the trees dying happen together, with no lingering burn.
+    /// </summary>
+    protected virtual void OnFireExtinguished() { }
 
     /// <summary>
     /// Updates the stream from simulation data.
@@ -1867,20 +1860,11 @@ public class CubeController : MonoBehaviour
         if (!simulationOn)
             return;
 
-        // float streamPos = Mathf.Clamp(MathUtil.MapValue(Mathf.Log(StreamHeight) * 20f, StreamHeightMin, StreamHeightMax, 0f, 1f), 0f, 1f);  // -- TESTING
-        // StreamHeightMin/Max are collected from raw qout (FindParameterRanges), so StreamHeight must be
-        // fed in raw as well. Scaling only this side pinned streamPos at 1 and the water never moved.
-        float streamRange = StreamHeightMax - StreamHeightMin;
-        float streamLinear = (streamRange > Mathf.Epsilon)
-                           ? Mathf.Clamp(MathUtil.MapValue(StreamHeight, StreamHeightMin, StreamHeightMax, 0f, 1f), 0f, 1f)
-                           : 0f;                                     // MapValue has no divide-by-zero guard
-
-        // Apply the response curve after normalising, so the 0..1 bounds and the ordering are preserved.
-        float streamPos = (streamLevelCurve > 0f && !Mathf.Approximately(streamLevelCurve, 1f))
-                        ? Mathf.Pow(streamLinear, streamLevelCurve)
-                        : streamLinear;
-        float streamSplineHeight = Mathf.Clamp(MathUtil.MapValue(streamPos, 0f, 1f, streamZeroHeight, streamFullHeight), streamZeroHeight, streamFullHeight);
-        float streamFaceScale = Mathf.Clamp(MathUtil.MapValue(streamPos, 0f, 1f, streamFaceZeroScale, streamFaceFullScale), streamFaceZeroScale, streamFaceFullScale);
+        float streamPos = ComputeStreamPos();       // Normalised water level; 1 = full. CubeController_CCV3 can return >1 to flood.
+        // Lower-bounded only: a Central Coast flood (streamPos > 1) lifts the water above streamFullHeight.
+        // BigCreek's streamPos never exceeds 1, so its result is identical to the old clamp.
+        float streamSplineHeight = Mathf.Max(MathUtil.MapValue(streamPos, 0f, 1f, streamZeroHeight, streamFullHeight), streamZeroHeight);
+        float streamFaceScale = Mathf.Max(MathUtil.MapValue(streamPos, 0f, 1f, streamFaceZeroScale, streamFaceFullScale), streamFaceZeroScale);
 
         streamObject.transform.localPosition = new Vector3(streamObject.transform.localPosition.x,
                                                             streamSplineHeight,
@@ -1892,9 +1876,20 @@ public class CubeController : MonoBehaviour
 
         if (debugStream)
             Debug.Log($"{transform.parent.name} UpdateStream()... StreamHeight:{StreamHeight:E3} " +
-                      $"range:[{StreamHeightMin:E3}, {StreamHeightMax:E3}] linear:{streamLinear:F3} " +
+                      $"range:[{StreamHeightMin:E3}, {StreamHeightMax:E3}] " +
                       $"streamPos:{streamPos:F3} splineY:{streamObject.transform.localPosition.y:F2} " +
                       $"faceScaleY:{streamFaceObject.transform.localScale.y:F2}");
+    }
+
+    /// <summary>
+    /// Computes the normalised water level [0,1] for the stream spline/face. The base class uses the
+    /// BigCreek response (log-scaled qout); CubeController_CCV3 overrides it with the Central Coast
+    /// response (raw streamflow normalised, then a tunable power curve).
+    /// </summary>
+    protected virtual float ComputeStreamPos()
+    {
+        // BigCreek: qout is heavily skewed, so a log scale spreads the low end before normalising.
+        return Mathf.Clamp(MathUtil.MapValue(Mathf.Log(StreamHeight) * 20f, StreamHeightMin, StreamHeightMax, 0f, 1f), 0f, 1f);
     }
 
     /// <summary>
@@ -1905,14 +1900,21 @@ public class CubeController : MonoBehaviour
         if (!simulationOn)
             return;
 
-        if (useCentralCoastPatches)
-            UpdateVegetationCentralCoast();     // Trees balanced per patch; grass stands in for the understory
-        else
-            UpdateVegetationDefault();          // BigCreek / aggregate: original single-patch behaviour
+        UpdateVegetationCore();                 // Species-balance step; overridden by the Central Coast subclass
 
         GrowRoots();
         GrowShrubs();
         GrowGrass();
+    }
+
+    /// <summary>
+    /// Per-frame vegetation balance step. The base class runs the BigCreek /
+    /// aggregate single-patch behaviour; CubeController_CCV3 overrides this to
+    /// balance each patch (patch1 / patch2) against its own carbon.
+    /// </summary>
+    protected virtual void UpdateVegetationCore()
+    {
+        UpdateVegetationDefault();              // BigCreek / aggregate: original single-patch behaviour
     }
 
     /// <summary>
@@ -1921,7 +1923,7 @@ public class CubeController : MonoBehaviour
     /// the other, and grass stands in for the whole understory because no Central Coast species is
     /// flagged isShrub.
     /// </summary>
-    private void UpdateVegetationCentralCoast()
+    protected void UpdateVegetationCentralCoast()
     {
         if (firsToKillBySpecies != null)                     // Each patch has its own kill queue
         {
@@ -2207,6 +2209,12 @@ public class CubeController : MonoBehaviour
         List<GameObject> removeList = new List<GameObject>();
         foreach (GameObject obj in litter)
         {
+            if (obj == null)        // Destroyed elsewhere (litter is collected scene-wide); drop it.
+            {
+                removeList.Add(obj);
+                continue;
+            }
+
             float x, y, z;
             float factor = (1f - settings.DeadTreeShrinkFactor);
             x = obj.transform.localScale.x * factor;
@@ -2238,12 +2246,7 @@ public class CubeController : MonoBehaviour
             Debug.Log(name + ".UpdateDataFromWeb()... patchID:"+ patchID+" warmingIdx: " + warmingIdx);
             WebManager.Instance.RequestCubeData(patchID, warmingIdx, this.FinishUpdateDataFromWeb);
 
-            // Central Coast: also load the second patch member (patchID + 1) to drive patch2.
-            // if (patch2 != null)
-            // WebManager.Instance.RequestCubeData(patchID + 1, warmingIdx, this.FinishUpdateDataFromWebP2);
-            // Central Coast: also load the second patch member (patchID + 1) to drive patch2.
-        if (useCentralCoastPatches)
-            WebManager.Instance.RequestCubeData(patchID + 1, warmingIdx, this.FinishUpdateDataFromWebP2);
+            RequestExtraPatchData(warmingIdx);   // Central Coast loads its second patch member here; base does nothing
         }
     }
 
@@ -2298,12 +2301,27 @@ public class CubeController : MonoBehaviour
         p1Loaded = true;
 
         // Grow only when all needed members are loaded (so we never reset later).
-        if (!useCentralCoastPatches || p2Loaded)
-            UpdateVegetationFromData();    
+        if (ReadyToGrowFromData())
+            UpdateVegetationFromData();
+    }
+
+    /// <summary>
+    /// Central Coast override: request the cube's second patch member (patchID + 1). Base loads a
+    /// single member, so it does nothing extra.
+    /// </summary>
+    protected virtual void RequestExtraPatchData(int warmingIdx) { }
+
+    /// <summary>
+    /// Whether all data needed to grow vegetation has arrived. Base loads a single member so it is
+    /// always ready; CubeController_CCV3 waits until the second patch member has loaded too.
+    /// </summary>
+    protected virtual bool ReadyToGrowFromData()
+    {
+        return true;
     }
 
     // Loads the second patch member's data, then re-grows so patch2 uses its own carbon.
-    private void FinishUpdateDataFromWebP2(string jsonString)
+    protected void FinishUpdateDataFromWebP2(string jsonString)
     {
         CubeDataModelList rowsObj = JsonUtility.FromJson<CubeDataModelList>("{\"rows\":" + jsonString + "}");
         cubeDataP2 = LoadData(rowsObj.rows);
@@ -2639,6 +2657,16 @@ public class CubeController : MonoBehaviour
     }
 
     /// <summary>
+    /// Whether new tree slots for the given species should fill from the far (last) end of the sorted
+    /// location list. BigCreek always fills from the near end; CubeController_CCV3 fills patch2
+    /// (speciesIdx &gt; 0) from the far end so the understory species never crowds the riparian strip.
+    /// </summary>
+    protected virtual bool FillTreeSlotsFromFarEnd(int speciesIdx)
+    {
+        return false;
+    }
+
+    /// <summary>
     /// Grows a fir tree.
     /// </summary>
     private bool GrowAFir(bool immediate, int speciesIdx = 0)
@@ -2672,7 +2700,7 @@ public class CubeController : MonoBehaviour
          // Central Coast: firLocations are sorted nearest-stream-first (see CreateTreeLocations).
           // Patch1 (sp0) fills from the near end; patch2 (sp1) fills from the far end,
           // so understory species never crowd the riparian strip.
-          bool fillFromFarEnd = useCentralCoastPatches && speciesIdx > 0;
+          bool fillFromFarEnd = FillTreeSlotsFromFarEnd(speciesIdx);
 
           int index;
           if (fillFromFarEnd)
@@ -2889,7 +2917,7 @@ public class CubeController : MonoBehaviour
 
     // Grows an exact number of grass patches. Unlike GrowInitialGrass this does not randomise the
       // count, so the Central Coast background fill stays comparable between runs and between cubes.
-      private void GrowGrassPatches(int count)
+      protected void GrowGrassPatches(int count)
       {
           for (int i = 0; i < count; i++)
               GrowAGrassPatch(true);
@@ -3231,7 +3259,7 @@ public class CubeController : MonoBehaviour
     /// Returns number of alive trees in cube.
     /// </summary>
     /// <returns>The number of alive trees in cube.</returns>
-    private List<FirController> GetAliveTrees()
+    protected List<FirController> GetAliveTrees()
     {
         List<FirController> result = new List<FirController>();
         foreach (FirController fir in firs)
@@ -3665,14 +3693,8 @@ public class CubeController : MonoBehaviour
     /// Set vegetation to die from fire
     /// </summary>
     /// <param name="fireTimeIdx">Time index of fire</param>
-    private void SetVegetationToDieFromFire(int fireTimeIdx)            // TO DO: Fix for web (?)
+    protected virtual void SetVegetationToDieFromFire(int fireTimeIdx)            // TO DO: Fix for web (?)
     {
-        if (useCentralCoastPatches)
-        {
-            SetCentralCoastVegetationToDieFromFire(fireTimeIdx);
-            return;
-        }
-
         if (dataType == CubeDataType.Veg1)
         {
             // float fireLeafCarbon = ReadData((int)DataColumnIdx.LeafCarbonOver, fireTimeIdx);        // Read carbon data at fireTimeIdx
@@ -3792,7 +3814,7 @@ public class CubeController : MonoBehaviour
     /// firsToKill came out <= 0 and SetTreesToBurn disabled burning on every tree instead of igniting it.
     /// </summary>
     /// <param name="fireTimeIdx">Time index of the fire.</param>
-    private void SetCentralCoastVegetationToDieFromFire(int fireTimeIdx)
+    protected void SetCentralCoastVegetationToDieFromFire(int fireTimeIdx)
     {
         firsToKill = 0;
 
@@ -3847,8 +3869,8 @@ public class CubeController : MonoBehaviour
                 Debug.Log(name + ".SetTreesToBurn()... fireLengthInFrames:" + fireLengthInFrames + " aliveTrees.Count:" + aliveTrees.Count + " firsToKill:" + firsToKill + " shrubsToKill:" + shrubsToKill + " time:" + Time.time);
 
             // BigCreek's loop stops before index 0, so one tree always survives even a total burn.
-            // Keep that quirk for BigCreek and let Central Coast reach the whole list.
-            int lastBurnableIdx = useCentralCoastPatches ? 0 : 1;
+            // Keep that quirk for BigCreek; CubeController_CCV3 overrides this to reach the whole list.
+            int lastBurnableIdx = LastBurnableTreeIndex();
 
             for (int i = aliveTrees.Count - 1; i >= lastBurnableIdx; i--)      // Select firs to burn starting from last idx
             {
@@ -3868,6 +3890,15 @@ public class CubeController : MonoBehaviour
 
             firsToKill = 0;                                 // Reset number of firs to kill
         }
+    }
+
+    /// <summary>
+    /// Lowest tree index the fire loop will ignite. BigCreek stops before index 0 so one tree always
+    /// survives even a total burn; CubeController_CCV3 overrides this to 0 so a full burn clears the cube.
+    /// </summary>
+    protected virtual int LastBurnableTreeIndex()
+    {
+        return 1;
     }
 
     /// <summary>
@@ -5210,21 +5241,15 @@ public class CubeController : MonoBehaviour
     /// Gets the tree carbon factor.
     /// </summary>
     /// <returns>The tree carbon factor.</returns>
-    // public float GetTreeCarbonFactor()
-    // {
-    //     if (isAggregate)
-    //         return settings.CubeATreeCarbonFactor;
-    //     else
-    //         return settings.TreeCarbonFactor;
-    // }
-    public float GetTreeCarbonFactor()
-      {
-          if (isAggregate)
-              return settings.CubeATreeCarbonFactor;
-          if (cubeTreeCarbonFactorOverride > 0f)
-              return cubeTreeCarbonFactorOverride;
-          return settings.TreeCarbonFactor;
-      }
+    // BigCreek: aggregate cubes use their own factor, everything else the shared factor.
+    // CubeController_CCV3 overrides this to add the per-cube saturation override.
+    public virtual float GetTreeCarbonFactor()
+    {
+        if (isAggregate)
+            return settings.CubeATreeCarbonFactor;
+        else
+            return settings.TreeCarbonFactor;
+    }
     /// <summary>
     /// Gets the roots carbon factor.
     /// </summary>

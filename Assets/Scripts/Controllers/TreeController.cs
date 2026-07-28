@@ -598,12 +598,28 @@ public abstract class TreeController : MonoBehaviour
     /// </summary>
     private void UpdateTreeLODsScale()
     {
-        float hFactor = treePrefabHeights[treePrefabIdx] / treePrefabHeights[treePrefabHeights.Length - 1];   // Calculate diff. between prefab heights
-        float newHeightScale = treeHeightScale / hFactor;                                                        // Adjust LODs scale to match full-grown height scale range
-        float wFactor = treePrefabWidths[treePrefabIdx] / treePrefabWidths[treePrefabHeights.Length - 1];     // Calculate diff. between prefab widths
-        float newWidthScale = treeWidthScale / wFactor;                                                          // Adjust LODs scale to match full-grown width scale range
+        float fullHeight = treePrefabHeights[treePrefabHeights.Length - 1];
+        float fullWidth = treePrefabWidths[treePrefabHeights.Length - 1];
+        float hFactor = treePrefabHeights[treePrefabIdx] / fullHeight;   // Calculate diff. between prefab heights
+        float wFactor = treePrefabWidths[treePrefabIdx] / fullWidth;     // Calculate diff. between prefab widths
 
-        SetTreeLODsScale(newHeightScale, newWidthScale);                                                         // Set scale of LODs
+        // A prefab whose LOD0 mesh measures ~0 height/width (bad bounds) drives hFactor/wFactor
+        // toward zero; dividing treeHeightScale by it scales the model to a screen-filling size.
+        // Guard so one broken prefab can't spawn a giant tree, and log which prefab so it can be
+        // fixed at the source. Healthy prefabs keep their original scaling (guard never triggers).
+        if (hFactor < 0.0001f || wFactor < 0.0001f)
+        {
+            Debug.LogWarning(transform.name + " UpdateTreeLODsScale()... degenerate prefab size, clamping to avoid a giant tree. " +
+                             "treePrefabIdx:" + treePrefabIdx + " measuredHeight:" + treePrefabHeights[treePrefabIdx] +
+                             " measuredWidth:" + treePrefabWidths[treePrefabIdx] + " fullHeight:" + fullHeight + " fullWidth:" + fullWidth);
+            if (hFactor < 0.0001f) hFactor = 1f;
+            if (wFactor < 0.0001f) wFactor = 1f;
+        }
+
+        float newHeightScale = treeHeightScale / hFactor;               // Adjust LODs scale to match full-grown height scale range
+        float newWidthScale = treeWidthScale / wFactor;                 // Adjust LODs scale to match full-grown width scale range
+
+        SetTreeLODsScale(newHeightScale, newWidthScale);               // Set scale of LODs
 
         //GameObject lod0 = curLODGroup.transform.GetChild(0).gameObject as GameObject;
         //float value = lod0.transform.GetComponent<Renderer>().bounds.size.y;            // Get height of prefab (m.)
@@ -637,6 +653,20 @@ public abstract class TreeController : MonoBehaviour
     /// <param name="newWidthScale">New width scale.</param>
     private void SetTreeLODsScale(float newHeightScale, float newWidthScale)
     {
+        // Safety net against the screen-filling "giant tree" flash: no healthy tree renders more than
+        // a modest multiple of its LOD's natural size. If the requested scale is absurd (bad prefab
+        // height data feeding the division upstream), log the inputs so we can find the offending
+        // prefab, then clamp. Normal trees stay well under the cap, so this never affects them.
+        const float maxLodScale = 12f;
+        if (newHeightScale > maxLodScale || newWidthScale > maxLodScale)
+        {
+            Debug.LogWarning(transform.name + " SetTreeLODsScale()... oversized scale clamped (giant-tree guard). " +
+                "treePrefabIdx:" + treePrefabIdx + " newHeightScale:" + newHeightScale + " newWidthScale:" + newWidthScale +
+                " treeHeightScale:" + treeHeightScale + " alive:" + alive + " dying:" + dying);
+            newHeightScale = Mathf.Min(newHeightScale, maxLodScale);
+            newWidthScale = Mathf.Min(newWidthScale, maxLodScale);
+        }
+
         if (curLODGroup != null)
         {
             for (int i = 0; i < curLODGroup.transform.childCount; i++)
@@ -885,22 +915,41 @@ public abstract class TreeController : MonoBehaviour
             return;
         }
 
-        curLODGroup.SetActive(false);
-        GameObject newLODGroup = newLODGroupTransform.gameObject;
-        float newLODsScale = currentHeight / deadTreePrefabHeight * 0.75f;             // -- Why 0.75?
-
-        /* Set dead tree object LOD scale */
-        for (int i = 0; i < newLODGroup.transform.childCount; i++)
+        // A dead prefab whose LOD0 mesh measures ~0 height makes currentHeight / deadTreePrefabHeight
+        // explode, so the dead model flashes up screen-filling during the fall animation. Keep the
+        // live model in that case (the tree just falls and shrinks) and log which prefab is broken.
+        if (deadTreePrefabHeight < 0.0001f || currentHeight < 0f)
         {
-            GetLODInGroup(i, newLODGroup).transform.localScale = Vector3.one * newLODsScale;
+            Debug.LogWarning(transform.name + ".SetDeadPrefab()... degenerate dead prefab size (currentHeight:" + currentHeight +
+                             " deadTreePrefabHeight:" + deadTreePrefabHeight + "); keeping live model to avoid a giant dead tree.");
+            return;
         }
 
-        //if (debugTree)
-        //Debug.Log(transform.name + "   SetDeadPrefab()... prefabHeight:" + prefabHeight + " deadTreePrefabSize:" + deadTreePrefabSize + " newScale:" + newLODsScale);
+        curLODGroup.SetActive(false);
+        GameObject newLODGroup = newLODGroupTransform.gameObject;
 
+        // Scale the dead model to render at 0.75x the live tree's height. Rather than dividing two
+        // separately-measured prefab heights and overwriting each LOD child's scale (which discarded
+        // any scale baked into the dead prefab and could render the dead tree far larger than the live
+        // one), activate the model at unit scale, measure how tall it actually renders, then scale the
+        // whole group to the target. This is robust to any non-1 scales inside the dead prefab.
+        newLODGroup.transform.localScale = Vector3.one;
         newLODGroup.SetActive(true);
-        curLODGroup = newLODGroup;
 
+        float deadNaturalHeight = 0f;
+        Renderer[] deadRenderers = newLODGroup.GetComponentsInChildren<Renderer>();
+        if (deadRenderers.Length > 0)
+        {
+            Bounds deadBounds = deadRenderers[0].bounds;
+            for (int i = 1; i < deadRenderers.Length; i++)
+                deadBounds.Encapsulate(deadRenderers[i].bounds);
+            deadNaturalHeight = deadBounds.size.y;
+        }
+
+        if (deadNaturalHeight > 0.0001f)
+            newLODGroup.transform.localScale = Vector3.one * (currentHeight * 0.75f / deadNaturalHeight);
+
+        curLODGroup = newLODGroup;
         UpdateRenderer();
     }
 
