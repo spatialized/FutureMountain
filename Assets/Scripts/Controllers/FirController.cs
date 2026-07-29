@@ -145,6 +145,13 @@ public class FirController : TreeController
                 particlesEnabled = false;
             }
 
+            // TEMP DIAGNOSTIC: why does chamise (one species) not grow while oak does?
+            // Throttled per-frame so a whole stand doesn't flood the console. Remove once solved.
+            if (Time.frameCount % 200 == 0)
+                Debug.Log($"[GROWDBG] {name} sp{speciesIdx} alive:{alive} dying:{dying} destroyed:{destroyed} " +
+                          $"hScale:{treeHeightScale:F3} fullScale:{treeFullHeightScale:F3} timeStep:{timeStep} " +
+                          $"prefabIdx:{treePrefabIdx} lastPrefabH:{treePrefabHeights[treePrefabHeights.Length - 1]:F3}");
+
             if (alive)                                        // If fir is alive, update growth
                 UpdateGrowth();
             else if (dying)
