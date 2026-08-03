@@ -68,6 +68,10 @@ namespace FutureMountainAPI.Models.CentralCoastV3
         //fire
         public float burn { get; set; }
         public float fire { get; set; }
+
+        // Newer RHESSys columns (8-3-2026 bundle onward); 0 for older imports.
+        public float ind_died { get; set; }   // individuals that died this step
+        public float fcover { get; set; }      // fractional vegetation cover
     }
 
     

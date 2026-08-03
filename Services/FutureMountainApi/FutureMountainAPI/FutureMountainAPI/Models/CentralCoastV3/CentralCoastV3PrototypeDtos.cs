@@ -48,7 +48,10 @@ namespace FutureMountainAPI.Models.CentralCoastV3
         public float windDirection { get; set; }
 
         public float burn { get; set; }
-        public float fire { get; set; } 
+        public float fire { get; set; }
+
+        public float ind_died { get; set; } // individuals that died this step
+        public float fcover { get; set; }   // fractional vegetation cover
 
         public static CentralCoastV3CubeDataPrototypeDto FromRow(CentralCoastV3CubeDataRow row)
         {
@@ -100,7 +103,10 @@ namespace FutureMountainAPI.Models.CentralCoastV3
                   windDirection = row.windDirection,
 
                   burn = row.burn,
-                  fire = row.fire
+                  fire = row.fire,
+
+                  ind_died = row.ind_died,
+                  fcover = row.fcover
             };
         }
     }

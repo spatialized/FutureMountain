@@ -120,6 +120,10 @@ namespace RHESSYs_Data_Importer.IO
 
                         burn = GetFloat(parts, colMap, "burned"),
                         fire = GetFloat(parts, colMap, "fire"),
+
+                        // Newer columns; absent in pre-8-3-2026 files, GetFloat -> 0.
+                        ind_died = GetFloat(parts, colMap, "ind_died"),
+                        fcover   = GetFloat(parts, colMap, "fcover"),
                     };
 
                     imported++;

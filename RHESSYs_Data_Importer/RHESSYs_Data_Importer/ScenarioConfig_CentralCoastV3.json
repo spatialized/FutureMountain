@@ -14,7 +14,7 @@
     "charset": "utf8mb4",
     "collation": "utf8mb4_0900_ai_ci"
   },
-  "sourceRoot": "../Data/CentralCoast/RHESSysOutput-SingleScenario-WRF-7-1-2026/",
+  "sourceRoot": "../Data/CentralCoast/RHESSysOutput-SingleScenario-WRF-8-3-2026/",
   "delimiter": ",",
   "files": {
     "cubeAggregateDaily": "aggregate_cube_bd.csv",

@@ -76,6 +76,11 @@ namespace Assets.Scripts.Models
         public float windDirection;
         public float groundevap;
         public float canopyevap;
+
+        // Newer RHESSys columns (8-3-2026 bundle onward). Field names must match
+        // the API JSON keys exactly so JsonUtility populates them.
+        public float ind_died;   // individuals that died this step
+        public float fcover;     // fractional vegetation cover
     }
 
     [Serializable]
