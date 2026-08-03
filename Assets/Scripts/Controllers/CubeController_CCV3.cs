@@ -143,7 +143,11 @@ public class CubeController_CCV3 : CubeController
     // on the outer banks.
     protected override bool FillTreeSlotsFromFarEnd(int speciesIdx)
     {
-        return speciesIdx > 0;
+        // patch2 species fill from the far (outer) end; patch1 from the near (stream) end.
+          // Keyed off patchSlot so a patch can hold multiple species without breaking placement.
+          if (patchSlotBySpecies != null && speciesIdx >= 0 && speciesIdx < patchSlotBySpecies.Length)
+              return patchSlotBySpecies[speciesIdx] == 2;
+          return speciesIdx > 0;   // Fallback for pre-migration cubes.
     }
 
     // ----- Stage 5: riparian clustering of tree locations -----
@@ -181,5 +185,59 @@ public class CubeController_CCV3 : CubeController
     {
         GrowPatchOverstory(patch1, combinedCarbonOver);
         GrowPatchOverstory(patch2, GetOverstoryCarbonP2(timeIdx));
+    }
+
+    // ----- Stage 3: per-patch overstory flattened into the cube's flat species list -----
+    // Built by PrepareVegetationList() and index-aligned with the base treeList / speciesIdx:
+    //   patchSlotBySpecies[idx]   -> which patch (1 or 2) this species belongs to
+    //   targetStemsBySpecies[idx] -> initial individuals for this species (N_stems * percentInPatch)
+    protected int[] patchSlotBySpecies;
+    protected int[] targetStemsBySpecies;
+
+    // Rebuild vegetation.species from the two patches' overstory lists so the base tree-list build
+    // (and all speciesIdx-keyed runtime state) is driven by the per-patch community definition.
+    protected override void PrepareVegetationList()
+    {
+        // Not migrated yet: leave the Inspector-assigned list alone (legacy overstorySpecies still works).
+        bool hasP1 = patch1 != null && patch1.overstory != null && patch1.overstory.Count > 0;
+        bool hasP2 = patch2 != null && patch2.overstory != null && patch2.overstory.Count > 0;
+        if (!hasP1 && !hasP2) return;
+
+        var flat  = new List<Species>();
+        var slots = new List<int>();
+        var stems = new List<int>();
+
+        AppendPatchOverstory(patch1, 1, flat, slots, stems);
+        AppendPatchOverstory(patch2, 2, flat, slots, stems);
+
+        vegetation.species   = flat;
+        patchSlotBySpecies   = slots.ToArray();
+        targetStemsBySpecies = stems.ToArray();
+    }
+
+    // ----- Stage 4: per-cube tree budget follows the patch stem counts -----
+    // Central Coast follows cube_info N_stems literally, so the pool must hold the sum of both patches'
+    // stems (can exceed the global MaxTrees). base.MaxTreesForCube() returns the global cap.
+    protected override int MaxTreesForCube()
+    {
+        int p1 = (patch1 != null) ? patch1.nStems : 0;
+        int p2 = (patch2 != null) ? patch2.nStems : 0;
+        return Mathf.Max(base.MaxTreesForCube(), p1 + p2);
+    }
+
+    // Append one patch's overstory species to the flat list, recording each species' patch slot and
+    // its share of the patch's N_stems. Overstory species must be trees (isShrub = false) so their
+    // flat index lines up with the base treeList index.
+    private void AppendPatchOverstory(PatchDisplayInfo patch, int slot,
+                                    List<Species> flat, List<int> slots, List<int> stems)
+    {
+        if (patch == null || patch.overstory == null) return;
+        foreach (Species sp in patch.overstory)
+        {
+            if (sp == null) continue;
+            flat.Add(sp);
+            slots.Add(slot);
+            stems.Add(Mathf.RoundToInt(patch.nStems * sp.percentInPatch / 100f));
+        }
     }
 }

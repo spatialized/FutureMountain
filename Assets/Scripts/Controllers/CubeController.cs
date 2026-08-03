@@ -279,6 +279,7 @@ public class CubeController : MonoBehaviour
     public float LeafCarbonUnder;                // Leaf carbon amount (Used for tree/bush leaf amount and grass height)
     public float StemCarbonOver;                 // Stem carbon amount (Used for tree height)    -- Also tree trunk thickness?
     public float StemCarbonUnder;                // Stem carbon amount (Used for tree height)    -- Also tree trunk thickness?
+    public float IndDiedOver;                   //Overstory individual died flag (1 = died, 0 = alive)
 
     //public float LeafCarbon { get; set; }           // Leaf carbon amount (Used for tree/bush leaf amount and grass height)
     //public float StemCarbon { get; set; }           // Stem carbon amount (Used for tree height)    -- Also tree trunk thickness?
@@ -670,38 +671,55 @@ public class CubeController : MonoBehaviour
     
       // Grows one patch's overstory from its own carbon, scaled by its area percentage.
       protected void GrowPatchOverstory(PatchDisplayInfo patch, float carbonOver)
-      {
-          if (patch == null) return;
+    {
+        if (patch == null) return;
 
-          // On a Central Coast grass patch the RHESSys overstory IS grass, so the count must be sized
-          // against the grass average. Using treeAverageCarbonAmount here makes the patch nearly empty.
-          bool isGrassPatch = (patch.overstorySpecies == "Grass");
-          float avgCarbon = isGrassPatch ? grassAverageCarbonAmount : treeAverageCarbonAmount;
-          if (avgCarbon <= 0f) return;
+        // Migrated path: the patch defines its overstory as one or more tree species. Grow a fixed
+        // number of individuals per species (N_stems * percentInPatch) from cube_info; carbon drives
+        // per-tree SIZE over time (GrowTree), not the head count.
+        if (patch.overstory != null && patch.overstory.Count > 0)
+        {
+            foreach (Species sp in patch.overstory)
+            {
+                if (sp == null) continue;
+                int speciesIdx = GetTreeSpeciesIndex(sp.name);
+                if (speciesIdx < 0) continue;
 
-          int count = (int)Mathf.Round(carbonOver / avgCarbon * patch.percent / 100f);
+                int stems = Mathf.Clamp(Mathf.RoundToInt(patch.nStems * sp.percentInPatch / 100f),
+                                        0, MaxTreesForCube());
+                for (int i = 0; i < stems; i++)
+                    GrowAFir(true, speciesIdx);   // No break: one failed slot shouldn't stop the rest
+            }
+            return;
+        }
 
-          if (isGrassPatch)
-              count = Mathf.Clamp((int)(count * grassPatchDensityScale), 0, maxGrassesPerPatch);
-          else
-              count = Mathf.Clamp(count, 0, settings.MaxTrees);
+        // Legacy path: single overstorySpecies (or grass), count derived from carbon. Pre-migration
+        // cubes and grass-only patches (overstory empty, overstorySpecies = "Grass") use this.
+        bool isGrassPatch = (patch.overstorySpecies == "Grass");
+        float avgCarbon = isGrassPatch ? grassAverageCarbonAmount : treeAverageCarbonAmount;
+        if (avgCarbon <= 0f) return;
 
-          for (int i = 0; i < count; i++)
-          {
-              if (isGrassPatch)
-              {
-                  GrowAGrassPatch(true);
-                  continue;
-              }
+        int count = (int)Mathf.Round(carbonOver / avgCarbon * patch.percent / 100f);
 
-              int speciesIdx = GetTreeSpeciesIndex(patch.overstorySpecies);
-              if (speciesIdx < 0) continue;
+        if (isGrassPatch)
+            count = Mathf.Clamp((int)(count * grassPatchDensityScale), 0, maxGrassesPerPatch);
+        else
+            count = Mathf.Clamp(count, 0, MaxTreesForCube());
 
-              GrowAFir(true, speciesIdx);   // No break: one failed slot shouldn't stop the rest
-          }
+        for (int i = 0; i < count; i++)
+        {
+            if (isGrassPatch)
+            {
+                GrowAGrassPatch(true);
+                continue;
+            }
 
-          Debug.Log($"[PATCH] {name} {patch.overstorySpecies} carbon:{carbonOver:F3} pct:{patch.percent} avg:{avgCarbon:F5} count:{count}");
-      }
+            int speciesIdx = GetTreeSpeciesIndex(patch.overstorySpecies);
+            if (speciesIdx < 0) continue;
+
+            GrowAFir(true, speciesIdx);
+        }
+    }
 
     // Reads patch2 (second member) overstory carbon at the given 0-based sim time index.
     protected float GetOverstoryCarbonP2(int idx)
@@ -710,6 +728,32 @@ public class CubeController : MonoBehaviour
         if (cubeDataP2.TryGetValue(idx + 1, out CubeData row))   // +1: 0-based timeIdx -> 1-based dateIdx
             return row.leafCOver + row.stemCOver;
         return 0f;
+    }
+
+    // Reads patch2 (second member) overstory individuals-died at the given 0-based sim time index.
+    protected float GetIndDiedP2(int idx)
+    {
+        if (cubeDataP2 == null) return 0f;
+        if (cubeDataP2.TryGetValue(idx + 1, out CubeData row))   // +1: 0-based timeIdx -> 1-based dateIdx
+            return row.ind_died;
+        return 0f;
+    }
+    
+     /// <summary>
+    /// Central Coast hook: lets a subclass rebuild <see cref="vegetation"/>.species just before the
+    /// tree/shrub lists are built (e.g. flattening per-patch overstory lists into the flat list).
+    /// Base does nothing, so BigCreek keeps its Inspector-assigned vegetation.species unchanged.
+    /// </summary>
+    protected virtual void PrepareVegetationList() { }
+
+    /// <summary>
+    /// Per-cube tree budget (size of the tree location pool). Base returns the global cap; a subclass
+    /// (Central Coast) can raise it so a cube shows its own literal stem count without touching the
+    /// global MaxTrees or BigCreek.
+    /// </summary>
+    protected virtual int MaxTreesForCube()
+    {
+        return settings.MaxTrees;
     }
 
     /// <summary>
@@ -813,6 +857,7 @@ public class CubeController : MonoBehaviour
         animatedCubeFullScale = animationPrefab.transform.localScale;
 
         /* Initialize Vegetation Species */
+        PrepareVegetationList();            // CC hook: may rebuild vegetation.species from per-patch overstory. Base: no-op.
         foreach (Species species in vegetation.species)
         {
             if (species.isShrub)
@@ -1061,7 +1106,8 @@ public class CubeController : MonoBehaviour
     /// </summary>
     private void CreateTreeLocations()
     {
-        firLocations = new Vector3[settings.MaxTrees];
+        // firLocations = new Vector3[settings.MaxTrees];
+        firLocations = new Vector3[MaxTreesForCube()];
         activeFirLocations = new List<int>();
 
         float offsetX = terrain.GetPosition().x;
@@ -1111,7 +1157,7 @@ public class CubeController : MonoBehaviour
                     break;
             }
 
-            for (int i = start; i < settings.MaxTrees; i++)
+            for (int i = start; i < MaxTreesForCube(); i++)
             {
                 randX = GetRandomExcludingMiddle(cubeXMin, cubeXMax, streamCenter - streamWidth * 0.5f, streamCenter + streamWidth * 0.5f);
                 float randZ = Random.Range(cubeZMin, cubeZMax);
@@ -1185,7 +1231,7 @@ public class CubeController : MonoBehaviour
                     break;
             }
 
-            for (int i = start; i < settings.MaxTrees; i++)
+            for (int i = start; i < MaxTreesForCube(); i++)
             {
                 randX = GetRandomExcludingMiddle(cubeXMin, cubeXMax, houseCenter - houseWidth * 0.5f, houseCenter + houseWidth * 0.5f);
                 float randZ = Random.Range(cubeZMin, cubeZMax);
@@ -1253,7 +1299,7 @@ public class CubeController : MonoBehaviour
                     break;
             }
 
-            for (int i = start; i < settings.MaxTrees; i++)
+            for (int i = start; i < MaxTreesForCube(); i++)
             {
                 randX = Random.Range(cubeXMin, cubeXMax);
                 float randZ = Random.Range(cubeZMin, cubeZMax);
@@ -2382,6 +2428,7 @@ public class CubeController : MonoBehaviour
                 StemCarbonUnder = row.stemCUnder;
                 RootsCarbonOver = row.rootCOver;
                 RootsCarbonUnder = row.rootCUnder;
+                IndDiedOver = row.ind_died;
             }
             else if (dataType == CubeDataType.Agg)
             {
@@ -2705,7 +2752,7 @@ public class CubeController : MonoBehaviour
           int index;
           if (fillFromFarEnd)
           {
-              index = settings.MaxTrees - 1;
+              index = MaxTreesForCube() - 1;
               while (activeFirLocations.Contains(index))
               {
                   index--;
@@ -2723,7 +2770,7 @@ public class CubeController : MonoBehaviour
               while (activeFirLocations.Contains(index))
               {
                   index++;
-                  if (index >= settings.MaxTrees)
+                  if (index >= MaxTreesForCube())
                   {
                       if (debugTrees)
                           Debug.Log(name + ".GrowAFir()... Can't grow tree, max trees already grown! activeFirLocations:" + activeFirLocations.Count);
@@ -5743,13 +5790,24 @@ public class CubeController : MonoBehaviour
         public bool isShrub = false;
         public List<GameObject> list;               // Prefabs at different growth stages (i.e. idx 0: small to idx n: large)
         public GameObject deadPrefab;               // Dead/snag model for this species. Leave empty to use the cube's shared deadTreePrefab.
+        [Range(0f, 100f)] public float percentInPatch = 100f; //// Share of this patch's overstory stems (community mix). Split N_stems across species.
     }
+    // [System.Serializable]
+    // public class PatchDisplayInfo
+    // {
+    //     public string overstorySpecies = "Chaparral";   // "Oak" / "Chaparral" / "Grass"
+    //     [Range(0f, 100f)] public float percent = 50f;    // Percent of patch area covered by this species
+    // }
     [System.Serializable]
-    public class PatchDisplayInfo
-    {
-        public string overstorySpecies = "Chaparral";   // "Oak" / "Chaparral" / "Grass"
-        [Range(0f, 100f)] public float percent = 50f;    // Percent of patch area covered by this species
-    }
+      public class PatchDisplayInfo
+      {
+          [Range(0f, 100f)] public float percent = 50f;   // Percent of the cube's area this patch covers
+          public int nStems = 0;                          // Initial overstory individuals in this patch (cube_info N_stems)
+          public List<Species> overstory;                 // Overstory species in this patch (each has its own prefabs + deadPrefab). Preferred.
+          public bool understoryIsGrass = true;           // Understory layer is grass
+
+          public string overstorySpecies = "Chaparral";   // "Oak" / "Chaparral" / "Grass" LEGACY single-species name. Used only while overstory is empty, so nothing breaks pre-migration.
+      }
     public PatchDisplayInfo patch1;
     public PatchDisplayInfo patch2;
     private Dictionary<string, int> treeSpeciesIndexByName = new Dictionary<string, int>();
