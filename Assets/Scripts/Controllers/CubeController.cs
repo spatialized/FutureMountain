@@ -102,7 +102,7 @@ public class CubeController : MonoBehaviour
 
     private GameObjectPool pooler;
     private SERI_FireManager fireManager;                                   // Fire Manager
-    private Vector3 fireGridCenterLocation = new Vector3(24f, 0f, 0f);             // Fire Ignition location   -- TEMP.
+    public Vector3 fireGridCenterLocation = new Vector3(24f, 0f, 0f);             // Fire grid center offset — per-cube in Inspector; scale with cube size. Default tuned for 50m.
 
     private SERI_FireGrid fireGrid;              // Current fire grid
     //private bool igniteFire = false;              // Ignite fire flag                    -- For Testing
@@ -141,7 +141,7 @@ public class CubeController : MonoBehaviour
 
     /* Geometry */
     public Vector3 defaultPosition { get; set; } // Default position
-    private float cubeWidth = 50f;              // Cube width (m.)
+    public float cubeWidth = 50f;               // Cube width (m.) — per-cube in Inspector; default 50 keeps BigCreek unchanged
     private float cubeHeightScale = 1f;         // Cube height scale
     private float cubeWidthScale = 1f;          // Cube width scale
     public Vector3 neCorner { get; set; }       // Corners of cube (in world coords.)
