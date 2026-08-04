@@ -98,6 +98,7 @@ public abstract class TreeController : MonoBehaviour
     protected ParticleSystem etParticles;
     public bool showParticles;
     public bool particlesEnabled;
+    protected float heightJitter = 1f;   // per-tree random multiplier so a patch's trees vary around heightOver
 
 
     /// <summary>
@@ -227,37 +228,48 @@ public abstract class TreeController : MonoBehaviour
     /// <summary>
     /// Grows the tree incrementally.
     /// </summary>
-    protected void GrowTree()
-    {
+     protected void GrowTree()
+      {
         float newHeightScale, newWidthScale;
+        float step = settings.TreeGrowthSpeedFactor * timeStep;
+
+        // Move gradually toward treeFullHeightScale in BOTH directions. BigCreek's target is fixed and the
+        // tree never overshoots it, so only the grow branch runs there (unchanged). Central Coast drives
+        // treeFullHeightScale from data heightOver, which can drop — the shrink branch eases it down instead
+        // of snapping (which caused the sudden shrink).
         float hDiff = treeFullHeightScale - GetHeightScale();
+        float hStep = step;
+        if (Mathf.Abs(hDiff) < 0.2f)                                  // ease near the target
+            hStep *= MathUtil.MapValue(Mathf.Abs(hDiff), 0f, 0.2f, 0f, 1f);
+        if (hDiff >= 0f)
+            newHeightScale = Mathf.Min(GetHeightScale() + hStep, treeFullHeightScale);   // grow up
+        else
+            newHeightScale = Mathf.Max(GetHeightScale() - hStep, treeFullHeightScale);   // shrink down gradually
+
         float wDiff = treeFullWidthScale - GetWidthScale();
+        float wStep = step;
+        if (Mathf.Abs(wDiff) < 0.2f)
+            wStep *= MathUtil.MapValue(Mathf.Abs(wDiff), 0f, 0.2f, 0f, 1f);
+        if (wDiff >= 0f)
+            newWidthScale = Mathf.Min(GetWidthScale() + wStep, treeFullWidthScale);
+        else
+            newWidthScale = Mathf.Max(GetWidthScale() - wStep, treeFullWidthScale);
 
-        /* Normal Growth */
-        float heightGrowthAmount = settings.TreeGrowthSpeedFactor * timeStep;      // Slow height growth over time
-        float widthGrowthAmount = settings.TreeGrowthSpeedFactor * timeStep;       // Increase width growth over time
+        SetTreeScale(newHeightScale, newWidthScale, false);          // Set scale and update LODs
+    }
 
-        /* Near-Full-Height Growth */
-        if (hDiff < 0.2f)
-        {
-            float gFactor = MathUtil.MapValue(hDiff, 0f, 0.2f, 0f, 1f);
-            heightGrowthAmount = gFactor * settings.TreeGrowthSpeedFactor * timeStep;      // Slow height growth over time
-        }
-
-        newHeightScale = GetHeightScale() + heightGrowthAmount;
-        newHeightScale = Mathf.Clamp(newHeightScale, 0f, treeFullHeightScale);
-
-        /* Near-Full-Width Growth */
-        if (wDiff < 0.2f)
-        {
-            float wFactor = MathUtil.MapValue(wDiff, 0f, 0.2f, 0f, 1f);
-            widthGrowthAmount = wFactor * settings.TreeGrowthSpeedFactor * timeStep;     // Increase width growth over time
-        }
-
-        newWidthScale = GetWidthScale() + widthGrowthAmount;
-        newWidthScale = Mathf.Clamp(newWidthScale, 0f, treeFullWidthScale);
-
-        SetTreeScale(newHeightScale, newWidthScale, false);                    // Set scale and update LODs
+    /// <summary>
+    /// Central Coast: set the tree's full-grown height to an absolute value in metres (from data heightOver),
+    /// overriding the random treeFullHeightScale. GrowTree then grows/shrinks toward it; width scales uniformly.
+    /// </summary>
+    public void SetFullHeightMeters(float meters)
+    {
+        if (treePrefabHeights == null || treePrefabHeights.Length == 0) return;
+        float prefabH = treePrefabHeights[treePrefabHeights.Length - 1];
+        if (prefabH <= 0f || meters <= 0f) return;
+        treeFullHeightScale = (meters * heightJitter)  / prefabH;
+        treeFullWidthScale  = treeFullHeightScale;   // uniform scaling (keep prefab proportions)
+        //Debug.Log($"[HGT] {name} heightOver={meters:F2}m  prefabH={prefabH:F2}m  scale={treeFullHeightScale:F2}");
     }
 
     /// <summary>
@@ -265,9 +277,15 @@ public abstract class TreeController : MonoBehaviour
     /// </summary>
     public void GrowRoots()
     {
+        // Roots follow the tree's height scale, but never exceed 1 even when the tree's height scale does
+        // (Central Coast sets treeFullHeightScale from absolute data height, which can be > 1). BigCreek's
+        // treeFullHeightScale is always <= 0.8, so Min(...) leaves it unchanged there.
+        float rootFullH = Mathf.Min(treeFullHeightScale, 1f);
+        float rootFullW = Mathf.Min(treeFullWidthScale, 1f);
+
         float newHeightScale, newWidthScale;
-        float hDiff = treeFullHeightScale - GetRootsHeightScale();
-        float wDiff = treeFullWidthScale - GetRootsWidthScale();
+        float hDiff = rootFullH - GetRootsHeightScale();
+        float wDiff = rootFullW - GetRootsWidthScale();
 
         /* Normal Growth */
         float heightGrowthAmount = settings.RootsSpreadSpeedFactor * timeStep;      // Slow height growth over time
@@ -281,7 +299,7 @@ public abstract class TreeController : MonoBehaviour
         }
 
         newHeightScale = GetRootsHeightScale() + heightGrowthAmount;
-        newHeightScale = Mathf.Clamp(newHeightScale, 0f, treeFullHeightScale);
+        newHeightScale = Mathf.Clamp(newHeightScale, 0f, rootFullH);
 
         /* Near-Full-Width Growth */
         if (wDiff < 0.2f)
@@ -291,7 +309,7 @@ public abstract class TreeController : MonoBehaviour
         }
 
         newWidthScale = GetRootsWidthScale() + widthGrowthAmount;
-        newWidthScale = Mathf.Clamp(newWidthScale, 0f, treeFullWidthScale);
+        newWidthScale = Mathf.Clamp(newWidthScale, 0f, rootFullW);
 
         if (debugRoots)
             Debug.Log(transform.name + "      GrowRoots()...   oldHeight:" + GetRootsHeightScale() + "    GrowRoots()... oldWidth:" + GetRootsWidthScale() + " newHeightScale:" + newHeightScale + "  newWidthScale:" + newWidthScale);
@@ -1004,6 +1022,8 @@ public abstract class TreeController : MonoBehaviour
 
         rootsFullHeightScale = UnityEngine.Random.Range(settings.MinRootsFullHeightScale, settings.MaxRootsFullHeightScale);
         rootsFullWidthScale = GetWidthScaleFromHeightScale(rootsFullHeightScale, settings.RootsWidthVariability);
+
+        heightJitter = UnityEngine.Random.Range(0.85f, 1.1f);
 
         /* Set Height and Width Scale */
         //float newTreeHeightScale = UnityEngine.Random.Range(settings.MinTreeStartHeight, settings.MaxTreeStartHeight);

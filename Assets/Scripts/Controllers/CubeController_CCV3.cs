@@ -235,9 +235,27 @@ public class CubeController_CCV3 : CubeController
         foreach (Species sp in patch.overstory)
         {
             if (sp == null) continue;
+            sp.runtimeSpeciesIdx = flat.Count;
             flat.Add(sp);
             slots.Add(slot);
             stems.Add(Mathf.RoundToInt(patch.nStems * sp.percentInPatch / 100f));
+        }
+    }
+
+    // ----- Tree height driven by data heightOver (replaces the random 0.66–0.8) -----
+    // Each step, set every alive tree's full-grown height to its patch's heightOver (m): patch1 from this
+    // cube's row (HeightOverP1), patch2 from the second member (GetHeightOverP2). Height then tracks the data —
+    // shrinking after fire and regrowing as heightOver recovers.
+    protected override void UpdateOverstoryHeights()
+    {
+        if (firs == null || patchSlotBySpecies == null) return;
+        foreach (FirController fir in firs)
+        {
+            if (fir == null || !fir.IsAlive()) continue;
+            int idx = fir.speciesIdx;
+            if (idx < 0 || idx >= patchSlotBySpecies.Length) continue;
+            float h = GetHeightOver(timeIdx, patchSlotBySpecies[idx] == 2);
+            if (h > 0f) fir.SetFullHeightMeters(h);
         }
     }
 }

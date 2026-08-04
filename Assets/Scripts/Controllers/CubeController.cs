@@ -279,7 +279,8 @@ public class CubeController : MonoBehaviour
     public float LeafCarbonUnder;                // Leaf carbon amount (Used for tree/bush leaf amount and grass height)
     public float StemCarbonOver;                 // Stem carbon amount (Used for tree height)    -- Also tree trunk thickness?
     public float StemCarbonUnder;                // Stem carbon amount (Used for tree height)    -- Also tree trunk thickness?
-    public float IndDiedOver;                   //Overstory individual died flag (1 = died, 0 = alive)
+    public float IndDiedOver;                   //Overstory individual died flag
+    private int lastDeathTimeIdx = -1;           // Central Coast: last timeIdx whose ind_died deaths were queued (avoids re-queuing on a paused frame)
 
     //public float LeafCarbon { get; set; }           // Leaf carbon amount (Used for tree/bush leaf amount and grass height)
     //public float StemCarbon { get; set; }           // Stem carbon amount (Used for tree height)    -- Also tree trunk thickness?
@@ -290,6 +291,7 @@ public class CubeController : MonoBehaviour
 
     private float LeafCarbonOverMin = 100000f;      // Leaf carbon (overstory) minimum value in data
     private float LeafCarbonOverMax = -100000f;     // Leaf carbon (overstory) maximum value in data
+    private float p2CarbonMax = 0f;                 // patch2 (second member) max overstory carbon (leafC+stemC), for carbon-scaled recovery
     private float LeafCarbonUnderMin = 100000f;     // Leaf carbon (understory) minimum value in data
     private float LeafCarbonUnderMax = -100000f;    // Leaf carbon (understory) maximum value in data
     private float StemCarbonOverMin = 100000f;      // Stem carbon (overstory) minimum value in data
@@ -682,7 +684,7 @@ public class CubeController : MonoBehaviour
             foreach (Species sp in patch.overstory)
             {
                 if (sp == null) continue;
-                int speciesIdx = GetTreeSpeciesIndex(sp.name);
+                int speciesIdx = sp.runtimeSpeciesIdx;
                 if (speciesIdx < 0) continue;
 
                 int stems = Mathf.Clamp(Mathf.RoundToInt(patch.nStems * sp.percentInPatch / 100f),
@@ -730,16 +732,76 @@ public class CubeController : MonoBehaviour
         return 0f;
     }
 
-    // Reads patch2 (second member) overstory individuals-died at the given 0-based sim time index.
-    protected float GetIndDiedP2(int idx)
+    // Reads a patch's individuals-died at the given 0-based sim time index. Works for either member's
+    // data dict (cubeData = patch1, cubeDataP2 = patch2); both are keyed by 1-based dateIdx, hence +1.
+    protected float GetIndDied(Dictionary<int, CubeData> data, int idx)
     {
-        if (cubeDataP2 == null) return 0f;
-        if (cubeDataP2.TryGetValue(idx + 1, out CubeData row))   // +1: 0-based timeIdx -> 1-based dateIdx
+        if (data != null && data.TryGetValue(idx + 1, out CubeData row))   // +1: 0-based timeIdx -> 1-based dateIdx
             return row.ind_died;
         return 0f;
     }
+
+    // Overstory height (m) at the given 0-based sim time index. Picks the member's dict internally
+    // (both are private, so callers pass a flag instead of the dict). patch2=false -> this cube's rows.
+    protected float GetHeightOver(int idx, bool patch2)
+    {
+        Dictionary<int, CubeData> data = patch2 ? cubeDataP2 : cubeData;
+        if (data != null && data.TryGetValue(idx + 1, out CubeData row))   // +1: 0-based -> 1-based dateIdx
+            return row.heightOver;
+        return 0f;
+    }
+
+    // Central Coast: turn each patch's per-step ind_died (individuals that died that day) into queued
+    // kills, split across the patch's overstory species by percentInPatch. Processed once per timeIdx
+    // so a paused frame can't re-queue the same deaths.
+    protected void QueuePatchIndDiedDeaths()
+      {
+          if (timeIdx <= lastDeathTimeIdx) return;      // no forward progress (also blocks re-queue on a paused frame)
+
+          int from = lastDeathTimeIdx + 1;              // sum every day since last processed, so timeStep jumps can't skip single-day events
+          lastDeathTimeIdx = timeIdx;
+
+          float p1 = 0f, p2 = 0f;
+          for (int k = from; k <= timeIdx; k++)
+          {
+              p1 += GetIndDied(cubeData, k);            // patch1 = this cube's own data
+              p2 += GetIndDied(cubeDataP2, k);          // patch2 = second member
+          }
+
+          QueueIndDiedForPatch(patch1, p1);
+          QueueIndDiedForPatch(patch2, p2);
+
+      }
+
+    private void QueueIndDiedForPatch(PatchDisplayInfo patch, float indDied)
+    {
+        if (patch == null || patch.overstory == null || patch.overstory.Count == 0) return;
+        if (firsToKillBySpecies == null) return;
+
+        int deaths = Mathf.RoundToInt(indDied);
+        if (deaths <= 0) return;
+
+        foreach (Species sp in patch.overstory)
+        {
+            if (sp == null) continue;
+            int idx = sp.runtimeSpeciesIdx;
+            if (idx < 0 || idx >= firsToKillBySpecies.Length) continue;
+
+            int share = Mathf.RoundToInt(deaths * sp.percentInPatch / 100f);
+            // Kill immediately, not via the per-frame drain: during a fire the veg update (and thus the
+            // drain) is suppressed (UpdateVegetation only runs when !terrainBurning), so a queued
+            // fire-date death would never drain. ind_died is explicit data — apply it in full right now.
+            firsToKillBySpecies[idx] += share;
+            while (firsToKillBySpecies[idx] > 0)
+            {
+                if (!KillAFir(false, idx)) break;   // kills one (animated) + decrements; clears queue if none left
+            }
+        }
+
+        Debug.Log($"[DEATH] {name} patch:{(patch != null ? patch.overstorySpecies : "?")} ind_died:{indDied} deaths:{deaths} queued:{string.Join(",", firsToKillBySpecies)}");
+    }
     
-     /// <summary>
+    /// <summary>
     /// Central Coast hook: lets a subclass rebuild <see cref="vegetation"/>.species just before the
     /// tree/shrub lists are built (e.g. flattening per-patch overstory lists into the flat list).
     /// Base does nothing, so BigCreek keeps its Inspector-assigned vegetation.species unchanged.
@@ -1803,6 +1865,7 @@ public class CubeController : MonoBehaviour
             //    }
             //}
 
+            QueuePatchIndDiedDeaths();
             if (!terrainBurning)
             {
                 UpdateVegetation();         // Update vegetation
@@ -1971,6 +2034,7 @@ public class CubeController : MonoBehaviour
     /// </summary>
     protected void UpdateVegetationCentralCoast()
     {
+        QueuePatchIndDiedDeaths();     // Central Coast: turn this step's ind_died into queued kills before draining
         if (firsToKillBySpecies != null)                     // Each patch has its own kill queue
         {
             for (int s = 0; s < firsToKillBySpecies.Length; s++)
@@ -1986,11 +2050,14 @@ public class CubeController : MonoBehaviour
         if (grassesToKill > 0)
             KillAGrassPatch();
 
-        UpdatePatchOverstory(patch1, StemCarbonOver + LeafCarbonOver);
-        UpdatePatchOverstory(patch2, GetOverstoryCarbonP2(timeIdx));
+        UpdatePatchOverstory(patch1, StemCarbonOver + LeafCarbonOver, StemCarbonOverMax + LeafCarbonOverMax);
+        UpdatePatchOverstory(patch2, GetOverstoryCarbonP2(timeIdx), p2CarbonMax);
 
         UpdateCentralCoastGrass();
+        UpdateOverstoryHeights();      // Central Coast: drive each tree's target height from its patch's heightOver
     }
+    // Central Coast hook: set each tree's full-grown height from data heightOver. Base does nothing.
+      protected virtual void UpdateOverstoryHeights() { }
 
     /// <summary>
     /// BigCreek / aggregate vegetation balance. Unchanged from the original single-patch behaviour.
@@ -2128,78 +2195,117 @@ public class CubeController : MonoBehaviour
         }        
     }
 
-     /// <summary>
-      /// Central Coast: balances one patch's overstory independently against its own carbon.
-      /// </summary>
-      /// <param name="patch">Patch display info (species + area percentage).</param>
-      /// <param name="patchCarbonRaw">Unscaled stem + leaf overstory carbon for this patch.</param>
-      private void UpdatePatchOverstory(PatchDisplayInfo patch, float patchCarbonRaw)
-      {
-          if (patch == null) return;
-          if (patch.overstorySpecies == "Grass") return;    // Grass-dominated patch: handled by UpdateCentralCoastGrass
+    // Central Coast: grow-only recovery of a migrated patch's overstory. Deaths come from ind_died
+    // (explicit data); recovery has no data, so it's computed — each species regrows toward a
+    // carbon-scaled target capped at its N_stems share. Throttled so it fills in gradually.
+    private void RecoverPatchOverstory(PatchDisplayInfo patch, float patchCarbonNow, float patchCarbonMax)
+    {
+        if (patch == null || patch.overstory == null || patch.overstory.Count == 0) return;
+        if (firsToKillBySpecies == null || lastFirGrownTimeIdxBySpecies == null) return;
 
-          if (firsToKillBySpecies == null || lastFirGrownTimeIdxBySpecies == null) return;   // Initialize() hasn't run yet
+        float fullness = (patchCarbonMax > 0f) ? Mathf.Clamp01(patchCarbonNow / patchCarbonMax) : 0f;
 
-          int speciesIdx = GetTreeSpeciesIndex(patch.overstorySpecies);
-          if (speciesIdx < 0 || speciesIdx >= firsToKillBySpecies.Length) return;
+        foreach (Species sp in patch.overstory)
+        {
+            if (sp == null) continue;
+            int idx = sp.runtimeSpeciesIdx;
+            if (idx < 0 || idx >= firsToKillBySpecies.Length) continue;
+            if (firsToKillBySpecies[idx] > 0) continue;   // let all pending ind_died kills apply first — don't refill a death in progress
 
-          float carbonInData = patchCarbonRaw * patch.percent / 100f;
-          float carbonInViz = GetTreeCarbonAmountVisualized(speciesIdx);          // What the stand is worth right now
-          float carbonAtMaturity = GetTreePotentialCarbonVisualized(speciesIdx);  // What it will be worth fully grown
-          float halfStep = treeAverageCarbonAmount * 0.5f;
+            int cap = Mathf.RoundToInt(patch.nStems * sp.percentInPatch / 100f);   // N_stems cap for this species
+            int target = Mathf.RoundToInt(cap * fullness);                          // carbon-scaled target (<= cap)
+            int alive = GetAliveTrees(idx).Count;
 
-           // Plant against carbon at maturity, not current carbon: saplings contribute almost nothing
-           // today, so comparing carbonInViz here re-plants every frame until the stand is overstocked
-           // and then has to be culled, which is why trees never reached full size.
-           if (carbonAtMaturity < carbonInData - halfStep)
-            {
-                // Per-species throttle: a shared lastFirGrownTimeIdx lets patch1 consume every growth
-                // slot before patch2 ever gets a turn.
-                if (timeIdx - lastFirGrownTimeIdxBySpecies[speciesIdx] > firGrowthWaitTime)
-                {
-                    if (GrowAFir(false, speciesIdx))
-                    {
-                        lastFirGrownTimeIdxBySpecies[speciesIdx] = timeIdx;
-                    }
-                    else if (debugTrees)
-                    {
-                        Debug.Log($"[PATCHBAL] {name} sp{speciesIdx}({patch.overstorySpecies}) couldn't grow — " +
-                                  $"cube may be at MaxTrees:{settings.MaxTrees} activeLocations:{activeFirLocations.Count}");
-                    }
-                }
-            }
-          else if (carbonAtMaturity > carbonInData + halfStep)
-          {
-              // This branch is drought death only. Fire deaths run through IgniteFire / SetTreesToBurn,
-              // so skip while the cube is burning or still in its post-fire recovery window, otherwise
-              // the fire's carbon crash would be charged to drought as well. Requiring a large shortfall
-              // stops ordinary carbon wobble from queueing a kill every few frames.
-              bool fireInvolved = terrainBurning || terrainBurnt;
-              bool bigEnoughDrop = (carbonAtMaturity - carbonInData) > carbonInData * droughtDeathThreshold;
-
-              if (!fireInvolved && bigEnoughDrop && firsToKillBySpecies[speciesIdx] == 0)
+            // Grow only (never kill here — deaths are ind_died's job). Throttled.
+             if (alive < target && (timeIdx - lastFirGrownTimeIdxBySpecies[idx] > firGrowthWaitTime))
               {
-                  int toKill = (int)Mathf.Round((carbonAtMaturity - carbonInData) / treeAverageCarbonAmount);
-                  int aliveOfSpecies = GetAliveTrees(speciesIdx).Count;
-                  // Clamp(x, 1, 0) would queue a kill that can never run, so guard the empty case.
-                  firsToKillBySpecies[speciesIdx] = (aliveOfSpecies > 0) ? Mathf.Clamp(toKill, 1, aliveOfSpecies) : 0;
+                  if (GrowAFir(false, idx))
+                  {
+                      lastFirGrownTimeIdxBySpecies[idx] = timeIdx;
+                      Debug.Log($"[RECOVER] {name} sp{idx} +1 → {alive + 1}/{target}  full{fullness:F2}  t{timeIdx}");
+                  }
               }
-          }
+        }
+    }
 
-          if (debugTrees)
-          {
-              // grown = how far the stand is from maturity (1.0 = every tree full size).
-              // needed = trees required at full size to hit the target; compare with settings.MaxTrees.
-              int aliveNow = GetAliveTrees(speciesIdx).Count;
-              float grown = (carbonAtMaturity > 0f) ? carbonInViz / carbonAtMaturity : 0f;
-              float needed = (treeAverageCarbonAmount > 0f) ? carbonInData / treeAverageCarbonAmount : -1f;
+    /// <summary>
+    /// Central Coast: balances one patch's overstory independently against its own carbon.
+    /// </summary>
+    /// <param name="patch">Patch display info (species + area percentage).</param>
+    /// <param name="patchCarbonRaw">Unscaled stem + leaf overstory carbon for this patch.</param>
+    /// <param name="patchCarbonMax">Maximum carbon capacity for this patch.</param>
+    private void UpdatePatchOverstory(PatchDisplayInfo patch, float patchCarbonRaw, float patchCarbonMax)
+    {
+    if (patch == null) return;
+    if (patch.overstory != null && patch.overstory.Count > 0)
+    {
+        RecoverPatchOverstory(patch, patchCarbonRaw, patchCarbonMax);   // grow-only recovery toward carbon-scaled N_stems; deaths come from ind_died
+        return;
+    }
+    if (patch.overstorySpecies == "Grass") return;    // Grass-dominated patch: handled by UpdateCentralCoastGrass
 
-              Debug.Log($"[PATCHBAL] {name} t:{timeIdx} sp{speciesIdx}({patch.overstorySpecies}) " +
-                        $"viz:{carbonInViz:F3} mature:{carbonAtMaturity:F3} data:{carbonInData:F3} " +
-                        $"avg:{treeAverageCarbonAmount:F4} alive:{aliveNow} grown:{grown:F2} " +
-                        $"needed:{needed:F0}/{settings.MaxTrees} toKill:{firsToKillBySpecies[speciesIdx]} burnt:{terrainBurnt}");
-          }
-      }
+    if (firsToKillBySpecies == null || lastFirGrownTimeIdxBySpecies == null) return;   // Initialize() hasn't run yet
+
+    int speciesIdx = GetTreeSpeciesIndex(patch.overstorySpecies);
+    if (speciesIdx < 0 || speciesIdx >= firsToKillBySpecies.Length) return;
+
+    float carbonInData = patchCarbonRaw * patch.percent / 100f;
+    float carbonInViz = GetTreeCarbonAmountVisualized(speciesIdx);          // What the stand is worth right now
+    float carbonAtMaturity = GetTreePotentialCarbonVisualized(speciesIdx);  // What it will be worth fully grown
+    float halfStep = treeAverageCarbonAmount * 0.5f;
+
+    // Plant against carbon at maturity, not current carbon: saplings contribute almost nothing
+    // today, so comparing carbonInViz here re-plants every frame until the stand is overstocked
+    // and then has to be culled, which is why trees never reached full size.
+    if (carbonAtMaturity < carbonInData - halfStep)
+    {
+        // Per-species throttle: a shared lastFirGrownTimeIdx lets patch1 consume every growth
+        // slot before patch2 ever gets a turn.
+        if (timeIdx - lastFirGrownTimeIdxBySpecies[speciesIdx] > firGrowthWaitTime)
+        {
+            if (GrowAFir(false, speciesIdx))
+            {
+                lastFirGrownTimeIdxBySpecies[speciesIdx] = timeIdx;
+            }
+            else if (debugTrees)
+            {
+                Debug.Log($"[PATCHBAL] {name} sp{speciesIdx}({patch.overstorySpecies}) couldn't grow — " +
+                            $"cube may be at MaxTrees:{settings.MaxTrees} activeLocations:{activeFirLocations.Count}");
+            }
+        }
+    }
+    else if (carbonAtMaturity > carbonInData + halfStep)
+    {
+        // This branch is drought death only. Fire deaths run through IgniteFire / SetTreesToBurn,
+        // so skip while the cube is burning or still in its post-fire recovery window, otherwise
+        // the fire's carbon crash would be charged to drought as well. Requiring a large shortfall
+        // stops ordinary carbon wobble from queueing a kill every few frames.
+        bool fireInvolved = terrainBurning || terrainBurnt;
+        bool bigEnoughDrop = (carbonAtMaturity - carbonInData) > carbonInData * droughtDeathThreshold;
+
+        if (!fireInvolved && bigEnoughDrop && firsToKillBySpecies[speciesIdx] == 0)
+        {
+            int toKill = (int)Mathf.Round((carbonAtMaturity - carbonInData) / treeAverageCarbonAmount);
+            int aliveOfSpecies = GetAliveTrees(speciesIdx).Count;
+            // Clamp(x, 1, 0) would queue a kill that can never run, so guard the empty case.
+            firsToKillBySpecies[speciesIdx] = (aliveOfSpecies > 0) ? Mathf.Clamp(toKill, 1, aliveOfSpecies) : 0;
+        }
+    }
+
+    if (debugTrees)
+    {
+        // grown = how far the stand is from maturity (1.0 = every tree full size).
+        // needed = trees required at full size to hit the target; compare with settings.MaxTrees.
+        int aliveNow = GetAliveTrees(speciesIdx).Count;
+        float grown = (carbonAtMaturity > 0f) ? carbonInViz / carbonAtMaturity : 0f;
+        float needed = (treeAverageCarbonAmount > 0f) ? carbonInData / treeAverageCarbonAmount : -1f;
+
+        Debug.Log($"[PATCHBAL] {name} t:{timeIdx} sp{speciesIdx}({patch.overstorySpecies}) " +
+                $"viz:{carbonInViz:F3} mature:{carbonAtMaturity:F3} data:{carbonInData:F3} " +
+                $"avg:{treeAverageCarbonAmount:F4} alive:{aliveNow} grown:{grown:F2} " +
+                $"needed:{needed:F0}/{settings.MaxTrees} toKill:{firsToKillBySpecies[speciesIdx]} burnt:{terrainBurnt}");
+    }
+    }
     /// <summary>
       /// Central Coast grass balance. CC has no shrub layer (no species is flagged isShrub), so grass
       /// is the entire understory: balance it against understory carbon, plus patch2's overstory carbon
@@ -2373,6 +2479,13 @@ public class CubeController : MonoBehaviour
         cubeDataP2 = LoadData(rowsObj.rows);
         p2Loaded = true;
 
+        p2CarbonMax = 0f;
+        foreach (CubeData r in cubeDataP2.Values)
+        {
+            float c = r.leafCOver + r.stemCOver;
+            if (c > p2CarbonMax) p2CarbonMax = c;
+        }
+
         // Both members now loaded: grow once (no repeated reset).
         if (p1Loaded)
             UpdateVegetationFromData();
@@ -2429,6 +2542,7 @@ public class CubeController : MonoBehaviour
                 RootsCarbonOver = row.rootCOver;
                 RootsCarbonUnder = row.rootCUnder;
                 IndDiedOver = row.ind_died;
+    
             }
             else if (dataType == CubeDataType.Agg)
             {
@@ -3219,8 +3333,9 @@ public class CubeController : MonoBehaviour
 
         firsToKill = 0;
         if (firsToKillBySpecies != null)                                          // Central Coast: clear the per-patch queues too
-            System.Array.Clear(firsToKillBySpecies, 0, firsToKillBySpecies.Length);
-        lastKilledTreeFrame = timeIdx;
+            System.Array.Clear(firsToKillBySpecies, 0, firsToKillBySpecies.Length); // deaths re-accumulate after a reset/regrow
+            lastKilledTreeFrame = timeIdx; 
+            lastDeathTimeIdx = -1; // Central Coast: let ind_died deaths re-accumulate after a reset/regrow
 
         UpdateETList();
     }
@@ -5791,6 +5906,7 @@ public class CubeController : MonoBehaviour
         public List<GameObject> list;               // Prefabs at different growth stages (i.e. idx 0: small to idx n: large)
         public GameObject deadPrefab;               // Dead/snag model for this species. Leave empty to use the cube's shared deadTreePrefab.
         [Range(0f, 100f)] public float percentInPatch = 100f; //// Share of this patch's overstory stems (community mix). Split N_stems across species.
+        [System.NonSerialized] public int runtimeSpeciesIdx = -1;   // flat treeList index assigned in PrepareVegetationList (per-patch, no name collision)
     }
     // [System.Serializable]
     // public class PatchDisplayInfo
