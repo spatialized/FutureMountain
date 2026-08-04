@@ -207,7 +207,7 @@ public class CubeController : MonoBehaviour
     private float animationLength = 3f;
 
     /* Landscape */
-    private Terrain terrain;                                  // Cube terrain object
+    protected Terrain terrain;                                  // Cube terrain object
     private UnityEngine.TerrainData defaultTerrain;           // -- Needed?
     float[,,] unburntSplatmap;                                // Unburnt terrain splatmap data
     float[,,] burntSplatmap;                                  // Burnt terrain splatmap data
@@ -2315,7 +2315,7 @@ public class CubeController : MonoBehaviour
       {
           if (grassAverageCarbonAmount <= 0f || grasses == null) return;
 
-          float grassCarbonInData = StemCarbonUnder + LeafCarbonUnder;   // NOTE: V3 has no stemCUnder column, so this is leaf carbon only
+          float grassCarbonInData = (StemCarbonUnder + LeafCarbonUnder) * grassPatchDensityScale;   // NOTE: V3 has no stemCUnder column, so this is leaf carbon only
 
           if (patch2 != null && patch2.overstorySpecies == "Grass")
               grassCarbonInData += GetOverstoryCarbonP2(timeIdx) * patch2.percent / 100f;
@@ -2827,6 +2827,12 @@ public class CubeController : MonoBehaviour
         return false;
     }
 
+     // Resolves where a tree of the given species spawns. Base returns the pre-generated firLocations slot;
+    // CubeController_CCV3 overrides it to place trees inside per-patch collider regions.
+    protected virtual Vector3 ResolveTreeLocation(int index, int speciesIdx)
+    {
+        return firLocations[index];
+    }
     /// <summary>
     /// Grows a fir tree.
     /// </summary>
@@ -2903,6 +2909,7 @@ public class CubeController : MonoBehaviour
         /* Instantiate fir */
         GameObject treePrefab = treeList[speciesIdx][treeList[speciesIdx].Count - 1];
         //GameObject newTree = InstantiateTreeFromPrefab(index, 0, firLocations[index], newRotation, gameObject.transform);
+         firLocations[index] = ResolveTreeLocation(index, speciesIdx);   // Central Coast collider regions override the near/far slot position
         GameObject newTree = InstantiateTreeFromPrefab(index, speciesIdx, firLocations[index], newRotation, gameObject.transform);
 
         newTree.name = "Tree_sp" + speciesIdx + "_" + index;   // sp0 = patch1 species, sp1 = patch2 species

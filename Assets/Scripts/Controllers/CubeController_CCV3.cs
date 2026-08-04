@@ -258,4 +258,53 @@ public class CubeController_CCV3 : CubeController
             if (h > 0f) fir.SetFullHeightMeters(h);
         }
     }
+    // ----- Per-patch collider regions (only used when patch1/patch2 are different overstory species) -----
+    // Each patch can have several boxes (the stream often splits a patch into pieces). Trees of a patch
+    // spawn only inside its boxes, so species never bleed into each other's zone regardless of counts.
+    public List<BoxCollider> patch1Regions;
+    public List<BoxCollider> patch2Regions;
+
+    protected override Vector3 ResolveTreeLocation(int index, int speciesIdx)
+    {
+        // Only separate by collider when the two patches are DIFFERENT overstory species (e.g. Oak vs
+        // Chaparral). Same-species cubes (Chaparral/Chaparral) fall back to the base near/far placement.
+        if (patch1 == null || patch2 == null || patch1.overstorySpecies == patch2.overstorySpecies)
+            return base.ResolveTreeLocation(index, speciesIdx);
+
+        int slot = (patchSlotBySpecies != null && speciesIdx >= 0 && speciesIdx < patchSlotBySpecies.Length)
+                    ? patchSlotBySpecies[speciesIdx] : 1;
+        List<BoxCollider> regions = (slot == 2) ? patch2Regions : patch1Regions;
+        if (regions == null || regions.Count == 0)
+            return base.ResolveTreeLocation(index, speciesIdx);
+
+        return RandomPointInRegions(regions);
+    }
+
+    // Pick a box weighted by its ground footprint (bigger box -> more trees), then a random point inside it
+    // (works for rotated/scaled boxes via local space), projected onto the terrain surface.
+    private Vector3 RandomPointInRegions(List<BoxCollider> regions)
+    {
+        float total = 0f;
+        foreach (BoxCollider b in regions)
+            if (b != null) total += Mathf.Abs(b.size.x * b.transform.lossyScale.x * b.size.z * b.transform.lossyScale.z);
+
+        BoxCollider chosen = null;
+        float pick = Random.value * total;
+        foreach (BoxCollider b in regions)
+        {
+            if (b == null) continue;
+            float area = Mathf.Abs(b.size.x * b.transform.lossyScale.x * b.size.z * b.transform.lossyScale.z);
+            if (pick <= area) { chosen = b; break; }
+            pick -= area;
+        }
+        if (chosen == null) chosen = regions[0];
+
+        Vector3 local = chosen.center + new Vector3(
+            (Random.value - 0.5f) * chosen.size.x,
+            0f,
+            (Random.value - 0.5f) * chosen.size.z);
+        Vector3 p = chosen.transform.TransformPoint(local);
+        p.y = terrain.SampleHeight(p) + terrain.GetPosition().y;
+        return p;
+    }
 }

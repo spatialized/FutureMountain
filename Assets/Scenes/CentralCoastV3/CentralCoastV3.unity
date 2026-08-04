@@ -2194,6 +2194,8 @@ MonoBehaviour:
       percentInPatch: 100
     understoryIsGrass: 0
     overstorySpecies: Grass
+  patch1Regions: []
+  patch2Regions: []
 --- !u!1 &25704457
 GameObject:
   m_ObjectHideFlags: 0
@@ -4964,10 +4966,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshfilter: {fileID: 47140718}
   controlPoints:
-  - {x: -65.26557, y: -49.024323, z: -55.06002, w: 12}
+  - {x: -65.26558, y: -49.024323, z: -55.06002, w: 12}
   - {x: -65.24169, y: -49.070496, z: -63.728813, w: 12}
   - {x: -64.483665, y: -49.13311, z: -73.04904, w: 12}
-  - {x: -63.939163, y: -49.156693, z: -84.84933, w: 12}
+  - {x: -63.939163, y: -49.156693, z: -84.849335, w: 12}
   isLooping: 0
   points:
   - {x: -65.26556, y: -49.024323, z: -55.06002}
@@ -7932,12 +7934,12 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: -3441
+  m_Depth: -3451
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 0
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 1193446953}
+  m_TargetTexture: {fileID: 2012334073}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -13172,6 +13174,59 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 148131078}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &148171400
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 148171401}
+  - component: {fileID: 148171402}
+  m_Layer: 0
+  m_Name: Patch1_2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &148171401
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 148171400}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -10.000002, y: 8.860001, z: -20.949999}
+  m_LocalScale: {x: 30, y: 20, z: 5}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 863284063}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &148171402
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 148171400}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &149283009
 GameObject:
   m_ObjectHideFlags: 0
@@ -26490,6 +26545,8 @@ MonoBehaviour:
       percentInPatch: 50
     understoryIsGrass: 1
     overstorySpecies: Chaparral
+  patch1Regions: []
+  patch2Regions: []
 --- !u!1 &316466957
 GameObject:
   m_ObjectHideFlags: 0
@@ -32181,6 +32238,7 @@ Transform:
   - {fileID: 47140715}
   - {fileID: 1811425267}
   - {fileID: 513784510}
+  - {fileID: 863284063}
   m_Father: {fileID: 1448652324}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &375494542
@@ -39714,6 +39772,59 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 471467367}
   m_Mesh: {fileID: 4300000, guid: 06eb7a42c723f1e40b16c0706c7c2951, type: 3}
+--- !u!1 &472549934
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 472549935}
+  - component: {fileID: 472549936}
+  m_Layer: 0
+  m_Name: Patch2_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &472549935
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 472549934}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -10, y: 8.860001, z: -2.6100008}
+  m_LocalScale: {x: 30, y: 20, z: 5}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 863284063}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &472549936
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 472549934}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &474193054
 GameObject:
   m_ObjectHideFlags: 0
@@ -43677,7 +43788,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4285092000097766, guid: a79db869a799b4de7b93b602dfdadc8f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 6.3100004
+      value: 6.960002
       objectReference: {fileID: 0}
     - target: {fileID: 4285092000097766, guid: a79db869a799b4de7b93b602dfdadc8f, type: 3}
       propertyPath: m_LocalPosition.z
@@ -46515,7 +46626,7 @@ MonoBehaviour:
   RootsSizeRatio: 0.8
   RootsYOffsetFactor: 0
   RootsWidthVariability: 0.2
-  TreeGrowthSpeedFactor: 0.0066
+  TreeGrowthSpeedFactor: 0.00088
   TreeDeathSpeed: 0.1
   DeadTreeShrinkFactor: 0.066
   SideBySideModeXOffsetAggregate: 80
@@ -59646,6 +59757,59 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 736035141}
   m_Mesh: {fileID: 4300000, guid: 6bd782357451ef24face6ba6ea823884, type: 3}
+--- !u!1 &738441022
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 738441023}
+  - component: {fileID: 738441024}
+  m_Layer: 0
+  m_Name: Patch1_1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &738441023
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738441022}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -10, y: 8.860001, z: -7.4199986}
+  m_LocalScale: {x: 30, y: 20, z: 5}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 863284063}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &738441024
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738441022}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &740967253
 GameObject:
   m_ObjectHideFlags: 0
@@ -71326,6 +71490,41 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 861548827}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &863284062
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 863284063}
+  m_Layer: 0
+  m_Name: PatchArea
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &863284063
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863284062}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 738441023}
+  - {fileID: 148171401}
+  - {fileID: 472549935}
+  - {fileID: 950335890}
+  m_Father: {fileID: 374346216}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &864548425
 GameObject:
   m_ObjectHideFlags: 0
@@ -75970,6 +76169,8 @@ MonoBehaviour:
       percentInPatch: 50
     understoryIsGrass: 1
     overstorySpecies: Chaparral
+  patch1Regions: []
+  patch2Regions: []
 --- !u!1 &923736882
 GameObject:
   m_ObjectHideFlags: 0
@@ -78451,6 +78652,59 @@ LODGroup:
     renderers:
     - renderer: {fileID: 319366105}
   m_Enabled: 1
+--- !u!1 &950335889
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 950335890}
+  - component: {fileID: 950335891}
+  m_Layer: 0
+  m_Name: Patch2_2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &950335890
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950335889}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -10.000003, y: 8.860001, z: -27.54}
+  m_LocalScale: {x: 30, y: 20, z: 5}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 863284063}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &950335891
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950335889}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &950751105
 GameObject:
   m_ObjectHideFlags: 0
@@ -102069,6 +102323,8 @@ MonoBehaviour:
     overstory: []
     understoryIsGrass: 1
     overstorySpecies: Chaparral
+  patch1Regions: []
+  patch2Regions: []
 --- !u!1 &1177846298
 GameObject:
   m_ObjectHideFlags: 0
@@ -104435,44 +104691,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1192119955}
   m_CullTransparentMesh: 0
---- !u!84 &1193446953
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 5
-  m_Width: 1007
-  m_Height: 628
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthStencilFormat: 0
-  m_ColorFormat: 8
-  m_MipMap: 0
-  m_GenerateMips: 0
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_EnableRandomWrite: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
-  m_ShadowSamplingMode: 0
 --- !u!1 &1193645034
 GameObject:
   m_ObjectHideFlags: 0
@@ -106608,6 +106826,8 @@ MonoBehaviour:
     overstory: []
     understoryIsGrass: 1
     overstorySpecies: 
+  patch1Regions: []
+  patch2Regions: []
 --- !u!1 &1217973331
 GameObject:
   m_ObjectHideFlags: 0
@@ -110340,6 +110560,8 @@ MonoBehaviour:
     overstory: []
     understoryIsGrass: 1
     overstorySpecies: Chaparral
+  patch1Regions: []
+  patch2Regions: []
 --- !u!1 &1263028418
 GameObject:
   m_ObjectHideFlags: 0
@@ -116702,6 +116924,8 @@ MonoBehaviour:
       percentInPatch: 50
     understoryIsGrass: 1
     overstorySpecies: Chaparral
+  patch1Regions: []
+  patch2Regions: []
 --- !u!1 &1351619766
 GameObject:
   m_ObjectHideFlags: 0
@@ -132174,7 +132398,7 @@ MonoBehaviour:
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
-  m_SelectedVertices: 53030000
+  m_SelectedVertices: 
 --- !u!1 &1361786106
 GameObject:
   m_ObjectHideFlags: 0
@@ -142224,7 +142448,7 @@ MonoBehaviour:
   vegetation:
     species: []
   deadTreePrefab: {fileID: 0}
-  grassPrefab: {fileID: 1000014035261830, guid: 623d8c6ea52354aeb836ac2fe556b169,
+  grassPrefab: {fileID: 1000014035261830, guid: 1ddc252ab3708404c93d50af6fe7e5aa,
     type: 3}
   rootsPrefabs:
   - {fileID: 2235666117836024555, guid: 9b08cda69a0ff459ca767852af4b2efa, type: 3}
@@ -142246,13 +142470,13 @@ MonoBehaviour:
   terrainBurning: 0
   terrainBurnt: 0
   lastBurnEndedTime: -1
-  fireGridCenterLocation: {x: 10, y: 0, z: -10}
+  fireGridCenterLocation: {x: 10, y: 0, z: -15}
   RootsCarbonOver: 0
   RootsCarbonUnder: 0
   cubeWidth: 30
   dataType: 1
   useCentralCoastPatches: 0
-  grassPatchDensityScale: 1
+  grassPatchDensityScale: 3
   maxGrassesPerPatch: 300
   maxGrassGrowthPerStep: 5
   ccBackgroundGrassPatches: 60
@@ -142291,14 +142515,20 @@ MonoBehaviour:
     percent: 50
     nStems: 4
     overstory:
-    - name: Oak
+    - name: Oak1
       isShrub: 0
       list:
       - {fileID: 1508632783637986, guid: 6d9fe980c9d7a9c459bed8d1dac2bbb5, type: 3}
-      - {fileID: 1508632783637986, guid: 9bdae5b0800b66941944f656ed122829, type: 3}
       deadPrefab: {fileID: 1508632783637986, guid: 4cd713ca97ccaf44d9e7e53b615ed2a2,
         type: 3}
-      percentInPatch: 100
+      percentInPatch: 50
+    - name: Oak2
+      isShrub: 0
+      list:
+      - {fileID: 1508632783637986, guid: 9bdae5b0800b66941944f656ed122829, type: 3}
+      deadPrefab: {fileID: 1508632783637986, guid: 306f927ae2638824ebfdf94c466511cc,
+        type: 3}
+      percentInPatch: 50
     understoryIsGrass: 1
     overstorySpecies: Oak
   patch2:
@@ -142321,6 +142551,12 @@ MonoBehaviour:
       percentInPatch: 50
     understoryIsGrass: 1
     overstorySpecies: Chaparral
+  patch1Regions:
+  - {fileID: 738441024}
+  - {fileID: 148171402}
+  patch2Regions:
+  - {fileID: 472549936}
+  - {fileID: 950335891}
 --- !u!1 &1448836566
 GameObject:
   m_ObjectHideFlags: 0
@@ -175639,6 +175875,8 @@ MonoBehaviour:
     overstory: []
     understoryIsGrass: 1
     overstorySpecies: Chaparral
+  patch1Regions: []
+  patch2Regions: []
 --- !u!1 &1920633267
 GameObject:
   m_ObjectHideFlags: 0
@@ -180962,6 +181200,44 @@ Transform:
   - {fileID: 1374779531}
   m_Father: {fileID: 1939007165}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!84 &2012334073
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 5
+  m_Width: 1022
+  m_Height: 628
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 0
+  m_ColorFormat: 8
+  m_MipMap: 0
+  m_GenerateMips: 0
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_EnableRandomWrite: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 0
 --- !u!1 &2015375275
 GameObject:
   m_ObjectHideFlags: 0
@@ -191363,6 +191639,8 @@ MonoBehaviour:
     overstory: []
     understoryIsGrass: 1
     overstorySpecies: Chaparral
+  patch1Regions: []
+  patch2Regions: []
 --- !u!1 &2115406390
 GameObject:
   m_ObjectHideFlags: 0
