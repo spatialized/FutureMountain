@@ -72,7 +72,9 @@ public class CubeController_CCV3 : CubeController
     // relocates it into this file.
     protected override void SetVegetationToDieFromFire(int fireTimeIdx)
     {
-        SetCentralCoastVegetationToDieFromFire(fireTimeIdx);
+        // Fixed-N_stems model: deaths come only from ind_died (explicit data), applied by
+        // QueuePatchIndDiedDeaths. The fire itself queues no extra carbon-based deaths.
+        QueuePatchIndDiedDeathsThrough(fireTimeIdx);
     }
 
     // ----- Stage 4: per-cube tree-carbon-factor override -----
@@ -279,7 +281,14 @@ public class CubeController_CCV3 : CubeController
         if (regions == null || regions.Count == 0)
             return base.ResolveTreeLocation(index, speciesIdx);
 
-        return RandomPointInRegions(regions);
+        // Deterministic per-slot placement: scrubbing the timeline resets + regrows the cube, so a random
+        // pick here would move every tree on each jump. Seed by (cube, tree index, species) so a given slot
+        // always lands at the same point — positions stay put unless a tree actually dies/regrows.
+        Random.State prev = Random.state;
+        Random.InitState(unchecked(patchID * 73856093 ^ index * 19349663 ^ speciesIdx * 83492791));
+        Vector3 p = RandomPointInRegions(regions);
+        Random.state = prev;
+        return p;
     }
 
     // Pick a box weighted by its ground footprint (bigger box -> more trees), then a random point inside it

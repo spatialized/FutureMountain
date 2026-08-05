@@ -281,6 +281,7 @@ public class CubeController : MonoBehaviour
     public float StemCarbonUnder;                // Stem carbon amount (Used for tree height)    -- Also tree trunk thickness?
     public float IndDiedOver;                   //Overstory individual died flag
     private int lastDeathTimeIdx = -1;           // Central Coast: last timeIdx whose ind_died deaths were queued (avoids re-queuing on a paused frame)
+    private int[] lastDeathTimeIdxBySpecies;     // Central Coast: last timeIdx a species actually lost a tree (defers refill one day)
 
     //public float LeafCarbon { get; set; }           // Leaf carbon amount (Used for tree/bush leaf amount and grass height)
     //public float StemCarbon { get; set; }           // Stem carbon amount (Used for tree height)    -- Also tree trunk thickness?
@@ -765,21 +766,28 @@ public class CubeController : MonoBehaviour
     // so a paused frame can't re-queue the same deaths.
     protected void QueuePatchIndDiedDeaths()
       {
-          if (timeIdx <= lastDeathTimeIdx) return;      // no forward progress (also blocks re-queue on a paused frame)
+          QueuePatchIndDiedDeathsThrough(timeIdx);
+      }
 
-          int from = lastDeathTimeIdx + 1;              // sum every day since last processed, so timeStep jumps can't skip single-day events
-          lastDeathTimeIdx = timeIdx;
+      // Apply every patch's ind_died from the last processed day up to and including targetIdx, then
+      // advance the cursor. Used by the per-step pass (target = timeIdx) and by fire ignition (target =
+      // fire day) so a fire's mortality lands on the fire day instead of a timeStep later (the pause defers it).
+      protected void QueuePatchIndDiedDeathsThrough(int targetIdx)
+      {
+          if (targetIdx <= lastDeathTimeIdx) return;      // no forward progress (also blocks re-queue on a paused frame)
+
+          int from = lastDeathTimeIdx + 1;                // sum every day since last processed, so timeStep jumps can't skip single-day events
+          lastDeathTimeIdx = targetIdx;
 
           float p1 = 0f, p2 = 0f;
-          for (int k = from; k <= timeIdx; k++)
+          for (int k = from; k <= targetIdx; k++)
           {
-              p1 += GetIndDied(cubeData, k);            // patch1 = this cube's own data
-              p2 += GetIndDied(cubeDataP2, k);          // patch2 = second member
+              p1 += GetIndDied(cubeData, k);              // patch1 = this cube's own data
+              p2 += GetIndDied(cubeDataP2, k);            // patch2 = second member
           }
 
           QueueIndDiedForPatch(patch1, p1);
           QueueIndDiedForPatch(patch2, p2);
-
       }
 
     private void QueueIndDiedForPatch(PatchDisplayInfo patch, float indDied)
@@ -805,6 +813,8 @@ public class CubeController : MonoBehaviour
             {
                 if (!KillAFir(false, idx)) break;   // kills one (animated) + decrements; clears queue if none left
             }
+            if (share > 0 && lastDeathTimeIdxBySpecies != null && idx < lastDeathTimeIdxBySpecies.Length)
+                  lastDeathTimeIdxBySpecies[idx] = timeIdx;   // mark death this step so refill waits until next day
         }
 
         Debug.Log($"[DEATH] {name} patch:{(patch != null ? patch.overstorySpecies : "?")} ind_died:{indDied} deaths:{deaths} queued:{string.Join(",", firsToKillBySpecies)}");
@@ -984,6 +994,8 @@ public class CubeController : MonoBehaviour
         treeAverageCarbonAmount = (settings.MaxTreeFullHeightScale + settings.MinTreeFullHeightScale) / 2f * fullTreeHeight *
         GetTreeCarbonFactor();
         firsToKillBySpecies = new int[Mathf.Max(1, treeList.Count)];
+        lastDeathTimeIdxBySpecies = new int[Mathf.Max(1, treeList.Count)];
+        for (int i = 0; i < lastDeathTimeIdxBySpecies.Length; i++) lastDeathTimeIdxBySpecies[i] = -1;
         lastFirGrownTimeIdxBySpecies = new int[Mathf.Max(1, treeList.Count)];
         
         burntSplatmap = CreateBurntSplatmap();
@@ -2210,36 +2222,31 @@ public class CubeController : MonoBehaviour
         }        
     }
 
-    // Central Coast: grow-only recovery of a migrated patch's overstory. Deaths come from ind_died
-    // (explicit data); recovery has no data, so it's computed — each species regrows toward a
-    // carbon-scaled target capped at its N_stems share. Throttled so it fills in gradually.
+    // Central Coast: keep each species' overstory count fixed at its N_stems share. Deaths (ind_died)
+    // dip the count; the day AFTER a death, refill straight back to the target — so a fire's dead trees
+    // reappear as the same number of saplings the next day. Size is data-driven (heightOver), so refilled
+    // trees start small and grow. No carbon target: count is fixed, deaths come from data.
     private void RecoverPatchOverstory(PatchDisplayInfo patch, float patchCarbonNow, float patchCarbonMax)
     {
         if (patch == null || patch.overstory == null || patch.overstory.Count == 0) return;
-        if (firsToKillBySpecies == null || lastFirGrownTimeIdxBySpecies == null) return;
-
-        float fullness = (patchCarbonMax > 0f) ? Mathf.Clamp01(patchCarbonNow / patchCarbonMax) : 0f;
+        if (firsToKillBySpecies == null || lastDeathTimeIdxBySpecies == null) return;
 
         foreach (Species sp in patch.overstory)
         {
             if (sp == null) continue;
             int idx = sp.runtimeSpeciesIdx;
             if (idx < 0 || idx >= firsToKillBySpecies.Length) continue;
-            if (firsToKillBySpecies[idx] > 0) continue;   // let all pending ind_died kills apply first — don't refill a death in progress
+            if (firsToKillBySpecies[idx] > 0) continue;              // deaths still applying this step
+            if (lastDeathTimeIdxBySpecies[idx] == timeIdx) continue; // died THIS step — refill next day
 
-            int cap = Mathf.RoundToInt(patch.nStems * sp.percentInPatch / 100f);   // N_stems cap for this species
-            int target = Mathf.RoundToInt(cap * fullness);                          // carbon-scaled target (<= cap)
+            int target = Mathf.RoundToInt(patch.nStems * sp.percentInPatch / 100f);   // fixed N_stems share
             int alive = GetAliveTrees(idx).Count;
 
-            // Grow only (never kill here — deaths are ind_died's job). Throttled.
-             if (alive < target && (timeIdx - lastFirGrownTimeIdxBySpecies[idx] > firGrowthWaitTime))
-              {
-                  if (GrowAFir(false, idx))
-                  {
-                      lastFirGrownTimeIdxBySpecies[idx] = timeIdx;
-                      Debug.Log($"[RECOVER] {name} sp{idx} +1 → {alive + 1}/{target}  full{fullness:F2}  t{timeIdx}");
-                  }
-              }
+            while (alive < target)                                   // refill all missing at once
+            {
+                if (!GrowAFir(false, idx)) break;
+                alive++;
+            }
         }
     }
 
