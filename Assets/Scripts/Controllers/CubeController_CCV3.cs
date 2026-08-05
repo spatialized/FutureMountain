@@ -260,6 +260,8 @@ public class CubeController_CCV3 : CubeController
             if (h > 0f) fir.SetFullHeightMeters(h);
             if (fir.leafDensity != null)
                   fir.leafDensity.SetDensity(GetLeafFraction(timeIdx, patchSlotBySpecies[idx] == 2));
+            float rd = GetRootDepth(timeIdx, patchSlotBySpecies[idx] == 2);
+            if (rd > 0f) fir.SetRootDepthScale(rd * settings.RootsDepthScaleFactor);
         }
     }
     // ----- Per-patch collider regions (only used when patch1/patch2 are different overstory species) -----
@@ -267,64 +269,124 @@ public class CubeController_CCV3 : CubeController
     // spawn only inside its boxes, so species never bleed into each other's zone regardless of counts.
     public List<BoxCollider> patch1Regions;
     public List<BoxCollider> patch2Regions;
+    public int frontTreesPerPatch = 1;
 
     protected override Vector3 ResolveTreeLocation(int index, int speciesIdx)
     {
-        // Only separate by collider when the two patches are DIFFERENT overstory species (e.g. Oak vs
-        // Chaparral). Same-species cubes (Chaparral/Chaparral) fall back to the base near/far placement.
-        if (patch1 == null || patch2 == null || patch1.overstorySpecies == patch2.overstorySpecies)
-            return base.ResolveTreeLocation(index, speciesIdx);
+        bool split = patch1 != null && patch2 != null && patch1.overstorySpecies != patch2.overstorySpecies;
 
         int slot = (patchSlotBySpecies != null && speciesIdx >= 0 && speciesIdx < patchSlotBySpecies.Length)
                     ? patchSlotBySpecies[speciesIdx] : 1;
-        List<BoxCollider> regions = (slot == 2) ? patch2Regions : patch1Regions;
+        PatchDisplayInfo patch = (slot == 2) ? patch2 : patch1;
+        float spacing = (patch != null) ? patch.treeMinSpacing : 1f;
+
+        List<BoxCollider> regions = split ? ((slot == 2) ? patch2Regions : patch1Regions) : AllRegions();
         if (regions == null || regions.Count == 0)
             return base.ResolveTreeLocation(index, speciesIdx);
 
-        // Deterministic per-slot placement: scrubbing the timeline resets + regrows the cube, so a random
-        // pick here would move every tree on each jump. Seed by (cube, tree index, species) so a given slot
-        // always lands at the same point — positions stay put unless a tree actually dies/regrows.
+        // Deterministic per-slot (stable across scrubs). Front tree(s) sit on the section; interior trees
+        // fill the patch with a per-patch minimum spacing.
         Random.State prev = Random.state;
         Random.InitState(unchecked(patchID * 73856093 ^ index * 19349663 ^ speciesIdx * 83492791));
-        Vector3 p = RandomPointInRegions(regions);
+        Vector3 p = IsFrontTreeSlot(index, speciesIdx) ? FrontFaceInRegions(regions) : RandomPointInRegions(regions, spacing);
         Random.state = prev;
+        return p;
+    }
+
+    private List<BoxCollider> _allRegions;
+    private List<BoxCollider> AllRegions()
+    {
+        if (_allRegions == null)
+        {
+            _allRegions = new List<BoxCollider>();
+            if (patch1Regions != null) _allRegions.AddRange(patch1Regions);
+            if (patch2Regions != null) _allRegions.AddRange(patch2Regions);
+        }
+        return _allRegions;
+    }
+
+    // The front tree(s) per patch: placed on the front (camera-facing) EDGE of one of this patch's boxes,
+    // so it reads on the section while still sitting inside the collider region (not forced onto z=0).
+    // Reuse BigCreek's front placement: pin the section tree to the cube's cut face (local z = cubeFront,
+    // the camera-facing side), taking X from this patch's box so it stays on the correct side of the stream.
+    private Vector3 FrontFaceInRegions(List<BoxCollider> regions)
+    {
+        float total = 0f;
+        foreach (BoxCollider r in regions)
+            if (r != null) total += Mathf.Abs(r.size.x * r.transform.lossyScale.x);
+
+        BoxCollider b = null;
+        float pick = Random.value * total;
+        foreach (BoxCollider r in regions)
+        {
+            if (r == null) continue;
+            float w = Mathf.Abs(r.size.x * r.transform.lossyScale.x);
+            if (pick <= w) { b = r; break; }
+            pick -= w;
+        }
+        if (b == null) b = regions[0];
+
+        // BigCreek accuracy + collider constraint: aim for the cut face (cubeFront) at a random X across the
+        // box, then clamp into the box with ClosestPoint. If the box reaches the cut face the tree lands
+        // exactly on the section (roots hang on the cut like BigCreek); otherwise it lands on the box's edge.
+        Vector3 c = b.transform.TransformPoint(b.center);
+        float halfX = Mathf.Abs(b.size.x * b.transform.lossyScale.x) * 0.5f;
+        Vector3 target = new Vector3(c.x + Random.Range(-halfX, halfX), c.y, terrain.GetPosition().z + cubeWidth);
+        Vector3 p = b.ClosestPoint(target);      // guaranteed inside/on the collider
+        p.y = terrain.SampleHeight(p) + terrain.GetPosition().y;
         return p;
     }
 
     // Pick a box weighted by its ground footprint (bigger box -> more trees), then a random point inside it
     // (works for rotated/scaled boxes via local space), projected onto the terrain surface.
-    private Vector3 RandomPointInRegions(List<BoxCollider> regions)
-    {
-        float total = 0f;
-        foreach (BoxCollider b in regions)
-            if (b != null) total += Mathf.Abs(b.size.x * b.transform.lossyScale.x * b.size.z * b.transform.lossyScale.z);
+    // Interior tree point with a minimum spacing to already-placed trees (retries, then gives up so a
+      // packed patch can't loop forever).
+      private Vector3 RandomPointInRegions(List<BoxCollider> regions, float minSpacing)
+      {
+        float minSpacingSq = minSpacing * minSpacing;
+        Vector3 fallback = WeightedPointInRegions(regions);
 
-        BoxCollider chosen = null;
-        float pick = Random.value * total;
-        foreach (BoxCollider b in regions)
+        for (int attempt = 0; attempt < 15; attempt++)
         {
-            if (b == null) continue;
-            float area = Mathf.Abs(b.size.x * b.transform.lossyScale.x * b.size.z * b.transform.lossyScale.z);
-            if (pick <= area) { chosen = b; break; }
-            pick -= area;
+            Vector3 p = (attempt == 0) ? fallback : WeightedPointInRegions(regions);
+            bool ok = true;
+            if (activeFirLocations != null && firLocations != null)
+            {
+                foreach (int i in activeFirLocations)
+                {
+                    if (i < 0 || i >= firLocations.Length) continue;
+                    if ((firLocations[i] - p).sqrMagnitude < minSpacingSq) { ok = false; break; }
+                }
+            }
+            if (ok) return p;
         }
-        if (chosen == null) chosen = regions[0];
+        return fallback;
+      }
 
-        Vector3 local = chosen.center + new Vector3(
-            (Random.value - 0.5f) * chosen.size.x,
-            0f,
-            (Random.value - 0.5f) * chosen.size.z);
-        Vector3 p = chosen.transform.TransformPoint(local);
-        // Project onto the visible terrain surface with a downward raycast (robust to the small CC
-          // cubes' terrain height/position quirks). Fall back to SampleHeight if the ray misses.
-          TerrainCollider tc = terrain.GetComponent<TerrainCollider>();
-          Ray ray = new Ray(new Vector3(p.x, terrain.GetPosition().y + 1000f, p.z), Vector3.down);
-          if (tc != null && tc.Raycast(ray, out RaycastHit hit, 2000f))
-              p.y = hit.point.y;
-          else
-              p.y = terrain.SampleHeight(p) + terrain.GetPosition().y;
+      // Weighted-by-footprint box pick, then a random point inside it, projected onto the terrain.
+      private Vector3 WeightedPointInRegions(List<BoxCollider> regions)
+      {
+          float total = 0f;
+          foreach (BoxCollider b in regions)
+              if (b != null) total += Mathf.Abs(b.size.x * b.transform.lossyScale.x * b.size.z * b.transform.lossyScale.z);
+
+          BoxCollider chosen = null;
+          float pick = Random.value * total;
+          foreach (BoxCollider b in regions)
+          {
+              if (b == null) continue;
+              float area = Mathf.Abs(b.size.x * b.transform.lossyScale.x * b.size.z * b.transform.lossyScale.z);
+              if (pick <= area) { chosen = b; break; }
+              pick -= area;
+          }
+          if (chosen == null) chosen = regions[0];
+
+          Vector3 local = chosen.center + new Vector3(
+              (Random.value - 0.5f) * chosen.size.x, 0f, (Random.value - 0.5f) * chosen.size.z);
+          Vector3 p = chosen.transform.TransformPoint(local);
+          p.y = terrain.SampleHeight(p) + terrain.GetPosition().y;
           return p;
-    }
+      }
 
     // CC V3 places trees via collider regions (see ResolveTreeLocation), not the base
     // stream/padding math, which does not fit a small (10 m) cube. Allocate the arrays and
@@ -340,11 +402,18 @@ public class CubeController_CCV3 : CubeController
 
     if (all.Count > 0)
         for (int i = 0; i < firLocations.Length; i++)
-            firLocations[i] = RandomPointInRegions(all);
+            firLocations[i] = RandomPointInRegions(all, patch1 != null ? patch1.treeMinSpacing : 1f);
     firs = new List<FirController>();
     }
 
     // Small 10 m zone cubes need a smaller edge padding; the CC aggregate cube keeps the full value.
     protected override float CubePadding => isAggregate ? settings.CubeTreePadding : settings.CubeTreePaddingSmall;
+
+    // Front trees are the first N of EACH species so both patches show on the section (global first-N
+    // would all be patch1's species). These are also the only trees that grow roots.
+    protected override bool IsFrontTreeSlot(int index, int speciesIdx)
+    {
+        return GetAliveTrees(speciesIdx).Count < frontTreesPerPatch;
+    }
 
 }

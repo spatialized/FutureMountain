@@ -36,6 +36,7 @@ public abstract class TreeController : MonoBehaviour
     /* Settings */
     protected SimulationSettings settings;
     protected bool isFrontTree = false;             // Flag for tree in front of cube
+    public bool IsFrontTree() { return isFrontTree; }
 
     /* Geometry */
     protected Vector3 cubeNECorner, cubeSWCorner;   // Corners of cube
@@ -91,6 +92,7 @@ public abstract class TreeController : MonoBehaviour
     /* Roots Settings */
     protected float rootsHeightScale;                  // Current tree height scale
     protected float rootsFullHeightScale;              // Roots height scale at fully grown state
+    protected float rootsDepthTargetOverride = -1f;     // CC: data-driven root scale (>=0 when set); <0 keeps BigCreek's tree-linked roots
     protected float rootsWidthScale;                  // Current roots width scale
     protected float rootsFullWidthScale;              // Roots width scale at fully grown state
 
@@ -272,6 +274,13 @@ public abstract class TreeController : MonoBehaviour
         //Debug.Log($"[HGT] {name} heightOver={meters:F2}m  prefabH={prefabH:F2}m  scale={treeFullHeightScale:F2}");
     }
 
+    // Central Coast: drive the fully-grown root scale from data (rootdepthCOver * factor) instead of tree
+      // height. Negative disables it, so BigCreek keeps its tree-linked roots.
+      public void SetRootDepthScale(float scale)
+      {
+          rootsDepthTargetOverride = Mathf.Max(0f, scale);
+      }
+
     /// <summary>
     /// Grows the roots.
     /// </summary>
@@ -280,8 +289,8 @@ public abstract class TreeController : MonoBehaviour
         // Roots follow the tree's height scale, but never exceed 1 even when the tree's height scale does
         // (Central Coast sets treeFullHeightScale from absolute data height, which can be > 1). BigCreek's
         // treeFullHeightScale is always <= 0.8, so Min(...) leaves it unchanged there.
-        float rootFullH = Mathf.Min(treeFullHeightScale, 1f);
-        float rootFullW = Mathf.Min(treeFullWidthScale, 1f);
+        float rootFullH = (rootsDepthTargetOverride >= 0f) ? rootsDepthTargetOverride : Mathf.Min(treeFullHeightScale, 1f);
+        float rootFullW = (rootsDepthTargetOverride >= 0f) ? rootsDepthTargetOverride : Mathf.Min(treeFullWidthScale, 1f);
 
         float newHeightScale, newWidthScale;
         float hDiff = rootFullH - GetRootsHeightScale();
@@ -432,21 +441,20 @@ public abstract class TreeController : MonoBehaviour
 
         float factor = newTreeHeightScale / treeFullHeightScale;
 
-        float newRootsHeightScale;
-        if (startAtZero)
-            newRootsHeightScale = 0f;
-        else
-            newRootsHeightScale = UnityEngine.Random.Range(0f, rootsFullHeightScale * factor);
+          // Only front (cut-face) trees show roots; interior roots are occluded, so leave them inactive
+          // (from instantiation) instead of activating/scaling here. Matches the isFrontTree gate in GrowRoots.
+          if (isFrontTree)
+          {
+              float newRootsHeightScale = startAtZero ? 0f
+                  : UnityEngine.Random.Range(0f, rootsFullHeightScale * factor);
+              float newRootsWidthScale = GetWidthScaleFromHeightScale(newRootsHeightScale, settings.RootsWidthVariability);
+              float curRootsDepth = newRootsHeightScale * GetFullRootsDepth();
+              SetRootsPrefabForDepth(curRootsDepth, true);
+              SetRootsScale(newRootsHeightScale, newRootsWidthScale, true);
+          }
 
-        float newRootsWidthScale = GetWidthScaleFromHeightScale(newRootsHeightScale, settings.RootsWidthVariability);
-        float curRootsDepth = newRootsHeightScale * GetFullRootsDepth();
-        SetRootsPrefabForDepth(curRootsDepth, true);
-        SetRootsScale(newRootsHeightScale, newRootsWidthScale, true);
-
-        if(debugTree)
-            Debug.Log(name + ".InitializeScale()... newTreeHeightScale:" + newTreeHeightScale + " factor:" + factor + " startAtZero:" + startAtZero);
-        if(debugRoots)
-            Debug.Log(name + ".InitializeScale()... newRootsHeightScale:" + newRootsHeightScale + " newRootsWidthScale:" + newRootsWidthScale + " curRootsDepth:" + curRootsDepth);
+          if (debugTree)
+              Debug.Log(name + ".InitializeScale()... newTreeHeightScale:" + newTreeHeightScale + " factor:" + factor + " startAtZero:" + startAtZero);
     }
 
     /// <summary>

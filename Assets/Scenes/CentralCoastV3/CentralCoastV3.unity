@@ -2162,6 +2162,7 @@ MonoBehaviour:
   TransOver: 0
   TransUnder: 0
   patch1:
+    overstorySpecies: Chaparral
     percent: 15
     nStems: 12
     overstory:
@@ -2180,8 +2181,9 @@ MonoBehaviour:
         type: 3}
       percentInPatch: 50
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch2:
+    overstorySpecies: Grass
     percent: 85
     nStems: 80
     overstory:
@@ -2193,9 +2195,10 @@ MonoBehaviour:
         type: 3}
       percentInPatch: 100
     understoryIsGrass: 0
-    overstorySpecies: Grass
+    treeMinSpacing: 1
   patch1Regions: []
   patch2Regions: []
+  frontTreesPerPatch: 1
 --- !u!1 &25704457
 GameObject:
   m_ObjectHideFlags: 0
@@ -4966,10 +4969,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshfilter: {fileID: 47140718}
   controlPoints:
-  - {x: -0.0000076293945, y: 0.0000064074993, z: -0.0000012218952, w: 6}
-  - {x: 0.039283752, y: 0.010000318, z: 3.029272, w: 6}
-  - {x: 0.08278656, y: 0.059998065, z: 6.9568563, w: 6}
-  - {x: 0.069999695, y: 0.05999787, z: 10, w: 6}
+  - {x: -0.0000076293945, y: 0.000008687377, z: 0.0000010579824, w: 6}
+  - {x: 0.03929138, y: 0.010003194, z: 3.029275, w: 6}
+  - {x: 0.08279419, y: 0.060001403, z: 6.956856, w: 6}
+  - {x: 0.069999695, y: 0.059998617, z: 9.999999, w: 6}
   isLooping: 0
   points:
   - {x: -0.0000076293945, y: 0.00000846386, z: 0.000000834465}
@@ -7832,12 +7835,12 @@ Camera:
   field of view: 60
   orthographic: 0
   orthographic size: 5
-  m_Depth: -3531
+  m_Depth: -3567
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 0
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 2099399168}
+  m_TargetTexture: {fileID: 1682989041}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -13039,7 +13042,7 @@ Transform:
   m_GameObject: {fileID: 148171400}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5, y: 6.1000023, z: -7.2200003}
+  m_LocalPosition: {x: 5.17, y: 6.1000023, z: -7.22}
   m_LocalScale: {x: 9, y: 10, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -29233,6 +29236,7 @@ MonoBehaviour:
   TransOver: 0
   TransUnder: 0
   patch1:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 40
     overstory:
@@ -29251,8 +29255,9 @@ MonoBehaviour:
         type: 3}
       percentInPatch: 50
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch2:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 40
     overstory:
@@ -29271,9 +29276,10 @@ MonoBehaviour:
         type: 3}
       percentInPatch: 50
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch1Regions: []
   patch2Regions: []
+  frontTreesPerPatch: 1
 --- !u!1 &316466957
 GameObject:
   m_ObjectHideFlags: 0
@@ -32010,17 +32016,19 @@ MonoBehaviour:
   TransOver: 0
   TransUnder: 0
   patch1:
-    percent: 50
-    nStems: 0
-    overstory: []
-    understoryIsGrass: 1
     overstorySpecies: Oak
-  patch2:
     percent: 50
     nStems: 0
     overstory: []
     understoryIsGrass: 1
+    treeMinSpacing: 1
+  patch2:
     overstorySpecies: Chaparral
+    percent: 50
+    nStems: 0
+    overstory: []
+    understoryIsGrass: 1
+    treeMinSpacing: 1
 --- !u!1 &348135079
 GameObject:
   m_ObjectHideFlags: 0
@@ -46062,7 +46070,7 @@ Transform:
   m_GameObject: {fileID: 472549934}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.010004, y: 6.1000023, z: -1.4800054}
+  m_LocalPosition: {x: 5.18, y: 6.1000023, z: -1.48}
   m_LocalScale: {x: 9, y: 10, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -52833,6 +52841,7 @@ MonoBehaviour:
   MaxFireLengthInSec: 4
   ImmediateFireTimeThreshold: 10
   MinFrontTrees: 3
+  RootsDepthScaleFactor: 0.1
   MaxTrees: 40
   MaxShrubs: 80
   WebBuildMaxVegMultiplier: 0.4
@@ -52859,10 +52868,10 @@ MonoBehaviour:
   MinTreeFullWidth: 1
   MaxTreeFullWidth: 1.25
   TreeWidthVariability: 0.3
-  MinRootsFullHeightScale: 1.75
-  MaxRootsFullHeightScale: 2.5
-  MinRootsFullWidth: 1.5
-  MaxRootsFullWidth: 2
+  MinRootsFullHeightScale: 0.1
+  MaxRootsFullHeightScale: 0.9
+  MinRootsFullWidth: 0.1
+  MaxRootsFullWidth: 0.9
   RootsSpreadSpeedFactor: 0.0025
   RootsSizeRatio: 0.8
   RootsYOffsetFactor: 0
@@ -65793,7 +65802,7 @@ Transform:
   m_GameObject: {fileID: 738441022}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.9900026, y: 6.1000023, z: -3.0999966}
+  m_LocalPosition: {x: 5.2, y: 6.1000023, z: -2.8}
   m_LocalScale: {x: 9, y: 10, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -73334,17 +73343,19 @@ MonoBehaviour:
   TransOver: 0
   TransUnder: 0
   patch1:
-    percent: 50
-    nStems: 0
-    overstory: []
-    understoryIsGrass: 1
     overstorySpecies: Oak
-  patch2:
     percent: 50
     nStems: 0
     overstory: []
     understoryIsGrass: 1
+    treeMinSpacing: 1
+  patch2:
     overstorySpecies: Chaparral
+    percent: 50
+    nStems: 0
+    overstory: []
+    understoryIsGrass: 1
+    treeMinSpacing: 1
 --- !u!1 &818922243
 GameObject:
   m_ObjectHideFlags: 0
@@ -85432,6 +85443,7 @@ MonoBehaviour:
   TransOver: 0
   TransUnder: 0
   patch1:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 40
     overstory:
@@ -85450,8 +85462,9 @@ MonoBehaviour:
         type: 3}
       percentInPatch: 50
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch2:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 40
     overstory:
@@ -85470,9 +85483,10 @@ MonoBehaviour:
         type: 3}
       percentInPatch: 50
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch1Regions: []
   patch2Regions: []
+  frontTreesPerPatch: 1
 --- !u!1 &923736882
 GameObject:
   m_ObjectHideFlags: 0
@@ -87838,7 +87852,7 @@ Transform:
   m_GameObject: {fileID: 950335889}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5, y: 6.1000023, z: -8.580002}
+  m_LocalPosition: {x: 5.17, y: 6.1000023, z: -8.58}
   m_LocalScale: {x: 9, y: 10, z: 2.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -111543,19 +111557,22 @@ MonoBehaviour:
   TransOver: 0
   TransUnder: 0
   patch1:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 0
     overstory: []
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch2:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 0
     overstory: []
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch1Regions: []
   patch2Regions: []
+  frontTreesPerPatch: 1
 --- !u!1 &1177846298
 GameObject:
   m_ObjectHideFlags: 0
@@ -116244,19 +116261,22 @@ MonoBehaviour:
   TransOver: 0
   TransUnder: 0
   patch1:
+    overstorySpecies: Chaparral
     percent: 15
     nStems: 0
     overstory: []
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch2:
+    overstorySpecies: 
     percent: 85
     nStems: 0
     overstory: []
     understoryIsGrass: 1
-    overstorySpecies: 
+    treeMinSpacing: 1
   patch1Regions: []
   patch2Regions: []
+  frontTreesPerPatch: 1
 --- !u!1 &1217973331
 GameObject:
   m_ObjectHideFlags: 0
@@ -120065,17 +120085,19 @@ MonoBehaviour:
   TransOver: 0
   TransUnder: 0
   patch1:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 0
     overstory: []
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch2:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 0
     overstory: []
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
 --- !u!114 &1262568738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -120184,19 +120206,22 @@ MonoBehaviour:
   TransOver: 0
   TransUnder: 0
   patch1:
-    percent: 50
-    nStems: 0
-    overstory: []
-    understoryIsGrass: 1
     overstorySpecies: Oak
-  patch2:
     percent: 50
     nStems: 0
     overstory: []
     understoryIsGrass: 1
+    treeMinSpacing: 1
+  patch2:
     overstorySpecies: Chaparral
+    percent: 50
+    nStems: 0
+    overstory: []
+    understoryIsGrass: 1
+    treeMinSpacing: 1
   patch1Regions: []
   patch2Regions: []
+  frontTreesPerPatch: 1
 --- !u!1 &1263028418
 GameObject:
   m_ObjectHideFlags: 0
@@ -126445,6 +126470,7 @@ MonoBehaviour:
   TransOver: 0
   TransUnder: 0
   patch1:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 40
     overstory:
@@ -126463,8 +126489,9 @@ MonoBehaviour:
         type: 3}
       percentInPatch: 50
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch2:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 40
     overstory:
@@ -126483,9 +126510,10 @@ MonoBehaviour:
         type: 3}
       percentInPatch: 50
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch1Regions: []
   patch2Regions: []
+  frontTreesPerPatch: 1
 --- !u!1 &1351619766
 GameObject:
   m_ObjectHideFlags: 0
@@ -152050,8 +152078,8 @@ MonoBehaviour:
   hasHouse: 0
   streamObject: {fileID: 47140714}
   streamFaceObject: {fileID: 513784511}
-  streamFullHeight: 6.5
-  streamZeroHeight: 5
+  streamFullHeight: 9.52
+  streamZeroHeight: 9.19
   streamFaceFullScale: 1.6
   streamFaceZeroScale: 0
   streamLevelCurve: 1
@@ -152072,6 +152100,7 @@ MonoBehaviour:
   TransOver: 0
   TransUnder: 0
   patch1:
+    overstorySpecies: Oak
     percent: 50
     nStems: 4
     overstory:
@@ -152090,8 +152119,9 @@ MonoBehaviour:
         type: 3}
       percentInPatch: 50
     understoryIsGrass: 1
-    overstorySpecies: Oak
+    treeMinSpacing: 3
   patch2:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 40
     overstory:
@@ -152110,13 +152140,14 @@ MonoBehaviour:
         type: 3}
       percentInPatch: 50
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 0.5
   patch1Regions:
   - {fileID: 738441024}
   - {fileID: 148171402}
   patch2Regions:
   - {fileID: 472549936}
   - {fileID: 950335891}
+  frontTreesPerPatch: 1
 --- !u!1 &1448836566
 GameObject:
   m_ObjectHideFlags: 0
@@ -168934,6 +168965,44 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1681888863}
   m_Mesh: {fileID: 4300000, guid: 06ac7a963c5161f448c03dd4e84f3950, type: 3}
+--- !u!84 &1682989041
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_IsAlphaChannelOptional: 0
+  serializedVersion: 5
+  m_Width: 1004
+  m_Height: 624
+  m_AntiAliasing: 1
+  m_MipCount: -1
+  m_DepthStencilFormat: 0
+  m_ColorFormat: 8
+  m_MipMap: 0
+  m_GenerateMips: 0
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_EnableCompatibleFormat: 1
+  m_EnableRandomWrite: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
+  m_ShadowSamplingMode: 0
 --- !u!1 &1683953906
 GameObject:
   m_ObjectHideFlags: 0
@@ -185280,19 +185349,22 @@ MonoBehaviour:
   TransOver: 0
   TransUnder: 0
   patch1:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 0
     overstory: []
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch2:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 0
     overstory: []
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch1Regions: []
   patch2Regions: []
+  frontTreesPerPatch: 1
 --- !u!1 &1920633267
 GameObject:
   m_ObjectHideFlags: 0
@@ -197761,44 +197833,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2098759693}
   m_Mesh: {fileID: 4300000, guid: 06ac7a963c5161f448c03dd4e84f3950, type: 3}
---- !u!84 &2099399168
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_IsAlphaChannelOptional: 0
-  serializedVersion: 5
-  m_Width: 1022
-  m_Height: 628
-  m_AntiAliasing: 1
-  m_MipCount: -1
-  m_DepthStencilFormat: 0
-  m_ColorFormat: 8
-  m_MipMap: 0
-  m_GenerateMips: 0
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_EnableCompatibleFormat: 1
-  m_EnableRandomWrite: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
-  m_ShadowSamplingMode: 0
 --- !u!1 &2101548040
 GameObject:
   m_ObjectHideFlags: 0
@@ -200731,19 +200765,22 @@ MonoBehaviour:
   TransOver: 0
   TransUnder: 0
   patch1:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 0
     overstory: []
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch2:
+    overstorySpecies: Chaparral
     percent: 50
     nStems: 0
     overstory: []
     understoryIsGrass: 1
-    overstorySpecies: Chaparral
+    treeMinSpacing: 1
   patch1Regions: []
   patch2Regions: []
+  frontTreesPerPatch: 1
 --- !u!1 &2115406390
 GameObject:
   m_ObjectHideFlags: 0

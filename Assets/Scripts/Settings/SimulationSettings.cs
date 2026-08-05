@@ -99,6 +99,7 @@ public class SimulationSettings : MonoBehaviour
     [Tooltip("Minimum trees at front of each cube")]
     public int MinFrontTrees = 2;                       // Min. trees at front of each cube
     [Tooltip("Maximum number of grown trees per cube")]
+     public float RootsDepthScaleFactor = 0.1f;         // CC: root scale per metre of data rootdepthCOver (tune so deepest roots fit the cube)
     public int MaxTrees = 40;                           // Maximum number of grown trees in cube
     [Tooltip("Maximum number of grown shrubs per cube")]
     public int MaxShrubs = 100;                         // Maximum number of grown shrubs in cube

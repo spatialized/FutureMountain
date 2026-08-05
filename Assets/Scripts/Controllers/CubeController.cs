@@ -752,6 +752,15 @@ public class CubeController : MonoBehaviour
         return 0f;
     }
 
+    // Overstory root depth (m) at the given 0-based sim time index. patch2=false -> this cube's rows.
+    protected float GetRootDepth(int idx, bool patch2)
+    {
+        Dictionary<int, CubeData> data = patch2 ? cubeDataP2 : cubeData;
+        if (data != null && data.TryGetValue(idx + 1, out CubeData row))
+            return row.rootdepthCOver;
+        return 0f;
+    }
+
     // Overstory leaf-carbon fraction 0..1 at the given 0-based sim time index. patch2=false -> this cube's rows.
     protected float GetLeafFraction(int idx, bool patch2)
     {
@@ -2834,7 +2843,7 @@ public class CubeController : MonoBehaviour
         //for (int i = 0; i < firs.Length; i++)
         for (int i = 0; i < firs.Count; i++)
         {
-            if (firs[i].IsAlive())
+            if (firs[i].IsAlive() && firs[i].IsFrontTree())   // only front (cut-face) trees show roots; interior roots are occluded
                 firs[i].GrowRoots();
         }
     }
@@ -2855,6 +2864,15 @@ public class CubeController : MonoBehaviour
     {
         return firLocations[index];
     }
+
+    // Whether a tree slot is a "front" tree (placed on the cut face, shows roots). BigCreek: the first
+    // MinFrontTrees overall. CubeController_CCV3 overrides to the first N of EACH species.
+    protected virtual bool IsFrontTreeSlot(int index, int speciesIdx)
+    {
+        return index < settings.MinFrontTrees;
+    }
+
+    
     /// <summary>
     /// Grows a fir tree.
     /// </summary>
@@ -2939,7 +2957,7 @@ public class CubeController : MonoBehaviour
         firController.speciesIdx = speciesIdx;   // Needed for per-patch carbon balance
         firs.Add(firController);                                                      // Save reference to FirController component
 
-        bool isFront = (index < settings.MinFrontTrees) ? true : false;                 // Check whether tree is front tree (at beginning of list)
+        bool isFront = IsFrontTreeSlot(index, speciesIdx);
 
         firController.InitializeFir(terrain, isAggregate, isFront, GetTreeCarbonFactor(), GetRootsCarbonFactor(), neCorner, swCorner);
 
@@ -3463,7 +3481,7 @@ public class CubeController : MonoBehaviour
     /// <summary>
     /// Returns alive trees of one species (Central Coast per-patch balance).
     /// </summary>
-    private List<FirController> GetAliveTrees(int speciesIdx)
+    protected List<FirController> GetAliveTrees(int speciesIdx)
     {
         List<FirController> result = new List<FirController>();
         foreach (FirController fir in firs)
@@ -5946,12 +5964,13 @@ public class CubeController : MonoBehaviour
     [System.Serializable]
       public class PatchDisplayInfo
       {
-          [Range(0f, 100f)] public float percent = 50f;   // Percent of the cube's area this patch covers
-          public int nStems = 0;                          // Initial overstory individuals in this patch (cube_info N_stems)
-          public List<Species> overstory;                 // Overstory species in this patch (each has its own prefabs + deadPrefab). Preferred.
-          public bool understoryIsGrass = true;           // Understory layer is grass
+        public string overstorySpecies = "Chaparral";   // "Oak" / "Chaparral" / "Grass" LEGACY single-species name. Used only while overstory is empty, so nothing breaks pre-migration.
+        [Range(0f, 100f)] public float percent = 50f;   // Percent of the cube's area this patch covers
+        public int nStems = 0;                          // Initial overstory individuals in this patch (cube_info N_stems)
+        public List<Species> overstory;                 // Overstory species in this patch (each has its own prefabs + deadPrefab). Preferred.
+        public bool understoryIsGrass = true;           // Understory layer is grass
+        public float treeMinSpacing = 1f;               // Min distance (m) between interior trees in this patch
 
-          public string overstorySpecies = "Chaparral";   // "Oak" / "Chaparral" / "Grass" LEGACY single-species name. Used only while overstory is empty, so nothing breaks pre-migration.
       }
     public PatchDisplayInfo patch1;
     public PatchDisplayInfo patch2;
