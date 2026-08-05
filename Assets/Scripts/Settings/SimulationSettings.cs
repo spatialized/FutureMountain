@@ -112,6 +112,7 @@ public class SimulationSettings : MonoBehaviour
     public float CubeTreePadding = 5f;                  // Distance from edge at which trees start growing
     [Tooltip("Distance from edge at which shrubs start growing")]
     public float CubeShrubZoneDepth = 5f;               // Distance within front edge at which shrubs prefer to grow
+    public float CubeTreePaddingSmall = 1f;             // Same, for small 10 m Central Coast zone cubes
     [Tooltip("Distance from edge at which shrubs start growing")]
     public float CubeShrubZonePreferencePercent = 75f;    // Percentage likelihood new shrub will grow within shrub zone
     [Tooltip("Distance from edge at which trees start growing (Aggregate Cube)")]

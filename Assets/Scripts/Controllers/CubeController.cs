@@ -116,7 +116,7 @@ public class CubeController : MonoBehaviour
     public float RootsCarbonUnderMax { get; set; } = -100000f;  // Root carbon max. from data
 
     /* Settings */
-    private SimulationSettings settings;            // Simulation settings
+    protected SimulationSettings settings;            // Simulation settings
     private int shrubCount;                         // Current number of grown shrubs in cube
     private float minShrubFullSize = 0.8f;          // Min. shrub grown size (m.)
     private float maxShrubFullSize = 2f;            // Max. shrub grown size (m.)
@@ -269,7 +269,7 @@ public class CubeController : MonoBehaviour
 
     private List<GameObject> litter;             // List of active (simple) shrub objects
     protected Vector3[] firLocations;              // Tree locations
-    private List<int> activeFirLocations;        // Used fir location IDs
+    protected List<int> activeFirLocations;        // Used fir location IDs
     public int firsToKill = 0;                   // Trees to kill
     private int[] firsToKillBySpecies;           // Central Coast: per-species kill queue, indexed by speciesIdx
      private int[] lastFirGrownTimeIdxBySpecies;  // Central Coast: per-species growth throttle so patch1 can't starve patch2
@@ -751,6 +751,15 @@ public class CubeController : MonoBehaviour
         return 0f;
     }
 
+    // Overstory leaf-carbon fraction 0..1 at the given 0-based sim time index. patch2=false -> this cube's rows.
+    protected float GetLeafFraction(int idx, bool patch2)
+    {
+        Dictionary<int, CubeData> data = patch2 ? cubeDataP2 : cubeData;
+        float leaf = (data != null && data.TryGetValue(idx + 1, out CubeData row)) ? row.leafCOver : 0f;
+        float denom = LeafCarbonOverMax - LeafCarbonOverMin;
+        return (denom > 0f) ? Mathf.Clamp01((leaf - LeafCarbonOverMin) / denom) : 1f;
+    }
+
     // Central Coast: turn each patch's per-step ind_died (individuals that died that day) into queued
     // kills, split across the patch's overstory species by percentInPatch. Processed once per timeIdx
     // so a paused frame can't re-queue the same deaths.
@@ -1163,10 +1172,16 @@ public class CubeController : MonoBehaviour
         //Assert.IsNotNull(waterAccessSlider);
     }
 
+    // Edge padding where vegetation starts growing. Base (BigCreek + aggregate) uses the full value;
+    // CubeController_CCV3 shrinks it for the small 10 m zone cubes (see override).
+    protected virtual float CubePadding => settings.CubeTreePadding;
+
     /// <summary>
     /// Creates the trees.
+    /// Edge padding where vegetation starts growing. Base (BigCreek + aggregate) uses the full value;
+    /// CubeController_CCV3 shrinks it for the small 10 m zone cubes (see override).
     /// </summary>
-    private void CreateTreeLocations()
+    protected virtual void CreateTreeLocations()
     {
         // firLocations = new Vector3[settings.MaxTrees];
         firLocations = new Vector3[MaxTreesForCube()];
@@ -1178,10 +1193,10 @@ public class CubeController : MonoBehaviour
         int start = 1;
         float randX;
 
-        float cubeXMin = settings.CubeTreePadding;
-        float cubeXMax = cubeWidth * cubeWidthScale - settings.CubeTreePadding;
-        float cubeZMin = settings.CubeTreePadding;
-        float cubeZMax = cubeWidth * cubeWidthScale - settings.CubeTreePadding;
+        float cubeXMin = CubePadding;
+        float cubeXMax = cubeWidth * cubeWidthScale - CubePadding;
+        float cubeZMin = CubePadding;
+        float cubeZMax = cubeWidth * cubeWidthScale - CubePadding;
         float cubeFront = cubeWidth * cubeWidthScale;
 
         if (hasStream)                  // Create trees for cube with stream
@@ -3009,11 +3024,11 @@ public class CubeController : MonoBehaviour
         float offsetX = terrain.GetPosition().x;
         float offsetZ = terrain.GetPosition().z;
 
-        float cubeXMin = settings.CubeTreePadding;                    // Min. local X coord where shrubs grow
-        float cubeXMax = cubeWidth - settings.CubeTreePadding;        // Max. local X coord where shrubs grow
-        //float cubeZMin = settings.CubeTreePadding;                  // Min. local Z coord where shrubs grow
+        float cubeXMin = CubePadding;                    // Min. local X coord where shrubs grow
+        float cubeXMax = cubeWidth - CubePadding;        // Max. local X coord where shrubs grow
+        //float cubeZMin = CubePadding;                  // Min. local Z coord where shrubs grow
         float cubeZMin = 0.1f;                                        // Min. local Z coord where shrubs grow
-        float cubeZMax = cubeWidth - settings.CubeTreePadding;        // Max. local Z coord where shrubs grow
+        float cubeZMax = cubeWidth - CubePadding;        // Max. local Z coord where shrubs grow
 
         if (hasStream)                                   // Set shrub locations based on stream
         {
@@ -3188,10 +3203,10 @@ public class CubeController : MonoBehaviour
         float offsetX = terrain.GetPosition().x;
         float offsetZ = terrain.GetPosition().z;
 
-        float cubeXMin = settings.CubeTreePadding;                    // Min. local X coord where shrubs grow
-        float cubeXMax = cubeWidth - settings.CubeTreePadding;        // Max. local X coord where shrubs grow
-        float cubeZMin = settings.CubeTreePadding;                    // Min. local Z coord where shrubs grow
-        float cubeZMax = cubeWidth - settings.CubeTreePadding;        // Max. local Z coord where shrubs grow
+        float cubeXMin = CubePadding;                    // Min. local X coord where shrubs grow
+        float cubeXMax = cubeWidth - CubePadding;        // Max. local X coord where shrubs grow
+        float cubeZMin = CubePadding;                    // Min. local Z coord where shrubs grow
+        float cubeZMax = cubeWidth - CubePadding;        // Max. local Z coord where shrubs grow
 
         if (hasStream)                                   // Set shrub locations based on stream
         {

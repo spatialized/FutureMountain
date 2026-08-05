@@ -256,6 +256,8 @@ public class CubeController_CCV3 : CubeController
             if (idx < 0 || idx >= patchSlotBySpecies.Length) continue;
             float h = GetHeightOver(timeIdx, patchSlotBySpecies[idx] == 2);
             if (h > 0f) fir.SetFullHeightMeters(h);
+            if (fir.leafDensity != null)
+                  fir.leafDensity.SetDensity(GetLeafFraction(timeIdx, patchSlotBySpecies[idx] == 2));
         }
     }
     // ----- Per-patch collider regions (only used when patch1/patch2 are different overstory species) -----
@@ -304,7 +306,36 @@ public class CubeController_CCV3 : CubeController
             0f,
             (Random.value - 0.5f) * chosen.size.z);
         Vector3 p = chosen.transform.TransformPoint(local);
-        p.y = terrain.SampleHeight(p) + terrain.GetPosition().y;
-        return p;
+        // Project onto the visible terrain surface with a downward raycast (robust to the small CC
+          // cubes' terrain height/position quirks). Fall back to SampleHeight if the ray misses.
+          TerrainCollider tc = terrain.GetComponent<TerrainCollider>();
+          Ray ray = new Ray(new Vector3(p.x, terrain.GetPosition().y + 1000f, p.z), Vector3.down);
+          if (tc != null && tc.Raycast(ray, out RaycastHit hit, 2000f))
+              p.y = hit.point.y;
+          else
+              p.y = terrain.SampleHeight(p) + terrain.GetPosition().y;
+          return p;
     }
+
+    // CC V3 places trees via collider regions (see ResolveTreeLocation), not the base
+    // stream/padding math, which does not fit a small (10 m) cube. Allocate the arrays and
+    // pre-seed every slot with an in-region point so the same-species fallback also lands on terrain.
+    protected override void CreateTreeLocations()
+    {
+    firLocations = new Vector3[MaxTreesForCube()];
+    activeFirLocations = new List<int>();
+
+    List<BoxCollider> all = new List<BoxCollider>();
+    if (patch1Regions != null) all.AddRange(patch1Regions);
+    if (patch2Regions != null) all.AddRange(patch2Regions);
+
+    if (all.Count > 0)
+        for (int i = 0; i < firLocations.Length; i++)
+            firLocations[i] = RandomPointInRegions(all);
+    firs = new List<FirController>();
+    }
+
+    // Small 10 m zone cubes need a smaller edge padding; the CC aggregate cube keeps the full value.
+    protected override float CubePadding => isAggregate ? settings.CubeTreePadding : settings.CubeTreePaddingSmall;
+
 }

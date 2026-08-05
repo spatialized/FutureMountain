@@ -22,6 +22,7 @@ public class FirController : TreeController
     private bool initialized = false;
     public int locationID = -1;
     public int speciesIdx = 0;      // Index into CubeController.treeList; identifies which patch grew this tree
+    public LeafDensity leafDensity;   // CC-only; null for BigCreek prefabs -> no-op
 
     /* Layers */                                                                  // -- TO DO
     private bool showETLayer = true;                 
