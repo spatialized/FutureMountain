@@ -290,8 +290,12 @@ public class CubeController : MonoBehaviour
     //public float StemCarbonOver { get; set; }           // Stem carbon amount (Used for tree height)    -- Also tree trunk thickness?
     //public float StemCarbonUnder { get; set; }           // Stem carbon amount (Used for tree height)    -- Also tree trunk thickness?
 
-    private float LeafCarbonOverMin = 100000f;      // Leaf carbon (overstory) minimum value in data
-    private float LeafCarbonOverMax = -100000f;     // Leaf carbon (overstory) maximum value in data
+    private float LeafCarbonOverMinP1 = 100000f;      // Leaf carbon (overstory) minimum value in data
+    private float LeafCarbonOverMaxP1 = -100000f;     // Leaf carbon (overstory) maximum value in data
+
+    private float LeafCarbonOverMinP2 = 100000f;    // patch2 leaf carbon min, for its own density normalization
+    
+    private float LeafCarbonOverMaxP2 = -100000f;   // patch2 leaf carbon max
     private float p2CarbonMax = 0f;                 // patch2 (second member) max overstory carbon (leafC+stemC), for carbon-scaled recovery
     private float LeafCarbonUnderMin = 100000f;     // Leaf carbon (understory) minimum value in data
     private float LeafCarbonUnderMax = -100000f;    // Leaf carbon (understory) maximum value in data
@@ -763,12 +767,14 @@ public class CubeController : MonoBehaviour
 
     // Overstory leaf-carbon fraction 0..1 at the given 0-based sim time index. patch2=false -> this cube's rows.
     protected float GetLeafFraction(int idx, bool patch2)
-    {
-        Dictionary<int, CubeData> data = patch2 ? cubeDataP2 : cubeData;
-        float leaf = (data != null && data.TryGetValue(idx + 1, out CubeData row)) ? row.leafCOver : 0f;
-        float denom = LeafCarbonOverMax - LeafCarbonOverMin;
-        return (denom > 0f) ? Mathf.Clamp01((leaf - LeafCarbonOverMin) / denom) : 1f;
-    }
+      {
+          Dictionary<int, CubeData> data = patch2 ? cubeDataP2 : cubeData;
+          float leaf = (data != null && data.TryGetValue(idx + 1, out CubeData row)) ? row.leafCOver : 0f;
+          float lo = patch2 ? LeafCarbonOverMinP2 : LeafCarbonOverMinP1;
+          float hi = patch2 ? LeafCarbonOverMaxP2 : LeafCarbonOverMaxP1;
+          float denom = hi - lo;
+          return (denom > 0f) ? Mathf.Clamp01((leaf - lo) / denom) : 1f;
+      }
 
     // Central Coast: turn each patch's per-step ind_died (individuals that died that day) into queued
     // kills, split across the patch's overstory species by percentInPatch. Processed once per timeIdx
@@ -2086,7 +2092,7 @@ public class CubeController : MonoBehaviour
         if (grassesToKill > 0)
             KillAGrassPatch();
 
-        UpdatePatchOverstory(patch1, StemCarbonOver + LeafCarbonOver, StemCarbonOverMax + LeafCarbonOverMax);
+        UpdatePatchOverstory(patch1, StemCarbonOver + LeafCarbonOver, StemCarbonOverMax + LeafCarbonOverMaxP1);
         UpdatePatchOverstory(patch2, GetOverstoryCarbonP2(timeIdx), p2CarbonMax);
 
         UpdateCentralCoastGrass();
@@ -2511,10 +2517,14 @@ public class CubeController : MonoBehaviour
         p2Loaded = true;
 
         p2CarbonMax = 0f;
+        LeafCarbonOverMinP2 = 100000f;
+        LeafCarbonOverMaxP2 = -100000f;
         foreach (CubeData r in cubeDataP2.Values)
         {
             float c = r.leafCOver + r.stemCOver;
             if (c > p2CarbonMax) p2CarbonMax = c;
+            if (r.leafCOver < LeafCarbonOverMinP2) LeafCarbonOverMinP2 = r.leafCOver;
+            if (r.leafCOver > LeafCarbonOverMaxP2) LeafCarbonOverMaxP2 = r.leafCOver;
         }
 
         // Both members now loaded: grow once (no repeated reset).
@@ -2970,8 +2980,8 @@ public class CubeController : MonoBehaviour
 
         float netTransMin = TransOverMin;
         float netTransMax = TransOverMax;
-        float leafCarbonMin = LeafCarbonOverMin;
-        float leafCarbonMax = LeafCarbonOverMax;
+        float leafCarbonMin = LeafCarbonOverMinP1;
+        float leafCarbonMax = LeafCarbonOverMaxP1;
         float stemCarbonMin = StemCarbonOverMin;
         float stemCarbonMax = StemCarbonOverMax;
         float rootsCarbonMin = RootsCarbonOverMin;
@@ -4725,8 +4735,8 @@ public class CubeController : MonoBehaviour
             NetPhotosynthesisMin = 100000f;
             NetPhotosynthesisMax = -100000f;
 
-            LeafCarbonOverMin = 100000f;
-            LeafCarbonOverMax = -100000f;
+            LeafCarbonOverMinP1 = 100000f;
+            LeafCarbonOverMaxP1 = -100000f;
             LeafCarbonUnderMin = 100000f;
             LeafCarbonUnderMax = -100000f;
 
@@ -4801,10 +4811,10 @@ public class CubeController : MonoBehaviour
                         TransOverMax = val;
 
                     val = cubeData[i, l];
-                    if (val < LeafCarbonOverMin)
-                        LeafCarbonOverMin = val;
-                    if (val > LeafCarbonOverMax)
-                        LeafCarbonOverMax = val;
+                    if (val < LeafCarbonOverMinP1)
+                        LeafCarbonOverMinP1 = val;
+                    if (val > LeafCarbonOverMaxP1)
+                        LeafCarbonOverMaxP1 = val;
 
                     val = cubeData[i, stC];
                     if (val < StemCarbonOverMin)
@@ -4862,10 +4872,10 @@ public class CubeController : MonoBehaviour
                         TransUnderMax = val;
 
                     val = cubeData[i, l_o];
-                    if (val < LeafCarbonOverMin)
-                        LeafCarbonOverMin = val;
-                    if (val > LeafCarbonOverMax)
-                        LeafCarbonOverMax = val;
+                    if (val < LeafCarbonOverMinP1)
+                        LeafCarbonOverMinP1 = val;
+                    if (val > LeafCarbonOverMaxP1)
+                        LeafCarbonOverMaxP1 = val;
 
                     val = cubeData[i, stC_o];
                     if (val < StemCarbonOverMin)
@@ -4915,10 +4925,10 @@ public class CubeController : MonoBehaviour
                         NetTranspirationMax = val;
 
                     val = cubeData[i, l_o];
-                    if (val < LeafCarbonOverMin)
-                        LeafCarbonOverMin = val;
-                    if (val > LeafCarbonOverMax)
-                        LeafCarbonOverMax = val;
+                    if (val < LeafCarbonOverMinP1)
+                        LeafCarbonOverMinP1 = val;
+                    if (val > LeafCarbonOverMaxP1)
+                        LeafCarbonOverMaxP1 = val;
 
                     val = cubeData[i, stC_o];
                     if (val < StemCarbonOverMin)
@@ -5053,8 +5063,8 @@ public class CubeController : MonoBehaviour
             NetPhotosynthesisMin = 100000f;
             NetPhotosynthesisMax = -100000f;
 
-            LeafCarbonOverMin = 100000f;
-            LeafCarbonOverMax = -100000f;
+            LeafCarbonOverMinP1 = 100000f;
+            LeafCarbonOverMaxP1 = -100000f;
             LeafCarbonUnderMin = 100000f;
             LeafCarbonUnderMax = -100000f;
 
@@ -5129,10 +5139,10 @@ public class CubeController : MonoBehaviour
                         TransOverMax = val;
 
                     val = dataRows[i].leafCOver;
-                    if (val < LeafCarbonOverMin)
-                        LeafCarbonOverMin = val;
-                    if (val > LeafCarbonOverMax)
-                        LeafCarbonOverMax = val;
+                    if (val < LeafCarbonOverMinP1)
+                        LeafCarbonOverMinP1 = val;
+                    if (val > LeafCarbonOverMaxP1)
+                        LeafCarbonOverMaxP1 = val;
 
                     val = dataRows[i].stemCOver;
                     if (val < StemCarbonOverMin)
@@ -5161,10 +5171,10 @@ public class CubeController : MonoBehaviour
                         TransUnderMax = val;
 
                     val = dataRows[i].leafCOver;
-                    if (val < LeafCarbonOverMin)
-                        LeafCarbonOverMin = val;
-                    if (val > LeafCarbonOverMax)
-                        LeafCarbonOverMax = val;
+                    if (val < LeafCarbonOverMinP1)
+                        LeafCarbonOverMinP1 = val;
+                    if (val > LeafCarbonOverMaxP1)
+                        LeafCarbonOverMaxP1 = val;
 
                     val = dataRows[i].stemCOver;
                     if (val < StemCarbonOverMin)
@@ -5225,10 +5235,10 @@ public class CubeController : MonoBehaviour
                         NetTranspirationMax = val;
 
                     val = dataRows[i].leafCOver;
-                    if (val < LeafCarbonOverMin)
-                        LeafCarbonOverMin = val;
-                    if (val > LeafCarbonOverMax)
-                        LeafCarbonOverMax = val;
+                    if (val < LeafCarbonOverMinP1)
+                        LeafCarbonOverMinP1 = val;
+                    if (val > LeafCarbonOverMaxP1)
+                        LeafCarbonOverMaxP1 = val;
 
                     val = dataRows[i].stemCOver;
                     if (val < StemCarbonOverMin)
@@ -5281,8 +5291,8 @@ public class CubeController : MonoBehaviour
             netTransMin = NetTranspirationMin;
             netTransMax = NetTranspirationMax;
         }
-        float leafCarbonMin = LeafCarbonOverMin;
-        float leafCarbonMax = LeafCarbonOverMax;
+        float leafCarbonMin = LeafCarbonOverMinP1;
+        float leafCarbonMax = LeafCarbonOverMaxP1;
         float stemCarbonMin = StemCarbonOverMin;
         float stemCarbonMax = StemCarbonOverMax;
         float rootsCarbonMin = RootsCarbonOverMin;
@@ -5858,8 +5868,8 @@ public class CubeController : MonoBehaviour
 
         float netTransMin = (dataType == CubeDataType.Veg1) ? TransOverMin : TransOverMin + TransUnderMin;
         float netTransMax = (dataType == CubeDataType.Veg1) ? TransOverMax : TransOverMax + TransUnderMax;
-        float leafCarbonMin = (dataType == CubeDataType.Veg1) ? LeafCarbonOverMin : LeafCarbonOverMin + LeafCarbonUnderMin;
-        float leafCarbonMax = (dataType == CubeDataType.Veg1) ? LeafCarbonOverMax : LeafCarbonOverMax + LeafCarbonUnderMax;
+        float leafCarbonMin = (dataType == CubeDataType.Veg1) ? LeafCarbonOverMinP1 : LeafCarbonOverMinP1 + LeafCarbonUnderMin;
+        float leafCarbonMax = (dataType == CubeDataType.Veg1) ? LeafCarbonOverMaxP1 : LeafCarbonOverMaxP1 + LeafCarbonUnderMax;
         float stemCarbonMin = (dataType == CubeDataType.Veg1) ? StemCarbonOverMin : StemCarbonOverMin + StemCarbonUnderMin;
         float stemCarbonMax = (dataType == CubeDataType.Veg1) ? StemCarbonOverMax : StemCarbonOverMax + StemCarbonUnderMax;
         //float rootsCarbonMin = (dataType == CubeDataType.Veg1) ? RootsCarbonMin : RootsCarbonOverMin;

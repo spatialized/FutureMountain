@@ -59,6 +59,7 @@ public class FirController : TreeController
 
         treeYOffset = settings.TreeHeightOffset;
         isFrontTree = newIsFrontTree;
+        leafDensity = GetComponentInChildren<LeafDensity>(true); // CC oak leaf prefab carries it; BigCreek doesn't -> null (no-op)
 
         /* Initialize particle system */
         GameObject evapTrans = transform.Find("EvapTrans").gameObject;

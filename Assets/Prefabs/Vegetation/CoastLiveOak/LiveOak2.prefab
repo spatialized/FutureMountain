@@ -159,6 +159,7 @@ GameObject:
   - component: {fileID: 3023481649025090611}
   - component: {fileID: 217134980868927940}
   - component: {fileID: 6842177223112220703}
+  - component: {fileID: 5297791206690222698}
   m_Layer: 0
   m_Name: MI_LOD0_001
   m_TagString: Untagged
@@ -231,6 +232,23 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5297791206690222698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7962606909256630648}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7e28d912f33b1e4c89dd8e1f383677e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  leafRenderers:
+  - {fileID: 6842177223112220703}
+  cutoffProperty: _Cutoff
+  cutoffAtFull: 0.1
+  cutoffAtEmpty: 0.7
 --- !u!1001 &5016990203007038011
 PrefabInstance:
   m_ObjectHideFlags: 0
