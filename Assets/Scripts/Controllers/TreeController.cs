@@ -274,23 +274,26 @@ public abstract class TreeController : MonoBehaviour
         //Debug.Log($"[HGT] {name} heightOver={meters:F2}m  prefabH={prefabH:F2}m  scale={treeFullHeightScale:F2}");
     }
 
-    // Central Coast: drive the fully-grown root scale from data (rootdepthCOver * factor) instead of tree
-      // height. Negative disables it, so BigCreek keeps its tree-linked roots.
-      public void SetRootDepthScale(float scale)
-      {
-          rootsDepthTargetOverride = Mathf.Max(0f, scale);
-      }
+    // Central Coast: root SIZE from data root depth (metres). Display depth ≈ rootsHeightScale × deepest
+    // prefab depth, so target rootsHeightScale = metres / deepest. Prefab STAGE handled separately by
+    // RootsPrefabDepthBoost. Negative disables (BigCreek keeps its own roots).
+    public void SetRootDepthMeters(float meters)
+    {
+        if (rootsPrefabDepths == null || rootsPrefabDepths.Length == 0) { rootsDepthTargetOverride = -1f; return; }
+        float deepest = rootsPrefabDepths[rootsPrefabDepths.Length - 1];
+        rootsDepthTargetOverride = (deepest > 0f) ? Mathf.Max(0f, meters / deepest) : -1f;
+    }
 
     /// <summary>
     /// Grows the roots.
     /// </summary>
     public void GrowRoots()
     {
-        // Roots follow the tree's height scale, but never exceed 1 even when the tree's height scale does
-        // (Central Coast sets treeFullHeightScale from absolute data height, which can be > 1). BigCreek's
-        // treeFullHeightScale is always <= 0.8, so Min(...) leaves it unchanged there.
-        float rootFullH = (rootsDepthTargetOverride >= 0f) ? rootsDepthTargetOverride : Mathf.Min(treeFullHeightScale, 1f);
-        float rootFullW = (rootsDepthTargetOverride >= 0f) ? rootsDepthTargetOverride : Mathf.Min(treeFullWidthScale, 1f);
+        // BigCreek's full-root target, multiplied by a per-patch data factor (1 = BigCreek). CC sets the
+        // factor from rootdepthCOver, so roots still climb through the prefab stages but track the data
+        // depth (and shrink after a fire when the data root depth drops).
+        float rootFullH = (rootsDepthTargetOverride >= 0f) ? rootsDepthTargetOverride : rootsFullHeightScale;
+        float rootFullW = (rootsDepthTargetOverride >= 0f) ? rootsDepthTargetOverride : rootsFullWidthScale;;
 
         float newHeightScale, newWidthScale;
         float hDiff = rootFullH - GetRootsHeightScale();
@@ -410,8 +413,14 @@ public abstract class TreeController : MonoBehaviour
     {
         float currentDepth = rootsHeightScale * GetFullRootsDepth();       // -- TESTING
 
-        int newRootsPrefabIdx = GetClosestFloatIdxLowerThan(rootsPrefabDepths, currentDepth);
+        int newRootsPrefabIdx = GetClosestFloatIdxLowerThan(rootsPrefabDepths, currentDepth * settings.RootsPrefabDepthBoost);
         if (newRootsPrefabIdx == -1) newRootsPrefabIdx = 0;
+        Debug.Log(name + " [ROOTDBG] rHS=" + rootsHeightScale
+              + " curDepth=" + (rootsHeightScale * GetFullRootsDepth())
+              + " boost=" + settings.RootsPrefabDepthBoost
+              + " boosted=" + (rootsHeightScale * GetFullRootsDepth() * settings.RootsPrefabDepthBoost)
+              + " idx=" + newRootsPrefabIdx + " depths0=" + rootsPrefabDepths[0]
+              + " override=" + rootsDepthTargetOverride);
 
         if (init || (rootsPrefabIdx != newRootsPrefabIdx))
         {

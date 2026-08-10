@@ -146,7 +146,6 @@ public class SimulationSettings : MonoBehaviour
     public float TreeHeightOffset = 5f;                  // Tree Height Offset (m.) from Sample Cube terrain   
     [Tooltip("Shrub Height Offset (m.) from Sample Cube terrain")]
     public float ShrubHeightOffset = 0.1f;               // Shrub Height Offset (m.) from Sample Cube terrain
-
     public float MinTreeFullHeightScale = 0.66f;          // Min. tree grown height scale
     public float MaxTreeFullHeightScale = 0.8f;          // Max. tree grown height scale
     public float MinTreeFullWidth = 1f;                  // Min. tree grown width scale
@@ -163,6 +162,8 @@ public class SimulationSettings : MonoBehaviour
     public float RootsSizeRatio = 0.8f;                  // Root height / width ratio
     public float RootsYOffsetFactor = 0f;                // Roots height to Y offset scaling
     public float RootsWidthVariability = 0.2f;           // Variability of tree width from height
+    
+    public float RootsPrefabDepthBoost = 1f;   // CC: scale up the depth used to PICK the root prefab stage
 
     [Header("Time")]
     public float TreeGrowthSpeedFactor = 0.00033f;       // Growth speed factor

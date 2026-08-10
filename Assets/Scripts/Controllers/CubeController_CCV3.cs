@@ -261,7 +261,7 @@ public class CubeController_CCV3 : CubeController
             if (fir.leafDensity != null)
                   fir.leafDensity.SetDensity(GetLeafFraction(timeIdx, patchSlotBySpecies[idx] == 2));
             float rd = GetRootDepth(timeIdx, patchSlotBySpecies[idx] == 2);
-            if (rd > 0f) fir.SetRootDepthScale(rd * settings.RootsDepthScaleFactor);
+            if (rd > 0f) fir.SetRootDepthMeters(rd);
         }
     }
     // ----- Per-patch collider regions (only used when patch1/patch2 are different overstory species) -----
