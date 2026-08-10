@@ -83,7 +83,6 @@ public class CubeController : MonoBehaviour
     [Header("Fire")]
     public GameObject fireNodeChainPrefab;       // ET emitter prefab
     public GameObject firePrefab;               // Ground fire prefab
-
     private float fireDetectionThreshold = 0.2f; // Ratio of (tree) carbon in data to visualized carbon under which fire is detected (ignited)  -- OBSOLETE
     private float fireDetectionMinCarbon = 10f;  // Ratio of (tree) carbon in data to visualized carbon under which fire is detected (ignited)  -- OBSOLETE
     public int fireRegrowthLength = 160;    // Frames to regrow grass   -- TEMP.
@@ -120,8 +119,8 @@ public class CubeController : MonoBehaviour
     private int shrubCount;                         // Current number of grown shrubs in cube
     private float minShrubFullSize = 0.8f;          // Min. shrub grown size (m.)
     private float maxShrubFullSize = 2f;            // Max. shrub grown size (m.)
-    private float minGrassFullSize = 3f;            // Max. shrub grown size (m.)
-    private float maxGrassFullSize = 5.5f;          // Max. shrub grown size (m.)
+    private float minGrassFullSize = 0.2f;            // Max. shrub grown size (m.)
+    private float maxGrassFullSize = 0.5f;          // Max. shrub grown size (m.)
     private float shrubGrowthIncrement = 0.015f;    // Shrub growth increment per frame
     private float grassGrowthIncrement = 0.01f;     // Shrub growth increment per frame
 
@@ -164,13 +163,13 @@ public class CubeController : MonoBehaviour
     // Central Coast: fixed background grass fill. Replaces the random 2..250 roll so that patch-driven grass (GrowPatchOverstory) is actually visible against it.
     public int ccBackgroundGrassPatches = 60;
     // Central Coast: per-cube carbon calibration. Each display cube stands for a different patch
-        // area and density, so one shared factor cannot fit a dense riparian cube and a sparse
-        // chaparral cube at once. 0 = fall back to the shared settings value.
-        public float cubeTreeCarbonFactorOverride = 0f;
-      // Central Coast: overstory carbon must fall this fraction below the visualised amount before
-      // drought kills trees. Without it every small carbon wobble queued a kill and trees died
-      // constantly. Fire deaths are handled separately by IgniteFire / SetTreesToBurn.
-      public float droughtDeathThreshold = 0.25f;
+    // area and density, so one shared factor cannot fit a dense riparian cube and a sparse
+    // chaparral cube at once. 0 = fall back to the shared settings value.
+    public float cubeTreeCarbonFactorOverride = 0f;
+    // Central Coast: overstory carbon must fall this fraction below the visualised amount before
+    // drought kills trees. Without it every small carbon wobble queued a kill and trees died
+    // constantly. Fire deaths are handled separately by IgniteFire / SetTreesToBurn.
+    public float droughtDeathThreshold = 0.25f;
 
     private CubeData[] dataRows;             // Data rows for calculating paramater ranges
     private int dataBuffer = 500;                 // Frames of cube data to preload
@@ -4493,12 +4492,12 @@ public class CubeController : MonoBehaviour
     private static float GetRandomExcludingMiddle(float lower, float upper, float excludeLower, float excludeUpper)
     {
         if (excludeLower < lower || excludeUpper > upper)
-        {
-            Debug.Log("GetRandomExcludingRange()... while loop ERROR 1...");
-            throw new System.Exception();      // -- TEST
-
-            //return 0f;
-        }
+          {
+              // Exclusion band doesn't fit inside [lower,upper] (e.g. a 10 m cube whose 50 m-tuned stream band
+              // overflows the edge). Ignore the exclusion instead of throwing — otherwise grass (which uses this
+              // path) silently fails to spawn while collider-placed trees are unaffected.
+              return Random.Range(lower, upper);
+          }
 
         float rand = Random.Range(lower, upper);
 
@@ -4507,12 +4506,9 @@ public class CubeController : MonoBehaviour
         {
             rand = Random.Range(lower, upper);
             if (++count > 200)
-            {
-                Debug.Log("GetRandomExcludingRange()... while loop ERROR 2...");
-                throw new System.Exception();      // -- TEST
-
-                //break;
-            }
+              {
+                  return rand;   // give up avoiding the excluded band after many tries
+              }
         }
         return rand;
     }
