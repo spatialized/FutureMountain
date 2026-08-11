@@ -153,7 +153,7 @@ MonoBehaviour:
   - {fileID: 1170392426742598728}
   cutoffProperty: _Cutoff
   cutoffAtFull: 0.1
-  cutoffAtEmpty: 0.7
+  cutoffAtEmpty: 0.45
 --- !u!23 &1170392426742598728 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: bdc0ca9eb303fe2499be667999c3f0ea,

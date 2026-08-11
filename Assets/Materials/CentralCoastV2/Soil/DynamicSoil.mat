@@ -7,16 +7,16 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ShallowSoil_1
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_Name: DynamicSoil
+  m_Shader: {fileID: 4800000, guid: 70ade20db37e347448c71e7c486f2155, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
+  m_ValidKeywords: []
+  m_InvalidKeywords:
   - _GLOSSYREFLECTIONS_OFF
   - _NORMALMAP
   - _SPECULARHIGHLIGHTS_OFF
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
+  m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
@@ -27,8 +27,8 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseTex:
-        m_Texture: {fileID: 2800000, guid: 22349c5f950f6724193f157205150169, type: 3}
-        m_Scale: {x: 3, y: 3}
+        m_Texture: {fileID: 2800000, guid: c615b9fcee1860a468de8311526d214e, type: 3}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 2800000, guid: f8b14fc1d54466f4991b9b94a82729c9, type: 3}
@@ -84,7 +84,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
         m_Texture: {fileID: 2800000, guid: f8b14fc1d54466f4991b9b94a82729c9, type: 3}
-        m_Scale: {x: 3, y: 3}
+        m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
@@ -130,12 +130,13 @@ Material:
     - _CameraFadingEnabled: 0
     - _CameraFarFadeDistance: 2
     - _CameraNearFadeDistance: 1
+    - _CapillaryHeight: 0.3
     - _Contrast: 1
     - _ContrastDry: 1.018
     - _ContrastWet: 1.028
     - _Cull: 0
     - _Cutoff: 0.5
-    - _DepthWetness: 0.619
+    - _DepthWetness: 0.592
     - _DetailNormalMapScale: 1
     - _DistortionBlend: 0.5
     - _DistortionEnabled: 0
@@ -148,20 +149,22 @@ Material:
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _LightingEnabled: 1
-    - _Metallic: 0.33
+    - _Metallic: 0.198
     - _Metallic0: 0
     - _Metallic1: 0
     - _Metallic2: 0
     - _Metallic3: 0
     - _Mode: 0
-    - _Moisture: 0.595
-    - _NoiseAmount: 0.745
+    - _Moisture: 0.237
+    - _NoiseAmount: 1
     - _NoiseScale: 8
     - _Occlusion: 7.5
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _RootMoisture: 0.591
+    - _RootZoneDepth: 0.2
     - _Shininess: 0.823
-    - _Smoothness: 0.106
+    - _Smoothness: 0.088
     - _Smoothness0: 1
     - _Smoothness1: 1
     - _Smoothness2: 1
@@ -170,6 +173,8 @@ Material:
     - _SoftParticlesEnabled: 0
     - _SoftParticlesFarFadeDistance: 1
     - _SoftParticlesNearFadeDistance: 0
+    - _SoilBottomY: -13.09
+    - _SoilTopY: -49
     - _SpecularHighlights: 0
     - _SquashAmount: 1
     - _SrcBlend: 1
@@ -177,11 +182,14 @@ Material:
     - _TexOpacityDry: 0.894
     - _TexOpacityWet: 0.982
     - _UVSec: 0
+    - _WaterEdge: 0.195
+    - _WaterLevel: 0.765
+    - _WaterTableY: -58
     - _ZWrite: 1
     m_Colors:
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
-    - _Color: {r: 0.62352943, g: 0.5529412, b: 0.4509804, a: 0}
-    - _DryColor: {r: 0.8962264, g: 0.765234, b: 0.6637148, a: 1}
+    - _Color: {r: 0.6226415, g: 0.5533286, b: 0.4493592, a: 1}
+    - _DryColor: {r: 0.3773585, g: 0.3506586, b: 0.33285868, a: 1}
     - _EmissionColor: {r: 0.1509434, g: 0.109694175, b: 0.08615165, a: 1}
     - _Scale: {r: 1, g: 1, b: 1, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -189,7 +197,8 @@ Material:
     - _TranslucencyColor: {r: 0, g: 0, b: 0, a: 0}
     - _TreeInstanceColor: {r: 1, g: 1, b: 1, a: 1}
     - _TreeInstanceScale: {r: 1, g: 1, b: 1, a: 1}
-    - _WetColor: {r: 0.71488965, g: 0.7301183, b: 0.8018868, a: 1}
+    - _WaterColor: {r: 0.16936633, g: 0.19867134, b: 0.20754719, a: 1}
+    - _WetColor: {r: 0.8018868, g: 0.7755719, b: 0.73758453, a: 1}
   m_BuildTextureStacks: []
 --- !u!1002 &2100001
 EditorExtensionImpl:

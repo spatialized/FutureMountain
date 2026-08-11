@@ -22,6 +22,10 @@ public class SoilController : MonoBehaviour {
 
     public List<Renderer> ssRenderers;
     public List<Material> ssMaterials;
+    private List<Material> moistureMaterials;
+    // Soil block top/bottom relative to the Soil object's transform (same geometry across CC cubes; tune here).
+    private const float SoilTopOffset = 5f;
+    private const float SoilBottomOffset = -15f;
     public List<Renderer> gwRenderers;
     public List<Material> gwMaterials;
     private List<float> gwHeights;
@@ -74,22 +78,37 @@ public class SoilController : MonoBehaviour {
 		/* Create particle systems */
 //		evapParticles = gameObject.GetComponent<ParticleSystem>();		// -- TESTING   NOT WORKING
 
-		GameObject front = transform.Find("FrontPlane").gameObject;		// Front side soil
-		frontSoilRend = front.GetComponent<Renderer>();
-        Assert.IsNotNull(frontSoilRend);
+// 		GameObject front = transform.Find("FrontPlane").gameObject;		// Front side soil
+// 		frontSoilRend = front.GetComponent<Renderer>();
+//         Assert.IsNotNull(frontSoilRend);
 
-        frontSoilMaterial = frontSoilRend.materials[0];         
-        Assert.IsNotNull(frontSoilMaterial);
+//         frontSoilMaterial = frontSoilRend.materials[0];         
+//         Assert.IsNotNull(frontSoilMaterial);
 
-//		frontSoilMaterial.SetFloat("_Metallic", metallicAmount);    	// -- ADDED
-//		GameObject sideL = transform.Find("SidePlaneL").gameObject;		// Left side soil (X)
-//		sideLSoilRend = front.GetComponent<Renderer>();
-//		sideLSoilMaterial = sideRSoilRend.materials[0];
-		GameObject sideR = transform.Find("SidePlaneR").gameObject;		// Right side soil
-		sideRSoilRend = front.GetComponent<Renderer>();
-        Assert.IsNotNull(sideRSoilRend);
+// //		frontSoilMaterial.SetFloat("_Metallic", metallicAmount);    	// -- ADDED
+// //		GameObject sideL = transform.Find("SidePlaneL").gameObject;		// Left side soil (X)
+// //		sideLSoilRend = front.GetComponent<Renderer>();
+// //		sideLSoilMaterial = sideRSoilRend.materials[0];
+// 		GameObject sideR = transform.Find("SidePlaneR").gameObject;		// Right side soil
+// 		sideRSoilRend = front.GetComponent<Renderer>();
+//         Assert.IsNotNull(sideRSoilRend);
 
-        sideRSoilMaterial = sideRSoilRend.materials[0];
+//         sideRSoilMaterial = sideRSoilRend.materials[0];
+            Transform frontT = transform.Find("FrontPlane");                // Front cut face (may be deleted on som
+            if (frontT != null)
+            {
+                    frontSoilRend = frontT.GetComponent<Renderer>();
+                    if (frontSoilRend != null)
+                            frontSoilMaterial = frontSoilRend.materials[0];
+            }
+
+            Transform sideT = transform.Find("SidePlaneR");                 // Right side face (may be absent)
+            if (sideT != null)
+            {
+                    sideRSoilRend = sideT.GetComponent<Renderer>();
+                    if (sideRSoilRend != null)
+                            sideRSoilMaterial = sideRSoilRend.materials[0];
+            }
 
 //		GameObject back = transform.Find("BackPlane").gameObject;		// Back side soil (X)
 //		backSoilRend = front.GetComponent<Renderer>();
@@ -101,26 +120,47 @@ public class SoilController : MonoBehaviour {
         /* Initialize Surface Soil Objects */
         bool done = false;
         int idx = 1;
-        while(!done)
-        {
-            string ssName = "SurfaceSoil" + idx;
-            //Debug.Log(name + "  Will add ssName:" + ssName);
+        // while(!done)
+        // {
+        //     string ssName = "SurfaceSoil" + idx;
+        //     //Debug.Log(name + "  Will add ssName:" + ssName);
 
-            try
-            {
-                GameObject ss = transform.Find(ssName).gameObject;     // Surface soil mesh 1
-                Renderer rend = ss.GetComponent<Renderer>();
-                Material material = rend.materials[0];
+        //     try
+        //     {
+        //         GameObject ss = transform.Find(ssName).gameObject;     // Surface soil mesh 1
+        //         Renderer rend = ss.GetComponent<Renderer>();
+        //         Material material = rend.materials[0];
                 
-                ssRenderers.Add(rend);
-                ssMaterials.Add(material);
-                idx++;
-            }
-            catch(System.NullReferenceException e)
-            {
-                //Debug.Log(name+"  While loop ended... No ssName:" + ssName+" err:"+e);
-                done = true;
-            }
+        //         ssRenderers.Add(rend);
+        //         ssMaterials.Add(material);
+        //         idx++;
+        //     }
+        //     catch(System.NullReferenceException e)
+        //     {
+        //         //Debug.Log(name+"  While loop ended... No ssName:" + ssName+" err:"+e);
+        //         done = true;
+        //     }
+        // }
+
+        // Collect every surface-soil mesh by name PREFIX. CC cubes name them "SurfaceSoil2_1" etc. (with a
+        // suffix), so the old exact "SurfaceSoil"+idx lookup found nothing and never drove their material.
+        foreach (Transform child in transform)
+        {
+            if (!child.name.StartsWith("SurfaceSoil")) continue;
+            Renderer rend = child.GetComponent<Renderer>();
+            if (rend == null) continue;
+            ssRenderers.Add(rend);
+            ssMaterials.Add(rend.materials[0]);
+        }
+
+        // Collect all soil-face meshes that carry the moisture shader (surface + deep + front/side),
+        // excluding groundwater. Materials without the shader's properties just ignore the SetFloat calls.
+        moistureMaterials = new List<Material>();
+        foreach (Transform child in transform)
+        {
+            if (child.name.StartsWith("GroundWater")) continue;
+            Renderer r = child.GetComponent<Renderer>();
+            if (r != null) moistureMaterials.Add(r.materials[0]);
         }
 
         gwRenderers = new List<Renderer>();
@@ -202,18 +242,32 @@ public class SoilController : MonoBehaviour {
 
         //Debug.Log("SoilController.UpdateSimulation()... depthToGW:" + depthToGW+" deepSoilShininess:" + deepSoilShininess);
         //frontSoilMaterial.SetFloat("_Glossiness", deepSoilShininess);               // 0: driest    1: wettest 
-        frontSoilMaterial.SetFloat("_Metallic", deepSoilShininess);               // 0: driest    1: wettest 
-                                                                                    //frontSoilMaterial.SetFloat("_Metallic", deepSoilShininess);         
-                                                                                    //sideRSoilMaterial.SetFloat ("_Shininess", deepSoilShininess);
+        
+        // deep-soil shininess kept for the front face if it still exists (FrontPlane may be deleted)
+          if (frontSoilMaterial != null)
+              frontSoilMaterial.SetFloat("_Metallic", deepSoilShininess);
 
-        foreach (Material m in ssMaterials)
-        {
-            m.SetFloat("_Glossiness", shallowSoilShininess);                    // 0: driest    1: wettest 
-        }
-        //foreach (Material m in ssMaterials)
-        //{
-        //    m.SetFloat("_Metallic", shallowSoilShininess);                    // 0: driest    1: wettest 
-        //}
+          foreach (Material m in ssMaterials)
+              m.SetFloat("_Glossiness", shallowSoilShininess);
+
+          // ----- Central Coast soil-moisture shader -----
+          // vegAccessWater -> top root-zone wetness (0..1)
+          float moisture01 = (WaterAccessMax > WaterAccessMin)
+              ? Mathf.Clamp01((waterAccess - WaterAccessMin) / (WaterAccessMax - WaterAccessMin))
+              : 0.5f;
+
+          // depthToGW is the depth to groundwater in metres; the soil profile is 20 m tall.
+            float waterLevel01 = Mathf.Clamp01(1f - depthToGW / 20f);
+
+            if (moistureMaterials != null)
+            {
+                foreach (Material m in moistureMaterials)
+                {
+                    m.SetFloat("_RootMoisture", moisture01);
+                    m.SetFloat("_WaterLevel", waterLevel01);
+                }
+            }
+          
 
         UpdateGroundwater();                // Update groundwater objects' color
     }
