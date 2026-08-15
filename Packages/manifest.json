@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.monitor1394.xcharts": "https://github.com/XCharts-Team/XCharts.git",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.ads": "4.4.2",

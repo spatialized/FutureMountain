@@ -7,6 +7,13 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.monitor1394.xcharts": {
+      "version": "https://github.com/XCharts-Team/XCharts.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "e40f02d45cd46d1b7e4ccbd18966fdc3afc5be86"
+    },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
       "depth": 0,
