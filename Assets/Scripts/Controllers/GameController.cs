@@ -9,6 +9,9 @@ using static CubeController;
 using Assets.Scripts.Models;
 using Newtonsoft.Json;
 
+/// <summary>Top-level play modes chosen on the mode-select menu.</summary>
+public enum GameMode { FreePlay, Quest }
+
 /// <summary>
 /// Game controller.
 /// </summary>
@@ -201,6 +204,12 @@ public class GameController : MonoBehaviour
     private List<GameObject> controlsList;                    // List of "control" buttons 
     public Canvas sideBySideCanvas;                           // Side-by-Side Mode UI Canvas
     public GameObject introPanel;                             // Intro Text Panel
+    public GameObject freePlayCanvas;                         // Simulation_Canvas: shared sim UI, active in BOTH modes
+    public GameObject questCanvas;                            // Quest_Canvas: Quest overlay panel, shown only in Quest mode
+
+    // Chosen on the mode-select menu, read later by Quest logic. Static so other
+    // scripts can read it globally without a reference to this instance.
+    public static GameMode SelectedMode { get; private set; } = GameMode.FreePlay;
     public Canvas loadingCanvas;                              // Loading Simulation UI Canvas
     public GameObject loadingTextObject;                     // Loading Text Object
     public Text loadingTextField;                             // Loading Text 
@@ -308,7 +317,28 @@ public class GameController : MonoBehaviour
         gameStarted = false;
         paused = true;
 
+        // Auto-run init exactly like the original: load terrain/data, then show
+        // Setup_Canvas (with the mode buttons on it). The mode is chosen there,
+        // after loading. Keeps BigCreek untouched (it has no questCanvas).
+        if (questCanvas != null) questCanvas.SetActive(false);   // Quest overlay hidden until the sim starts
         StartTrackedCoroutine(InitializeGame());
+    }
+
+    // Wired to the two mode buttons on Setup_Canvas (shown after terrain loads).
+    // Each records the mode, then starts the sim run just like the original
+    // single Start button did. Init is already done by the time these are shown.
+    public void OnSelectFreePlay() { SelectedMode = GameMode.FreePlay; StartSimulationRun(); }
+    public void OnSelectQuest()    { SelectedMode = GameMode.Quest;    StartSimulationRun(); }
+
+    /// <summary>
+    /// Enables only the canvas matching SelectedMode. One active canvas avoids
+    /// duplicate named controls that GameObject.Find() would pick ambiguously.
+    /// </summary>
+    private void ApplyGameModeCanvas()
+    {
+        // Simulation_Canvas stays active in both modes; only the Quest overlay toggles.
+        if (questCanvas != null)
+            questCanvas.SetActive(SelectedMode == GameMode.Quest);
     }
 
     /// <summary>
@@ -502,11 +532,12 @@ public class GameController : MonoBehaviour
 
             //int idx = fireCubes ? 5 : 0;
             //int warmingRange = cubeDataList.data[idx].list.Count;           // Find warming range
-
-            warmingIdx = warmingKnobSlider.GetWarmingIndex();               // Get current warming index from knob
-            warmingDegrees = warmingKnobSlider.GetWarmingDegrees();         // Get current warming degrees from knob
-
-            warmingKnobSlider.respondToUser = false;
+            if (warmingKnobSlider != null)                                  // Fall back to default warmingIdx (0) when no knob
+            {
+                warmingIdx = warmingKnobSlider.GetWarmingIndex();               // Get current warming index from knob
+                warmingDegrees = warmingKnobSlider.GetWarmingDegrees();         // Get current warming degrees from knob
+                warmingKnobSlider.respondToUser = false;
+            }
 
             yield return null;
 
@@ -1182,6 +1213,7 @@ public class GameController : MonoBehaviour
 
         //controlsUICanvas.enabled = true;
         simulationUICanvas.enabled = true;
+        ApplyGameModeCanvas();   // Reveal the Quest overlay now (only in Quest mode)
 
         ShowContinueButton(false);
     }
@@ -3002,7 +3034,7 @@ public class GameController : MonoBehaviour
             ResetFireManagers();
 
         pauseButtonObject.SetActive(false);
-        warmingKnobSlider.respondToUser = true;
+        if (warmingKnobSlider != null) warmingKnobSlider.respondToUser = true;
 
         setupUICanvas.enabled = true;
         simulationUICanvas.enabled = true;
@@ -3612,18 +3644,28 @@ public class GameController : MonoBehaviour
         exitSideBySideButtonObject.SetActive(false);
 
         warmingKnobObject = GameObject.Find("WarmingKnob");
-        warmingKnobSlider = warmingKnobObject.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
-        warmingKnobSlider.respondToUser = true;
+        if (warmingKnobObject != null)                                  // Knob is optional now (replaced by scenario dropdown)
+        {
+            warmingKnobSlider = warmingKnobObject.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
+            warmingKnobSlider.respondToUser = true;
+        }
 
         warmingKnob1Object = GameObject.Find("WarmingKnob1");
-        warmingKnob1Slider = warmingKnob1Object.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
-        warmingKnob1Slider.respondToUser = true;
-        warmingKnob1Object.SetActive(false);
+        if (warmingKnob1Object != null)
+        {
+            warmingKnob1Slider = warmingKnob1Object.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
+            warmingKnob1Slider.respondToUser = true;
+            warmingKnob1Object.SetActive(false); 
+        }
+
 
         warmingKnob2Object = GameObject.Find("WarmingKnob2");
-        warmingKnob2Slider = warmingKnob2Object.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
-        warmingKnob2Slider.respondToUser = true;
-        warmingKnob2Object.SetActive(false);
+        if (warmingKnob2Object != null)
+        {
+            warmingKnob2Slider = warmingKnob2Object.GetComponent<WarmingKnobSlider>() as WarmingKnobSlider;
+            warmingKnob2Slider.respondToUser = true;
+            warmingKnob2Object.SetActive(false);
+        }
 
         timeKnobObject = GameObject.Find("TimeKnob");
         timeKnobObject.SetActive(true);
