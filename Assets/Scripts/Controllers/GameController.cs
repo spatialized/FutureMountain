@@ -206,6 +206,7 @@ public class GameController : MonoBehaviour
     public GameObject introPanel;                             // Intro Text Panel
     public GameObject freePlayCanvas;                         // Simulation_Canvas: shared sim UI, active in BOTH modes
     public GameObject questCanvas;                            // Quest_Canvas: Quest overlay panel, shown only in Quest mode
+    public ZoneGraph zoneGraph;                               // Quest zone graph (Quest mode only; null in FreePlay/BigCreek -> notifies are no-ops)
 
     // Chosen on the mode-select menu, read later by Quest logic. Static so other
     // scripts can read it globally without a reference to this instance.
@@ -2958,6 +2959,24 @@ public class GameController : MonoBehaviour
     public void SetZoomOutButtonActive(bool state)
     {
         zoomOutButtonObject.SetActive(state);
+    }
+
+    // Called by CameraController when the camera zooms into a cube. In Quest mode
+    // this points the zone graph at that cube; a no-op when there is no zone graph
+    // (FreePlay, BigCreek). cubeIdx -1 = aggregate cube -> hide the zone graph.
+    public void OnZoomedIntoCube(int cubeIdx)
+    {
+        if (zoneGraph == null) return;
+        if (cubeIdx >= 0 && cubes != null && cubeIdx < cubes.Length && cubes[cubeIdx] != null)
+            zoneGraph.ShowCube(cubes[cubeIdx]);
+        else
+            zoneGraph.HideGraph();
+    }
+
+    // Called by CameraController on zoom-out; hides the Quest zone graph.
+    public void OnZoomedOut()
+    {
+        if (zoneGraph != null) zoneGraph.HideGraph();
     }
 
     public void ForceHideModel(bool state)

@@ -227,6 +227,8 @@ public class CameraController : MonoBehaviour {
             moving = true;
             animator.SetTrigger(animTriggerName);
             StartCoroutine(ZoomingIn());
+
+            GameController.Instance.OnZoomedIntoCube(cubeIdx);   // point the Quest zone graph at this cube (no-op in FreePlay)
         }
     }
 
@@ -243,6 +245,8 @@ public class CameraController : MonoBehaviour {
         moving = true;
         animator.SetTrigger("ResetZoom");
         StartCoroutine(ZoomingOut());
+
+        GameController.Instance.OnZoomedOut();   // hide the Quest zone graph on zoom-out
     }
 
     /// <summary>

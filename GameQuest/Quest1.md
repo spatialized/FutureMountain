@@ -87,6 +87,23 @@ To answer this question:
 
 ## Level 3
 
+### Opening
+Looking at climate can only do so much to explain ecosystem processes and wildfire risk. Another important factor to consider is vegetation, and how that couples with climate in different locations to create differences in vegetation cover, vegetation behavior, and vegetation response to fire.
+
+Within FM there are 5 patches: high elevation, low elevation, north-facing patch, south-facing patch, and a riparian patch. Tap on each to explore some of the following characteristics while keeping note of:
+Biomass accumulation 
+Vegetation height 
+Productivity (Net Primary Productivity) 
+Plant Respiration 
+Plant Transpiration 
+Evapotranspiration
+Vegetation Water Access 
+Rain accumulation 
+Types of vegetation and structures 
+
+Click on the "ready" when ready to answer some questions in order to proceed
+
+
 ### Zone Identification
 
 **Select the title of the zone that each description is referring to.**

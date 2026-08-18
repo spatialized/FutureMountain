@@ -764,6 +764,102 @@ public class CubeController : MonoBehaviour
         return 0f;
     }
 
+    // ----- Public per-year data access for Quest graphs (XCharts) -----
+
+    // Variables a zone graph can plot (Quest1 Level 3). Each maps to a CubeData
+    // overstory field (or a sum). precip is intentionally absent: it is
+    // landscape-level (WaterData), not per-cube, so it cannot distinguish zones.
+    public enum ZoneGraphVariable { Biomass, NPP, Transpiration, Height, Respiration, ET }
+
+    // One point of a per-year series: calendar year, a relative x-axis label
+    // ("Year 1", ...), and the value.
+    public struct ZoneYearPoint { public int year; public string label; public float value; }
+
+    // Pulls the requested variable's value out of one data row.
+    private static float ZoneFieldValue(CubeData row, ZoneGraphVariable v)
+    {
+        switch (v)
+        {
+            case ZoneGraphVariable.Biomass:       return row.leafCOver + row.stemCOver;   // above-ground biomass proxy
+            case ZoneGraphVariable.NPP:           return row.netpsnOver;
+            case ZoneGraphVariable.Transpiration: return row.transOver;
+            case ZoneGraphVariable.Height:        return row.heightOver;
+            case ZoneGraphVariable.Respiration:   return row.respOver;
+            case ZoneGraphVariable.ET:            return row.evap;
+            default:                              return 0f;
+        }
+    }
+
+    // Calendar year for a cubeData key (1-based dateIdx). dataDates is 0-based and
+    // aligned to the 0-based sim time index, so year = dataDates[dateIdx - 1].year.
+    private static int ZoneYearForDateIdx(int dateIdx)
+    {
+        var dates = (GameController.Instance != null) ? GameController.Instance.dataDates : null;
+        int i = dateIdx - 1;
+        if (dates != null && i >= 0 && i < dates.Count)
+            return dates[i].year;
+        return int.MinValue;   // unknown
+    }
+
+    // Accumulates one patch's per-year sum/count for a variable.
+    private static void AccumulateYearly(Dictionary<int, CubeData> data, ZoneGraphVariable v,
+                                         Dictionary<int, float> sums, Dictionary<int, int> counts)
+    {
+        if (data == null) return;
+        foreach (var kv in data)
+        {
+            int year = ZoneYearForDateIdx(kv.Key);
+            if (year == int.MinValue) continue;
+            float val = ZoneFieldValue(kv.Value, v);
+            sums[year]   = (sums.TryGetValue(year, out float s) ? s : 0f) + val;
+            counts[year] = (counts.TryGetValue(year, out int c) ? c : 0) + 1;
+        }
+    }
+
+    /// <summary>
+    /// Per-year series of a variable for THIS zone cube (current scenario data),
+    /// yearly-averaged and area-weighted across patch1 (cubeData) and patch2
+    /// (cubeDataP2) by their patch.percent. Points are ordered by year with
+    /// relative "Year N" labels for an XCharts x-axis. Empty if no data loaded.
+    /// </summary>
+    public List<ZoneYearPoint> GetYearlySeries(ZoneGraphVariable variable)
+    {
+        var result = new List<ZoneYearPoint>();
+
+        // Per-patch yearly mean (sum + count, divided below).
+        var s1 = new Dictionary<int, float>(); var c1 = new Dictionary<int, int>();
+        var s2 = new Dictionary<int, float>(); var c2 = new Dictionary<int, int>();
+        AccumulateYearly(cubeData,   variable, s1, c1);
+        AccumulateYearly(cubeDataP2, variable, s2, c2);
+
+        // Area weights; fall back to patch1 only if patch2 has no loaded data.
+        float p1pct = (patch1 != null) ? patch1.percent : 100f;
+        float p2pct = (patch2 != null && cubeDataP2 != null) ? patch2.percent : 0f;
+        float wsum = p1pct + p2pct;
+        if (wsum <= 0f) wsum = 1f;
+
+        var years = new SortedSet<int>();
+        foreach (var y in c1.Keys) years.Add(y);
+        foreach (var y in c2.Keys) years.Add(y);
+        if (years.Count == 0) return result;
+
+        int firstYear = years.Min;
+        foreach (int year in years)
+        {
+            float v1 = (c1.TryGetValue(year, out int n1) && n1 > 0) ? s1[year] / n1 : 0f;
+            float v2 = (c2.TryGetValue(year, out int n2) && n2 > 0) ? s2[year] / n2 : 0f;
+            float weighted = (v1 * p1pct + v2 * p2pct) / wsum;
+
+            result.Add(new ZoneYearPoint
+            {
+                year  = year,
+                label = "Year " + (year - firstYear + 1),
+                value = weighted
+            });
+        }
+        return result;
+    }
+
     // Overstory leaf-carbon fraction 0..1 at the given 0-based sim time index. patch2=false -> this cube's rows.
     protected float GetLeafFraction(int idx, bool patch2)
       {
