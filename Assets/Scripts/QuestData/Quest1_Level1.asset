@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0001cc40633e2242a75f7015c8a9162, type: 3}
+  m_Name: Quest1_Level1
+  m_EditorClassIdentifier: 
+  title: "Quest 1 \xB7 Level 1"
+  lockZoomOut: 1
+  opening: 'Characterize climate characteristics in each of the climate scenarios
+    by selecting the appropriate precipitation, min/max temperature, wind, and relative
+    humidity value for the listed prompts. You will then repeat this process for
+    numerous climate scenarios. Using the climate variable toggle at the bottom of
+    the screen, select the following:'
+  defaultOptions: []
+  questions:
+  - prompt: Rainfall determines whether a year is dry or wet. Using the precipitation
+      graph, select what years you would think are a wet year.
+    options: []
+    correctIndex: 0
+    graphSelect: 1
+    correctYearsByScenario:
+    - years: 0100000002000000
+    - years: 0f000000
+    - years: 05000000
+  - prompt: Using the precipitation graph, now select what you would think is a dry
+      year.
+    options: []
+    correctIndex: 0
+    graphSelect: 1
+    correctYearsByScenario:
+    - years: 0e000000
+    - years: 08000000
+    - years: 04000000
+  - prompt: A drought is 2+ years of dryness. Based on what you chose as dry years,
+      when would you expect a drought?
+    options: []
+    correctIndex: 0
+    graphSelect: 1
+    correctYearsByScenario:
+    - years: 03000000
+    - years: 08000000
+    - years: 01000000
+  - prompt: Wind can be a precursor for fire. Select what would be a windy year (the
+      year with the highest windspeed).
+    options: []
+    correctIndex: 0
+    graphSelect: 1
+    correctYearsByScenario:
+    - years: 03000000
+    - years: 03000000
+    - years: 03000000
+  - prompt: Humidity can also influence fire through moisture. Select the year with
+      the highest humidity.
+    options: []
+    correctIndex: 0
+    graphSelect: 1
+    correctYearsByScenario:
+    - years: 02000000
+    - years: 10000000
+    - years: 03000000

@@ -1,0 +1,27 @@
+{
+  "scenarioName": "CentralCoast",
+  "scenarioProfile": "CentralCoastV3",
+  "scenarioRunId": "scenario_Hadley",
+  "scenarioIdx": 1,
+  "description": "Central Coast v3 RHESSys fire output. Single Hadley climate scenario.",
+  "version": "3.0",
+  "database": {
+    "name": "futuremtn_central_coast_v3",
+    "host": "localhost",
+    "port": 3306,
+    "user": "admin",
+    "password": "",
+    "charset": "utf8mb4",
+    "collation": "utf8mb4_0900_ai_ci"
+  },
+  "sourceRoot": "../Data/CentralCoast/RHESSysOutput-3Scenario-WRF-Hadley-RSClim-8-19-2026/Hadley/",
+  "delimiter": ",",
+  "files": {
+    "cubeAggregateDaily": "aggregate_cube_bd.csv",
+    "cubePatchDaily01": "cubes_p1d.csv",
+    "cubePatchDaily02": "cubes_p2d.csv"},
+  "outputTables": [
+    "Dates",
+    "CubeData"
+  ]
+}

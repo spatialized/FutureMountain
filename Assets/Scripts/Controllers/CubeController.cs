@@ -155,6 +155,8 @@ public class CubeController : MonoBehaviour
     private Dictionary<int, CubeData> cubeDataP2;
     private bool p1Loaded = false;   // member 01 (patch1) data loaded
     protected bool p2Loaded = false;   // member 02 (patch2) data loaded
+    // True once both patch members have finished (re)loading after the latest UpdateDataFromWeb.
+    public bool IsDataReloaded() { return p1Loaded && p2Loaded; }
     public bool useCentralCoastPatches = false;   // Enable per-patch (patch1/patch2) growth. CC display cubes only.
     // Central Coast tuning: multiplies grass count on a grass-dominated patch. Inspector-tunable.
     public float grassPatchDensityScale = 1f;
@@ -769,7 +771,7 @@ public class CubeController : MonoBehaviour
     // Variables a zone graph can plot (Quest1 Level 3). Each maps to a CubeData
     // overstory field (or a sum). precip is intentionally absent: it is
     // landscape-level (WaterData), not per-cube, so it cannot distinguish zones.
-    public enum ZoneGraphVariable { Biomass, NPP, Transpiration, Height, Respiration, ET }
+    public enum ZoneGraphVariable { Precip, Wind, Temperature, Humidity, Evaporation, TMin}
 
     // One point of a per-year series: calendar year, a relative x-axis label
     // ("Year 1", ...), and the value.
@@ -780,12 +782,12 @@ public class CubeController : MonoBehaviour
     {
         switch (v)
         {
-            case ZoneGraphVariable.Biomass:       return row.leafCOver + row.stemCOver;   // above-ground biomass proxy
-            case ZoneGraphVariable.NPP:           return row.netpsnOver;
-            case ZoneGraphVariable.Transpiration: return row.transOver;
-            case ZoneGraphVariable.Height:        return row.heightOver;
-            case ZoneGraphVariable.Respiration:   return row.respOver;
-            case ZoneGraphVariable.ET:            return row.evap;
+            case ZoneGraphVariable.Precip:      return row.rain;
+            case ZoneGraphVariable.Wind:        return row.windSpeed;
+            case ZoneGraphVariable.Temperature: return row.tmax;
+            case ZoneGraphVariable.TMin:        return row.tmin;
+            case ZoneGraphVariable.Humidity:    return row.relHumidity;
+            case ZoneGraphVariable.Evaporation: return row.evap;
             default:                              return 0f;
         }
     }
@@ -6056,6 +6058,7 @@ public class CubeController : MonoBehaviour
         public GameObject deadPrefab;               // Dead/snag model for this species. Leave empty to use the cube's shared deadTreePrefab.
         [Range(0f, 100f)] public float percentInPatch = 100f; //// Share of this patch's overstory stems (community mix). Split N_stems across species.
         [System.NonSerialized] public int runtimeSpeciesIdx = -1;   // flat treeList index assigned in PrepareVegetationList (per-patch, no name collision)
+        public float fullHeightMeters = 0f;   // Aggregate cube: fixed full-grown height (m) for this species (oak ~10, chaparral ~2.75). 0 = follow data heightOver.
     }
     // [System.Serializable]
     // public class PatchDisplayInfo

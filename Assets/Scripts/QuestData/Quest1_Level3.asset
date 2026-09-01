@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0001cc40633e2242a75f7015c8a9162, type: 3}
   m_Name: Quest1_Level3
   m_EditorClassIdentifier: 
+  title: "Quest 1 \xB7 Level 3"
+  lockZoomOut: 0
   opening: "Looking at climate can only do so much to explain ecosystem processes
     and wildfire risk. Another important factor to consider is vegetation, and how
     that couples with climate in different locations to create differences in vegetation
@@ -34,18 +36,22 @@ MonoBehaviour:
       characterized by an average elevation within the watershed.
     options: []
     correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []
   - prompt: 'This zone has the lowest amount of above-ground biomass and is considered
       the least productive in terms of net primary productivity because this zone
       is mostly composed of grass.
 
-      
 
-      This zone receives more solar
-      radiation and has the most direct sunlight of all of the zones. More sunlight
-      and radiation can lead to increased temperatures, increased evaporation, and
-      less water available in the soil for plants.'
+
+      This zone receives more solar radiation
+      and has the most direct sunlight of all of the zones. More sunlight and radiation
+      can lead to increased temperatures, increased evaporation, and less water available
+      in the soil for plants.'
     options: []
     correctIndex: 1
+    graphSelect: 0
+    correctYearsByScenario: []
   - prompt: "This zone is one where the plants have access to water from a stream.\r\n\r\nThis
       zone is the only zone with coast live oaks. Coast live oaks average 10\u201315
       meters in height, compared to chaparral, where mature shrubs average 2\u20134
@@ -53,35 +59,41 @@ MonoBehaviour:
       biomass and potentially taller plants."
     options: []
     correctIndex: 4
+    graphSelect: 0
+    correctYearsByScenario: []
   - prompt: 'This zone has, on average, a lower above-ground biomass for the chaparral
       shrubs.
 
-      
 
-      In this zone, rainfall does not determine how much
-      access the vegetation has to water, as water naturally travels "downslope"
-      to lower-elevation patches like this one.
 
-      
+      In this zone, rainfall does not determine how much access
+      the vegetation has to water, as water naturally travels "downslope" to lower-elevation
+      patches like this one.
 
-      It can also be categorized
-      as the least "thirsty" for its low transpiration levels.'
+
+
+      It can also be categorized as the least "thirsty"
+      for its low transpiration levels.'
     options: []
     correctIndex: 3
+    graphSelect: 0
+    correctYearsByScenario: []
   - prompt: 'This zone has the most above-ground biomass in comparison to the other
       zones and consistent vegetation height, as no fire or other disturbances occur
       at this elevation level in any of our simulations.
 
-      
 
-      The amount
-      of access the vegetation has to water is very dependent on the amount of rainfall
-      this zone accumulates; however, it does accumulate the most rainfall out of
-      all the zones.
 
-      
+      The amount of access
+      the vegetation has to water is very dependent on the amount of rainfall this
+      zone accumulates; however, it does accumulate the most rainfall out of all
+      the zones.
 
-      It also has the highest evapotranspiration
-      and potentially the most ecosystem functionality.'
+
+
+      It also has the highest evapotranspiration and potentially
+      the most ecosystem functionality.'
     options: []
     correctIndex: 2
+    graphSelect: 0
+    correctYearsByScenario: []

@@ -72,6 +72,7 @@ namespace Assets.Scripts.Models
         public float tmax;
         public float tmin;
         public float relHumidity;
+        public float rain;
         public float windSpeed;
         public float windDirection;
         public float groundevap;

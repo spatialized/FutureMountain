@@ -97,5 +97,12 @@ namespace RHESSYs_Data_Importer.Models.CentralCoastV3
         public float ind_died { get; set; }   // individuals that died this step
         public float fcover { get; set; }      // fractional vegetation cover
 
+        // Aggregate-cube fire & stem-loss columns (present in aggregate_cube_bd.csv only).
+        // Patch files lack these headers, so GetFloat resolves them to 0 for patch rows.
+        public float cells_burned { get; set; }    // number of 50x50m cells burned
+        public float pctWS_burned { get; set; }    // percent of watershed burned (0-100)
+        public float dstem { get; set; }           // stem carbon lost this step
+        public float fractstemloss { get; set; }   // fraction of stem carbon lost (= dstem/stemC)
+
     }
 }

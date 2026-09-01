@@ -32,6 +32,9 @@ namespace RHESSYs_Data_Importer.IO
 
            foreach (var role in new[] {"cubePatchDaily01", "cubePatchDaily02"})
            {
+               // Both patch CSVs carry the same patchID (…01). Store the 2nd member at patchID + 1 (…02)
+               // so the game (CubeController_CCV3) can fetch P2 via patchID + 1.
+               int patchIdOffset = (role == "cubePatchDaily02") ? 1 : 0;
                var path = config.GetSourceFilePath(role);
                if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
                {
@@ -76,7 +79,7 @@ namespace RHESSYs_Data_Importer.IO
                         importRunId = 0,
                         dateIdx = didx,
                         zoneID = GetInt(parts, colMap, "zoneID"),
-                        patchID = GetInt(parts, colMap, "patchID"),
+                        patchID = GetInt(parts, colMap, "patchID") + patchIdOffset,
                         
                         coverfract = GetFloat(parts, colMap, "coverfract"),
                         litterc    = GetFloat(parts, colMap, "litterC"),
@@ -206,7 +209,19 @@ namespace RHESSYs_Data_Importer.IO
                     leafCOver  = GetFloat(parts, colMap, "leafC"),
                     stemCOver  = GetFloat(parts, colMap, "stemC"),
                     rootCOver  = GetFloat(parts, colMap, "rootC"),
-                };
+
+                    tmax          = GetFloat(parts, colMap, "tmax"),
+                    tmin          = GetFloat(parts, colMap, "tmin"),
+                    relHumidity   = GetFloat(parts, colMap, "RH"),
+                    windSpeed     = GetFloatAny(parts, colMap, "windSpeed", "wind_speed"),
+                    windDirection = GetFloatAny(parts, colMap, "windDir", "wind_dir"),
+                    fcover        = GetFloat(parts, colMap, "fcover"),
+                    ind_died      = GetFloat(parts, colMap, "ind_died"),
+                    cells_burned  = GetFloat(parts, colMap, "cells_burned"),
+                    pctWS_burned  = GetFloat(parts, colMap, "pctWS_burned"),
+                    dstem         = GetFloat(parts, colMap, "dstem"),
+                    fractstemloss = GetFloat(parts, colMap, "fractstemloss"),
+            };
 
                 imported++;
                 if (!dryRun)

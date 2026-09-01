@@ -13,6 +13,7 @@ public class CameraController : MonoBehaviour {
     private float moveLength = 1.75f; // adjust this to fit your attack animations length
 
     public bool zoomed { get; set; } = false;
+    public bool zoomOutLocked = false;   // Quest Level 1: block zoom-out (Space + button)
     public bool fly { get; set; } = false;
     public GamePauseState pauseState { get; set; } = GamePauseState.idle;        // Flag to unpause game state
 
@@ -232,6 +233,29 @@ public class CameraController : MonoBehaviour {
         }
     }
 
+    // Snap straight to a cube's zoom pose with no fly-in animation (used for the Quest opening).
+    public void SnapZoomIntoCube(int cubeIdx)
+    {
+        if (animator == null) animator = gameObject.GetComponent<Animator>();
+        if (animator == null) return;
+
+        GameController.Instance.SetSideByToggleActive(false);
+        GameController.Instance.ForceHideModel(true);
+
+        string animTriggerName = (cubeIdx == -1) ? "ZoomAggregateCube" : "ZoomCube" + (cubeIdx + 1);
+        animator.SetTrigger(animTriggerName);
+        animator.Update(0f);        // apply the trigger, enter the transition this frame
+        animator.Update(10f);       // fast-forward through the zoom clip to its end pose (no visible fly-in)
+
+        moving = false;
+        zoomed = true;
+        pauseState = GamePauseState.unpause;
+        if (!GameController.Instance.sideBySideMode && !zoomOutLocked)
+            zoomOutButtonObject.SetActive(true);
+
+        GameController.Instance.OnZoomedIntoCube(cubeIdx);   // point the zone graph at this cube
+    }
+
     /// <summary>
     /// Start zoom reset animation
     /// </summary>
@@ -250,13 +274,28 @@ public class CameraController : MonoBehaviour {
     }
 
     /// <summary>
+    /// Move the camera to the ZoneCube overview state (Quest Level 3 opening view).
+    /// Requires a "ZoneCube" trigger + Any State -> ZoneCube_CCV3 transition in the
+    /// camera's Animator controller.
+    /// </summary>
+    public void GoToZoneCubeView()
+    {
+        if (animator == null) animator = gameObject.GetComponent<Animator>();   // Start() may not have run yet
+        if (animator == null) return;
+        pauseState = GamePauseState.pause;
+        moving = true;
+        animator.SetTrigger("ZoneCube");
+        StartCoroutine(ZoomingOut());   // returns input control after the move, like zoom-out
+    }
+
+    /// <summary>
     /// Gets keyboard input.
     /// </summary>
     void GetKeyboardInput() 
     { 
         if (zoomed)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space) && !zoomOutLocked)
             {
                 GameController.Instance.SetZoomOutButtonActive(false);
                 GameController.Instance.SetSideByToggleActive(true);

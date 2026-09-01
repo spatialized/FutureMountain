@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using static CubeController;
 using Assets.Scripts.Models;
 using Newtonsoft.Json;
+using TMPro;
 
 /// <summary>Top-level play modes chosen on the mode-select menu.</summary>
 public enum GameMode { FreePlay, Quest }
@@ -187,6 +188,7 @@ public class GameController : MonoBehaviour
     private Vector3 cubesObjectOrigPosition;                 // Original position of cubes object       
     private CubeController[] cubes;                           // Cube Controllers
     private CubeController[] sideCubes;                       // Side-by-Side Cube Controllers
+    private CubeController graphedCube;
 
     /* Layers Settings */
     private bool displayET = true;                            // Display evap./trans. flag
@@ -246,12 +248,14 @@ public class GameController : MonoBehaviour
     /* UI Sliders */
     private GameObject warmingKnobObject;                     // Large warming knob
     private WarmingKnobSlider warmingKnobSlider;              // Large warming knob slider object
+    public TMP_Dropdown scenarioDropdown;       // CC V3 scenario picker; index == scenarioIdx (0=WRF,1=Hadley,2=RSClim)
     private GameObject warmingKnob1Object;                    // Side-by-Side warming knob 1
     private WarmingKnobSlider warmingKnob1Slider;             // Large warming knob slider object
     private GameObject warmingKnob2Object;                    // Side-by-Side warming knob 2
     private WarmingKnobSlider warmingKnob2Slider;             // Large warming knob slider object
     private GameObject timeKnobObject;                        // Time scale knob
     private TimeKnobSlider timeKnobSlider;                    // Time knob slider object
+    
 
     /* UI Graphics */
     //private GameObject blankScreenObject;                     // Blank screen UI object
@@ -455,6 +459,47 @@ public class GameController : MonoBehaviour
         StartTrackedCoroutine(RunStartSimulation());
     }
 
+    // CC V3: player changed the scenario dropdown mid-sim. Reload the 6 main cubes for the new
+    // scenario (dropdown index == scenarioIdx) at the current day.
+    public void OnScenarioChanged(int index)
+    {
+        Debug.Log("OnScenarioChanged index=" + index);
+        if (settings == null || settings.apiProfile != ScenarioApiProfile.CentralCoastV3)
+            return;
+
+        warmingIdx = index;
+
+        if (zoneGraph != null) zoneGraph.SetScenario(index);   // graph switches to this scenario's selection set
+
+        if (aggregateCubeController != null)
+        {
+            aggregateCubeController.SetWarmingIdx(warmingIdx);
+            aggregateCubeController.UpdateDataFromWeb(timeIdx, false, true);
+        }
+        for (int i = 0; i < cubes.Length; i++)
+        {
+            if (cubes[i] != null)
+            {
+                cubes[i].SetWarmingIdx(warmingIdx);
+                cubes[i].UpdateDataFromWeb(timeIdx, false, true);
+            }
+        }
+        if (zoneGraph != null && graphedCube != null)
+            StartCoroutine(RefreshGraphWhenLoaded(graphedCube));
+    }
+
+     private System.Collections.IEnumerator RefreshGraphWhenLoaded(CubeController cube)
+      {
+          float timeout = 5f;
+          while (cube != null && !cube.IsDataReloaded() && timeout > 0f)
+          {
+              timeout -= Time.deltaTime;
+              yield return null;
+          }
+          if (zoneGraph != null && cube != null)
+              zoneGraph.ShowCube(cube);   // re-read GetYearlySeries with the new scenario's data
+      }
+
     /// <summary>
     /// Starts the simulation.
     /// </summary>
@@ -507,8 +552,15 @@ public class GameController : MonoBehaviour
 
             yield return null;
 
-            int initTimeStep = (int)timeKnobSlider.timeScale;
-            UpdateTimeStep(initTimeStep, true);              // Update time step and speed slider
+            if (timeKnobSlider != null)                      // BigCreek: initial speed from the knob
+              {
+                  int initTimeStep = (int)timeKnobSlider.timeScale;
+                  UpdateTimeStep(initTimeStep, true);          // Update time step and speed slider
+              }
+              else
+              {
+                  UpdateTimeStep(1, false);                     // CC V3: default to daily so the run auto-plays like BigCreek
+              }
 
             if (DebugLevel(1))
                 Debug.Log(name + ".StartSimulationRun()...");
@@ -533,10 +585,17 @@ public class GameController : MonoBehaviour
 
             //int idx = fireCubes ? 5 : 0;
             //int warmingRange = cubeDataList.data[idx].list.Count;           // Find warming range
-            if (warmingKnobSlider != null)                                  // Fall back to default warmingIdx (0) when no knob
+            if (settings.apiProfile == ScenarioApiProfile.CentralCoastV3)
             {
-                warmingIdx = warmingKnobSlider.GetWarmingIndex();               // Get current warming index from knob
-                warmingDegrees = warmingKnobSlider.GetWarmingDegrees();         // Get current warming degrees from knob
+                // CC V3: dropdown reordered to WRF/HADGEM/CNRM so its index == scenarioIdx.
+                // warmingIdx is the shared field that carries scenarioIdx into the API URL.
+                if (scenarioDropdown != null)
+                    warmingIdx = scenarioDropdown.value;
+            }
+            else if (warmingKnobSlider != null)                             // BigCreek path unchanged
+            {
+                warmingIdx = warmingKnobSlider.GetWarmingIndex();
+                warmingDegrees = warmingKnobSlider.GetWarmingDegrees();
                 warmingKnobSlider.respondToUser = false;
             }
 
@@ -1215,6 +1274,9 @@ public class GameController : MonoBehaviour
         //controlsUICanvas.enabled = true;
         simulationUICanvas.enabled = true;
         ApplyGameModeCanvas();   // Reveal the Quest overlay now (only in Quest mode)
+
+        if (SelectedMode == GameMode.Quest && cameraController != null)
+            cameraController.SnapZoomIntoCube(-1);   // Quest opens already zoomed into the aggregate cube, no fly-in
 
         ShowContinueButton(false);
     }
@@ -2158,7 +2220,7 @@ public class GameController : MonoBehaviour
 
         UpdateETSpeed();
 
-        if (updateSlider)
+        if (updateSlider && timeKnobSlider != null)
         {
             timeKnobSlider.SetValue(timeStep);
         }
@@ -2166,6 +2228,7 @@ public class GameController : MonoBehaviour
 
     private void UpdateETSpeed()
     {
+        if (cubes == null) return;   // cubes not built yet (SpeedSliderCCV3 sets speed before the run starts)
         foreach (CubeController cube in cubes)
         {
             if (cube.simulationOn)
@@ -2963,20 +3026,32 @@ public class GameController : MonoBehaviour
 
     // Called by CameraController when the camera zooms into a cube. In Quest mode
     // this points the zone graph at that cube; a no-op when there is no zone graph
-    // (FreePlay, BigCreek). cubeIdx -1 = aggregate cube -> hide the zone graph.
     public void OnZoomedIntoCube(int cubeIdx)
     {
         if (zoneGraph == null) return;
         if (cubeIdx >= 0 && cubes != null && cubeIdx < cubes.Length && cubes[cubeIdx] != null)
-            zoneGraph.ShowCube(cubes[cubeIdx]);
+            graphedCube = cubes[cubeIdx];
+        else if (aggregateCubeController != null)
+            graphedCube = aggregateCubeController;
         else
-            zoneGraph.HideGraph();
+            graphedCube = null;
+
+        if (graphedCube != null) zoneGraph.ShowCube(graphedCube);
+        else                     zoneGraph.HideGraph();
     }
 
     // Called by CameraController on zoom-out; hides the Quest zone graph.
     public void OnZoomedOut()
     {
         if (zoneGraph != null) zoneGraph.HideGraph();
+    }
+
+    // Moves the camera to the ZoneCube overview state (Quest Level 3 opening view).
+    public void ShowZoneCubeView()
+    {
+        if (zoneGraph != null) zoneGraph.HideGraph();   // overview = no zone selected yet; clear stale cube & hide graph until zoom-in
+        CameraController cc = (sceneCamera != null) ? sceneCamera.GetComponent<CameraController>() : null;
+        if (cc != null) cc.GoToZoneCubeView();
     }
 
     public void ForceHideModel(bool state)
@@ -3687,8 +3762,11 @@ public class GameController : MonoBehaviour
         }
 
         timeKnobObject = GameObject.Find("TimeKnob");
-        timeKnobObject.SetActive(true);
-        timeKnobSlider = timeKnobObject.GetComponent<TimeKnobSlider>() as TimeKnobSlider;
+        if (timeKnobObject != null)                              // CC V3 has no TimeKnob; skip safely
+        {
+            timeKnobObject.SetActive(true);
+            timeKnobSlider = timeKnobObject.GetComponent<TimeKnobSlider>() as TimeKnobSlider;
+        }
 
         /* Load Settings */
         settings = GameObject.Find("Settings").GetComponent<SimulationSettings>() as SimulationSettings;

@@ -49,7 +49,7 @@ public class CubeController_CCV3 : CubeController
 
     // Streamflow (mapped into StreamHeight) at which the channel is exactly bankfull. Common to all
     // Central Coast cubes. At/below this the water fills the channel; above it the water floods.
-    private const float StreamBankfullFlow = 3.0e-4f;
+    private const float StreamBankfullFlow = 60f;
 
     // ----- Stage 3 / flood: stream response seam -----
     // Central Coast data has no snow and drives the stream from raw streamflow. Map the cube's own
@@ -62,7 +62,7 @@ public class CubeController_CCV3 : CubeController
         // 0 streamflow -> empty channel (streamZeroHeight); the fixed bankfull threshold -> full channel
         // (streamFullHeight). Above the threshold the value exceeds 1, so the water rises past the bank
         // and floods (UpdateStream no longer clamps the upper end).
-        return Mathf.Max(0f, StreamHeight / StreamBankfullFlow);   // 0 empty, 1 = bankfull (3E-4), >1 = flood
+        return Mathf.Max(0f, StreamHeight / StreamBankfullFlow);   // 0 empty, 1 = bankfull (60ju), >1 = flood
     }
 
     // ----- Stage 3b: fire-death seam -----
@@ -131,7 +131,11 @@ public class CubeController_CCV3 : CubeController
     // hold off growing until both members have arrived so patch2 uses its own carbon from the start.
     protected override void RequestExtraPatchData(int warmingIdx)
     {
-        WebManager.Instance.RequestCubeData(patchID + 1, warmingIdx, this.FinishUpdateDataFromWebP2);
+        // Zone cubes fetch the real second member (patchID + 1). The aggregate has no second member
+        // (patchID -1), so it re-fetches its OWN rows: patch2 (chaparral) then draws from the same
+        // aggregate data as patch1 (oak), and the failed patchID+1 (=0) request is avoided.
+        int p2PatchId = isAggregate ? patchID : patchID + 1;
+        WebManager.Instance.RequestCubeData(p2PatchId, warmingIdx, this.FinishUpdateDataFromWebP2);
     }
 
     protected override bool ReadyToGrowFromData()
@@ -256,7 +260,22 @@ public class CubeController_CCV3 : CubeController
             if (fir == null || !fir.IsAlive()) continue;
             int idx = fir.speciesIdx;
             if (idx < 0 || idx >= patchSlotBySpecies.Length) continue;
-            float h = GetHeightOver(timeIdx, patchSlotBySpecies[idx] == 2);
+            float h;
+            if (isAggregate)
+              {
+                // Each species has a base height (oak 10m, chaparral 2.75m); scale them all by the data's
+                // average height so the count-weighted mean tracks heightOver (fire shrinks, recovery grows).
+                // 3.11 = natural mean of the configured mix: (10 oak x10 + 190 chaparral x2.75) / 200.
+                const float AggregateMeanHeightBase = 3.11f;
+                float baseH = (vegetation != null && vegetation.species != null && idx < vegetation.species.Count)
+                    ? vegetation.species[idx].fullHeightMeters : 0f;
+                float avgNow = GetHeightOver(timeIdx, false);   // aggregate's single height (patch1 data)
+                h = (avgNow > 0f) ? baseH * (avgNow / AggregateMeanHeightBase) : baseH;
+              }
+            else
+            {
+                h = GetHeightOver(timeIdx, patchSlotBySpecies[idx] == 2);   // zone cubes: unchanged
+            }
             if (h > 0f) fir.SetFullHeightMeters(h);
             if (fir.leafDensity != null)
                   fir.leafDensity.SetDensity(GetLeafFraction(timeIdx, patchSlotBySpecies[idx] == 2));

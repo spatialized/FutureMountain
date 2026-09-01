@@ -29,6 +29,7 @@ namespace FutureMountainAPI.Models.CentralCoastV3
         public float respOver { get; set; } 
         public float netpsnOver { get; set; }
         public float streamflow { get; set; } // V3 stores streamflow in the `streamflow` column, not Qout
+        public float rain { get; set; }
 
         public float heightUnder { get; set; }
         public float transUnder { get; set; }
@@ -67,9 +68,9 @@ namespace FutureMountainAPI.Models.CentralCoastV3
                   canopyevap = row.canopyevap,
                   evap = row.canopyevap + row.groundevap + row.transOver + row.transUnder,
                   depthToGW = row.depthToGW,
-                  vegAccessWater = row.vegAccessWater,
-                  qout = row.streamflow, //placeholder for V3 streamflow, which is stored in the `streamflow` column, not Qout
+                  vegAccessWater = row.vegAccessWater, 
                   streamflow = row.streamflow, 
+                  rain = row.rain,
                   litter = row.litterc,
                   soil = row.soilc,
                   netpsn = row.netpsnOver + row.netpsnUnder,
