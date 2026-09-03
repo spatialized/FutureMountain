@@ -174,7 +174,7 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 0
     - _LightIntensity: 1
-    - _Metallic: -3.7568338
+    - _Metallic: 0.33
     - _Metallic0: 0
     - _Metallic1: 0
     - _Metallic2: 0

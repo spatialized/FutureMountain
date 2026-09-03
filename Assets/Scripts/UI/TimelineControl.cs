@@ -37,11 +37,11 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     private static float heightScale = 0.33f;         // Works on Optoma projector 1920x1080 was .00044
     private static float barWidthScale = 1f;      // Works on Optoma projector 1920x1080
 
-    GraphicRaycaster raycaster;
+    protected GraphicRaycaster raycaster;
     PointerEventData pointerEventData;
     //EventSystem eventSystem;
 
-    private int resolution;
+    protected int resolution;
     private static float widthFactor = 0.5f;                         // Timeline width factor
     //private static float xOffset = 750f; // 282f;                  // Timeline x offset
     //private static float yOffset = 150f;                           // Timeline y offset
@@ -61,13 +61,16 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     public Text uiTimelineLabelTextField;                       // UI Date Text Field
 
     /* Time */
-    private int simulationYear = -1;                            // Current year in simulation
-    private int startYear = -1;
+    protected int simulationYear = -1;                            // Current year in simulation
+    protected int startYear = -1;
     private GameObject[] points;
 
     /* Selection */
     public int selectedID { get; set; }                       // Selected bar ID
     public int clickedID { get; set; }                        // Clicked bar ID, used by GameController to update year
+    // CC V3 year slider reads these (read-only; does not change any existing behavior, so BigCreek is unaffected).
+    public int YearCount => resolution;                                          // number of years on the timeline
+    public int CurrentYearIndex => (simulationYear >= 0 && startYear >= 0) ? simulationYear - startYear : 0; // 0-based index of the current sim year
 
     /* Event Icons */
     List<int> fireYears;
@@ -83,7 +86,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     /// <summary>
     /// Called when instance is created.
     /// </summary>
-    private void Awake()
+    protected virtual void Awake()
     {
         selectedID = -1;                       // Selected bar ID
         clickedID = -1;                        // Clicked bar ID
@@ -133,7 +136,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         //messageManager = gameController.messageManager;
     }
 
-    public void ResetTimeline()
+    public virtual void ResetTimeline()
     {
         Vector3 pos = new Vector3(initDateXOffset, 30000f, 0f);
         dateYOffset = initDateYOffset;
@@ -349,7 +352,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     /// Updates the simulation.
     /// </summary>
     /// <param name="curYear">Current year.</param>
-    public void UpdateSimulation(int curYear)
+    public virtual void UpdateSimulation(int curYear)
     {
         if (simulationYear != curYear)
         {
@@ -390,7 +393,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     /// <summary>
     /// Creates the timeline.       -- TO DO: UPDATE FROM CREATETIMELINEWEB
     /// </summary>
-    public void CreateTimeline(List<WaterDataYear> waterData, int warmingIdx, int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
+    public virtual void CreateTimeline(List<WaterDataYear> waterData, int warmingIdx, int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
     {
         if (waterData == null || waterData.Count == 0)
             return;
@@ -521,7 +524,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     /// <summary>
     /// Creates the timeline.
     /// </summary>
-    public void CreateTimelineWeb(PrecipByYear[] waterData, int warmingIdx, int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
+    public virtual void CreateTimelineWeb(PrecipByYear[] waterData, int warmingIdx, int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
     {
         if (waterData == null || waterData.Length == 0)
         {
@@ -691,7 +694,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     /// <param name="warmingIdx">Warm index.</param>
     /// <param name="newFireYears">New fire years.</param>
     /// <param name="newMessageYears">New message years.</param>
-    public void CreateTestTimeline(int startYear, int endYear, int warmingIdx, int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
+    public virtual void CreateTestTimeline(int startYear, int endYear, int warmingIdx, int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
     {
         messageManager = gameController.messageManager;
 
@@ -829,7 +832,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     /// <summary>
     /// Clears the timeline.
     /// </summary>
-    public void ClearTimeline()
+    public virtual void ClearTimeline()
     {
         foreach (GameObject point in points)
         {
@@ -868,18 +871,18 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     /// Sets the timeline text.
     /// </summary>
     /// <param name="newText">New text.</param>
-    public void SetTimelineText(string newText)
+    public virtual void SetTimelineText(string newText)
     {
         uiTimelineLabelTextField.text = newText;
     }
 
-    public void ShowMessages()
+    public virtual void ShowMessages()
     {
         messageIconsLayoutGroupEven.SetActive(true);
         messageIconsLayoutGroupOdd.SetActive(true);
     }
 
-    public void HideMessages()
+    public virtual void HideMessages()
     {
         messageIconsLayoutGroupEven.SetActive(false);
         messageIconsLayoutGroupOdd.SetActive(false);
