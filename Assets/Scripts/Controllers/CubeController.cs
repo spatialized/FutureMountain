@@ -1779,7 +1779,6 @@ public class CubeController : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[VEGGROW] {name} ({GetType().Name}) timeIdx={timeIdx} warmingIdx={warmingIdx} p1={p1Loaded} p2={p2Loaded}");   // TEMP diagnostic: how many grows + with what params
         ResetCube();
         //Debug.Log(name + ".UpdateVegetationFromData()... ");
         UpdateCurrentData(timeIdx);         // Added 12/23/24

@@ -14,7 +14,7 @@
     "charset": "utf8mb4",
     "collation": "utf8mb4_0900_ai_ci"
   },
-  "sourceRoot": "../Data/CentralCoast/RHESSysOutput-3Scenario-WRF-Hadley-RSClim-8-19-2026/Hadley/",
+  "sourceRoot": "../Data/CentralCoast/RHESSysOutput-3Scenario-WRF-Hadley-RSClim-9-6-2026/Hadley/",
   "delimiter": ",",
   "files": {
     "cubeAggregateDaily": "aggregate_cube_bd.csv",
