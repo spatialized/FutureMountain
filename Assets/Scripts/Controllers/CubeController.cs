@@ -155,6 +155,9 @@ public class CubeController : MonoBehaviour
     private Dictionary<int, CubeData> cubeDataP2;
     private bool p1Loaded = false;   // member 01 (patch1) data loaded
     protected bool p2Loaded = false;   // member 02 (patch2) data loaded
+    // Set once the cube has grown its initial vegetation from the current load; reset when a new load starts.
+    // Guards against two startup paths (the web callback and PerformInitialDataLoad) both reset+regrowing (a flash).
+    protected bool initialGrowthDone = false;
     // True once both patch members have finished (re)loading after the latest UpdateDataFromWeb.
     public bool IsDataReloaded() { return p1Loaded && p2Loaded; }
     public bool useCentralCoastPatches = false;   // Enable per-patch (patch1/patch2) growth. CC display cubes only.
@@ -459,10 +462,13 @@ public class CubeController : MonoBehaviour
         //cubeObject.SetActive(true);
 
         // Initial update of data parameters
-        if (settings.BuildForWeb)
-            UpdateDataFromWeb(timeIdx, true, true);         
-        else
-            UpdateCurrentData(timeIdx);
+        PerformInitialDataLoad(timeIdx);
+
+        // // Initial update of data parameters
+        // if (settings.BuildForWeb)
+        //     UpdateDataFromWeb(timeIdx, true, true);         
+        // else
+        //     UpdateCurrentData(timeIdx);
 
         soilController.UpdateParams(timeStep, WaterAccess, DepthToGW);      // Initial update of soil parameters
         if (settings != null && settings.SnowEnabled)
@@ -475,6 +481,17 @@ public class CubeController : MonoBehaviour
 
         if (hasStream)
             UpdateStream();
+    }
+
+    // Initial data load at the start of a run. Base fetches from web (or reads local data). CubeController_CCV3
+    // overrides this to avoid a second web fetch: FinishStarting already fired the correct-scenario load, so CC
+    // grows from it here instead of racing a second request (which caused the wrong-then-right flash).
+    protected virtual void PerformInitialDataLoad(int newTimeIdx)
+    {
+        if (settings.BuildForWeb)
+            UpdateDataFromWeb(newTimeIdx, true, true);
+        else
+            UpdateCurrentData(newTimeIdx);
     }
 
     public void StopSimulation()
@@ -1753,16 +1770,29 @@ public class CubeController : MonoBehaviour
         if (!simulationOn)
             return;
 
+        if (initialGrowthDone)   // already grew for the current load; a second reset+regrow is the flash we're killing
+            return;
+
         if (settings.BuildForWeb && !HasDataRow(timeIdx))
         {
             Debug.LogWarning(name + ".UpdateVegetationFromData()... Missing cube data for timeIdx:" + timeIdx + ". Skipping vegetation reset.");
             return;
         }
 
+        Debug.Log($"[VEGGROW] {name} ({GetType().Name}) timeIdx={timeIdx} warmingIdx={warmingIdx} p1={p1Loaded} p2={p2Loaded}");   // TEMP diagnostic: how many grows + with what params
         ResetCube();
         //Debug.Log(name + ".UpdateVegetationFromData()... ");
         UpdateCurrentData(timeIdx);         // Added 12/23/24
         GrowInitialVegetation();
+        initialGrowthDone = true;   // so the other startup path won't reset+regrow (the flash)
+    }
+
+    // Grow after a web load's data lands. Base grows immediately; CubeController_CCV3 overrides this to
+    // defer the initial (startup) grow to StartSimulation so trees are placed only once the cube is fully
+    // set up (correct positions), not from the early FinishStarting load.
+    protected virtual void GrowFromLoadedData()
+    {
+        UpdateVegetationFromData();
     }
 
     /// <summary>
@@ -2529,6 +2559,7 @@ public class CubeController : MonoBehaviour
         {
             p1Loaded = false;
           p2Loaded = false;
+            initialGrowthDone = false;   // fresh load -> allow exactly one initial grow again
             Debug.Log(name + ".UpdateDataFromWeb()... patchID:"+ patchID+" warmingIdx: " + warmingIdx);
             WebManager.Instance.RequestCubeData(patchID, warmingIdx, this.FinishUpdateDataFromWeb);
 
@@ -2588,7 +2619,7 @@ public class CubeController : MonoBehaviour
 
         // Grow only when all needed members are loaded (so we never reset later).
         if (ReadyToGrowFromData())
-            UpdateVegetationFromData();
+            GrowFromLoadedData();
     }
 
     /// <summary>
@@ -2626,7 +2657,7 @@ public class CubeController : MonoBehaviour
 
         // Both members now loaded: grow once (no repeated reset).
         if (p1Loaded)
-            UpdateVegetationFromData();
+            GrowFromLoadedData();
     }
 
     /// <summary>

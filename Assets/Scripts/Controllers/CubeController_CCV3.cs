@@ -47,6 +47,35 @@ public class CubeController_CCV3 : CubeController
         UpdateVegetationCentralCoast();         // Trees balanced per patch; grass stands in for the understory
     }
 
+     // ----- single-load seam: no second web fetch at StartSimulation -----
+    // CC V3 already loads this cube's data once in GameController.FinishStarting (with the correct
+    // scenario). Base StartSimulation would fire a SECOND UpdateDataFromWeb; two concurrent loads race
+    // and cause the wrong-then-right flash. So here we don't fetch again -- we just grow from the data:
+    //   - if the early load already arrived, UpdateVegetationFromData grows it now (simulationOn is set);
+    //   - if it's still in flight, that load's own callback grows it when it lands.
+    // Either way the cube grows exactly once, correctly.
+    // True once StartSimulation has run for this cube. Until then, the early web-load callback must not
+    // grow (the cube isn't fully placed yet -> wrong tree positions). After it, late data / scenario
+    // changes may grow through the callback as usual.
+    private bool ccStartupGrowReady = false;
+
+    protected override void PerformInitialDataLoad(int newTimeIdx)
+    {
+        // This is the correct startup grow: it runs from StartSimulation, when the cube is fully set up,
+        // so tree positions are right. If the data isn't in yet, this is a no-op and the next load
+        // callback grows it (ccStartupGrowReady is now set, so GrowFromLoadedData is allowed).
+        ccStartupGrowReady = true;
+        UpdateVegetationFromData();
+    }
+
+    protected override void GrowFromLoadedData()
+    {
+        // Suppress the early FinishStarting-load grow (wrong positions); only grow once StartSimulation has
+        // run. That covers data that arrives after StartSimulation and later scenario-change reloads too.
+        if (ccStartupGrowReady)
+            UpdateVegetationFromData();
+    }
+
     // Streamflow (mapped into StreamHeight) at which the channel is exactly bankfull. Common to all
     // Central Coast cubes. At/below this the water fills the channel; above it the water floods.
     private const float StreamBankfullFlow = 60f;

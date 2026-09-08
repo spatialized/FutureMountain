@@ -636,6 +636,8 @@ public class GameController : MonoBehaviour
             cubes[0].SetWarmingRange(warmingRange);
             yield return null;
 
+            cubes[0].SetWarmingIdx(warmingIdx);   // set scenario BEFORE the single load so it fetches the right scenario
+
             if (settings.BuildForWeb)
             {
                 cubes[0].UpdateDataFromWeb(timeIdx, true, true);
@@ -719,6 +721,8 @@ public class GameController : MonoBehaviour
             cubes[1].SetWarmingRange(warmingRange);
             yield return null;
 
+            cubes[1].SetWarmingIdx(warmingIdx);   // set scenario BEFORE the single load so it fetches the right scenario
+
             if (settings.BuildForWeb)
             {
                 cubes[1].UpdateDataFromWeb(timeIdx, true, true);
@@ -790,6 +794,8 @@ public class GameController : MonoBehaviour
             cubes[2].SetWarmingRange(warmingRange);
             yield return null;
 
+            cubes[2].SetWarmingIdx(warmingIdx);   // set scenario BEFORE the single load so it fetches the right scenario
+
             if (settings.BuildForWeb)
             {
                 cubes[2].UpdateDataFromWeb(timeIdx, true, true);
@@ -859,6 +865,8 @@ public class GameController : MonoBehaviour
             cubes[3].SetWarmingRange(warmingRange);
             yield return null;
 
+            cubes[3].SetWarmingIdx(warmingIdx);   // set scenario BEFORE the single load so it fetches the right scenario
+
             if (settings.BuildForWeb)
             {
                 cubes[3].UpdateDataFromWeb(timeIdx, true, true);
@@ -927,6 +935,8 @@ public class GameController : MonoBehaviour
         {
             cubes[4].SetWarmingRange(warmingRange);
             yield return null;
+
+            cubes[4].SetWarmingIdx(warmingIdx);   // set scenario BEFORE the single load so it fetches the right scenario
 
             if (settings.BuildForWeb)
             {
@@ -998,6 +1008,8 @@ public class GameController : MonoBehaviour
             aggregateCubeController.SetWarmingRange(warmingRange);
             yield return null;
 
+            aggregateCubeController.SetWarmingIdx(warmingIdx);   // set scenario BEFORE loading so the early fetch uses the right scenario
+
             if (settings.BuildForWeb)
             {
                 aggregateCubeController.UpdateDataFromWeb(timeIdx, true, true);
@@ -1017,7 +1029,7 @@ public class GameController : MonoBehaviour
 
             aggregateCubeController.Initialize(etPrefab, shrubETPrefab, firePrefab);
             yield return null;
-            aggregateCubeController.SetWarmingIdx(warmingIdx);
+            // aggregateCubeController.SetWarmingIdx(warmingIdx); // moved up before the data load
             //aggregateCubeController.SetWarmingDegrees(warmingDegrees);
             if (!settings.BuildForWeb)
                 aggregateCubeController.FindParameterRanges();
