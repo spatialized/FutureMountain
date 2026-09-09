@@ -43,6 +43,7 @@ namespace Assets.Scripts.Models
         public float depthToGW;
         public float vegAccessWater;
         public float qout;
+        public float streamflow;   // CC V3 stream source (V3 API returns streamflow, not qout)
         public float litter;
         public float soil;
         public float heightOver;

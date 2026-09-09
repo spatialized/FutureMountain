@@ -160,6 +160,14 @@ public class CubeController : MonoBehaviour
     protected bool initialGrowthDone = false;
     // True once both patch members have finished (re)loading after the latest UpdateDataFromWeb.
     public bool IsDataReloaded() { return p1Loaded && p2Loaded; }
+    // CC V3 delivers raw RHESSys fluxes, but the visuals were tuned for x1000-scaled fluxes.
+    // CubeController_CCV3 overrides this to 1000 so streamflow / transpiration / photosynthesis reach the
+    // calibrated magnitudes; BigCreek keeps 1 (its data is already at the expected scale).
+    protected virtual float FluxScale => 1f;
+
+    // The stream reads its water level from row.qout. CC V3 has no Qout column — its stream lives in the
+    // `streamflow` field — so CubeController_CCV3 overrides this to read row.streamflow instead.
+    protected virtual float StreamflowFromRow(CubeData row) => (float)row.qout;
     public bool useCentralCoastPatches = false;   // Enable per-patch (patch1/patch2) growth. CC display cubes only.
     // Central Coast tuning: multiplies grass count on a grass-dominated patch. Inspector-tunable.
     public float grassPatchDensityScale = 1f;
@@ -2685,7 +2693,7 @@ public class CubeController : MonoBehaviour
                 SnowAmount = row.snow;
                 DepthToGW = row.depthToGW;
                 WaterAccess = row.vegAccessWater;
-                StreamHeight = (float)row.qout;
+                StreamHeight = StreamflowFromRow(row);
                 Litter = row.litter;
                 NetPhotosynthesis = row.netpsn;
                 TransOver = row.transOver;
@@ -2698,7 +2706,7 @@ public class CubeController : MonoBehaviour
                 SnowAmount = row.snow;
                 DepthToGW = row.depthToGW;
                 WaterAccess = row.vegAccessWater;
-                StreamHeight = row.qout;
+                StreamHeight = StreamflowFromRow(row);
                 Litter = row.litter;
                 NetPhotosynthesis = row.netpsn;
                 TransOver = row.transOver;
@@ -2717,7 +2725,7 @@ public class CubeController : MonoBehaviour
                 SnowAmount = row.snow;
                 DepthToGW = row.depthToGW;
                 WaterAccess = row.vegAccessWater;
-                StreamHeight = row.qout;
+                StreamHeight = StreamflowFromRow(row);
                 Litter = row.litter;
                 NetPhotosynthesis = row.netpsn;
                 NetTranspiration = row.transOver;

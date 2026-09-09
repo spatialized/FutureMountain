@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Assets.Scripts.Models;   // CubeData (stream reads row.streamflow)
 
 /// <summary>
 /// Central Coast V3 cube controller.
@@ -76,9 +77,20 @@ public class CubeController_CCV3 : CubeController
             UpdateVegetationFromData();
     }
 
-    // Streamflow (mapped into StreamHeight) at which the channel is exactly bankfull. Common to all
-    // Central Coast cubes. At/below this the water fills the channel; above it the water floods.
-    private const float StreamBankfullFlow = 60f;
+    // Streamflow (mapped into StreamHeight) at which the channel is exactly bankfull. Per-cube in the
+    // Inspector: a zone stream (e.g. CubeF/Riparian) runs ~10x the aggregate's streamflow, so they need
+    // different thresholds. Units follow the data: raw streamflow if FluxScale is 1, x1000 if FluxScale is 1000.
+    [Header("CC V3 stream")]
+    public float streamBankfullFlow = 60f;
+
+    // CC V3's stream data lives in the `streamflow` field (the V3 API has no Qout column), so read that
+    // instead of the base's row.qout — otherwise StreamHeight is always 0 and the stream never moves.
+    protected override float StreamflowFromRow(CubeData row) => row.streamflow;
+
+    // CC V3 data is imported RAW (unscaled RHESSys fluxes). The visuals are calibrated for x1000-scaled
+    // fluxes (e.g. StreamBankfullFlow = 60 above), so scale the raw fluxes up on ingestion. Keeps the data
+    // files authoritative-raw and leaves every downstream threshold unchanged.
+    //protected override float FluxScale => 1000f;
 
     // ----- Stage 3 / flood: stream response seam -----
     // Central Coast data has no snow and drives the stream from raw streamflow. Map the cube's own
@@ -91,7 +103,7 @@ public class CubeController_CCV3 : CubeController
         // 0 streamflow -> empty channel (streamZeroHeight); the fixed bankfull threshold -> full channel
         // (streamFullHeight). Above the threshold the value exceeds 1, so the water rises past the bank
         // and floods (UpdateStream no longer clamps the upper end).
-        return Mathf.Max(0f, StreamHeight / StreamBankfullFlow);   // 0 empty, 1 = bankfull (60ju), >1 = flood
+        return Mathf.Max(0f, StreamHeight / streamBankfullFlow);   // 0 empty, 1 = bankfull, >1 = flood
     }
 
     // ----- Stage 3b: fire-death seam -----

@@ -69,7 +69,7 @@ namespace FutureMountainAPI.Models.CentralCoastV3
                   evap = row.canopyevap + row.groundevap + row.transOver + row.transUnder,
                   depthToGW = row.depthToGW,
                   vegAccessWater = row.vegAccessWater, 
-                  streamflow = row.streamflow, 
+                  streamflow = row.streamflow,
                   rain = row.rain,
                   litter = row.litterc,
                   soil = row.soilc,

@@ -32,9 +32,12 @@ namespace RHESSYs_Data_Importer.IO
 
            foreach (var role in new[] {"cubePatchDaily01", "cubePatchDaily02"})
            {
-               // Both patch CSVs carry the same patchID (…01). Store the 2nd member at patchID + 1 (…02)
-               // so the game (CubeController_CCV3) can fetch P2 via patchID + 1.
-               int patchIdOffset = (role == "cubePatchDaily02") ? 1 : 0;
+               // p1d carries member-01 patchIDs (…01) and p2d now carries its OWN member-02 patchIDs (…02),
+               // which already equal what the game (CubeController_CCV3) fetches for P2 (cube patchID + 1).
+               // So import each at its file patchID unchanged. (Older bundles shipped p2d as a byte copy of
+               // p1d — same …01 patchID — and needed a +1 here to synthesize the …02; real 2-member data
+               // must not be offset, or …02 becomes …03 and the P2 request 404s.)
+               int patchIdOffset = 0;
                var path = config.GetSourceFilePath(role);
                if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
                {
