@@ -209,6 +209,8 @@ public class GameController : MonoBehaviour
     public GameObject freePlayCanvas;                         // Simulation_Canvas: shared sim UI, active in BOTH modes
     public GameObject questCanvas;                            // Quest_Canvas: Quest overlay panel, shown only in Quest mode
     public ZoneGraph zoneGraph;                               // Quest zone graph (Quest mode only; null in FreePlay/BigCreek -> notifies are no-ops)
+    public ZoneGraph zoneGraphLeft;    // side-by-side: left cube's graph
+    public ZoneGraph zoneGraphRight;   // side-by-side: right cube's graph
 
     // Chosen on the mode-select menu, read later by Quest logic. Static so other
     // scripts can read it globally without a reference to this instance.
@@ -249,6 +251,8 @@ public class GameController : MonoBehaviour
     private GameObject warmingKnobObject;                     // Large warming knob
     private WarmingKnobSlider warmingKnobSlider;              // Large warming knob slider object
     public TMP_Dropdown scenarioDropdown;       // CC V3 scenario picker; index == scenarioIdx (0=WRF,1=Hadley,2=RSClim)
+    public TMP_Dropdown sideScenarioDropdownLeft;    // CC V3 side-by-side: left cube scenario picker
+    public TMP_Dropdown sideScenarioDropdownRight;   // CC V3 side-by-side: right (compare) cube scenario picker
     private GameObject warmingKnob1Object;                    // Side-by-Side warming knob 1
     private WarmingKnobSlider warmingKnob1Slider;             // Large warming knob slider object
     private GameObject warmingKnob2Object;                    // Side-by-Side warming knob 2
@@ -488,6 +492,22 @@ public class GameController : MonoBehaviour
             StartCoroutine(RefreshGraphWhenLoaded(graphedCube));
     }
 
+    public void OnSideScenarioLeft(int scenarioIdx)  { SetSideScenario(false, scenarioIdx); }
+    public void OnSideScenarioRight(int scenarioIdx) { SetSideScenario(true,  scenarioIdx); }
+    private void SetSideScenario(bool rightCube, int scenarioIdx)
+    {
+        if (!sideBySideMode) return;
+        CubeController cube = rightCube
+            ? ((sbsIdx == -1) ? aggregateSideCubeController : sideCubes[sbsIdx])
+            : ((sbsIdx == -1) ? aggregateCubeController     : cubes[sbsIdx]);
+        if (cube == null) return;
+        Debug.Log($"[SBS] {(rightCube ? "RIGHT" : "LEFT")} dropdown -> scenario {scenarioIdx} on cube '{cube.name}'"); // TEMP verify
+        cube.SetWarmingIdx(scenarioIdx);
+        cube.UpdateDataFromWeb(timeIdx, true, true);   // reload this scenario; the load callback regrows the cube
+        ZoneGraph graph = rightCube ? zoneGraphRight : zoneGraphLeft;
+          if (graph != null) StartCoroutine(RefreshSideGraphWhenLoaded(graph, cube));
+    }
+
      private System.Collections.IEnumerator RefreshGraphWhenLoaded(CubeController cube)
       {
           float timeout = 5f;
@@ -498,6 +518,14 @@ public class GameController : MonoBehaviour
           }
           if (zoneGraph != null && cube != null)
               zoneGraph.ShowCube(cube);   // re-read GetYearlySeries with the new scenario's data
+      }
+
+      private System.Collections.IEnumerator RefreshSideGraphWhenLoaded(ZoneGraph graph, CubeController cube)
+      {
+          float timeout = 5f;
+          while (cube != null && !cube.IsDataReloaded() && timeout > 0f) { timeout -= Time.deltaTime; yield return null;
+  }
+          if (graph != null && cube != null) graph.ShowCube(cube);
       }
 
     /// <summary>
@@ -1551,8 +1579,8 @@ public class GameController : MonoBehaviour
         }
 
         //cube.EnterSideBySide(timeIdx, cubeLStats, warmingIdx);
-        warmingKnob1Slider.enabled = true;
-        warmingKnob1Object.SetActive(true);
+        if (warmingKnob1Slider != null) warmingKnob1Slider.enabled = true;
+        if (warmingKnob1Object != null) warmingKnob1Object.SetActive(true);
         //warmingKnob1Slider.SetToWarmingIdx(warmingIdx);
         StartTrackedCoroutine(FinishEnteringSideBySideMode(cube, cubeSBSModeStatsLeft, warmingKnob1Slider, warmingIdx, false));
 
@@ -1561,11 +1589,11 @@ public class GameController : MonoBehaviour
         //sideCube.messageManager = messageManager;
         //sideCube.EnterSideBySide(timeIdx, cubeRStats, warmingIdx == 0 ? 1 : 0);
 
-        warmingKnob2Slider.enabled = true;
-        warmingKnob2Object.SetActive(true);
+        if (warmingKnob2Slider != null) warmingKnob2Slider.enabled = true;
+        if (warmingKnob2Object != null) warmingKnob2Object.SetActive(true);
         StartTrackedCoroutine(FinishEnteringSideBySideMode(sideCube, cubeSBSModeStatsRight, warmingKnob2Slider, warmingIdx == 0 ? 1 : 0, true));
         //warmingKnob2Slider.SetToWarmingIdx(warmingIdx == 0 ? 1 : 0);
-        warmingKnobObject.SetActive(false);
+        if (warmingKnobObject != null) warmingKnobObject.SetActive(false);   // CC V3 has no single WarmingKnob (uses scenario dropdown)
 
         exitSideBySideButtonObject.SetActive(true);
         zoomOutButtonObject.SetActive(false);
@@ -1581,7 +1609,11 @@ public class GameController : MonoBehaviour
         //    cubeLStats.SetActive(false);
         //    cubeRStats.SetActive(false);
         //}
-        
+        if (sideScenarioDropdownLeft  != null) sideScenarioDropdownLeft.SetValueWithoutNotify(warmingIdx);
+        if (sideScenarioDropdownRight != null) sideScenarioDropdownRight.SetValueWithoutNotify(warmingIdx == 0 ? 1 : 0);
+        if (zoneGraph != null) zoneGraph.HideGraph();   // hide the single Quest graph in side-by-side
+        if (zoneGraphLeft  != null) StartCoroutine(RefreshSideGraphWhenLoaded(zoneGraphLeft,  cube));
+        if (zoneGraphRight != null) StartCoroutine(RefreshSideGraphWhenLoaded(zoneGraphRight, sideCube));
         sideBySideCanvas.enabled = true;
         sideBySideModeToggleObject.GetComponent<Toggle>().isOn = false;
     }
@@ -1589,7 +1621,7 @@ public class GameController : MonoBehaviour
     private IEnumerator FinishEnteringSideBySideMode(CubeController cube, GameObject statsObj, WarmingKnobSlider slider, int warmIdx, bool initVegetation)
     {
         yield return null;
-        slider.SetToWarmingIdx(warmIdx);
+        if (slider != null) slider.SetToWarmingIdx(warmIdx);
 
         yield return null;
         cube.gameObject.SetActive(true);
@@ -1636,12 +1668,17 @@ public class GameController : MonoBehaviour
         sideCube.StopSimulation();
 
         HideSideCubes();
+        
+        if (zoneGraphLeft  != null) zoneGraphLeft.HideGraph();
+        if (zoneGraphRight != null) zoneGraphRight.HideGraph();
+        if (sideScenarioDropdownLeft  != null) sideScenarioDropdownLeft.gameObject.SetActive(false);
+        if (sideScenarioDropdownRight != null) sideScenarioDropdownRight.gameObject.SetActive(false);
 
-        warmingKnob1Object.SetActive(false);
-        warmingKnob1Slider.enabled = false;
-        warmingKnob2Object.SetActive(false);
-        warmingKnob2Slider.enabled = false;
-        warmingKnobObject.SetActive(true);
+        if (warmingKnob1Object != null) warmingKnob1Object.SetActive(false);
+        if (warmingKnob1Slider != null) warmingKnob1Slider.enabled = false;
+        if (warmingKnob2Object != null) warmingKnob2Object.SetActive(false);
+        if (warmingKnob2Slider != null) warmingKnob2Slider.enabled = false;
+        if (warmingKnobObject != null) warmingKnobObject.SetActive(true);   // CC V3 has no single WarmingKnob (uses scenario dropdown)
 
         foreach (var cube in cubes)
         {
@@ -1651,11 +1688,18 @@ public class GameController : MonoBehaviour
         {
             cube.SetWarmingIdx(0);
         }
+
+        // The left dropdown changed cubes[sbsIdx]'s scenario in side-by-side; reload it so single view
+        // shows the global scenario again (SetWarmingIdx above only reset the field, not the data).
+        if (sbsIdx >= 0 && sbsIdx < cubes.Length && cubes[sbsIdx] != null)
+            cubes[sbsIdx].UpdateDataFromWeb(timeIdx, true, true);
+        
         //warmingKnobSlider.enabled = false;
 
         cubeSBSModeStatsLeft.SetActive(false);
         cubeSBSModeStatsRight.SetActive(false);
-        warmingLevelText.SetActive(false);
+        // warmingLevelText.SetActive(false);
+        if (warmingLevelText != null) warmingLevelText.SetActive(false);
 
         foreach (CubeController cube in cubes)
         {
@@ -3824,9 +3868,10 @@ public class GameController : MonoBehaviour
         cubeSBSModeStatsLeft.SetActive(false);
         cubeSBSModeStatsRight.SetActive(false);
 
-        Assert.IsNotNull(warmingLevelText);
+        // Assert.IsNotNull(warmingLevelText);
 
-        warmingLevelText.SetActive(false);
+        // warmingLevelText.SetActive(false);
+        if (warmingLevelText != null) warmingLevelText.SetActive(false);   // CC V3 has no warming-level text (uses scenario dropdown)
 
         //cubesObject = GameObject.Find("Cubes");
         Assert.IsNotNull(cubesObject);

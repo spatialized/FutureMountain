@@ -1010,8 +1010,19 @@ public class CubeController : MonoBehaviour
         
         string terrainName = "Terrain_" + name.Substring(name.Length == 5 ? name.Length - 1 : name.Length - 6);
 
-        terrain = cubeObject.transform.Find(terrainName).GetComponent<Terrain>();
-        fireManager = terrain.transform.GetComponentInChildren<SERI_FireManager>() as SERI_FireManager;
+        // terrain = cubeObject.transform.Find(terrainName).GetComponent<Terrain>();
+        // fireManager = terrain.transform.GetComponentInChildren<SERI_FireManager>() as SERI_FireManager;
+        Transform terrainTransform = cubeObject.transform.Find(terrainName);
+          terrain = (terrainTransform != null)
+              ? terrainTransform.GetComponent<Terrain>()
+              : cubeObject.GetComponentInChildren<Terrain>();   // name didn't match (distinctly-named side cube) -> find the Terrain by type
+          if (terrain == null)
+          {
+              Debug.LogWarning(name + ".SetupObjects()... no Terrain found under " + cubeObject.name + "; skipping this cube (not fully configured).");
+              return;
+          }
+          fireManager = terrain.transform.GetComponentInChildren<SERI_FireManager>() as SERI_FireManager;
+
         Assert.IsNotNull(terrain);
         Assert.IsNotNull(fireManager);
         SetFirePrefab(firePrefab);
@@ -1037,10 +1048,13 @@ public class CubeController : MonoBehaviour
         Assert.IsNotNull(displayPanel);
         HideStatistics();
 
-        GameObject snowManagerObject = GameObject.Find("SnowManager_" + name);
-        Assert.IsNotNull(snowManagerObject);
-        snowManager = snowManagerObject.GetComponent<SnowManager>() as SnowManager;
-        Assert.IsNotNull(snowManager);
+        if (settings == null || settings.SnowEnabled)   // CC V3 has no snow -> no SnowManager object per cube
+        {
+            GameObject snowManagerObject = GameObject.Find("SnowManager_" + name);
+            Assert.IsNotNull(snowManagerObject);
+            snowManager = snowManagerObject.GetComponent<SnowManager>() as SnowManager;
+            Assert.IsNotNull(snowManager);
+        }
 
         defaultPosition = transform.position;
 

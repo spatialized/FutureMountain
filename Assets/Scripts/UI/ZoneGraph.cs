@@ -152,6 +152,7 @@ public class ZoneGraph : MonoBehaviour
 
         chart.RefreshChart();
         chart.EnsureChartComponent<Legend>();   // shows "MaxT" / "MinT" labels
+        chart.EnsureChartComponent<Tooltip>().numericFormatter = "F2";   // hover tooltip to 2 decimals
     }
 
     public void ClearSelections()

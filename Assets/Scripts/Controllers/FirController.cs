@@ -385,6 +385,11 @@ public class FirController : TreeController
 
         float heightScale = GetTreeActualHeight() / deadTreePrefabHeight;
         float widthScale = GetTreeActualWidth() / deadTreePrefabWidth;
+        // NaN/Infinity guard: a ~0 dead-prefab height/width (unmeasured prefab) makes the ratio NaN/Inf,
+        // which assigns { NaN } to localScale and spams errors. Fall back to the prefab's natural scale.
+        if (float.IsNaN(heightScale) || float.IsInfinity(heightScale)) heightScale = 1f;
+        if (float.IsNaN(widthScale)  || float.IsInfinity(widthScale))  widthScale  = 1f;
+          
 
         // Diagnostic + safety net for the giant "DeadTreeLog" flash: a live/dead prefab height
         // mismatch (or a ~0 dead prefab height) makes this ratio explode. Log the inputs and clamp
