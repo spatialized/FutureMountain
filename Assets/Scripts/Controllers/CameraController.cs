@@ -250,8 +250,16 @@ public class CameraController : MonoBehaviour {
         moving = false;
         zoomed = true;
         pauseState = GamePauseState.unpause;
-        if (!GameController.Instance.sideBySideMode && !zoomOutLocked)
-            zoomOutButtonObject.SetActive(true);
+        // if (!GameController.Instance.sideBySideMode && !zoomOutLocked)
+        //     zoomOutButtonObject.SetActive(true);
+        if (!GameController.Instance.sideBySideMode)
+        {
+            if (GameController.Instance.IsCentralCoastV3())
+                GameController.Instance.SetZoomOutButtonActive(true);   // CC: 交给方法决定灰/正常(锁了就灰)
+            else if (!zoomOutLocked)
+                zoomOutButtonObject.SetActive(true);                    // BigCreek: 原逻辑(仅非锁定时显示)
+        }
+    
 
         GameController.Instance.OnZoomedIntoCube(cubeIdx);   // point the zone graph at this cube
     }
@@ -261,6 +269,7 @@ public class CameraController : MonoBehaviour {
     /// </summary>
     public void StartResetZoom()
     {
+        Debug.Log($"[CAM] StartResetZoom called. zoomed={zoomed} moving={moving} zoomOutLocked={zoomOutLocked} sideBySide={GameController.Instance.sideBySideMode}");
         GameController.Instance.SetSideByToggleActive(true);
         GameController.Instance.SetZoomOutButtonActive(false);
         GameController.Instance.ForceHideModel(false);
@@ -272,6 +281,8 @@ public class CameraController : MonoBehaviour {
 
         GameController.Instance.OnZoomedOut();   // hide the Quest zone graph on zoom-out
     }
+
+    
 
     /// <summary>
     /// Move the camera to the ZoneCube overview state (Quest Level 3 opening view).
@@ -287,7 +298,8 @@ public class CameraController : MonoBehaviour {
         animator.SetTrigger("ZoneCube");
         StartCoroutine(ZoomingOut());   // returns input control after the move, like zoom-out
     }
-
+    
+    
     /// <summary>
     /// Gets keyboard input.
     /// </summary>
@@ -381,7 +393,8 @@ public class CameraController : MonoBehaviour {
         pauseState = GamePauseState.unpause;
 
         if(!GameController.Instance.sideBySideMode)
-            zoomOutButtonObject.SetActive(true);
+            // zoomOutButtonObject.SetActive(true);
+            GameController.Instance.SetZoomOutButtonActive(true);
     }
 
     /// <summary>

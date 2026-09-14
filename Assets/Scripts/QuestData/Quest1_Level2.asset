@@ -11,15 +11,16 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a0001cc40633e2242a75f7015c8a9162, type: 3}
   m_Name: Quest1_Level2
-  m_EditorClassIdentifier:
-  title: 'Quest 1 · Level 2'
+  m_EditorClassIdentifier: 
+  title: "Quest 1 \xB7 Level 2"
   lockZoomOut: 1
-  opening: 'Now look for relationships between the climate variables and how they
-    behave across the years.'
+  allowSideBySide: 0
+  opening: Now look for relationships between the climate variables and how they
+    behave across the years.
   defaultOptions: []
   questions:
-  - prompt: 'Some of these climate variables can be related. Which two do you expect
-      to be related?'
+  - prompt: Some of these climate variables can be related. Which two do you expect
+      to be related?
     options:
     - Maximum temperature & Humidity
     - Precipitation & Wind
@@ -28,11 +29,11 @@ MonoBehaviour:
     correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []
-  - prompt: 'Run the simulation and observe the climate and graphs. Are there any
-      clear patterns in the climate variables across years?'
+  - prompt: Run the simulation and observe the climate and graphs. Are there any
+      clear patterns in the climate variables across years?
     options:
     - Yes
-    - 'No'
+    - No
     correctIndex: 1
     graphSelect: 0
     correctYearsByScenario: []

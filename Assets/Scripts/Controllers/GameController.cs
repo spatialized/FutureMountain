@@ -1612,6 +1612,7 @@ public class GameController : MonoBehaviour
         if (sideScenarioDropdownLeft  != null) sideScenarioDropdownLeft.SetValueWithoutNotify(warmingIdx);
         if (sideScenarioDropdownRight != null) sideScenarioDropdownRight.SetValueWithoutNotify(warmingIdx == 0 ? 1 : 0);
         if (zoneGraph != null) zoneGraph.HideGraph();   // hide the single Quest graph in side-by-side
+        if (scenarioDropdown != null) scenarioDropdown.gameObject.SetActive(false);   // left cube's dropdown replaces the single scenario picker
         if (zoneGraphLeft  != null) StartCoroutine(RefreshSideGraphWhenLoaded(zoneGraphLeft,  cube));
         if (zoneGraphRight != null) StartCoroutine(RefreshSideGraphWhenLoaded(zoneGraphRight, sideCube));
         sideBySideCanvas.enabled = true;
@@ -1700,6 +1701,7 @@ public class GameController : MonoBehaviour
         cubeSBSModeStatsRight.SetActive(false);
         // warmingLevelText.SetActive(false);
         if (warmingLevelText != null) warmingLevelText.SetActive(false);
+        if (scenarioDropdown != null) scenarioDropdown.gameObject.SetActive(true);   // restore the single scenariopicker
 
         foreach (CubeController cube in cubes)
         {
@@ -3075,9 +3077,35 @@ public class GameController : MonoBehaviour
         sideBySideModeToggleObject.SetActive(state);
     }
 
+    public void SetSideBySideAllowed(bool allowed)
+    {
+        if (sideBySideModeToggleObject == null) return;
+        if (!IsCentralCoastV3()) return;   // BigCreek: never touch the toggle
+        var tgl = sideBySideModeToggleObject.GetComponent<UnityEngine.UI.Toggle>();
+        if (tgl != null) tgl.interactable = allowed;   // grey (Disabled Color) when the level forbids side-by-side
+    }
+
+
+    public bool IsCentralCoastV3()
+    {
+        return settings != null && settings.apiProfile == ScenarioApiProfile.CentralCoastV3;
+    }
+
     public void SetZoomOutButtonActive(bool state)
     {
-        zoomOutButtonObject.SetActive(state);
+        if (zoomOutButtonObject == null) return;
+
+        if (!IsCentralCoastV3())
+        {
+            zoomOutButtonObject.SetActive(state);   // BigCreek: original show/hide, unchanged
+            return;
+        }
+
+        // CC V3 only: always visible; grey (interactable) when not usable, respecting the level's zoom-out lock.
+        zoomOutButtonObject.SetActive(true);
+        var btn = zoomOutButtonObject.GetComponent<UnityEngine.UI.Button>();
+        if (btn != null)
+            btn.interactable = state && !(cameraController != null && cameraController.zoomOutLocked);
     }
 
     // Called by CameraController when the camera zooms into a cube. In Quest mode
@@ -3105,9 +3133,10 @@ public class GameController : MonoBehaviour
     // Moves the camera to the ZoneCube overview state (Quest Level 3 opening view).
     public void ShowZoneCubeView()
     {
-        if (zoneGraph != null) zoneGraph.HideGraph();   // overview = no zone selected yet; clear stale cube & hide graph until zoom-in
+        if (zoneGraph != null) zoneGraph.HideGraph();
         CameraController cc = (sceneCamera != null) ? sceneCamera.GetComponent<CameraController>() : null;
         if (cc != null) cc.GoToZoneCubeView();
+        SetSideByToggleActive(true);   // show the side-by-side toggle at the zone overview (L3)
     }
 
     public void ForceHideModel(bool state)

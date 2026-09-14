@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: "Quest 1 \xB7 Level 1"
   lockZoomOut: 1
+  allowSideBySide: 0
   opening: 'Characterize climate characteristics in each of the climate scenarios
     by selecting the appropriate precipitation, min/max temperature, wind, and relative
     humidity value for the listed prompts. You will then repeat this process for
