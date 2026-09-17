@@ -490,6 +490,8 @@ public class GameController : MonoBehaviour
         }
         if (zoneGraph != null && graphedCube != null)
             StartCoroutine(RefreshGraphWhenLoaded(graphedCube));
+
+        PreloadSideCubes();   // scenario changed -> re-warm side cubes with the new compare scenario
     }
 
     public void OnSideScenarioLeft(int scenarioIdx)  { SetSideScenario(false, scenarioIdx); }
@@ -1223,6 +1225,8 @@ public class GameController : MonoBehaviour
         else
             HideStatistics();
 
+        PreloadSideCubes();   // warm side cubes with the compare scenario's data (no growth) for instant side-by-side graphs
+
         yield return new WaitForSeconds(5f);            // Testing fix for Continue button unclickable bug
 
         // Wait for continue button to be pressed
@@ -1582,7 +1586,7 @@ public class GameController : MonoBehaviour
         if (warmingKnob1Slider != null) warmingKnob1Slider.enabled = true;
         if (warmingKnob1Object != null) warmingKnob1Object.SetActive(true);
         //warmingKnob1Slider.SetToWarmingIdx(warmingIdx);
-        StartTrackedCoroutine(FinishEnteringSideBySideMode(cube, cubeSBSModeStatsLeft, warmingKnob1Slider, warmingIdx, false));
+        StartTrackedCoroutine(FinishEnteringSideBySideMode(cube, cubeSBSModeStatsLeft, warmingKnob1Slider, warmingIdx, false, zoneGraphLeft));
 
         //sideCube.gameObject.SetActive(true);
         //sideCube.StartSimulation(timeIdx, timeStep);
@@ -1591,7 +1595,7 @@ public class GameController : MonoBehaviour
 
         if (warmingKnob2Slider != null) warmingKnob2Slider.enabled = true;
         if (warmingKnob2Object != null) warmingKnob2Object.SetActive(true);
-        StartTrackedCoroutine(FinishEnteringSideBySideMode(sideCube, cubeSBSModeStatsRight, warmingKnob2Slider, warmingIdx == 0 ? 1 : 0, true));
+        StartTrackedCoroutine(FinishEnteringSideBySideMode(sideCube, cubeSBSModeStatsRight, warmingKnob2Slider, warmingIdx == 0 ? 1 : 0, true, zoneGraphRight));
         //warmingKnob2Slider.SetToWarmingIdx(warmingIdx == 0 ? 1 : 0);
         if (warmingKnobObject != null) warmingKnobObject.SetActive(false);   // CC V3 has no single WarmingKnob (uses scenario dropdown)
 
@@ -1609,17 +1613,19 @@ public class GameController : MonoBehaviour
         //    cubeLStats.SetActive(false);
         //    cubeRStats.SetActive(false);
         //}
+        if (sideScenarioDropdownLeft  != null) sideScenarioDropdownLeft.gameObject.SetActive(true);    // re-show (ExitSideBySideMode hid them)
+        if (sideScenarioDropdownRight != null) sideScenarioDropdownRight.gameObject.SetActive(true);
         if (sideScenarioDropdownLeft  != null) sideScenarioDropdownLeft.SetValueWithoutNotify(warmingIdx);
         if (sideScenarioDropdownRight != null) sideScenarioDropdownRight.SetValueWithoutNotify(warmingIdx == 0 ? 1 : 0);
         if (zoneGraph != null) zoneGraph.HideGraph();   // hide the single Quest graph in side-by-side
         if (scenarioDropdown != null) scenarioDropdown.gameObject.SetActive(false);   // left cube's dropdown replaces the single scenario picker
-        if (zoneGraphLeft  != null) StartCoroutine(RefreshSideGraphWhenLoaded(zoneGraphLeft,  cube));
-        if (zoneGraphRight != null) StartCoroutine(RefreshSideGraphWhenLoaded(zoneGraphRight, sideCube));
+        // if (zoneGraphLeft  != null) StartCoroutine(RefreshSideGraphWhenLoaded(zoneGraphLeft,  cube));
+        // if (zoneGraphRight != null) StartCoroutine(RefreshSideGraphWhenLoaded(zoneGraphRight, sideCube));
         sideBySideCanvas.enabled = true;
         sideBySideModeToggleObject.GetComponent<Toggle>().isOn = false;
     }
 
-    private IEnumerator FinishEnteringSideBySideMode(CubeController cube, GameObject statsObj, WarmingKnobSlider slider, int warmIdx, bool initVegetation)
+    private IEnumerator FinishEnteringSideBySideMode(CubeController cube, GameObject statsObj, WarmingKnobSlider slider, int warmIdx, bool initVegetation, ZoneGraph graph)
     {
         yield return null;
         if (slider != null) slider.SetToWarmingIdx(warmIdx);
@@ -1629,6 +1635,12 @@ public class GameController : MonoBehaviour
         cube.StartSimulation(timeIdx, timeStep);
         cube.messageManager = messageManager;
         cube.EnterSideBySide(timeIdx, statsObj, warmIdx);
+        if (graph != null)
+          {
+              float timeout = 5f;
+              while (cube != null && !cube.IsDataReloaded() && timeout > 0f) { timeout -= Time.deltaTime; yield return null; }
+              graph.ShowCube(cube);
+          }
 
         if (displayModel)
             statsObj.SetActive(true);
@@ -1685,10 +1697,9 @@ public class GameController : MonoBehaviour
         {
             cube.SetWarmingIdx(warmingIdx);
         }
-        foreach (var cube in sideCubes)
-        {
-            cube.SetWarmingIdx(0);
-        }
+        // Re-warm side cubes with the compare scenario (data only) so the NEXT entry is instant.
+        // (Was: SetWarmingIdx(0) on each, which left them on scenario 0 and broke the next preload.)
+        PreloadSideCubes();
 
         // The left dropdown changed cubes[sbsIdx]'s scenario in side-by-side; reload it so single view
         // shows the global scenario again (SetWarmingIdx above only reset the field, not the data).
@@ -3034,11 +3045,13 @@ public class GameController : MonoBehaviour
     private void HideSideCubes()
     {
         for (int i = 0; i < 5; i++)
-        {
-            sideCubes[i].cubeObject.SetActive(false);
-        }
+          {
+              sideCubes[i].cubeObject.SetActive(false);
+              sideCubes[i].gameObject.SetActive(false);   // also hide the side cube's outer object
+          }
 
-        aggregateSideCubeController.cubeObject.SetActive(false);
+          aggregateSideCubeController.cubeObject.SetActive(false);
+          aggregateSideCubeController.gameObject.SetActive(false);
     }
 
     private void EnableControls(bool state)
@@ -4044,4 +4057,25 @@ public class GameController : MonoBehaviour
           return cube.ShouldBurnFireFromData(fireTimeIdx);
       return cube.ShouldBurnFireOnDate(date);
   }
+
+  // Warm side cubes with the "compare" scenario's DATA only (no tree growth) so entering side-by-side
+  // shows the right graph instantly. Growth happens later, in EnterSideBySide.
+    private void PreloadSideCubes()
+    {
+        if (!IsCentralCoastV3()) return;
+        int compareScenario = (warmingIdx == 0) ? 1 : 0;
+        for (int i = 0; i < sideCubes.Length; i++)
+            if (sideCubes[i] != null)
+            {
+                sideCubes[i].dataOnlyLoad = true;
+                sideCubes[i].SetWarmingIdx(compareScenario);
+                sideCubes[i].UpdateDataFromWeb(timeIdx, true, true);
+            }
+        if (aggregateSideCubeController != null)
+        {
+            aggregateSideCubeController.dataOnlyLoad = true;
+            aggregateSideCubeController.SetWarmingIdx(compareScenario);
+            aggregateSideCubeController.UpdateDataFromWeb(timeIdx, true, true);
+        }
+    }
 }

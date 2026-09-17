@@ -6,11 +6,11 @@ using UnityEngine.UI;
 
 public class CameraController : MonoBehaviour {
 
-    Animator animator;
+    protected Animator animator;
     public GameObject zoomOutButtonObject;
 
-    private bool moving = false;
-    private float moveLength = 1.75f; // adjust this to fit your attack animations length
+    protected bool moving = false;
+    protected float moveLength = 1.75f; // adjust this to fit your attack animations length
 
     public bool zoomed { get; set; } = false;
     public bool zoomOutLocked = false;   // Quest Level 1: block zoom-out (Space + button)
@@ -37,22 +37,25 @@ public class CameraController : MonoBehaviour {
         idle
     }
 
-    void Start() {
+    protected virtual void Start() {
         Assert.IsNotNull(zoomOutButtonObject);
 
-        animator = gameObject.GetComponent<Animator>();
-        animator.enabled = true;
+        InitCameraDriver();
 
-        RuntimeAnimatorController ac = animator.runtimeAnimatorController;    //Get Animator controller
-                                                                              //for (int i = 0; i < ac.animationClips.Length; i++)                 //For all animations
-                                                                              //{
-        moveLength = ac.animationClips[0].length;                        // All animation clips are same length (1.5 sec)  
-                                                                         //Debug.Log("Anim clip #" + i + " length:" + moveLength+" name:"+ ac.animationClips[i].name);
-                                                                         //}
         fly = false;
 
         //sideBySideModeToggleObject = GameObject.Find("SideBySideToggle");
         Assert.IsNotNull(sideBySideModeToggleObject);
+    }
+
+    // BigCreek drives the camera with the animator; read its clip length here. CameraController_CCV3
+    // overrides this to skip the animator entirely (it moves the camera with DOTween instead).
+    protected virtual void InitCameraDriver() {
+        animator = gameObject.GetComponent<Animator>();
+        animator.enabled = true;
+
+        RuntimeAnimatorController ac = animator.runtimeAnimatorController;    //Get Animator controller
+        moveLength = ac.animationClips[0].length;                        // All animation clips are same length (1.5 sec)
     }
 
     /// <summary>
@@ -172,7 +175,7 @@ public class CameraController : MonoBehaviour {
         }
     }
 
-    private bool ShouldEnterSideBySideMode()
+    protected virtual bool ShouldEnterSideBySideMode()
     {
         if (sideBySideModeToggleObject.GetComponent<Toggle>().isOn)
         {
@@ -188,7 +191,7 @@ public class CameraController : MonoBehaviour {
     /// Start zoom into specified cube
     /// </summary>
     /// <param name="animTriggerName">Camera animation trigger name</param>
-    public void StartZoomIntoCube(int cubeIdx)
+    public virtual void StartZoomIntoCube(int cubeIdx)
     {
         string animTriggerName;
         GameController.Instance.SetSideByToggleActive(false);
@@ -234,7 +237,7 @@ public class CameraController : MonoBehaviour {
     }
 
     // Snap straight to a cube's zoom pose with no fly-in animation (used for the Quest opening).
-    public void SnapZoomIntoCube(int cubeIdx)
+    public virtual void  SnapZoomIntoCube(int cubeIdx)
     {
         if (animator == null) animator = gameObject.GetComponent<Animator>();
         if (animator == null) return;
@@ -267,7 +270,7 @@ public class CameraController : MonoBehaviour {
     /// <summary>
     /// Start zoom reset animation
     /// </summary>
-    public void StartResetZoom()
+    public virtual void StartResetZoom()
     {
         Debug.Log($"[CAM] StartResetZoom called. zoomed={zoomed} moving={moving} zoomOutLocked={zoomOutLocked} sideBySide={GameController.Instance.sideBySideMode}");
         GameController.Instance.SetSideByToggleActive(true);
@@ -289,7 +292,7 @@ public class CameraController : MonoBehaviour {
     /// Requires a "ZoneCube" trigger + Any State -> ZoneCube_CCV3 transition in the
     /// camera's Animator controller.
     /// </summary>
-    public void GoToZoneCubeView()
+    public virtual void GoToZoneCubeView()
     {
         if (animator == null) animator = gameObject.GetComponent<Animator>();   // Start() may not have run yet
         if (animator == null) return;
@@ -303,8 +306,8 @@ public class CameraController : MonoBehaviour {
     /// <summary>
     /// Gets keyboard input.
     /// </summary>
-    void GetKeyboardInput() 
-    { 
+    protected virtual void GetKeyboardInput()
+    {
         if (zoomed)
         {
             if (Input.GetKeyDown(KeyCode.Space) && !zoomOutLocked)
@@ -416,7 +419,7 @@ public class CameraController : MonoBehaviour {
     /// <summary>
     /// Resets the position.
     /// </summary>
-    public void ResetPosition()
+    public virtual void ResetPosition()
     {
         animator.Play("Idle");
         //animator.SetTrigger("Idle");

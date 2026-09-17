@@ -159,7 +159,13 @@ public class CubeController : MonoBehaviour
     // Guards against two startup paths (the web callback and PerformInitialDataLoad) both reset+regrowing (a flash).
     protected bool initialGrowthDone = false;
     // True once both patch members have finished (re)loading after the latest UpdateDataFromWeb.
+
+    // Preload mode: data is fetched but vegetation is NOT grown (used to warm side cubes before entering
+    // side-by-side so the graph is instant, without paying to grow trees on a hidden cube). Cleared when
+    // the cube actually enters side-by-side, at which point it grows once.
+    public bool dataOnlyLoad = false;
     public bool IsDataReloaded() { return p1Loaded && p2Loaded; }
+    
     // CC V3 delivers raw RHESSys fluxes, but the visuals were tuned for x1000-scaled fluxes.
     // CubeController_CCV3 overrides this to 1000 so streamflow / transpiration / photosynthesis reach the
     // calibrated magnitudes; BigCreek keeps 1 (its data is already at the expected scale).
@@ -1210,6 +1216,8 @@ public class CubeController : MonoBehaviour
     public void EnterSideBySide(int newTimeIdx, GameObject sideBySideStatsPanel, int newWarmingIdx)
     {
         timeIdx = newTimeIdx;
+        bool preloaded = isSideCube && warmingIdx == newWarmingIdx && IsDataReloaded();
+        Debug.Log($"[SBS-PRELOAD] {name} EnterSideBySide: preloaded={preloaded} isSideCube={isSideCube} warmingIdx={warmingIdx} newWarmingIdx={newWarmingIdx} p1={p1Loaded} p2={p2Loaded}");   // TEMP
         SetWarmingIdx(newWarmingIdx);
 
         if (settings.DebugGame)
@@ -1221,7 +1229,11 @@ public class CubeController : MonoBehaviour
 
         if (isSideCube)
         {
-            UpdateDataFromWeb(timeIdx, true, true);
+            dataOnlyLoad = false;                       // from now on, allow growth
+            if (preloaded)
+                UpdateVegetationFromData();             // data already here -> grow now (instant graph too)
+            else
+                UpdateDataFromWeb(timeIdx, true, true); // not preloaded -> load (will grow via callback)
             cubeObject.SetActive(true);
         }
     }
@@ -1813,6 +1825,7 @@ public class CubeController : MonoBehaviour
     // set up (correct positions), not from the early FinishStarting load.
     protected virtual void GrowFromLoadedData()
     {
+        if (dataOnlyLoad) return;   // preload: data is ready (IsDataReloaded true), but don't grow yet
         UpdateVegetationFromData();
     }
 
