@@ -272,7 +272,6 @@ public class CameraController : MonoBehaviour {
     /// </summary>
     public virtual void StartResetZoom()
     {
-        Debug.Log($"[CAM] StartResetZoom called. zoomed={zoomed} moving={moving} zoomOutLocked={zoomOutLocked} sideBySide={GameController.Instance.sideBySideMode}");
         GameController.Instance.SetSideByToggleActive(true);
         GameController.Instance.SetZoomOutButtonActive(false);
         GameController.Instance.ForceHideModel(false);

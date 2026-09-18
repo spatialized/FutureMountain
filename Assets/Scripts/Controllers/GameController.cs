@@ -209,8 +209,13 @@ public class GameController : MonoBehaviour
     public GameObject freePlayCanvas;                         // Simulation_Canvas: shared sim UI, active in BOTH modes
     public GameObject questCanvas;                            // Quest_Canvas: Quest overlay panel, shown only in Quest mode
     public ZoneGraph zoneGraph;                               // Quest zone graph (Quest mode only; null in FreePlay/BigCreek -> notifies are no-ops)
-    public ZoneGraph zoneGraphLeft;    // side-by-side: left cube's graph
-    public ZoneGraph zoneGraphRight;   // side-by-side: right cube's graph
+    public ZoneGraph zoneGraphLeft;    // mode 2 (same cube, diff scenarios): left graph
+    public ZoneGraph zoneGraphRight;   // mode 2: right graph
+
+    [Header("Mode 1 (different cubes, same scenario)")]
+    public Canvas differentCubesCanvas;   // holds mode-1's two graphs
+    public ZoneGraph diffGraphLeft;       // mode 1: first picked cube's graph
+    public ZoneGraph diffGraphRight;      // mode 1: second picked cube's graph
 
     // Chosen on the mode-select menu, read later by Quest logic. Static so other
     // scripts can read it globally without a reference to this instance.
@@ -235,7 +240,8 @@ public class GameController : MonoBehaviour
     private GameObject showControlsToggleObject;              // Toggle button for showing controls
     private GameObject showModelDataToggleObject;             // Toggle button for model data display
     private GameObject storyModeToggleObject;                 // Story mode toggle button
-    private GameObject sideBySideModeToggleObject;            // Side-by-Side Mode toggle button
+    private GameObject sideBySideModeToggleObject;            // Mode 2 toggle: same cube in different scenarios
+    private GameObject differentCubesModeToggleObject;       // Mode 1 toggle: different cubes in the same scenario
     private GameObject exitSideBySideButtonObject;            // Exit Side-by-Side Mode button object
     private GameObject startButtonObject;                     // Start button object
     private GameObject pauseButtonObject;                     // End button object
@@ -491,6 +497,13 @@ public class GameController : MonoBehaviour
         if (zoneGraph != null && graphedCube != null)
             StartCoroutine(RefreshGraphWhenLoaded(graphedCube));
 
+        // Mode 1 active: both cubes use this (new) scenario -> refresh both graphs once their data reloads.
+        if (differentCubesActive)
+        {
+            if (diffGraphLeft  != null && diffFirstZone  >= 0) StartCoroutine(RefreshSideGraphWhenLoaded(diffGraphLeft,  cubes[diffFirstZone]));
+            if (diffGraphRight != null && diffSecondZone >= 0) StartCoroutine(RefreshSideGraphWhenLoaded(diffGraphRight, cubes[diffSecondZone]));
+        }
+
         PreloadSideCubes();   // scenario changed -> re-warm side cubes with the new compare scenario
     }
 
@@ -503,7 +516,6 @@ public class GameController : MonoBehaviour
             ? ((sbsIdx == -1) ? aggregateSideCubeController : sideCubes[sbsIdx])
             : ((sbsIdx == -1) ? aggregateCubeController     : cubes[sbsIdx]);
         if (cube == null) return;
-        Debug.Log($"[SBS] {(rightCube ? "RIGHT" : "LEFT")} dropdown -> scenario {scenarioIdx} on cube '{cube.name}'"); // TEMP verify
         cube.SetWarmingIdx(scenarioIdx);
         cube.UpdateDataFromWeb(timeIdx, true, true);   // reload this scenario; the load callback regrows the cube
         ZoneGraph graph = rightCube ? zoneGraphRight : zoneGraphLeft;
@@ -608,6 +620,7 @@ public class GameController : MonoBehaviour
             setupUICanvas.enabled = false;
             simulationUICanvas.enabled = false;
             sideBySideCanvas.enabled = false;
+            if (differentCubesCanvas != null) differentCubesCanvas.enabled = false;
             ShowLoadingCanvas(true);
             loadingTextObject.gameObject.SetActive(true);
 
@@ -3098,6 +3111,139 @@ public class GameController : MonoBehaviour
         if (tgl != null) tgl.interactable = allowed;   // grey (Disabled Color) when the level forbids side-by-side
     }
 
+    public void SetDifferentCubesAllowed(bool allowed)
+    {
+        if (differentCubesModeToggleObject == null) return;
+        if (!IsCentralCoastV3()) return;   // BigCreek: never touch the toggle
+        var tgl = differentCubesModeToggleObject.GetComponent<UnityEngine.UI.Toggle>();
+        if (tgl != null) tgl.interactable = allowed;   // grey when the level forbids the different-cubes mode
+    }
+
+    // The two mode toggles are mutually exclusive (no ToggleGroup object): turning one on turns the other
+    // off. Both off = normal single-cube zoom. Wire each toggle's On Value Changed (dynamic bool) here.
+    private bool suppressToggleCallback = false;   // guard so turning one off in code doesn't re-fire this
+
+    public void OnSideBySideToggle(bool isOn)
+    {
+        if (suppressToggleCallback) return;
+        if (isOn && differentCubesModeToggleObject != null)
+        {
+            var other = differentCubesModeToggleObject.GetComponent<UnityEngine.UI.Toggle>();
+            if (other != null && other.isOn) { suppressToggleCallback = true; other.isOn = false; suppressToggleCallback = false; }
+        }
+    }
+
+    public void OnDifferentCubesToggle(bool isOn)
+    {
+        if (suppressToggleCallback) return;
+        if (isOn && sideBySideModeToggleObject != null)
+        {
+            var other = sideBySideModeToggleObject.GetComponent<UnityEngine.UI.Toggle>();
+            if (other != null && other.isOn) { suppressToggleCallback = true; other.isOn = false; suppressToggleCallback = false; }
+        }
+        if (!isOn) ResetDifferentCubesSelection();   // turning the mode off clears any pending pick
+    }
+
+    // ---- Mode 1: different cubes in the same scenario ----
+    // True while the "different cubes" toggle is on (CC V3 only).
+    public bool DifferentCubesModeOn()
+    {
+        if (differentCubesModeToggleObject == null) return false;
+        var tgl = differentCubesModeToggleObject.GetComponent<UnityEngine.UI.Toggle>();
+        return tgl != null && tgl.isOn;
+    }
+
+    private int diffFirstZone = -1;    // first picked cube idx (-2 = none)
+    private const int NoPick = -2;
+    public float differentCubesOffset = 80f;   // X spacing: second cube sits this far to the -X of the first
+    public Color diffSelectedColor = Color.yellow;   // mode 1: picked cube's name color (adjust in Inspector)
+    public Color diffNormalColor   = Color.white;    // mode 1: unpicked cube's name color
+    private bool differentCubesActive = false; // true once two cubes are being compared
+    private int diffSecondZone = NoPick;        // second picked cube (the moved one)
+    private Vector3 diffSecondOrigPos;          // second cube's original position (restored on exit)
+
+    // Called by CameraController_CCV3 when a cube is clicked while mode 1 is on.
+    public void HandleDifferentCubesClick(int cubeIdx)
+    {
+        if (cubeIdx < 0 || cubeIdx >= cubes.Length || cubes[cubeIdx] == null) return;   // zones only (skip aggregate)
+        if (differentCubesActive) return;   // already comparing; ignore extra clicks until exit
+
+        if (diffFirstZone == cubeIdx)       // clicking the same cube again cancels it
+        {
+            cubes[cubeIdx].SetLabelHighlight(false, diffSelectedColor, diffNormalColor);   // un-highlight
+            diffFirstZone = NoPick;
+            return;
+        }
+
+        if (diffFirstZone < 0)
+        {
+            diffFirstZone = cubeIdx;         // first pick; camera moves via CameraController_CCV3
+            cubes[cubeIdx].SetLabelHighlight(true, diffSelectedColor, diffNormalColor);    // highlight the first pick
+        }
+        else
+        {
+            cubes[cubeIdx].SetLabelHighlight(true, diffSelectedColor, diffNormalColor);    // highlight the second pick too
+            EnterDifferentCubesCompare(diffFirstZone, cubeIdx);
+        }
+    }
+
+    private void EnterDifferentCubesCompare(int firstIdx, int secondIdx)
+    {
+        differentCubesActive = true;
+        diffSecondZone = secondIdx;
+
+        // Move the second cube next to the first (to its -X, same as mode-2 side cube placement).
+        diffSecondOrigPos = cubes[secondIdx].transform.position;
+        Vector3 pos = cubes[firstIdx].transform.position;
+        pos.x -= differentCubesOffset;
+        cubes[secondIdx].transform.position = pos;
+
+        // Mode 1 has its own canvas + graphs (independent from mode 2). One scenario for both cubes,
+        // so the global scenario dropdown drives both graphs (refreshed in OnScenarioChanged).
+        if (differentCubesCanvas != null) differentCubesCanvas.enabled = true;
+        if (zoneGraph != null) zoneGraph.HideGraph();
+
+        if (cameraController != null) cameraController.zoomOutLocked = false;   // allow exit
+        SetZoomOutButtonActive(true);   // enable the zoom-out button so the player can leave the comparison
+
+        HideAllCubeLabels();   // comparing two cubes now -> hide the name labels (like a normal zoom-in)
+
+        // Both cubes are real, current-scenario, already grown -> graphs are instant.
+        if (diffGraphLeft  != null) diffGraphLeft.ShowCube(cubes[firstIdx]);
+        if (diffGraphRight != null) diffGraphRight.ShowCube(cubes[secondIdx]);
+    }
+
+    // Exit mode 1: move the second cube back, hide graphs.
+    public void ExitDifferentCubesCompare()
+    {
+        if (!differentCubesActive) return;
+        if (diffSecondZone >= 0 && diffSecondZone < cubes.Length && cubes[diffSecondZone] != null)
+            cubes[diffSecondZone].transform.position = diffSecondOrigPos;
+
+        // Clear both cubes' name highlights.
+        if (diffFirstZone  >= 0 && diffFirstZone  < cubes.Length && cubes[diffFirstZone]  != null)
+            cubes[diffFirstZone].SetLabelHighlight(false, diffSelectedColor, diffNormalColor);
+        if (diffSecondZone >= 0 && diffSecondZone < cubes.Length && cubes[diffSecondZone] != null)
+            cubes[diffSecondZone].SetLabelHighlight(false, diffSelectedColor, diffNormalColor);
+
+        if (diffGraphLeft  != null) diffGraphLeft.HideGraph();
+        if (diffGraphRight != null) diffGraphRight.HideGraph();
+        if (differentCubesCanvas != null) differentCubesCanvas.enabled = false;
+
+        differentCubesActive = false;
+        diffFirstZone = NoPick;
+        diffSecondZone = NoPick;
+    }
+
+    public bool DifferentCubesActive() { return differentCubesActive; }
+    public int DifferentCubesFirst()  { return diffFirstZone; }
+
+    public void ResetDifferentCubesSelection()
+    {
+        if (differentCubesActive) ExitDifferentCubesCompare();
+        diffFirstZone = NoPick;
+    }
+
 
     public bool IsCentralCoastV3()
     {
@@ -3150,6 +3296,18 @@ public class GameController : MonoBehaviour
         CameraController cc = (sceneCamera != null) ? sceneCamera.GetComponent<CameraController>() : null;
         if (cc != null) cc.GoToZoneCubeView();
         SetSideByToggleActive(true);   // show the side-by-side toggle at the zone overview (L3)
+        ShowAllCubeLabels();           // zone overview: show cube names (so the player can pick zones)
+    }
+
+    // Cube name labels: shown at the zone overview, hidden when zoomed into a single cube.
+    public void ShowAllCubeLabels()
+    {
+        if (cubes != null) foreach (var c in cubes) if (c != null) c.ShowLabel();
+    }
+
+    public void HideAllCubeLabels()
+    {
+        if (cubes != null) foreach (var c in cubes) if (c != null) c.HideLabel();
     }
 
     public void ForceHideModel(bool state)
@@ -3790,6 +3948,7 @@ public class GameController : MonoBehaviour
         showModelDataToggleObject = GameObject.Find("ShowModelDataToggle");
         storyModeToggleObject = GameObject.Find("StoryModeToggle");
         sideBySideModeToggleObject = GameObject.Find("SideBySideToggle");
+        differentCubesModeToggleObject = GameObject.Find("DifferentCubesToggle");   // may be null in scenes without mode 1
         seasonsToggleObject = GameObject.Find("ShowSeasonsToggle");
         flyCameraButtonObject = GameObject.Find("FlyCameraToggle");
         cubesToggleObject = GameObject.Find("ShowCubesToggle");

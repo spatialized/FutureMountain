@@ -22,7 +22,8 @@ public class QuestLevelData : ScriptableObject
 {
     public string title;
     public bool lockZoomOut = false;   // Level 1: keep the player on the aggregate cube
-    public bool allowSideBySide = true;   // whether this level lets the player open side-by-side mode (CC V3)
+    public bool allowSideBySide = true;   // mode 2: same cube in different scenarios (CC V3)
+    public bool allowDifferentCubes = true;   // mode 1: different cubes in the same scenario (CC V3)
     [TextArea] public string opening;
     public string[] defaultOptions;     // L3: North / South / High / Low / Riparian
     public List<QuestQuestion> questions;

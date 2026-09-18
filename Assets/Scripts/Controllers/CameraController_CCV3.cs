@@ -85,6 +85,26 @@ public class CameraController_CCV3 : CameraController
     // --- zoom into a cube (Stage 1: normal zoom only; side-by-side still uses the base for now) ---
     public override void StartZoomIntoCube(int cubeIdx)
     {
+        if (GameController.Instance.DifferentCubesModeOn())
+        {
+            GameController.Instance.HandleDifferentCubesClick(cubeIdx);   // mode 1: pick two cubes
+
+            // Move the camera only once BOTH cubes are picked and placed side by side. Picking the first
+            // cube does nothing visual here (its label just highlights, added later); we wait for the second.
+            bool active = GameController.Instance.DifferentCubesActive();
+            int first = GameController.Instance.DifferentCubesFirst();
+            if (active)
+            {
+                if (first >= 0 && sbsCubeAnchors != null && first < sbsCubeAnchors.Length)
+                {
+                    GameController.Instance.SetSideByToggleActive(false);
+                    GameController.Instance.ForceHideModel(true);
+                    TweenTo(sbsCubeAnchors[first], () => { zoomed = true; });
+                }
+            }
+            return;
+        }
+
         if (ShouldEnterSideBySideMode())
         {
             GameController.Instance.SetSideByToggleActive(false);
@@ -99,16 +119,14 @@ public class CameraController_CCV3 : CameraController
 
         GameController.Instance.SetSideByToggleActive(false);
         GameController.Instance.ForceHideModel(true);
+        GameController.Instance.HideAllCubeLabels();   // zoomed into a single cube -> hide the name labels
 
         Transform target = (cubeIdx == -1) ? aggregateAnchor
                           : (cubeAnchors != null && cubeIdx >= 0 && cubeIdx < cubeAnchors.Length ? cubeAnchors[cubeIdx] : null);
 
-        Debug.Log($"[CAM] StartZoomIntoCube idx={cubeIdx} target={(target==null?"NULL":target.name)} cubeAnchors.Length={(cubeAnchors==null?-1:cubeAnchors.Length)}");   // TEMP
-
         TweenTo(target, () =>
         {
             zoomed = true;
-            Debug.Log($"[CAM] zoomIn done. zoomOutLocked={zoomOutLocked} sideBySide={GameController.Instance.sideBySideMode}");   // TEMP
             if (!GameController.Instance.sideBySideMode)
                 GameController.Instance.SetZoomOutButtonActive(true);
         });
@@ -119,13 +137,17 @@ public class CameraController_CCV3 : CameraController
     // --- zoom out: L3 goes back to the zone overview, everything else to idle ---
     public override void StartResetZoom()
     {
+        if (GameController.Instance.DifferentCubesActive())
+            GameController.Instance.ExitDifferentCubesCompare();   // mode 1: move the second cube back, hide graphs
+
         GameController.Instance.SetSideByToggleActive(true);
         GameController.Instance.SetZoomOutButtonActive(false);
         GameController.Instance.ForceHideModel(false);
 
         Transform target = inZoneOverview ? zoneOverviewAnchor : idleAnchor;
-        Debug.Log($"[CAM] StartResetZoom inZoneOverview={inZoneOverview} target={(target==null?"NULL":target.name)}");   // TEMP
         TweenTo(target, () => { zoomed = false; });
+
+        if (inZoneOverview) GameController.Instance.ShowAllCubeLabels();   // back at the zone overview -> show cube names again
 
         GameController.Instance.OnZoomedOut();
     }

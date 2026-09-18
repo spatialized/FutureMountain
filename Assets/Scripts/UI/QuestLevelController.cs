@@ -62,6 +62,10 @@ public class QuestLevelController : MonoBehaviour
             GameController.Instance.cameraController.zoomOutLocked = (level != null && level.lockZoomOut);
             if (level != null && level.lockZoomOut)
                 GameController.Instance.SetZoomOutButtonActive(false);
+
+            // Per-level side-by-side mode availability (CC V3; greys the toggle when not allowed)
+            GameController.Instance.SetSideBySideAllowed(level != null && level.allowSideBySide);
+            GameController.Instance.SetDifferentCubesAllowed(level != null && level.allowDifferentCubes);
         }
     }
     public void ShowQuestion(int i)

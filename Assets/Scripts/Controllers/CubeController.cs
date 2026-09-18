@@ -1045,14 +1045,18 @@ public class CubeController : MonoBehaviour
         Assert.IsNotNull(precipToGWController);
 
         //cubeLabel = transform.Find("CubeLabel").gameObject;              // Get (cube) base object
-        Assert.IsNotNull(cubeLabel);
-        cubeLabel.SetActive(false);
+        bool ccv3 = settings != null && settings.apiProfile == ScenarioApiProfile.CentralCoastV3;
+        if (!ccv3) Assert.IsNotNull(cubeLabel);   // BigCreek requires it; CC V3 tolerates a missing label (added per cube over time)
+        if (cubeLabel != null) cubeLabel.SetActive(false);
 
-        displayObject = cubeObject.transform.Find("CubeStats").gameObject;
-        Assert.IsNotNull(displayObject);
-        displayPanel = displayObject.transform.Find("Canvas").gameObject;
-        Assert.IsNotNull(displayPanel);
-        HideStatistics();
+        // CC V3 no longer uses the old CubeStats panel (replaced by the graph), so some cubes have no
+        // CubeStats/Canvas. Find them defensively; skip when absent instead of asserting.
+        Transform cubeStatsT = cubeObject.transform.Find("CubeStats");
+        displayObject = (cubeStatsT != null) ? cubeStatsT.gameObject : null;
+        Transform canvasT = (displayObject != null) ? displayObject.transform.Find("Canvas") : null;
+        displayPanel = (canvasT != null) ? canvasT.gameObject : null;
+        if (displayObject != null && displayPanel != null)
+            HideStatistics();
 
         if (settings == null || settings.SnowEnabled)   // CC V3 has no snow -> no SnowManager object per cube
         {
@@ -1217,7 +1221,6 @@ public class CubeController : MonoBehaviour
     {
         timeIdx = newTimeIdx;
         bool preloaded = isSideCube && warmingIdx == newWarmingIdx && IsDataReloaded();
-        Debug.Log($"[SBS-PRELOAD] {name} EnterSideBySide: preloaded={preloaded} isSideCube={isSideCube} warmingIdx={warmingIdx} newWarmingIdx={newWarmingIdx} p1={p1Loaded} p2={p2Loaded}");   // TEMP
         SetWarmingIdx(newWarmingIdx);
 
         if (settings.DebugGame)
@@ -1318,8 +1321,7 @@ public class CubeController : MonoBehaviour
 
     private void SetupStatisticsPanel(GameObject statsPanel)
     {
-        //if (settings.BuildForWeb)
-        //    return;
+        if (statsPanel == null) return;   // CC V3 has no CubeStats panel (uses the graph instead)
 
         //Debug.Log(transform.name + ".SetupStatisticsPanel()");
 
@@ -5924,8 +5926,7 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void ShowStatistics()
     {
-        //if (!settings.BuildForWeb)
-            displayObject.SetActive(true);
+        if (displayObject != null) displayObject.SetActive(true);   // CC V3 may have no CubeStats panel
     }
 
     /// <summary>
@@ -5933,8 +5934,7 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void HideStatistics()
     {
-        //if (!settings.BuildForWeb)
-            displayObject.SetActive(false);
+        if (displayObject != null) displayObject.SetActive(false);   // CC V3 may have no CubeStats panel
     }
     #endregion
 
@@ -6001,7 +6001,7 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void ShowLabel()
     {
-        cubeLabel.SetActive(true);
+        if (cubeLabel != null) cubeLabel.SetActive(true);
     }
 
     /// <summary>
@@ -6009,7 +6009,16 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void HideLabel()
     {
-        cubeLabel.SetActive(false);
+        if (cubeLabel != null) cubeLabel.SetActive(false);
+    }
+
+    // Mode 1 selection feedback: tint the cube's name label. Null-safe — cubes without a label
+    // (or without a TMP text) are skipped, so it's fine that not every cube has a label yet.
+    public void SetLabelHighlight(bool on, Color highlightColor, Color normalColor)
+    {
+        if (cubeLabel == null) return;   // only tints; label visibility is handled by ShowLabel/HideLabel
+        var tmp = cubeLabel.GetComponentInChildren<TMPro.TMP_Text>(true);   // include inactive
+        if (tmp != null) tmp.color = on ? highlightColor : normalColor;
     }
 
     /// <summary>
