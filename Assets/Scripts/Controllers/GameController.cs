@@ -2849,9 +2849,9 @@ public class GameController : MonoBehaviour
     /// </summary>
     public void UpdateModelDisplayFromToggle()
     {
-        GameObject toggleObject = showModelDataToggleObject;
+        if (showModelDataToggleObject == null) return;   // hidden in CC V3 (no model-data display)
 
-        Toggle toggle = toggleObject.GetComponent<Toggle>();
+        Toggle toggle = showModelDataToggleObject.GetComponent<Toggle>();
         bool state = toggle.isOn;
         displayModel = state;
 
@@ -3250,6 +3250,25 @@ public class GameController : MonoBehaviour
         return settings != null && settings.apiProfile == ScenarioApiProfile.CentralCoastV3;
     }
 
+    [Header("CC V3 immersive view")]
+    [SerializeField] private GameObject immersiveButtonObject;   // shown only at a single-cube view; enters eye-level immersive
+
+    // Immersive button stays visible; it's greyed (interactable=false) unless we're at a single-cube view.
+    public void SetImmersiveButtonActive(bool state)
+    {
+        if (immersiveButtonObject == null) return;
+        immersiveButtonObject.SetActive(true);
+        var btn = immersiveButtonObject.GetComponent<UnityEngine.UI.Button>();
+        if (btn != null) btn.interactable = state;
+    }
+
+    // Wire this to the Immersive button's OnClick.
+    public void OnImmersiveButton()
+    {
+        var cc = (cameraController != null) ? cameraController as CameraController_CCV3 : null;
+        if (cc != null) cc.EnterImmersive();
+    }
+
     public void SetZoomOutButtonActive(bool state)
     {
         if (zoomOutButtonObject == null) return;
@@ -3297,6 +3316,7 @@ public class GameController : MonoBehaviour
         if (cc != null) cc.GoToZoneCubeView();
         SetSideByToggleActive(true);   // show the side-by-side toggle at the zone overview (L3)
         ShowAllCubeLabels();           // zone overview: show cube names (so the player can pick zones)
+        SetImmersiveButtonActive(false);   // grey the immersive button at the overview (no single cube selected)
     }
 
     // Cube name labels: shown at the zone overview, hidden when zoomed into a single cube.
@@ -3362,7 +3382,7 @@ public class GameController : MonoBehaviour
         zoomOutButtonObject.SetActive(false);
 
         showControlsToggleObject.GetComponent<Toggle>().isOn = true;
-        showModelDataToggleObject.GetComponent<Toggle>().isOn = false;
+        if (showModelDataToggleObject != null) showModelDataToggleObject.GetComponent<Toggle>().isOn = false;   // hidden in CC V3
         sideBySideModeToggleObject.GetComponent<Toggle>().isOn = false;
         flyCameraButtonObject.GetComponent<Toggle>().isOn = false;
         if(cubesToggleObject)
@@ -3887,6 +3907,10 @@ public class GameController : MonoBehaviour
         Assert.IsNotNull(cameraController);
         Assert.IsNotNull(landscapeController);
 
+        /* Load Settings early so IsCentralCoastV3() is valid for the toggle setup below */
+        settings = GameObject.Find("Settings").GetComponent<SimulationSettings>() as SimulationSettings;
+        Assert.IsNotNull(settings);
+
         /* Initialize UI objects */
         Assert.IsNotNull(loadingDataCanvas);
         loadingDataCanvas.enabled = true;
@@ -3955,10 +3979,12 @@ public class GameController : MonoBehaviour
 
         //messageManager = new UI_MessageManager(messagePanelObject);      // Create MessageManager
 
+        if (IsCentralCoastV3()) storyMode = false;   // CC V3 has no story messages (toggle hidden)
+
         seasonsToggleObject.GetComponent<Toggle>().isOn = displaySeasons;
         showControlsToggleObject.GetComponent<Toggle>().isOn = showControls;
-        showModelDataToggleObject.GetComponent<Toggle>().isOn = displayModel;
-        storyModeToggleObject.GetComponent<Toggle>().isOn = storyMode;
+        if (showModelDataToggleObject != null) showModelDataToggleObject.GetComponent<Toggle>().isOn = displayModel;   // hidden in CC V3
+        if (storyModeToggleObject != null) storyModeToggleObject.GetComponent<Toggle>().isOn = storyMode;              // hidden in CC V3
         sideBySideModeToggleObject.GetComponent<Toggle>().isOn = sideBySideMode;
 
         flyCameraButtonObject.GetComponent<Toggle>().isOn = false;
@@ -3969,10 +3995,10 @@ public class GameController : MonoBehaviour
 
         Assert.IsNotNull(endButtonObject);
         Assert.IsNotNull(seasonsToggleObject);
-        Assert.IsNotNull(showModelDataToggleObject);
+        if (!IsCentralCoastV3()) Assert.IsNotNull(showModelDataToggleObject);   // hidden in CC V3
         //Assert.IsNotNull(showControlsToggleObject);
         Assert.IsNotNull(sideBySideModeToggleObject);
-        Assert.IsNotNull(storyModeToggleObject);
+        if (!IsCentralCoastV3()) Assert.IsNotNull(storyModeToggleObject);       // hidden in CC V3
         Assert.IsNotNull(flyCameraButtonObject);
         Assert.IsNotNull(zoomOutButtonObject);
         Assert.IsNotNull(pauseButtonObject);
@@ -4025,9 +4051,7 @@ public class GameController : MonoBehaviour
             timeKnobSlider = timeKnobObject.GetComponent<TimeKnobSlider>() as TimeKnobSlider;
         }
 
-        /* Load Settings */
-        settings = GameObject.Find("Settings").GetComponent<SimulationSettings>() as SimulationSettings;
-        Assert.IsNotNull(settings);
+        /* Settings already loaded at the top of InitializeControls (needed for IsCentralCoastV3 earlier). */
 
         //debugGame = settings.DebugGame;
         //debugFire = settings.DebugFire;

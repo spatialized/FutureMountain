@@ -17,10 +17,19 @@ public class CameraController_CCV3 : CameraController
     public Transform sbsAggregateAnchor; // side-by-side view when the target is the aggregate cube
     public Transform[] sbsCubeAnchors;   // side-by-side view for zone cube 0..4
 
+    [Header("Immersive anchors (eye-level inside a cube)")]
+    public Transform immersiveAggregateAnchor;   // eye-level view inside the aggregate cube
+    public Transform[] immersiveCubeAnchors;     // eye-level view inside zone cube 0..4
+
     [Header("Tween")]
     public float moveDuration = 1.5f;    // seconds per camera move
 
     private Tween camMove;               // current camera tween (killed before starting a new one)
+
+    // Which cube we're currently immersed in: -2 = not immersive, -1 = aggregate, 0..4 = zone cube.
+    private int immersiveCubeIdx = -2;
+    private int lastZoomedCubeIdx = -2;   // the cube of the current normal zoom-in (immersive returns here)
+    public bool IsImmersive => immersiveCubeIdx != -2;
 
     // CC V3 drives the camera with DOTween, not the animator — skip the base's animator setup so the
     // Animator component can be removed from the CC V3 camera entirely.
@@ -121,6 +130,10 @@ public class CameraController_CCV3 : CameraController
         GameController.Instance.ForceHideModel(true);
         GameController.Instance.HideAllCubeLabels();   // zoomed into a single cube -> hide the name labels
 
+        lastZoomedCubeIdx = cubeIdx;         // remember for immersive (returns here)
+        immersiveCubeIdx = -2;               // a fresh normal zoom is not immersive
+        GameController.Instance.SetImmersiveButtonActive(true);   // offer the immersive view at a single cube
+
         Transform target = (cubeIdx == -1) ? aggregateAnchor
                           : (cubeAnchors != null && cubeIdx >= 0 && cubeIdx < cubeAnchors.Length ? cubeAnchors[cubeIdx] : null);
 
@@ -134,14 +147,43 @@ public class CameraController_CCV3 : CameraController
         GameController.Instance.OnZoomedIntoCube(cubeIdx);   // point the zone graph at this cube
     }
 
-    // --- zoom out: L3 goes back to the zone overview, everything else to idle ---
+    // Enter the eye-level immersive view for the cube we're currently zoomed into.
+    public void EnterImmersive()
+    {
+        int idx = lastZoomedCubeIdx;
+        Transform target = (idx == -1) ? immersiveAggregateAnchor
+                         : (immersiveCubeAnchors != null && idx >= 0 && idx < immersiveCubeAnchors.Length ? immersiveCubeAnchors[idx] : null);
+        if (target == null) return;
+
+        immersiveCubeIdx = idx;
+        GameController.Instance.SetImmersiveButtonActive(false);   // grey the immersive button while immersed
+        zoomOutLocked = false;                                     // immersive can always step back to the cube view
+        GameController.Instance.SetZoomOutButtonActive(true);      // zoom-out returns to the normal cube view
+        TweenTo(target, () => { zoomed = true; });
+    }
+
+    // --- zoom out: immersive -> normal cube view; single cube -> zone overview / idle ---
     public override void StartResetZoom()
     {
+        if (moving) return;   // ignore repeated clicks while a camera move is in progress (one click can fire twice)
+        // In immersive: step back out to the normal cube view (not all the way out).
+        if (IsImmersive)
+        {
+            int idx = immersiveCubeIdx;
+            immersiveCubeIdx = -2;
+            Transform back = (idx == -1) ? aggregateAnchor
+                           : (cubeAnchors != null && idx >= 0 && idx < cubeAnchors.Length ? cubeAnchors[idx] : null);
+            GameController.Instance.SetImmersiveButtonActive(true);   // offer immersive again at the cube view
+            TweenTo(back, () => { zoomed = true; });
+            return;
+        }
+
         if (GameController.Instance.DifferentCubesActive())
             GameController.Instance.ExitDifferentCubesCompare();   // mode 1: move the second cube back, hide graphs
 
         GameController.Instance.SetSideByToggleActive(true);
         GameController.Instance.SetZoomOutButtonActive(false);
+        GameController.Instance.SetImmersiveButtonActive(false);   // leaving the single-cube view
         GameController.Instance.ForceHideModel(false);
 
         Transform target = inZoneOverview ? zoneOverviewAnchor : idleAnchor;
@@ -178,6 +220,10 @@ public class CameraController_CCV3 : CameraController
         moving = false;
         zoomed = true;
         pauseState = GamePauseState.unpause;
+
+        lastZoomedCubeIdx = cubeIdx;         // remember for immersive
+        immersiveCubeIdx = -2;
+        GameController.Instance.SetImmersiveButtonActive(true);   // this cube view offers immersive
 
         if (!GameController.Instance.sideBySideMode)
             GameController.Instance.SetZoomOutButtonActive(true);
