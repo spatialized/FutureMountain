@@ -19,6 +19,8 @@ public abstract class TreeController : MonoBehaviour
     protected float[] treePrefabWidths;                     // Tree prefab heights (m.) at default scale (1)
     protected float[] rootsPrefabDepths;                    // Roots prefab heights (m.) at default scale (1)
     protected float[] rootsPrefabWidths;                    // Roots prefab heights (m.) at default scale (1)
+    protected RootClipReveal rootClipReveal;   // CC only; null on BigCreek -> normal scale root growth
+    private float rootRevealProgress = 0f;     // CC clip-reveal progress 0..1
     protected float deadTreePrefabHeight;                   // Dead tree prefab height (m.) at default scale (1)
     protected float deadTreePrefabWidth;                    // Dead tree prefab height (m.) at default scale (1)
     protected Vector2[] treePrefabScaleRanges;              // Scale ranges for each prefab to lead smoothly from 
@@ -293,7 +295,26 @@ public abstract class TreeController : MonoBehaviour
         // factor from rootdepthCOver, so roots still climb through the prefab stages but track the data
         // depth (and shrink after a fire when the data root depth drops).
         float rootFullH = (rootsDepthTargetOverride >= 0f) ? rootsDepthTargetOverride : rootsFullHeightScale;
-        float rootFullW = (rootsDepthTargetOverride >= 0f) ? rootsDepthTargetOverride : rootsFullWidthScale;;
+        float rootFullW = (rootsDepthTargetOverride >= 0f) ? rootsDepthTargetOverride : rootsFullWidthScale;
+
+        // Central Coast clip-reveal: keep the model full-size and reveal it top->down via the shader,
+        // driven by the data root depth. BigCreek roots have no RootClipReveal -> falls through to scale below.
+        // TEMP diagnostic: is the clip component detected, and what's the scale basis?
+        if (Time.frameCount % 120 == 0 && rootsPrefabDepths != null && rootsPrefabDepths.Length > 0)
+        {
+            float hf = rootsPrefabDepths[rootsPrefabIdx] / rootsPrefabDepths[rootsPrefabDepths.Length - 1];
+            Debug.Log($"[ROOTSCALE] {name} clip:{rootClipReveal != null} treeHS:{treeHeightScale:F2} " +
+                      $"rootDepths.Len:{rootsPrefabDepths.Length} idx:{rootsPrefabIdx} hFactor:{hf:F3} rootsFullH:{rootsFullHeightScale:F2}");
+        }
+
+        if (rootClipReveal != null)
+        {
+            float target = Mathf.Clamp01(rootFullH);
+            rootRevealProgress = Mathf.MoveTowards(rootRevealProgress, target, settings.RootsSpreadSpeedFactor * timeStep);
+            rootClipReveal.SetGrowth(rootRevealProgress);
+            SetRootsScale(treeHeightScale, treeWidthScale, false);
+            return;
+        }
 
         float newHeightScale, newWidthScale;
         float hDiff = rootFullH - GetRootsHeightScale();
@@ -668,8 +689,14 @@ public abstract class TreeController : MonoBehaviour
     private void UpdateRootsLODsScale()
     {
         float hFactor = rootsPrefabDepths[rootsPrefabIdx] / rootsPrefabDepths[rootsPrefabDepths.Length - 1];     // Calculate diff. between prefab heights
-        float newHeightScale = rootsHeightScale / hFactor;                                                       // Adjust LODs scale to match full-grown height scale range
         float wFactor = rootsPrefabDepths[rootsPrefabIdx] / rootsPrefabDepths[rootsPrefabDepths.Length - 1];     // Calculate diff. between prefab widths
+
+        // Guard against a degenerate/zero root-prefab depth (bad bounds): hFactor -> 0 or NaN would make
+        // rootsHeightScale/hFactor explode into a giant/NaN root (the "infinite" chaparral root). Clamp to 1.
+        if (hFactor < 0.0001f || float.IsNaN(hFactor)) hFactor = 1f;
+        if (wFactor < 0.0001f || float.IsNaN(wFactor)) wFactor = 1f;
+
+        float newHeightScale = rootsHeightScale / hFactor;                                                       // Adjust LODs scale to match full-grown height scale range
         float newWidthScale = rootsWidthScale / wFactor;                                                         // Adjust LODs scale to match full-grown width scale range
 
         SetRootsLODsScale(newHeightScale, newWidthScale);                                                        // Set scale of LODs
@@ -723,6 +750,12 @@ public abstract class TreeController : MonoBehaviour
     /// <param name="newWidthScale">New width scale.</param>
     private void SetRootsLODsScale(float newHeightScale, float newWidthScale)
     {
+        // Giant-root guard (mirrors SetTreeLODsScale): clamp absurd/NaN scales from bad upstream depth data,
+        // so one bad root prefab can't render an infinitely large root.
+        const float maxLodScale = 12f;
+        if (float.IsNaN(newHeightScale) || newHeightScale > maxLodScale) newHeightScale = maxLodScale;
+        if (float.IsNaN(newWidthScale)  || newWidthScale  > maxLodScale) newWidthScale  = maxLodScale;
+
         if (curRootsObject != null)
         {
             for (int i = 0; i < curRootsObject.transform.childCount; i++)
@@ -1150,12 +1183,21 @@ public abstract class TreeController : MonoBehaviour
     /// <returns>The prefab size.</returns>
     /// <param name="lodGroup">LOD group list</param>
     /// <param name="childIdx">Child index.</param>
+    // private float GetChildHeightInLODGroup(GameObject lodGroup, int childIdx)
+    // {
+    //     //GameObject lodGroup = GetLODGroupObject(groupIdx);
+    //     GameObject lod0 = lodGroup.transform.GetChild(childIdx).gameObject as GameObject;
+    //     float value = lod0.transform.GetComponent<Renderer>().bounds.size.y;            // Get height of prefab (m.)
+    //     return value;
+    // }
     private float GetChildHeightInLODGroup(GameObject lodGroup, int childIdx)
     {
-        //GameObject lodGroup = GetLODGroupObject(groupIdx);
-        GameObject lod0 = lodGroup.transform.GetChild(childIdx).gameObject as GameObject;
-        float value = lod0.transform.GetComponent<Renderer>().bounds.size.y;            // Get height of prefab (m.)
-        return value;
+        if (childIdx < lodGroup.transform.childCount)
+        {
+            Renderer rend = lodGroup.transform.GetChild(childIdx).GetComponent<Renderer>();
+            if (rend != null) return rend.bounds.size.y;                    // BigCreek: unchanged
+        }
+        return GetCombinedRendererBounds(lodGroup).size.y;                  // fallback: CC single-mesh root, etc.
     }
 
     /// <summary>
@@ -1164,12 +1206,32 @@ public abstract class TreeController : MonoBehaviour
     /// <returns>The prefab size.</returns>
     /// <param name="lodGroup">LOD group list</param>
     /// <param name="childIdx">Prefab index.</param>
-    private float GetChildWidthInLODGroup(GameObject lodGroup, int childIdx)
+    // private float GetChildWidthInLODGroup(GameObject lodGroup, int childIdx)
+    // {
+    //     //GameObject lodGroup = GetLODGroupObject(groupIdx);
+    //     GameObject lod0 = lodGroup.transform.GetChild(childIdx).gameObject as GameObject;
+    //     float value = lod0.transform.GetComponent<Renderer>().bounds.size.x;            // Get height of prefab (m.)
+    //     return value;
+    // }
+     private float GetChildWidthInLODGroup(GameObject lodGroup, int childIdx)
     {
-        //GameObject lodGroup = GetLODGroupObject(groupIdx);
-        GameObject lod0 = lodGroup.transform.GetChild(childIdx).gameObject as GameObject;
-        float value = lod0.transform.GetComponent<Renderer>().bounds.size.x;            // Get height of prefab (m.)
-        return value;
+        if (childIdx < lodGroup.transform.childCount)
+        {
+            Renderer rend = lodGroup.transform.GetChild(childIdx).GetComponent<Renderer>();
+            if (rend != null) return rend.bounds.size.x;                    // BigCreek: unchanged
+        }
+        return GetCombinedRendererBounds(lodGroup).size.x;
+    }
+
+    // Bounds spanning every Renderer under obj. Fallback when the expected LOD child layout isn't present
+    // (e.g. a Central Coast single-mesh root prefab), so we still get a sensible size.
+    private Bounds GetCombinedRendererBounds(GameObject obj)
+    {
+        Renderer[] rends = obj.GetComponentsInChildren<Renderer>(true);
+        if (rends.Length == 0) return new Bounds(obj.transform.position, Vector3.zero);
+        Bounds b = rends[0].bounds;
+        for (int i = 1; i < rends.Length; i++) b.Encapsulate(rends[i].bounds);
+        return b;
     }
 
     /// <summary>

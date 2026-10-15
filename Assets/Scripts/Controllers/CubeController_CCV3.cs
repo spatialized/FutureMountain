@@ -469,11 +469,31 @@ public class CubeController_CCV3 : CubeController
     // Small 10 m zone cubes need a smaller edge padding; the CC aggregate cube keeps the full value.
     protected override float CubePadding => isAggregate ? settings.CubeTreePadding : settings.CubeTreePaddingSmall;
 
-    // Front trees are the first N of EACH species so both patches show on the section (global first-N
-    // would all be patch1's species). These are also the only trees that grow roots.
+    // One section (front) tree per PATCH (not per species): count the trees already alive in THIS species'
+    // patch, across all of that patch's species, so only the first tree grown in the patch sits on the
+    // section and grows roots. (Both patches still get their own section tree.)
     protected override bool IsFrontTreeSlot(int index, int speciesIdx)
     {
-        return GetAliveTrees(speciesIdx).Count < frontTreesPerPatch;
+        if (patchSlotBySpecies == null || speciesIdx < 0 || speciesIdx >= patchSlotBySpecies.Length)
+            return GetAliveTrees(speciesIdx).Count < frontTreesPerPatch;   // fallback: per-species
+
+        int slot = patchSlotBySpecies[speciesIdx];
+        int aliveInPatch = 0;
+        for (int s = 0; s < patchSlotBySpecies.Length; s++)
+            if (patchSlotBySpecies[s] == slot)
+                aliveInPatch += GetAliveTrees(s).Count;
+
+        return aliveInPatch < frontTreesPerPatch;   // frontTreesPerPatch now counts per patch
+    }
+
+    // ----- per-patch ET seam -----
+    // patch1 species (sp0) use the primary member's transpiration; patch2 species (sp1) use the second
+    // member's, so each patch's ET vapor reflects its own transpiration instead of both using patch1's.
+    protected override float GetFirTranspiration(FirController fir, float cubeTrans)
+    {
+        if (fir == null || fir.speciesIdx == 0) return cubeTrans;   // patch1 -> primary member (TransOver)
+        float p2 = GetTransOverP2(timeIdx);
+        return p2 > 0f ? p2 : cubeTrans;                            // patch2 -> its own member (fall back if no P2 data)
     }
 
 }

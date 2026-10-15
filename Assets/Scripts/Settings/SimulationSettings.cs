@@ -134,12 +134,15 @@ public class SimulationSettings : MonoBehaviour
     public float CubeAShrubCarbonFactor = 0.005f;        // Aggregate Cube Stem + leaf carbon per m. of shrub height  (lower => more shrubs)
     [Tooltip("Multiplier for carbon factor variables when building for web")]
     public float WebBuildCarbonMultiplier = 3f;          // Multiplier for decreasing vegetation for web optimization (higher => less vegetation)
-
+    
     [Header("Emission")]
     [Tooltip("Tree particle emission factor")]
     public float TreeParticleEmissionFactor = 1.2f;              // Tree particle emission factor
     public float AggregateShrubParticleEmissionFactor = 0.33f;   // Shrub particle emission factor for Aggregate Cube
     public float ShrubParticleEmissionFactor = 0.15f;            // Shrub particle emission factor for normal Cubes
+
+    [Header("Visual effects")]
+    public EffectManager effectManager;
 
     [Header("Geometry")]
     [Tooltip("Tree Height Offset (m.) from Sample Cube terrain")]

@@ -26,10 +26,14 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _BaseTex:
-        m_Texture: {fileID: 2800000, guid: c615b9fcee1860a468de8311526d214e, type: 3}
+    - _AOMap:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _BaseTex:
+        m_Texture: {fileID: 2800000, guid: 910c9284cc420ae45b98215e70e012b6, type: 3}
+        m_Scale: {x: 0.8, y: 0.5}
+        m_Offset: {x: 0, y: 0.4}
     - _BumpMap:
         m_Texture: {fileID: 2800000, guid: f8b14fc1d54466f4991b9b94a82729c9, type: 3}
         m_Scale: {x: 2, y: 2}
@@ -83,14 +87,18 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: f8b14fc1d54466f4991b9b94a82729c9, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+        m_Texture: {fileID: 2800000, guid: b31ba6fd773b9154e94aa772b70e83b0, type: 3}
+        m_Scale: {x: 1, y: 0.5}
+        m_Offset: {x: 0, y: 0.4}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RoughnessMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -121,6 +129,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AO: 0
+    - _AOStrength: 1
     - _BaseLight: 0.47
     - _BlendOp: 0
     - _Brightness: 1
@@ -130,12 +139,14 @@ Material:
     - _CameraFadingEnabled: 0
     - _CameraFarFadeDistance: 2
     - _CameraNearFadeDistance: 1
-    - _CapillaryHeight: 0.423
+    - _CapillaryHeight: 1.13
+    - _CapillaryStrength: 0.6
     - _Contrast: 1
     - _ContrastDry: 1.018
     - _ContrastWet: 1.028
     - _Cull: 0
     - _Cutoff: 0.5
+    - _DepthToGW: 9.8
     - _DepthWetness: 0.592
     - _DetailNormalMapScale: 1
     - _DistortionBlend: 0.5
@@ -148,6 +159,8 @@ Material:
     - _GlossMapScale: 0.76
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _GroundwaterBandWidth: 4.12
+    - _HorizontalTiling: 1.2
     - _LightingEnabled: 1
     - _Metallic: 0.198
     - _Metallic0: 0
@@ -158,13 +171,17 @@ Material:
     - _Moisture: 0.237
     - _NoiseAmount: 1
     - _NoiseScale: 8
+    - _NormalStrength: 1
     - _Occlusion: 7.5
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _ProfileDepth: 10
+    - _RootDepth: 5
+    - _RootFadeWidth: 0.5
     - _RootMoisture: 0.591
     - _RootZoneDepth: 0.241
     - _Shininess: 0.823
-    - _Smoothness: 0.088
+    - _Smoothness: 0
     - _Smoothness0: 1
     - _Smoothness1: 1
     - _Smoothness2: 1
@@ -178,18 +195,26 @@ Material:
     - _SpecularHighlights: 0
     - _SquashAmount: 1
     - _SrcBlend: 1
+    - _SurfaceDryDepth: 0.72
     - _TexOpacity: 1
     - _TexOpacityDry: 0.894
     - _TexOpacityWet: 0.982
     - _UVSec: 0
-    - _WaterEdge: 0.133
-    - _WaterLevel: 0.691
+    - _WaterBottom: 0.384
+    - _WaterEdge: 0.177
+    - _WaterEdgeSoftness: 0.15
+    - _WaterLevel: 0.693
+    - _WaterOpacity: 1
+    - _WaterSmoothnessBoost: 0.35
+    - _WaterStrength: 0.75
     - _WaterTableY: -58
+    - _WetColorStrength: 0.65
+    - _WetSmoothnessBoost: 0.15
     - _ZWrite: 1
     m_Colors:
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
     - _Color: {r: 0.6226415, g: 0.5533286, b: 0.4493592, a: 1}
-    - _DryColor: {r: 0.3773585, g: 0.3506586, b: 0.33285868, a: 1}
+    - _DryColor: {r: 0.9716981, g: 0.91573435, b: 0.86627805, a: 1}
     - _EmissionColor: {r: 0.1509434, g: 0.109694175, b: 0.08615165, a: 1}
     - _Scale: {r: 1, g: 1, b: 1, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
@@ -197,8 +222,8 @@ Material:
     - _TranslucencyColor: {r: 0, g: 0, b: 0, a: 0}
     - _TreeInstanceColor: {r: 1, g: 1, b: 1, a: 1}
     - _TreeInstanceScale: {r: 1, g: 1, b: 1, a: 1}
-    - _WaterColor: {r: 0.16936633, g: 0.19867134, b: 0.20754719, a: 1}
-    - _WetColor: {r: 0.9056604, g: 0.8688145, b: 0.80740476, a: 1}
+    - _WaterColor: {r: 0.31581524, g: 0.41752315, b: 0.4433962, a: 1}
+    - _WetColor: {r: 0.9150943, g: 0.8371983, b: 0.7812834, a: 1}
   m_BuildTextureStacks: []
 --- !u!1002 &2100001
 EditorExtensionImpl:

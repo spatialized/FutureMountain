@@ -124,8 +124,8 @@ namespace RHESSYs_Data_Importer.IO
                         windSpeed     = GetFloat(parts, colMap, "wind_speed"),
                         windDirection = GetFloat(parts, colMap, "wind_direction"),
 
-                        burn = GetFloat(parts, colMap, "burned"),
-                        fire = GetFloat(parts, colMap, "fire"),
+                        burn = GetFloatAny(parts, colMap, "burned", "pctWS_burned"),
+                        fire = GetFloatAny(parts, colMap, "fire", "pspread"),
 
                         // Newer columns; absent in pre-8-3-2026 files, GetFloat -> 0.
                         ind_died = GetFloat(parts, colMap, "ind_died"),
@@ -453,8 +453,8 @@ namespace RHESSYs_Data_Importer.IO
                         plantCover  = GetFloat(parts, colMap, "plantCover"),
                         plantCunder = GetFloat(parts, colMap, "plantCunder"),
 
-                        burned = GetFloat(parts, colMap, "burned"),
-                        fire   = GetFloat(parts, colMap, "fire"),
+                        burned = GetFloatAny(parts, colMap, "burned", "pctWS_burned"),
+                        fire   = GetFloatAny(parts, colMap, "fire", "pspread"),
                     };
 
                     imported++;

@@ -64,6 +64,7 @@ public class CubeController : MonoBehaviour
 
     public GameObject deadTreePrefab;            // Dead tree prefab (shared fallback for species with no deadPrefab)
     private List<GameObject> deadTreePrefabsBySpecies;   // Per-species dead prefabs, index-aligned with treeList
+    private List<List<GameObject>> rootsPrefabsBySpecies; // Per-species root prefab list, index-aligned with treeList; null = shared rootsPrefabs
     public GameObject grassPrefab;               // Grass prefab
     private GameObject etPrefab;                 // ET emitter prefab
     private GameObject shrubETPrefab;            // Shrub ET emitter
@@ -324,10 +325,12 @@ public class CubeController : MonoBehaviour
 
     public float NetTranspiration;     // Net transpiration for all trees + plants
     public float TransOver;     // Net transpiration for all trees + plants
-    public float TransUnder;     // Net transpiration for all trees + plants
+    public float TransUnder;     // Net transpiration for all understory plants
     //public float NetTranspiration { get; set; }     // Net transpiration for all trees + plants
     //public float TransOver { get; set; }     // Net transpiration for all trees + plants
     //public float TransUnder { get; set; }     // Net transpiration for all trees + plants
+    public float WindSpeed;        // Current wind speed; drives CC ET turbulence via FirController.ApplyWind.
+    public float WindDirection;    // Current wind direction (degrees); drives CC ET drift direction.
     private float NetTranspirationMin = 100000f;    // Net trans. min. from data
     private float NetTranspirationMax = -100000f;   // Net trans. max. from data
     private float TransOverMin = 100000f;    // Net trans. min. from data
@@ -769,6 +772,21 @@ public class CubeController : MonoBehaviour
         return 0f;
     }
 
+    // Reads patch2 (second member) overstory transpiration at the given 0-based sim time index.
+    // Drives patch2 trees' ET so each patch's vapor reflects its own transpiration. Base cubes have no
+    // second member (cubeDataP2 null) -> 0.
+    protected float GetTransOverP2(int idx)
+    {
+        if (cubeDataP2 == null) return 0f;
+        if (cubeDataP2.TryGetValue(idx + 1, out CubeData row))   // +1: 0-based timeIdx -> 1-based dateIdx
+            return row.transOver;
+        return 0f;
+    }
+
+    // Transpiration used to drive a given tree's ET particles. Base returns the cube-level value unchanged
+    // (BigCreek behaviour). CubeController_CCV3 overrides this so patch2 trees use their own member's data.
+    protected virtual float GetFirTranspiration(FirController fir, float cubeTrans) => cubeTrans;
+
     // Reads a patch's individuals-died at the given 0-based sim time index. Works for either member's
     // data dict (cubeData = patch1, cubeDataP2 = patch2); both are keyed by 1-based dateIdx, hence +1.
     protected float GetIndDied(Dictionary<int, CubeData> data, int idx)
@@ -1121,6 +1139,7 @@ public class CubeController : MonoBehaviour
                 }
                 treeList.Add(growthStageList);
                 deadTreePrefabsBySpecies.Add(species.deadPrefab);   // Kept index-aligned with treeList; null = use the shared prefab
+                rootsPrefabsBySpecies.Add(species.rootPrefab != null ? new List<GameObject> { species.rootPrefab } : null);   // null = shared roots
                 treeSpeciesIndexByName[species.name] = treeList.Count - 1;
             }
         }
@@ -1302,6 +1321,7 @@ public class CubeController : MonoBehaviour
     {
         treeList = new List<List<GameObject>>();
         deadTreePrefabsBySpecies = new List<GameObject>();   // Parallel to treeList; entries may be null
+        rootsPrefabsBySpecies = new List<List<GameObject>>();   // Parallel to treeList; entries may be null -> shared roots
         shrubList = new List<List<GameObject>>();
         shrubPrefabs = new List<GameObject>();
 
@@ -1899,6 +1919,10 @@ public class CubeController : MonoBehaviour
         if (validDataTime)
         {
             UpdateCurrentData(timeIdx);
+            // TEMP: one line per cube per step — compare cubes that show ET vs those that don't.
+              if (Time.frameCount % 120 == 0)
+                  Debug.Log($"[CUBEDBG] {name} type:{dataType} firs:{firs.Count} shrubs:{shrubs.Count} " +
+                            $"TransOver:{TransOver:F3} TransUnder:{TransUnder:F3} Wind:{WindSpeed:F2}");
 
             /* Update Shrub ET Rate */
             if (dataType == CubeDataType.Veg1)
@@ -1960,7 +1984,11 @@ public class CubeController : MonoBehaviour
                 }
 
                 for (int i = 0; i < firs.Count; i++)
-                    firs[i].UpdateSimulation(timeIdx, curTimeStep, TransOver, LeafCarbonOver, StemCarbonOver, RootsCarbonOver);
+                {
+                    firs[i].UpdateSimulation(timeIdx, curTimeStep, GetFirTranspiration(firs[i], TransOver), LeafCarbonOver, StemCarbonOver, RootsCarbonOver);
+                    firs[i].ApplyWindEffects(WindSpeed, WindDirection);
+                }
+                    
             }
             else if (dataType == CubeDataType.Agg)
             {
@@ -1992,7 +2020,11 @@ public class CubeController : MonoBehaviour
                 }
 
                 for (int i = 0; i < firs.Count; i++)
-                    firs[i].UpdateSimulation(timeIdx, curTimeStep, NetTranspiration, LeafCarbonOver, StemCarbonOver, RootsCarbonOver);
+                {
+                    firs[i].UpdateSimulation(timeIdx, curTimeStep, GetFirTranspiration(firs[i], NetTranspiration), LeafCarbonOver, StemCarbonOver, RootsCarbonOver);
+                    firs[i].ApplyWindEffects(WindSpeed, WindDirection);
+                }
+                    
             }
 
             if (soilController != null && cubeObject.activeInHierarchy)
@@ -2716,6 +2748,8 @@ public class CubeController : MonoBehaviour
                 return;
 
             //Debug.Log("UpdateCurrentData()... timeIdx: " + timeIdx+ " row.soil:" + row.soil);
+            WindSpeed = row.windSpeed;          // climate wind — same for all patch types
+            WindDirection = row.windDirection;
 
             if (dataType == CubeDataType.Veg1)
             {
@@ -2889,6 +2923,19 @@ public class CubeController : MonoBehaviour
         return deadTreePrefab;
     }
 
+    // The root prefab list to use for a species: its own (CC per-species) or the cube's shared rootsPrefabs.
+    private List<GameObject> GetRootsListForSpecies(int speciesIdx)
+    {
+        if (rootsPrefabsBySpecies != null
+            && speciesIdx >= 0 && speciesIdx < rootsPrefabsBySpecies.Count
+            && rootsPrefabsBySpecies[speciesIdx] != null && rootsPrefabsBySpecies[speciesIdx].Count > 0)
+        {
+            return rootsPrefabsBySpecies[speciesIdx];
+        }
+
+        return rootsPrefabs ?? new List<GameObject>();   // shared fallback (BigCreek / species with no rootPrefab)
+    }
+
     private GameObject InstantiateTreeFromPrefab(int treeID, int prefabListID, Vector3 treeLocation, Quaternion newRotation, Transform parent)
     {
         /* Instantiate trunks and leaves */
@@ -2925,13 +2972,20 @@ public class CubeController : MonoBehaviour
         }
 
         /* Add roots */
-        for (int i = 0; i < rootsPrefabs.Count; i++)
+        List<GameObject> speciesRoots = GetRootsListForSpecies(prefabListID);   // CC: per-species root; else shared rootsPrefabs
+        for (int i = 0; i < speciesRoots.Count; i++)
         {
-            GameObject rootsPrefab = rootsPrefabs[i];
+            GameObject rootsPrefab = speciesRoots[i];
+              Debug.Log($"[ROOTINST] rootsPrefab:{rootsPrefab.name} hasComp:{rootsPrefab.GetComponentInChildren<RootClipReveal>(true) != null}");
             float rootsY = settings.RootsYOffsetFactor;
             GameObject newRoots = Instantiate(rootsPrefab, newTree.transform);       // Create root object from prefab
             newRoots.transform.localPosition = new Vector3(0f, rootsY, 0f);
-            newRoots.transform.localRotation = Quaternion.Euler(180f, 0f, 0f);
+
+            // BigCreek roots are modelled pointing UP and flipped down here. CC roots (with RootClipReveal)
+            // are modelled already pointing DOWN, so skip the flip for them.
+            // bool ccRoot = newRoots.GetComponentInChildren<RootClipReveal>(true) != null;
+            // newRoots.transform.localRotation = ccRoot ? Quaternion.identity : Quaternion.Euler(180f, 0f, 0f);
+            newRoots.transform.localRotation = Quaternion.Euler(0f, 0f, 0f);
             newRoots.name = "Roots_" + i;
 
             Assert.IsNotNull(newRoots);
@@ -2944,7 +2998,7 @@ public class CubeController : MonoBehaviour
         firController.InitializeSettings(settings);
         firController.InitializeGeometry();
         //firController.InitializePrefabs(treeList[0], rootsPrefabs, deadTreePrefab);
-        firController.InitializePrefabs(treeList[prefabListID], rootsPrefabs, speciesDeadPrefab);
+        firController.InitializePrefabs(treeList[prefabListID], speciesRoots, speciesDeadPrefab);
         firController.locationID = treeID;
 
         GameObject treeFireNodeChain = Instantiate(fireNodeChainPrefab, newTree.transform);         // Add fire node chain to tree
@@ -6130,6 +6184,7 @@ public class CubeController : MonoBehaviour
         public bool isShrub = false;
         public List<GameObject> list;               // Prefabs at different growth stages (i.e. idx 0: small to idx n: large)
         public GameObject deadPrefab;               // Dead/snag model for this species. Leave empty to use the cube's shared deadTreePrefab.
+        public GameObject rootPrefab;               // Root model for this species (CC per-species). Leave empty to use the cube's shared rootsPrefabs.
         [Range(0f, 100f)] public float percentInPatch = 100f; //// Share of this patch's overstory stems (community mix). Split N_stems across species.
         [System.NonSerialized] public int runtimeSpeciesIdx = -1;   // flat treeList index assigned in PrepareVegetationList (per-patch, no name collision)
         public float fullHeightMeters = 0f;   // Aggregate cube: fixed full-grown height (m) for this species (oak ~10, chaparral ~2.75). 0 = follow data heightOver.

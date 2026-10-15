@@ -12,9 +12,9 @@ public class FirController : TreeController
     /* General */
     public bool destroyed = false;
     /* Death animation (Central Coast) — off by default so BigCreek firs keep their original behaviour */
-      public bool enableFallAnimation = false;
-      private Quaternion deathStartRotation;
-      private Vector3 fallAxis = Vector3.right;
+    public bool enableFallAnimation = false;
+    private Quaternion deathStartRotation;
+    private Vector3 fallAxis = Vector3.right;
 
     /* Position */
     private float treeYOffset;
@@ -34,6 +34,13 @@ public class FirController : TreeController
     /* Graphics */
     ParticleSystem.MainModule mainModule;                                         // Main module
     ParticleSystem.EmissionModule emissionModule;                                 // Emission module
+    //CC-only: TreeET CC enables theses; BigCreek does not use them. ApplyWind is a no-op there.
+    ParticleSystem.NoiseModule noiseModule;
+    ParticleSystem.ForceOverLifetimeModule forceOverLifetimeModule;
+    /* Central Coast ET wind response — tune to taste. Unused on BigCreek (Noise disabled). */
+    // private const float WindNoiseFactor = 0.5f;   // windSpeed -> Noise.strength
+    // private const float MaxNoiseStrength = 2f;     // cap so strong wind doesn't shred the plume
+    // private const float WindForceFactor = 0.3f;    // windSpeed -> horizontal drift force
 
     /* Physics */
     private Rigidbody rigidBody;
@@ -60,6 +67,8 @@ public class FirController : TreeController
         treeYOffset = settings.TreeHeightOffset;
         isFrontTree = newIsFrontTree;
         leafDensity = GetComponentInChildren<LeafDensity>(true); // CC oak leaf prefab carries it; BigCreek doesn't -> null (no-op)
+        rootClipReveal = GetComponentInChildren<RootClipReveal>(true);   // CC root prefab carries it; BigCreek null
+          Debug.Log($"[ROOTREVEAL] {name} found:{rootClipReveal != null}");
 
         /* Initialize particle system */
         GameObject evapTrans = transform.Find("EvapTrans").gameObject;
@@ -70,6 +79,8 @@ public class FirController : TreeController
 
         mainModule = etParticles.main;
         emissionModule = etParticles.emission;
+        noiseModule = etParticles.noise;                  // CC wind turbulence
+        forceOverLifetimeModule = etParticles.forceOverLifetime;      // CC wind drift
 
         if (!showParticles)
         {
@@ -131,11 +142,11 @@ public class FirController : TreeController
             //    alphaCutoff = 0.1f;
 
            //if (particlesEnabled)
-                SetEmissionRate(transpiration * particleEmissionFactor);
+                SetEmissionRate(ComputeEmissionRate(transpiration));
 
             if (showParticles && !particlesEnabled)           // Set particle system emission rate from transpiration amount
             {
-                SetEmissionRate(transpiration * particleEmissionFactor);
+                SetEmissionRate(ComputeEmissionRate(transpiration));
                 etParticles.Play();
                 particlesEnabled = true;
             }
@@ -160,6 +171,42 @@ public class FirController : TreeController
                 UpdateDeath();
         }
     }
+    // Central Coast: drive ET vapor tubulence and drft from the cubes' wind speed and direction data.
+    public void ApplyWindEffects(float windSpeed, float windDirection)
+    {
+        if (Time.frameCount % 120 == 0)
+              Debug.Log($"[WINDDBG] {name} et:{etParticles!=null} noiseOn:{(etParticles!=null && noiseModule.enabled)} "
+  +
+                        $"mgr:{(settings!=null && settings.effectManager!=null)} windSpeed:{windSpeed:F2}");
+
+          if (etParticles == null || !noiseModule.enabled) return;
+          if (settings == null || settings.effectManager == null) return;
+          var et = settings.effectManager.et;
+          float strength = Mathf.Min(et.windNoiseFactor * Mathf.Abs(windSpeed), et.maxWindNoiseStrength);
+          noiseModule.strength = strength;
+          if (Time.frameCount % 120 == 0)
+              Debug.Log($"[WINDDBG] {name} -> strength:{strength:F2} factor:{et.windNoiseFactor} windSpeed:{windSpeed:F2}");
+
+        // Wind -> drift. World space (trees have random Y rotation at spawn).
+        if (forceOverLifetimeModule.enabled)
+        {
+            forceOverLifetimeModule.space = ParticleSystemSimulationSpace.World;
+            float rad = windDirection * Mathf.Deg2Rad;
+            float f = windSpeed * et.windForceFactor;
+            forceOverLifetimeModule.x = Mathf.Sin(rad) * f;
+            forceOverLifetimeModule.z = Mathf.Cos(rad) * f;
+        }
+    }
+
+    // Map transpiration -> emission rate. CC scales by the EffectManager factor (tunable); BigCreek keeps its
+    // original per-controller particleEmissionFactor, so it is unaffected.
+    private float ComputeEmissionRate(float trans)
+    {
+        if (settings == null || settings.effectManager == null)
+            return trans * particleEmissionFactor;                    // BigCreek: unchanged
+        return trans * settings.effectManager.et.treeEmissionFactor;  // CC: Path A, tunable
+    }
+
 
     public void UpdateETSimulationSpeed(float newSpeed)
     {
