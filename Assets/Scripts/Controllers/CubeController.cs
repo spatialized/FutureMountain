@@ -487,7 +487,7 @@ public class CubeController : MonoBehaviour
         // else
         //     UpdateCurrentData(timeIdx);
 
-        soilController.UpdateParams(timeStep, WaterAccess, DepthToGW);      // Initial update of soil parameters
+        soilController.UpdateParams(timeStep, WaterAccess, DepthToGW, GetRootDepth(timeIdx, false));      // Initial update of soil parameters (patch1 root depth drives _RootZoneDepth)
         if (settings != null && settings.SnowEnabled)
             snowManager.snowValue = Mathf.Clamp(MathUtil.MapValue(SnowAmount, SnowAmountMin, SnowAmountMax, 0f, snowScalingFactor), 0f, snowScalingFactor);
         else
@@ -804,6 +804,32 @@ public class CubeController : MonoBehaviour
         if (data != null && data.TryGetValue(idx + 1, out CubeData row))   // +1: 0-based -> 1-based dateIdx
             return row.heightOver;
         return 0f;
+    }
+
+    // Cached heightOver data range per member, for clamping each tree's per-tree height jitter within the data.
+    private float hoMinP1 = -1f, hoMaxP1 = -1f, hoMinP2 = -1f, hoMaxP2 = -1f;
+
+    protected void GetHeightOverRange(bool patch2, out float minMeters, out float maxMeters)
+    {
+        if (patch2)
+        {
+            if (hoMaxP2 < 0f) ComputeHeightRange(cubeDataP2, out hoMinP2, out hoMaxP2);
+            minMeters = hoMinP2; maxMeters = hoMaxP2;
+        }
+        else
+        {
+            if (hoMaxP1 < 0f) ComputeHeightRange(cubeData, out hoMinP1, out hoMaxP1);
+            minMeters = hoMinP1; maxMeters = hoMaxP1;
+        }
+    }
+
+    private static void ComputeHeightRange(Dictionary<int, CubeData> data, out float minMeters, out float maxMeters)
+    {
+        minMeters = -1f; maxMeters = -1f;
+        if (data == null || data.Count == 0) return;
+        float mn = 1e9f, mx = -1e9f;
+        foreach (CubeData r in data.Values) { if (r.heightOver < mn) mn = r.heightOver; if (r.heightOver > mx) mx = r.heightOver; }
+        minMeters = mn; maxMeters = mx;
     }
 
     // Overstory root depth (m) at the given 0-based sim time index. patch2=false -> this cube's rows.
@@ -1919,10 +1945,6 @@ public class CubeController : MonoBehaviour
         if (validDataTime)
         {
             UpdateCurrentData(timeIdx);
-            // TEMP: one line per cube per step — compare cubes that show ET vs those that don't.
-              if (Time.frameCount % 120 == 0)
-                  Debug.Log($"[CUBEDBG] {name} type:{dataType} firs:{firs.Count} shrubs:{shrubs.Count} " +
-                            $"TransOver:{TransOver:F3} TransUnder:{TransUnder:F3} Wind:{WindSpeed:F2}");
 
             /* Update Shrub ET Rate */
             if (dataType == CubeDataType.Veg1)
@@ -2028,7 +2050,7 @@ public class CubeController : MonoBehaviour
             }
 
             if (soilController != null && cubeObject.activeInHierarchy)
-                soilController.UpdateSimulation(timeIdx, curTimeStep, WaterAccess, DepthToGW);
+                soilController.UpdateSimulation(timeIdx, curTimeStep, WaterAccess, DepthToGW, GetRootDepth(timeIdx, false));
 
             if (settings == null || settings.SnowEnabled)
             {
@@ -2628,6 +2650,7 @@ public class CubeController : MonoBehaviour
             p1Loaded = false;
           p2Loaded = false;
             initialGrowthDone = false;   // fresh load -> allow exactly one initial grow again
+            hoMaxP1 = -1f; hoMaxP2 = -1f;   // invalidate cached heightOver range -> recomputed on next use
             Debug.Log(name + ".UpdateDataFromWeb()... patchID:"+ patchID+" warmingIdx: " + warmingIdx);
             WebManager.Instance.RequestCubeData(patchID, warmingIdx, this.FinishUpdateDataFromWeb);
 
@@ -2976,7 +2999,6 @@ public class CubeController : MonoBehaviour
         for (int i = 0; i < speciesRoots.Count; i++)
         {
             GameObject rootsPrefab = speciesRoots[i];
-              Debug.Log($"[ROOTINST] rootsPrefab:{rootsPrefab.name} hasComp:{rootsPrefab.GetComponentInChildren<RootClipReveal>(true) != null}");
             float rootsY = settings.RootsYOffsetFactor;
             GameObject newRoots = Instantiate(rootsPrefab, newTree.transform);       // Create root object from prefab
             newRoots.transform.localPosition = new Vector3(0f, rootsY, 0f);

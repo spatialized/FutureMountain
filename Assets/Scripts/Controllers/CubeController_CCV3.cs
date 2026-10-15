@@ -317,7 +317,16 @@ public class CubeController_CCV3 : CubeController
             {
                 h = GetHeightOver(timeIdx, patchSlotBySpecies[idx] == 2);   // zone cubes: unchanged
             }
-            if (h > 0f) fir.SetFullHeightMeters(h);
+            if (h > 0f)
+            {
+                if (!isAggregate)
+                {
+                    GetHeightOverRange(patchSlotBySpecies[idx] == 2, out float hMin, out float hMax);
+                    fir.SetFullHeightMeters(h, hMin, hMax);   // clamp per-tree jitter to this patch's height range
+                }
+                else
+                    fir.SetFullHeightMeters(h);
+            }
             if (fir.leafDensity != null)
                   fir.leafDensity.SetDensity(GetLeafFraction(timeIdx, patchSlotBySpecies[idx] == 2));
             float rd = GetRootDepth(timeIdx, patchSlotBySpecies[idx] == 2);

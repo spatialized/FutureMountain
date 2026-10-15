@@ -68,7 +68,6 @@ public class FirController : TreeController
         isFrontTree = newIsFrontTree;
         leafDensity = GetComponentInChildren<LeafDensity>(true); // CC oak leaf prefab carries it; BigCreek doesn't -> null (no-op)
         rootClipReveal = GetComponentInChildren<RootClipReveal>(true);   // CC root prefab carries it; BigCreek null
-          Debug.Log($"[ROOTREVEAL] {name} found:{rootClipReveal != null}");
 
         /* Initialize particle system */
         GameObject evapTrans = transform.Find("EvapTrans").gameObject;
@@ -158,13 +157,6 @@ public class FirController : TreeController
                 particlesEnabled = false;
             }
 
-            // TEMP DIAGNOSTIC: why does chamise (one species) not grow while oak does?
-            // Throttled per-frame so a whole stand doesn't flood the console. Remove once solved.
-            if (Time.frameCount % 200 == 0)
-                Debug.Log($"[GROWDBG] {name} sp{speciesIdx} alive:{alive} dying:{dying} destroyed:{destroyed} " +
-                          $"hScale:{treeHeightScale:F3} fullScale:{treeFullHeightScale:F3} timeStep:{timeStep} " +
-                          $"prefabIdx:{treePrefabIdx} lastPrefabH:{treePrefabHeights[treePrefabHeights.Length - 1]:F3}");
-
             if (alive)                                        // If fir is alive, update growth
                 UpdateGrowth();
             else if (dying)
@@ -174,18 +166,11 @@ public class FirController : TreeController
     // Central Coast: drive ET vapor tubulence and drft from the cubes' wind speed and direction data.
     public void ApplyWindEffects(float windSpeed, float windDirection)
     {
-        if (Time.frameCount % 120 == 0)
-              Debug.Log($"[WINDDBG] {name} et:{etParticles!=null} noiseOn:{(etParticles!=null && noiseModule.enabled)} "
-  +
-                        $"mgr:{(settings!=null && settings.effectManager!=null)} windSpeed:{windSpeed:F2}");
-
           if (etParticles == null || !noiseModule.enabled) return;
           if (settings == null || settings.effectManager == null) return;
           var et = settings.effectManager.et;
           float strength = Mathf.Min(et.windNoiseFactor * Mathf.Abs(windSpeed), et.maxWindNoiseStrength);
           noiseModule.strength = strength;
-          if (Time.frameCount % 120 == 0)
-              Debug.Log($"[WINDDBG] {name} -> strength:{strength:F2} factor:{et.windNoiseFactor} windSpeed:{windSpeed:F2}");
 
         // Wind -> drift. World space (trees have random Y rotation at spawn).
         if (forceOverLifetimeModule.enabled)

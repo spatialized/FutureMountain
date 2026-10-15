@@ -9,11 +9,6 @@ using UnityEngine.Assertions;
 public class SoilController : MonoBehaviour {
 	private bool debug = true;
 
-	/* Particle System */
-	public bool showParticles = false;      // Particles visible
-	public bool particlesEnabled = false;   // Particles enabled   
-    private ParticleSystem evapParticles;   // Vapor particle system
-
     /* Graphics */
     public Renderer frontSoilRend;         // Renderer for front soil plane
     public Material frontSoilMaterial;     // Soil material for front plane
@@ -39,27 +34,18 @@ public class SoilController : MonoBehaviour {
 
     private Color gwDryColor;             // Groundwater wet color
     private Color gwWetColor;             // Groundwater dry color
-	private float gwHue;
-	private float gwSaturation;
-	private float gwBrightness;
-	//private bool gwWetState = true;       // -- OBSOLETE     
-
-	private float gwColorTransitionLength = 1f;
-	private float gwColorTransitionStart;
-	private bool gwColorTransition = false;
 
 	/* Simulation Parameters */
 	public float evaporation;				 // Soil moisture evaporation
 	public float waterAccess;				 // Vegetation access to water in (surface) soil 
 	public float depthToGW;					 // Depth to ground water
+    public float soilProfileDepthMeters = 20f;  // Vertical metres the soil-profile mesh represents; maps depthToGW -> water-table height. Set to the profile's real depth (e.g. 12 for a 12 m cube).
 	public float soilCarbon;				 // Soil carbon storage (Note: hardly changes in ex. cubes) (X)
 
 	/* Visualization Settings */
     public float WaterAccessMin { get; set; }       // Low end of waterAccess data values (set from data)
     public float WaterAccessMax { get; set; }       // High end of waterAccess data values (set from data)
 
-    private float depthToGWDryThreshold;            // Level under which groundwater pockets "dry up" in visualization (set from data)  -- OBSOLETE
-    public float depthToGWThresholdFactor = 0.33f;  //  Factor used to calculate threshold from depthToGW Min and Max Values    -- OBSOLETE
     public float DepthToGWMin { get; set; }         // Low end of depthToGW data values (set from data)
     public float DepthToGWMax { get; set; }         // High end of depthToGW data values (set from data)
     private float deepSoilTopYPos = 2f;             // Top end of deep soil 
@@ -75,25 +61,6 @@ public class SoilController : MonoBehaviour {
     /// Start this instance.
     /// </summary>
 	void Start () {
-		/* Create particle systems */
-//		evapParticles = gameObject.GetComponent<ParticleSystem>();		// -- TESTING   NOT WORKING
-
-// 		GameObject front = transform.Find("FrontPlane").gameObject;		// Front side soil
-// 		frontSoilRend = front.GetComponent<Renderer>();
-//         Assert.IsNotNull(frontSoilRend);
-
-//         frontSoilMaterial = frontSoilRend.materials[0];         
-//         Assert.IsNotNull(frontSoilMaterial);
-
-// //		frontSoilMaterial.SetFloat("_Metallic", metallicAmount);    	// -- ADDED
-// //		GameObject sideL = transform.Find("SidePlaneL").gameObject;		// Left side soil (X)
-// //		sideLSoilRend = front.GetComponent<Renderer>();
-// //		sideLSoilMaterial = sideRSoilRend.materials[0];
-// 		GameObject sideR = transform.Find("SidePlaneR").gameObject;		// Right side soil
-// 		sideRSoilRend = front.GetComponent<Renderer>();
-//         Assert.IsNotNull(sideRSoilRend);
-
-//         sideRSoilMaterial = sideRSoilRend.materials[0];
             Transform frontT = transform.Find("FrontPlane");                // Front cut face (may be deleted on som
             if (frontT != null)
             {
@@ -110,37 +77,12 @@ public class SoilController : MonoBehaviour {
                             sideRSoilMaterial = sideRSoilRend.materials[0];
             }
 
-//		GameObject back = transform.Find("BackPlane").gameObject;		// Back side soil (X)
-//		backSoilRend = front.GetComponent<Renderer>();
-//		backSoilMaterial = sideRSoilRend.materials[0];
-
         ssRenderers = new List<Renderer>();
         ssMaterials = new List<Material>();
 
         /* Initialize Surface Soil Objects */
         bool done = false;
         int idx = 1;
-        // while(!done)
-        // {
-        //     string ssName = "SurfaceSoil" + idx;
-        //     //Debug.Log(name + "  Will add ssName:" + ssName);
-
-        //     try
-        //     {
-        //         GameObject ss = transform.Find(ssName).gameObject;     // Surface soil mesh 1
-        //         Renderer rend = ss.GetComponent<Renderer>();
-        //         Material material = rend.materials[0];
-                
-        //         ssRenderers.Add(rend);
-        //         ssMaterials.Add(material);
-        //         idx++;
-        //     }
-        //     catch(System.NullReferenceException e)
-        //     {
-        //         //Debug.Log(name+"  While loop ended... No ssName:" + ssName+" err:"+e);
-        //         done = true;
-        //     }
-        // }
 
         // Collect every surface-soil mesh by name PREFIX. CC cubes name them "SurfaceSoil2_1" etc. (with a
         // suffix), so the old exact "SurfaceSoil"+idx lookup found nothing and never drove their material.
@@ -208,9 +150,11 @@ public class SoilController : MonoBehaviour {
     /// <param name="curTimeStep">Current time step.</param>
     /// <param name="newWaterAccess">New water access.</param>
     /// <param name="newDepthToGW">New depth to gw.</param>
-    public void UpdateSimulation(int curTime, int curTimeStep, float newWaterAccess, float newDepthToGW)
+    // newRootDepthMeters: overstory rooting depth (m) for this cube/time. Drives the shader's _RootZoneDepth so
+    // the moisture-patch band reaches exactly as deep as the roots. Pass < 0 to keep the material's authored value.
+    public void UpdateSimulation(int curTime, int curTimeStep, float newWaterAccess, float newDepthToGW, float newRootDepthMeters = -1f)
 	{
-		waterAccess = newWaterAccess;				
+		waterAccess = newWaterAccess;
 		depthToGW = newDepthToGW;
 
 		float shallowSoilShininess;
@@ -256,8 +200,17 @@ public class SoilController : MonoBehaviour {
               ? Mathf.Clamp01((waterAccess - WaterAccessMin) / (WaterAccessMax - WaterAccessMin))
               : 0.5f;
 
-          // depthToGW is the depth to groundwater in metres; the soil profile is 20 m tall.
-            float waterLevel01 = Mathf.Clamp01(1f - depthToGW / 20f);
+          // Water-table height = ABSOLUTE depth-to-groundwater mapped onto the soil profile, so it is physically
+          // positioned (9.5 m in a 20 m profile = middle, not the surface) and still tracks the data. Per-cube
+          // range-normalization was wrong here: it pushed 20803's barely-varying 9.4 m water table to the top.
+            float waterLevel01 = Mathf.Clamp01(1f - depthToGW / Mathf.Max(soilProfileDepthMeters, 0.01f));
+
+            // Root-zone depth as a fraction of the profile. The moisture patches in the shader are confined to
+            // this upper band, so deeper roots => patches reach deeper. Clamped to a visible minimum.
+            bool hasRootDepth = newRootDepthMeters > 0f;
+            float rootZone01 = hasRootDepth
+                ? Mathf.Clamp(newRootDepthMeters / Mathf.Max(soilProfileDepthMeters, 0.01f), 0.05f, 1f)
+                : -1f;
 
             if (moistureMaterials != null)
             {
@@ -265,6 +218,7 @@ public class SoilController : MonoBehaviour {
                 {
                     m.SetFloat("_RootMoisture", moisture01);
                     m.SetFloat("_WaterLevel", waterLevel01);
+                    if (hasRootDepth) m.SetFloat("_RootZoneDepth", rootZone01);
                 }
             }
           
@@ -308,68 +262,15 @@ public class SoilController : MonoBehaviour {
     }
 
     /// <summary>
-    /// Updates the GWC olor transition.
-    /// </summary>
-    //private void UpdateGWColorTransition()
-    //{
-    //    float t = Time.time - gwColorTransitionStart;
-
-    //    if (debug) 
-    //        Debug.Log(gameObject.name + " SoilController.UpdateGWColorTransition()..." + " gwColorTransitionLength: " + gwColorTransitionLength + " t: " + t + " waterAccess: " + waterAccess + " depthToGW:" + depthToGW);
-
-    //    if (!gwWetState)
-    //    {                                     // Moving from wet to dry
-    //        if (t < gwColorTransitionLength)
-    //        {
-    //            foreach (Material m in gwMaterials)
-    //            {
-    //                m.color = Color.Lerp(gwDryColor, gwWetColor, t);
-    //            }
-    //        }
-    //        else
-    //        {
-    //            foreach (Material m in gwMaterials)
-    //            {
-    //                m.color = gwWetColor;
-    //            }
-
-    //            gwWetState = true;
-    //            gwColorTransition = false;
-    //        }
-    //    }
-    //    else
-    //    {                                           // Moving from dry to wet 
-    //        if (t < gwColorTransitionLength)
-    //        {
-    //            foreach (Material m in gwMaterials)
-    //            {
-    //                m.color = Color.Lerp(gwWetColor, gwDryColor, t);
-    //            }
-    //        }
-    //        else
-    //        {
-    //            foreach (Material m in gwMaterials)
-    //            {
-    //                if(debug) Debug.Log(">>   gwColorTransition dry to wet finished... m.color? " + m.color);
-
-    //                m.color = gwDryColor;
-    //            }
-    //            gwWetState = false;
-    //            gwColorTransition = false;
-    //        }
-    //    }
-    //}
-
-    /// <summary>
     /// Set initial simulation values
     /// </summary>
     /// <param name="curTimeStep">Current time step.</param>
     /// <param name="newWaterAccess">New water access.</param>
     /// <param name="newDepthToGW">New depth to gw.</param>
-    public void UpdateParams(int curTimeStep, float newWaterAccess, float newDepthToGW)
+    public void UpdateParams(int curTimeStep, float newWaterAccess, float newDepthToGW, float newRootDepthMeters = -1f)
 	{
 //		timeStepFreq = newTimeStepFreq;
-		UpdateSimulation(-1, curTimeStep, newWaterAccess, newDepthToGW);
+		UpdateSimulation(-1, curTimeStep, newWaterAccess, newDepthToGW, newRootDepthMeters);
 	}
 
     /// <summary>
@@ -385,8 +286,7 @@ public class SoilController : MonoBehaviour {
         WaterAccessMax = newMaxWaterAccess;         // Set Max. waterAccess 
 
         DepthToGWMin = newMinDepthToGW;           // Set Min. depthToGW
-        DepthToGWMax = newMaxDepthToGW;           // Set Max. depthToGW 
-        depthToGWDryThreshold = (DepthToGWMax - DepthToGWMin) * depthToGWThresholdFactor + DepthToGWMin;             // Level under which groundwater pockets "dry up" in visualization  
+        DepthToGWMax = newMaxDepthToGW;           // Set Max. depthToGW
     }
 
 }

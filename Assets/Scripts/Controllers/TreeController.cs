@@ -266,12 +266,16 @@ public abstract class TreeController : MonoBehaviour
     /// Central Coast: set the tree's full-grown height to an absolute value in metres (from data heightOver),
     /// overriding the random treeFullHeightScale. GrowTree then grows/shrinks toward it; width scales uniformly.
     /// </summary>
-    public void SetFullHeightMeters(float meters)
+    public void SetFullHeightMeters(float meters, float minMeters = -1f, float maxMeters = -1f)
     {
         if (treePrefabHeights == null || treePrefabHeights.Length == 0) return;
         float prefabH = treePrefabHeights[treePrefabHeights.Length - 1];
         if (prefabH <= 0f || meters <= 0f) return;
-        treeFullHeightScale = (meters * heightJitter)  / prefabH;
+        float jittered = meters * heightJitter;
+        // Keep the per-tree jitter inside the data's height range so no tree is taller than the tallest the
+        // data reaches or shorter than the shortest. maxMeters < 0 = no clamp (e.g. BigCreek / aggregate).
+        if (maxMeters > 0f) jittered = Mathf.Clamp(jittered, minMeters, maxMeters);
+        treeFullHeightScale = jittered / prefabH;
         treeFullWidthScale  = treeFullHeightScale;   // uniform scaling (keep prefab proportions)
         //Debug.Log($"[HGT] {name} heightOver={meters:F2}m  prefabH={prefabH:F2}m  scale={treeFullHeightScale:F2}");
     }
@@ -299,14 +303,6 @@ public abstract class TreeController : MonoBehaviour
 
         // Central Coast clip-reveal: keep the model full-size and reveal it top->down via the shader,
         // driven by the data root depth. BigCreek roots have no RootClipReveal -> falls through to scale below.
-        // TEMP diagnostic: is the clip component detected, and what's the scale basis?
-        if (Time.frameCount % 120 == 0 && rootsPrefabDepths != null && rootsPrefabDepths.Length > 0)
-        {
-            float hf = rootsPrefabDepths[rootsPrefabIdx] / rootsPrefabDepths[rootsPrefabDepths.Length - 1];
-            Debug.Log($"[ROOTSCALE] {name} clip:{rootClipReveal != null} treeHS:{treeHeightScale:F2} " +
-                      $"rootDepths.Len:{rootsPrefabDepths.Length} idx:{rootsPrefabIdx} hFactor:{hf:F3} rootsFullH:{rootsFullHeightScale:F2}");
-        }
-
         if (rootClipReveal != null)
         {
             float target = Mathf.Clamp01(rootFullH);
