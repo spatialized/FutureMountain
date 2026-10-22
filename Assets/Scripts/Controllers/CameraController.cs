@@ -258,9 +258,9 @@ public class CameraController : MonoBehaviour {
         if (!GameController.Instance.sideBySideMode)
         {
             if (GameController.Instance.IsCentralCoastV3())
-                GameController.Instance.SetZoomOutButtonActive(true);   // CC: 交给方法决定灰/正常(锁了就灰)
+                GameController.Instance.SetZoomOutButtonActive(true);   // CC: let the method decide greyed/normal (greyed when locked)
             else if (!zoomOutLocked)
-                zoomOutButtonObject.SetActive(true);                    // BigCreek: 原逻辑(仅非锁定时显示)
+                zoomOutButtonObject.SetActive(true);                    // BigCreek: original logic (show only when not locked)
         }
     
 

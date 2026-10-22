@@ -14,6 +14,9 @@ public class ZoneGraph : MonoBehaviour
 
     private CubeController cube;
     private CubeController.ZoneGraphVariable variable = CubeController.ZoneGraphVariable.Precip;
+    // When set (per level), maps a dropdown option index -> variable, so a level can expose a trimmed
+    // variable set (e.g. L3 vegetation). Null -> option index is cast straight to the enum.
+    public CubeController.ZoneGraphVariable[] variableOptions;
     
     public Color selectedColor = new Color(1f, 0.4f, 0.4f);   // highlight color for selected years
     private const int ScenarioCount = 3;
@@ -44,6 +47,13 @@ public class ZoneGraph : MonoBehaviour
         suppressed = s;
         gameObject.SetActive(!s && cube != null);   // stay hidden until a cube is actually selected (L3: wait for zoom-in)
         if (!s) pendingRefresh = true;
+    }
+
+    // Force the plotted variable (e.g. Level 1 locks it to Precip). Refresh runs when not suppressed.
+    public void SetVariable(CubeController.ZoneGraphVariable v)
+    {
+        variable = v;
+        pendingRefresh = true;
     }
 
     // GameController calls this when the scenario dropdown changes.
@@ -84,8 +94,10 @@ public class ZoneGraph : MonoBehaviour
     // (Biomass, NPP, Transpiration, Height, Respiration, ET).
     public void OnVariableDropdown(int index)
     {
-        Debug.Log("OnVariableDropdown index=" + index + " var=" + (CubeController.ZoneGraphVariable)index);
-        variable = (CubeController.ZoneGraphVariable)index;
+        variable = (variableOptions != null && index >= 0 && index < variableOptions.Length)
+            ? variableOptions[index]
+            : (CubeController.ZoneGraphVariable)index;
+        Debug.Log("OnVariableDropdown index=" + index + " var=" + variable);
         Refresh();
         var yAxis = chart.EnsureChartComponent<YAxis>();
         yAxis.axisLabel.numericFormatter = "F2";
@@ -150,6 +162,16 @@ public class ZoneGraph : MonoBehaviour
         var yAxis = chart.EnsureChartComponent<YAxis>();
         yAxis.axisLabel.numericFormatter = "F2";
 
+        // Units at the axis ends: "Year" on the X axis, the current variable's unit on the Y axis.
+        var xAxisComp = chart.EnsureChartComponent<XAxis>();
+        xAxisComp.axisName.show = true;
+        xAxisComp.axisName.name = "Year";
+        xAxisComp.axisName.labelStyle.position = LabelStyle.Position.End;
+
+        yAxis.axisName.show = true;
+        yAxis.axisName.name = UnitFor(variable);
+        yAxis.axisName.labelStyle.position = LabelStyle.Position.End;
+
         chart.RefreshChart();
         chart.EnsureChartComponent<Legend>();   // shows "MaxT" / "MinT" labels
         chart.EnsureChartComponent<Tooltip>().numericFormatter = "F2";   // hover tooltip to 2 decimals
@@ -159,5 +181,23 @@ public class ZoneGraph : MonoBehaviour
     {
         for (int s = 0; s < ScenarioCount; s++) selectedByScenario[s].Clear();
         pendingRefresh = true;   // redraw without highlights
+    }
+
+    // Y-axis unit label for each plotted variable.
+    private static string UnitFor(CubeController.ZoneGraphVariable v)
+    {
+        switch (v)
+        {
+            case CubeController.ZoneGraphVariable.Precip:      return "mm";
+            case CubeController.ZoneGraphVariable.Evaporation: return "mm";
+            case CubeController.ZoneGraphVariable.Temperature: return "°C";
+            case CubeController.ZoneGraphVariable.TMin:        return "°C";
+            case CubeController.ZoneGraphVariable.Wind:        return "m/s";
+            case CubeController.ZoneGraphVariable.Humidity:    return "%";
+            case CubeController.ZoneGraphVariable.Transpiration: return "mm";
+            case CubeController.ZoneGraphVariable.Height:        return "m";
+            // Biomass / NPP / GPP / Respiration are carbon quantities — unit TBD, left blank for now.
+            default:                                            return "";
+        }
     }
 }

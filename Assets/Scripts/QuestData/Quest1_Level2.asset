@@ -14,26 +14,67 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: "Quest 1 \xB7 Level 2"
   lockZoomOut: 1
+  graphPrecipOnly: 0
   allowSideBySide: 0
-  opening: Now look for relationships between the climate variables and how they
-    behave across the years.
+  allowDifferentCubes: 1
+  opening: "Maybe add a message: climate scenarios are important when modeling ecosystems
+    because \u2026 this gives context but also a little introduction as this level
+    currently does not have one. Explore the different climate variables in the quest
+    panel and watch how they change over time. Based on the three descriptions and
+    your observations, select the climate scenario name you think best represents
+    the type of data you are seeing. When you are ready, press \u201Ccontinue to
+    questions\u201D in the quest panel."
+  ending: "That is correct. WRF\u2019s climate scenario is different from the others
+    because the WRF model better captures local microclimate differences by using
+    smaller spatial resolution than the other climate scenarios."
   defaultOptions: []
   questions:
-  - prompt: Some of these climate variables can be related. Which two do you expect
-      to be related?
+  - prompt: "Match the following scenario description with the climate scenarios
+      you saw previously:\n\u201CWRF: This climate scenario utilizes model results
+      from the Weather Research Forecasting and Model, which allows scientists to
+      parametrize different atmospheric models to better optimize for local climate
+      conditions and features. This scenario is significantly drier with less rain
+      and more windy days.\u201D"
     options:
-    - Maximum temperature & Humidity
-    - Precipitation & Wind
-    - Minimum temperature & Precipitation
-    - Wind & Humidity
+    - Local Climate Model
+    - Hotter & Drier Model
+    - Historic Climate
     correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []
-  - prompt: Run the simulation and observe the climate and graphs. Are there any
-      clear patterns in the climate variables across years?
+  - prompt: "\u201CRSClim: This climate scenario utilizes collected weather data
+      from Mission Creek in Santa Barbara County, California for a historical period
+      of time. This scenario is wetter and more humid than the other three, with
+      warmer temperatures.\u201D \r\r\n"
     options:
-    - Yes
-    - No
+    - Local Climate Model
+    - Hotter & Drier Model
+    - Historic Climate
     correctIndex: 1
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: "\u201CHadGEM: This climate scenario, based on results from a Global
+      Climate Model (GCM), generates a time series of climate inputs based on assumptions
+      that California will experience warm and dry weather. [something about relative
+      humidity and temperature/wind depending on relevance]\u201D "
+    options:
+    - Local Climate Model
+    - Hotter & Drier Model
+    - Historic Climate
+    correctIndex: 2
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: 'Congratulations, you have correctly identified the climate scenarios
+      - for a reminder here are the following scenarios: Historic Climate is RSClim,
+      Hotter & Drier Model is HadGEM, Local Climate Model is WRF.
+
+      To move
+      on to the next level/question, please select the scenario that contrasts the
+      most with the others'
+    options:
+    - RSCLim
+    - HadGEM
+    - WRF
+    correctIndex: 2
     graphSelect: 0
     correctYearsByScenario: []

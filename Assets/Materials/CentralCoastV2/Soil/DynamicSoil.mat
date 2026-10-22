@@ -153,11 +153,12 @@ Material:
     - _DistortionEnabled: 0
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0
+    - _DotSize: 0.076
     - _DstBlend: 0
     - _EmissionEnabled: 0
     - _FlipbookMode: 0
     - _GlossMapScale: 0.76
-    - _Glossiness: 0
+    - _Glossiness: 0.565
     - _GlossyReflections: 0
     - _GroundwaterBandWidth: 4.12
     - _HorizontalTiling: 1.2
@@ -169,17 +170,18 @@ Material:
     - _Metallic3: 0
     - _Mode: 0
     - _Moisture: 0.237
-    - _NoiseAmount: 1
-    - _NoiseScale: 8
+    - _NoiseAmount: 0.8
+    - _NoiseScale: 15
     - _NormalStrength: 1
     - _Occlusion: 7.5
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _PatchJitter: 1
     - _ProfileDepth: 10
     - _RootDepth: 5
     - _RootFadeWidth: 0.5
-    - _RootMoisture: 0.591
-    - _RootZoneDepth: 0.241
+    - _RootMoisture: 0.5
+    - _RootZoneDepth: 0.36666667
     - _Shininess: 0.823
     - _Smoothness: 0
     - _Smoothness0: 1
@@ -203,13 +205,15 @@ Material:
     - _WaterBottom: 0.384
     - _WaterEdge: 0.177
     - _WaterEdgeSoftness: 0.15
-    - _WaterLevel: 0.693
-    - _WaterOpacity: 1
+    - _WaterLevel: 0.37333336
+    - _WaterOpacity: 0.46
     - _WaterSmoothnessBoost: 0.35
     - _WaterStrength: 0.75
     - _WaterTableY: -58
     - _WetColorStrength: 0.65
+    - _WetContrast: 4
     - _WetSmoothnessBoost: 0.15
+    - _WetVividness: 0.85
     - _ZWrite: 1
     m_Colors:
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
@@ -222,8 +226,8 @@ Material:
     - _TranslucencyColor: {r: 0, g: 0, b: 0, a: 0}
     - _TreeInstanceColor: {r: 1, g: 1, b: 1, a: 1}
     - _TreeInstanceScale: {r: 1, g: 1, b: 1, a: 1}
-    - _WaterColor: {r: 0.31581524, g: 0.41752315, b: 0.4433962, a: 1}
-    - _WetColor: {r: 0.9150943, g: 0.8371983, b: 0.7812834, a: 1}
+    - _WaterColor: {r: 0.14901961, g: 0.44717568, b: 0.60784316, a: 1}
+    - _WetColor: {r: 0.08828763, g: 0.5683971, b: 0.8039216, a: 0.8352941}
   m_BuildTextureStacks: []
 --- !u!1002 &2100001
 EditorExtensionImpl:

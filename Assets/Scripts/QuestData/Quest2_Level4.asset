@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0001cc40633e2242a75f7015c8a9162, type: 3}
+  m_Name: Quest2_Level4
+  m_EditorClassIdentifier: 
+  title: "Quest 2 \xB7 Level 4"
+  lockZoomOut: 0
+  graphPrecipOnly: 0
+  graphVegVariables: 0
+  lockedScenario: 0
+  lockedGraphVariable: 11
+  allowSideBySide: 1
+  allowDifferentCubes: 0
+  opening: 
+  ending: 
+  defaultOptions: []
+  questions:
+  - prompt: Look at the amount of dry biomass (as it falls and declines), relative
+      to all of the other fires, how much dry biomass is there before the most severe
+      fire?
+    options: []
+    correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: ' How about the least severe fire event? '
+    options: []
+    correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: If dry biomass is consistently high, what do we notice about fire frequency?
+    options: []
+    correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: "After a rapid decline in biomass, what do we notice about the fire patterns?
+      \r\n"
+    options:
+    - 'Low severity, decreasing frequency, lower risk '
+    - High severity, increasing frequency, higher risk
+    - Low severity, increasing frequency , low risk
+    - High severity, decreasing frequency, higher risk
+    correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []

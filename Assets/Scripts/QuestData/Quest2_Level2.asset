@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0001cc40633e2242a75f7015c8a9162, type: 3}
+  m_Name: Quest2_Level2
+  m_EditorClassIdentifier: 
+  title: "Quest 2 \xB7 Level 2"
+  lockZoomOut: 0
+  graphPrecipOnly: 0
+  graphVegVariables: 0
+  lockedScenario: 0
+  lockedGraphVariable: 11
+  allowSideBySide: 0
+  allowDifferentCubes: 1
+  opening: Now that you have seen how fire disturbs each zone, let us look at how
+    they RECOVER. Here recovery is measured by vegetation height - how long it takes
+    for plants to grow back toward their pre-fire baseline. Explore each zone and
+    compare how quickly, and how fully, they bounce back.
+  ending: Great job! Note here that chaparral can regrow substantially within a decade
+    or two if left undisturbed, but repeated fires, drought, or other climate events
+    can slow or restart regrowth trajectories. Full recovery back to the pre-fire
+    baseline can take much longer than the first flush of regrowth you see in the
+    early years.
+  defaultOptions: []
+  questions:
+  - prompt: Which zone shows the most limited height recovery? While answering, think
+      about why that may be.
+    options: []
+    correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: Which zone recovers most completely toward the pre-fire baseline? While
+      answering, think about why that may be.
+    options: []
+    correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: Compare zone-to-zone (side by side North vs South) to hone in on the
+      message that they differ comparatively, after they have explored each of them
+      individually.
+    options: []
+    correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []

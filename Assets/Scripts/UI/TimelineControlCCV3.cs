@@ -25,6 +25,9 @@ public class TimelineControlCCV3 : TimelineControl
 
     private bool syncing = false;         // true while we set slider.value in code
     private int pendingYear = -1;         // year the user picked; don't fight the handle until the sim reaches it
+    private List<int> fireYearsCCV3;      // calendar years with a fire; their ticks are drawn red
+    private int fireBaseYear = -1;        // calendar year of tick 0 (NOT the base startYear, which drives the slider)
+    private static readonly Color FireTickColor = new Color(0.90f, 0.23f, 0.16f, 1f);
 
     // Replaces base.Awake so none of the legacy asserts / off-screen parking run.
     protected override void Awake()
@@ -39,24 +42,32 @@ public class TimelineControlCCV3 : TimelineControl
     public override void CreateTimelineWeb(PrecipByYear[] waterData, int warmingIdx,
                                            int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
     {
+        if (waterData != null && waterData.Length > 0) fireBaseYear = waterData[0].year;   // fire mapping only; NOT the slider base
+        fireYearsCCV3 = newFireYears;
         SetupYears((waterData != null) ? waterData.Length : 0);
     }
 
     public override void CreateTimeline(List<WaterDataYear> waterData, int warmingIdx,
                                         int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
     {
+        if (waterData != null && waterData.Count > 0) fireBaseYear = waterData[0].GetYear();
+        fireYearsCCV3 = newFireYears;
         SetupYears((waterData != null) ? waterData.Count : 0);
     }
 
     public override void CreateTestTimeline(int startYearArg, int endYearArg, int warmingIdx,
                                             int warmingDegrees, List<int> newFireYears, List<int> newMessageYears)
     {
+        fireBaseYear = startYearArg;
+        fireYearsCCV3 = newFireYears;
         SetupYears(endYearArg - startYearArg + 1);
     }
 
     private void SetupYears(int count)
     {
         resolution = count;                 // inherited; YearCount reads this
+        string fyDbg = (fireYearsCCV3 == null) ? "none" : string.Join(",", fireYearsCCV3);
+        Debug.Log("[TLV3] SetupYears count:" + count + " fireBaseYear:" + fireBaseYear + " fireYears:[" + fyDbg + "]");
         if (slider != null)
         {
             slider.wholeNumbers = true;
@@ -129,15 +140,26 @@ public class TimelineControlCCV3 : TimelineControl
             go.SetActive(true);
             RectTransform rt = go.GetComponent<RectTransform>();
 
-            float t = (count == 1) ? 0.5f : (float)i / (count - 1);   // 0 = bottom (year 1), 1 = top (last year)
+            // The slider shows year 1 (1977) at the TOP and the last year at the bottom, so place tick i=0 at the
+            // top (anchorY 1) and increase downward. (anchorY 0 = bottom in Unity, hence the 1 - ... flip.)
+            float t = (count == 1) ? 0.5f : 1f - (float)i / (count - 1);
             rt.anchorMin = new Vector2(0.5f, t);
             rt.anchorMax = new Vector2(0.5f, t);
             rt.pivot     = new Vector2(0f, 0.5f);                     // grow to the right
             rt.anchoredPosition = Vector2.zero;
 
-            int yearNumber = i + 1;                                   // "第几年": 1..N
+            int yearNumber = i + 1;                                   // relative year number: 1..N
             bool decade = (yearNumber == 1) || (yearNumber % 10 == 0);
-            rt.sizeDelta = new Vector2(decade ? tickLengthDecade : tickLength, tickThickness);
+
+            // Fire years (any cube burned) get a red, longer, thicker tick so students can scrub to them.
+            bool fire = fireYearsCCV3 != null && fireBaseYear >= 0 && fireYearsCCV3.Contains(fireBaseYear + i);
+            float len = (fire || decade) ? tickLengthDecade : tickLength;
+            rt.sizeDelta = new Vector2(len, fire ? tickThickness + 2f : tickThickness);
+            if (fire)
+            {
+                Image img = go.GetComponent<Image>();
+                if (img != null) img.color = FireTickColor;
+            }
         }
     }
 }

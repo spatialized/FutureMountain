@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0001cc40633e2242a75f7015c8a9162, type: 3}
+  m_Name: Quest2_Level1
+  m_EditorClassIdentifier:
+  title: "Quest 2 \xB7 Level 1"
+  lockZoomOut: 0
+  graphPrecipOnly: 0
+  graphVegVariables: 0
+  lockedScenario: 0
+  lockedGraphVariable: 12
+  allowSideBySide: 0
+  allowDifferentCubes: 0
+  opening: 'Welcome to Quest 2, which is all about vegetation recovery and what factors
+    might influence vegetation''s post-fire recovery process! In quest 1, you explored
+    differences in climate and vegetation across the patches. These patch to patch
+    differences can inform how each patch might respond to a wildfire. In this quest,
+    we will examine how different areas in the Front Range respond to fire (such as
+    how the vegetation reacts) and its recovery process (how fast it recovers and
+    what might change).'
+  ending:
+  defaultOptions: []
+  questions:
+  - prompt: In the north zone, how much above ground biomass was lost?
+    options:
+    - Around 10%
+    - Around 50%
+    - Around 90%
+    - No measurable loss
+    - Biomass increased
+    correctIndex: 1
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: In the south zone, how much above ground biomass was lost?
+    options:
+    - Around 10%
+    - Around 50%
+    - Around 90%
+    - No measurable loss
+    - Biomass increased
+    correctIndex: 1
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: Which zone lost the least amount of above ground biomass?
+    options:
+    - High
+    - Low
+    - North
+    - South
+    - Riparian
+    correctIndex: 4
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: What is a consistent response across all of the zones when a fire occurs?
+    options:
+    - Only zones above a certain elevation are affected
+    - Only the understory grass is affected
+    - Vegetation height increases immediately as dead material is replaced
+    - Above ground biomass and plant height all drop in the fire year
+    correctIndex: 3
+    graphSelect: 0
+    correctYearsByScenario: []

@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0001cc40633e2242a75f7015c8a9162, type: 3}
+  m_Name: Quest3_Level3
+  m_EditorClassIdentifier: 
+  title: "Quest 3 \xB7 Level 3"
+  lockZoomOut: 0
+  graphPrecipOnly: 0
+  graphVegVariables: 0
+  lockedScenario: -1
+  lockedGraphVariable: -1
+  allowSideBySide: 0
+  allowDifferentCubes: 0
+  opening: 
+  ending: 
+  defaultOptions: []
+  questions:
+  - prompt: 'Identifying differences in fire during each of the climate buckets (wet,
+      drought, dry) '
+    options: []
+    correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: Identifying fire vulnerability or risk based on climate
+    options: []
+    correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []

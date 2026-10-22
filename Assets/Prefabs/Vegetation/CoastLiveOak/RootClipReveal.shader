@@ -9,7 +9,7 @@
           _Growth ("Growth (0..1)", Range(0,1)) = 1
           _TopY ("Top Y (object space)", Float) = 0
           _Depth ("Depth (object units)", Float) = 1
-          _NoiseTex ("Jitter Noise (grayscale)", 2D) = "gray" {}   // 默认灰=不抖;贴 noise 才有参差
+          _NoiseTex ("Jitter Noise (grayscale)", 2D) = "gray" {}   // default gray = no jitter; assign a noise tex for a ragged edge
           _NoiseScale ("Jitter Scale (freq)", Float) = 0.5
           _JitterAmp ("Jitter Amount", Float) = 0.3
       }
@@ -45,7 +45,7 @@
 
           void surf(Input IN, inout SurfaceOutputStandard o)
           {
-              // 按水平位置采噪声,给显现线加参差(默认 _NoiseTex=gray -> 不抖)
+              // Sample noise by horizontal position to give the reveal line a ragged edge (default _NoiseTex=gray -> no jitter)
               float n = tex2D(_NoiseTex, IN.objXZ * _NoiseScale).r;
               float revealLine = _TopY - _Growth * _Depth + (n - 0.5) * _JitterAmp;
               clip(IN.objY - revealLine);

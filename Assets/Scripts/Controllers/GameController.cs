@@ -473,7 +473,10 @@ public class GameController : MonoBehaviour
     // scenario (dropdown index == scenarioIdx) at the current day.
     public void OnScenarioChanged(int index)
     {
-        Debug.Log("OnScenarioChanged index=" + index);
+        // Quick runtime check of which scenario a dropdown option actually loads (index == scenarioIdx).
+        string[] scnNames = { "WRF", "HadGEM", "RSClim" };
+        string scnName = (index >= 0 && index < scnNames.Length) ? scnNames[index] : "?";
+        Debug.Log($"OnScenarioChanged index={index} -> scenario {scnName} (data = scenarioIdx {index})");
         if (settings == null || settings.apiProfile != ScenarioApiProfile.CentralCoastV3)
             return;
 
@@ -1365,6 +1368,10 @@ public class GameController : MonoBehaviour
 
         PrecipByYear[] precipByYears = timelineWaterData.years;
 
+        // CC V3: paint fire-year bars red on the timeline (Quest 2). BigCreek leaves this off.
+        if (uiTimeline != null)
+            uiTimeline.highlightFireYears = (settings != null && settings.apiProfile == ScenarioApiProfile.CentralCoastV3);
+
         uiTimeline.CreateTimelineWeb(precipByYears, warmingIdx, warmingDegrees, fireYears,
             messageYears);
     }
@@ -1384,20 +1391,25 @@ public class GameController : MonoBehaviour
         if (settings != null && (settings.apiProfile == ScenarioApiProfile.CentralCoast
                         || settings.apiProfile == ScenarioApiProfile.CentralCoastV3))
         {
-            // Central Coast V3
+            // Central Coast V3 fire onset dates (month, day, year) = UNION of the 3 scenarios' first fire days,
+            // derived from the data's `pspread` (->`fire`) column of the 9-26-2026 bundle. Ignition is still
+            // gated per-cube by ShouldBurnFireFromData (row.fire>0 at that frame), so each scenario only ignites
+            // on its own dates; the others are harmless no-ops. WRF: 1980/1991/2009, Hadley: 1988, RSClim: 1982/2014.
+            // NOTE: re-derive these if the RHESSys data is re-imported with different fire timing.
             fireDates = new Vector3[]
             {
-                new Vector3(8, 1, 1991),
-                new Vector3(9, 1, 1993),
-                new Vector3(11, 1, 1995),
-                new Vector3(9, 1, 1997),
-                new Vector3(10, 1, 1999),
-                new Vector3(9, 1, 2001),
-                new Vector3(7, 1, 2002),
-                new Vector3(3, 1, 2006),
-                new Vector3(6, 1, 2009),
-                new Vector3(8, 1, 2009),
-                new Vector3(12, 1, 2011),
+                new Vector3(11, 1, 1980),   // WRF (the "1981 fire" Quest 2 L1/L2 is built around)
+                new Vector3(1, 1, 1982),    // RSClim (High)
+                new Vector3(9, 1, 1987),    // RSClim (North/Low/Riparian)
+                new Vector3(8, 1, 1988),    // Hadley (Low/Riparian)
+                new Vector3(12, 1, 1989),   // RSClim (South)
+                new Vector3(10, 1, 1991),   // WRF
+                new Vector3(2, 1, 2002),    // Hadley (North/South/High)
+                new Vector3(3, 1, 2002),    // Hadley (Low/Riparian)
+                new Vector3(9, 1, 2003),    // Hadley (High)
+                new Vector3(9, 1, 2005),    // Hadley (North/South/Low)
+                new Vector3(12, 1, 2009),   // WRF (North)
+                new Vector3(11, 1, 2014),   // RSClim (High)
             };
         }
         else

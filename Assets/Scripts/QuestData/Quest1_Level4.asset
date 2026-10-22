@@ -1,0 +1,105 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0001cc40633e2242a75f7015c8a9162, type: 3}
+  m_Name: Quest1_Level4
+  m_EditorClassIdentifier: 
+  title: "Quest 1 \xB7 Level 4"
+  lockZoomOut: 0
+  graphPrecipOnly: 0
+  graphVegVariables: 1
+  lockedScenario: -1
+  lockedGraphVariable: -1
+  allowSideBySide: 1
+  allowDifferentCubes: 0
+  opening: Looking at climate can only do so much to explain ecosystem processes
+    and wildfire risk. Another important factor to consider is vegetation, and how
+    that couples with climate in different locations to create differences in vegetation
+    cover, vegetation behavior, and vegetation response to fire.
+  ending: 
+  defaultOptions:
+  - North
+  - South
+  - High
+  - Low
+  - Riparian
+  questions:
+  - prompt: "This zone has the largest year-to-year variation in plant\u2019s primary
+      productivity (or energy generation), above ground biomass, respiration, and
+      transpiration. It is characterized by an average elevation within the watershed."
+    options:
+    - North
+    - South
+    - High
+    - Low
+    - Riparian
+    correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: "This zone has the lowest amount of above ground biomass, and is considered
+      the least productive in terms of net primary productivity due to the fact that
+      this zone is mostly composed of grass. This zone receives more solar radiation
+      as it receives the most direct sunlight of all of the zones. More sunlight
+      and radiation can lead to increased temperatures, increased evaporation, and
+      less water available in the soil for plants\u3002"
+    options:
+    - North
+    - South
+    - High
+    - Low
+    - Riparian
+    correctIndex: 1
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: This zone is one where the plants have access to water from a stream.
+      This zone is the only zone with coast live oaks. Coast live oaks average 10-15
+      meters in height, compared to chaparral where for mature shrubs, the average
+      height is 2-4 meters. Water is not a limiting factor in this zone, leading
+      to increased biomass and potentially taller plants.
+    options:
+    - North
+    - South
+    - High
+    - Low
+    - Riparian
+    correctIndex: 4
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: "This zone has, on average, a lower above ground biomass for the chaparral
+      shrubs. In this zone rainfall does not determine how much access the vegetation
+      has to water, as water naturally travels \u201Cdown slope\u201D to lower elevation
+      patches like this one. It can also be categorized as the least \u201Cthirsty\u201D
+      for its low transpiration levels."
+    options:
+    - North
+    - South
+    - High
+    - Low
+    - Riparian
+    correctIndex: 3
+    graphSelect: 0
+    correctYearsByScenario: []
+  - prompt: ' This zone has the most above ground biomass in comparison to the other
+      zones, and consistent vegetation height as no fire or other disturbances occur
+      at this elevation level in any of our simulations. The amount of access the
+      vegetation has to water is very dependent on the amount of rainfall this zone
+      accumulates; however, it does accumulate the most rainfall out of all the zones.
+      More moisture is available at this level, so plants are not constrained by
+      water for engaging in evaporation and transpiration.'
+    options:
+    - North
+    - South
+    - High
+    - Low
+    - Riparian
+    correctIndex: 2
+    graphSelect: 0
+    correctYearsByScenario: []

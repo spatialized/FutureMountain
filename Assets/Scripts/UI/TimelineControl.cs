@@ -82,6 +82,9 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     Color32 defaultColor = new Color32(150, 245, 250, 255);         // Year default color
     Color32 currentYearColor = new Color32(243, 243, 143, 255);     // Current year color
     Color32 yearUnderCursorColor = new Color32(65, 113, 205, 255);         // Year under cursor color
+    Color32 fireYearColor = new Color32(230, 60, 40, 255);          // Fire-year bar color (CC only)
+    // CC-only: paint fire-year precip bars red so students can scrub to the fire. Default false keeps BigCreek unchanged.
+    public bool highlightFireYears = false;
 
     /// <summary>
     /// Called when instance is created.
@@ -542,7 +545,7 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         points = new GameObject[resolution];
         fireYears = newFireYears;
         messageYears = newMessageYears;
-        Debug.Log($"[TL] startYear:{startYear} resolution:{resolution} fireYears:[{string.Join(",", fireYears)}]"); 
+        Debug.Log($"[TL] startYear:{startYear} resolution:{resolution} highlightFireYears:{highlightFireYears} fireYears:[{string.Join(",", (fireYears ?? new List<int>()))}]");
 
         float maxPrecip = 0f;
         for (int i = 0; i < waterData.Length; i++)
@@ -590,10 +593,10 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
             //Debug.Log("CreateTimelineWeb()... timelineLayoutGroup.transform.position.x:" + timelineLayoutGroup.transform.position.x + " timelineLayoutGroup.transform.position.y:" + timelineLayoutGroup.transform.position.y);
 
             Image image = points[i].GetComponent<Image>() as Image;
-            image.color = defaultColor;
+            image.color = BaseColorForYear(i);   // fire years start red (CC); others default
 
             //float step = Screen.width * widthFactor / resolution;
-            
+
             bool even = i % 2 == 0;
             int iconYear = i + startYear;
 
@@ -893,6 +896,23 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
     /// </summary>
     /// <param name="yearIdx">Year index.</param>
     /// <param name="color">Color.</param>
+    // A year is a fire year when any cube burned then. Red only when highlighting is enabled (CC); off = BigCreek.
+    private bool IsFireYear(int year)
+    {
+        return highlightFireYears && fireYears != null && fireYears.Contains(year);
+    }
+
+    // The resting colour of a bar that is NOT the current/hovered year: red for a fire year, else the default.
+    private Color32 BaseColorForYear(int idx)
+    {
+        return IsFireYear(idx + startYear) ? fireYearColor : defaultColor;
+    }
+
+    private static bool SameColor(Color32 a, Color32 b)
+    {
+        return a.r == b.r && a.g == b.g && a.b == b.b && a.a == b.a;
+    }
+
     private void SetColorForYear(int yearIdx, Color32 color)
     {
         int idx = yearIdx - startYear;
@@ -918,10 +938,12 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         {
             if (i == idx) continue;
             Image img = points[i].GetComponent<Image>() as Image;
-            img.color = defaultColor;
+            img.color = BaseColorForYear(i);                      // fire years stay red; others default
         }
+        // Un-highlighting (passing defaultColor) a fire year must leave it red, not plain default.
+        Color32 target = (SameColor(color, defaultColor)) ? BaseColorForYear(idx) : color;
         Image image = points[idx].GetComponent<Image>() as Image;
-        image.color = color;
+        image.color = target;
     }
 
 }

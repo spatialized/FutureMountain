@@ -843,10 +843,15 @@ public class CubeController : MonoBehaviour
 
     // ----- Public per-year data access for Quest graphs (XCharts) -----
 
-    // Variables a zone graph can plot (Quest1 Level 3). Each maps to a CubeData
-    // overstory field (or a sum). precip is intentionally absent: it is
-    // landscape-level (WaterData), not per-cube, so it cannot distinguish zones.
-    public enum ZoneGraphVariable { Precip, Wind, Temperature, Humidity, Evaporation, TMin}
+    // Variables a zone graph can plot. Climate vars (L1/L2) + vegetation vars (L3).
+    // Vegetation vars sum OVERSTORY + UNDERSTORY (grass lives in the understory), except Height
+    // which is overstory-only (grass height is meaningless). Both patches are combined downstream
+    // by GetYearlySeries' patch area-weighting, so these are per-row (single-patch) values here.
+    // Appended after the climate vars so existing climate indices stay stable (L1 Precip=0).
+    // Biomass = FULL plant carbon incl. roots (Q1 L3). AboveGroundBiomass = leaf+stem only, no roots (Q2 L1).
+    public enum ZoneGraphVariable { Precip, Wind, Temperature, Humidity, Evaporation, TMin,
+                                    Biomass, NPP, GPP, Respiration, Transpiration, Height,
+                                    AboveGroundBiomass }
 
     // One point of a per-year series: calendar year, a relative x-axis label
     // ("Year 1", ...), and the value.
@@ -863,18 +868,28 @@ public class CubeController : MonoBehaviour
             case ZoneGraphVariable.TMin:        return row.tmin;
             case ZoneGraphVariable.Humidity:    return row.relHumidity;
             case ZoneGraphVariable.Evaporation: return row.evap;
+            // Vegetation (L3): overstory + understory. Biomass includes roots (full plant carbon).
+            case ZoneGraphVariable.Biomass:       return row.leafCOver + row.stemCOver + row.rootCOver + row.leafCUnder + row.rootCUnder;
+            case ZoneGraphVariable.AboveGroundBiomass: return row.leafCOver + row.stemCOver + row.leafCUnder;   // no roots (above-ground only)
+            case ZoneGraphVariable.NPP:           return row.netpsnOver + row.netpsnUnder;
+            case ZoneGraphVariable.GPP:           return row.gppOver + row.gppUnder;
+            case ZoneGraphVariable.Respiration:   return row.respOver + row.respUnder;
+            case ZoneGraphVariable.Transpiration: return row.transOver + row.transUnder;
+            case ZoneGraphVariable.Height:        return row.heightOver;   // overstory only (grass height ~0)
             default:                              return 0f;
         }
     }
 
-    // Calendar year for a cubeData key (1-based dateIdx). dataDates is 0-based and
-    // aligned to the 0-based sim time index, so year = dataDates[dateIdx - 1].year.
+    // WATER YEAR for a cubeData key (1-based dateIdx). The RHESSys data is water-year aligned
+    // (runs Oct–Sep); the quest answer key groups rainfall by water year, so the graph must too, or
+    // wet/dry years won't match. US convention: Oct–Dec belong to the NEXT calendar year's water year
+    // (labeled by the ending year). dataDates is 0-based, aligned to the 0-based sim time index.
     private static int ZoneYearForDateIdx(int dateIdx)
     {
         var dates = (GameController.Instance != null) ? GameController.Instance.dataDates : null;
         int i = dateIdx - 1;
         if (dates != null && i >= 0 && i < dates.Count)
-            return dates[i].year;
+            return (dates[i].month >= 10) ? dates[i].year + 1 : dates[i].year;
         return int.MinValue;   // unknown
     }
 
@@ -920,17 +935,20 @@ public class CubeController : MonoBehaviour
         foreach (var y in c2.Keys) years.Add(y);
         if (years.Count == 0) return result;
 
-        int firstYear = years.Min;
+        // Rainfall is an annual TOTAL (sum of daily mm); intensive variables (temperature, wind, humidity)
+        // are yearly MEANS. This matches how the quest key defines a wet/dry year.
+        bool useSum = (variable == ZoneGraphVariable.Precip);
+
         foreach (int year in years)
         {
-            float v1 = (c1.TryGetValue(year, out int n1) && n1 > 0) ? s1[year] / n1 : 0f;
-            float v2 = (c2.TryGetValue(year, out int n2) && n2 > 0) ? s2[year] / n2 : 0f;
+            float v1 = (c1.TryGetValue(year, out int n1) && n1 > 0) ? (useSum ? s1[year] : s1[year] / n1) : 0f;
+            float v2 = (c2.TryGetValue(year, out int n2) && n2 > 0) ? (useSum ? s2[year] : s2[year] / n2) : 0f;
             float weighted = (v1 * p1pct + v2 * p2pct) / wsum;
 
             result.Add(new ZoneYearPoint
             {
                 year  = year,
-                label = "Year " + (year - firstYear + 1),
+                label = year.ToString(),   // calendar year on the x-axis (selection still keyed by data index)
                 value = weighted
             });
         }
@@ -2669,6 +2687,8 @@ public class CubeController : MonoBehaviour
         //Debug.Log("UpdateDataFromJSON()... rows[5].DateIdx: " + rows[5].dateIdx + " rows[5].VegAccessWater" + rows[5].vegAccessWater + " rows[5].Evap: " + rows[5].evap + " rows[5].DepthToGW: " + rows[5].depthToGW);
 
         cubeData = LoadData(rows);
+        hoMaxP1 = -1f;   // new patch1 data just landed -> recompute the heightOver range from THIS scenario
+                         // (not just at request time: the async gap can re-cache the OLD range meanwhile)
     }
 
     private void UpdateDataRowsFromJSON(string jsonString)
@@ -2733,6 +2753,7 @@ public class CubeController : MonoBehaviour
     {
         CubeDataModelList rowsObj = JsonUtility.FromJson<CubeDataModelList>("{\"rows\":" + jsonString + "}");
         cubeDataP2 = LoadData(rowsObj.rows);
+        hoMaxP2 = -1f;   // new patch2 data just landed -> recompute its heightOver range from THIS scenario
         p2Loaded = true;
 
         p2CarbonMax = 0f;

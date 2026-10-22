@@ -7,6 +7,7 @@ Shader "Custom/Soil Moisture Built-in"
         _DryColor ("Dry Tint", Color) = (0.55, 0.45, 0.35, 1)
         _WetColor ("Wet Patch Color (blue)", Color) = (0.10, 0.40, 0.90, 1)
         _WetVividness ("Wet Patch Vividness (0=textured,1=pure)", Range(0,1)) = 0.85
+        _WetPatchOpacity ("Wet Patch Opacity (0=invisible,1=solid)", Range(0,1)) = 1.0
 
         _RootMoisture ("Moisture (particle count)", Range(0,1)) = 0.4
         _RootZoneDepth ("Root Zone Depth (0..1)", Range(0.01,1)) = 0.35
@@ -18,7 +19,7 @@ Shader "Custom/Soil Moisture Built-in"
         _PatchJitter ("Particle Jitter", Range(0,1)) = 0.5
         _WetContrast ("Wet/Dry Contrast", Range(0.5,4)) = 2.0
 
-        _WaterColor ("Groundwater Color", Color) = (0.1, 0.18, 0.28, 1)
+        _WaterColor ("Groundwater Color", Color) = (0.15, 0.35, 0.80, 1)
         _WaterLevel ("Water Level (0=bottom..1=top)", Range(0,1)) = 0.25
         _WaterEdge ("Water Edge Softness (0..1)", Range(0.001,0.5)) = 0.05
         _WaterBottom ("Water Bottom (0..1)", Range(0,1)) = 0.0
@@ -33,16 +34,24 @@ Shader "Custom/Soil Moisture Built-in"
         Cull Off
 
         CGPROGRAM
-        #pragma surface surf Standard
+        #pragma surface surf Standard vertex:vert
         #pragma target 3.0
 
         sampler2D _BaseTex;
         sampler2D _NormalMap;
         fixed4 _DryColor, _WetColor, _WaterColor;
-        half _RootMoisture, _RootZoneDepth, _CapillaryHeight, _NoiseAmount, _Smoothness, _WaterLevel, _WaterEdge, _WaterBottom, _WaterOpacity, _WetContrast, _WetVividness, _DotSize, _PatchJitter;
+        half _RootMoisture, _RootZoneDepth, _CapillaryHeight, _NoiseAmount, _Smoothness, _WaterLevel, _WaterEdge, _WaterBottom, _WaterOpacity, _WetContrast, _WetVividness, _DotSize, _PatchJitter, _WetPatchOpacity;
         float _NoiseScale;
 
-        struct Input { float2 uv_BaseTex; };
+        // rawUV = the mesh's own 0..1 UV, UNAFFECTED by the _BaseTex Tiling/Offset. All vertical-position logic
+        // (root zone, water table) must use this, or a per-face tiling/offset shifts the water band off the mesh.
+        struct Input { float2 uv_BaseTex; float2 rawUV; };
+
+        void vert(inout appdata_full v, out Input o)
+        {
+            UNITY_INITIALIZE_OUTPUT(Input, o);
+            o.rawUV = v.texcoord.xy;
+        }
 
         float hash(float2 p){ return frac(sin(dot(p, float2(127.1,311.7))) * 43758.5453); }
         float vnoise(float2 p)
@@ -93,7 +102,7 @@ Shader "Custom/Soil Moisture Built-in"
         void surf(Input IN, inout SurfaceOutputStandard o)
         {
             fixed4 baseCol = tex2D(_BaseTex, IN.uv_BaseTex);
-            float yv = IN.uv_BaseTex.y;                 // 0 = bottom, 1 = top (flip to 1-yv if inverted)
+            float yv = IN.rawUV.y;                       // raw mesh UV: 0 = bottom, 1 = top (tiling/offset-proof)
 
             // ---- UPPER SOIL: moisture PATCHES only (no smooth wet/dry gradient across the profile) ----
             // Root-zone mask: 1 at the surface, fades to 0 by _RootZoneDepth down. Patches live only here;
@@ -109,16 +118,17 @@ Shader "Custom/Soil Moisture Built-in"
             // it with the (brown) base texture: _WetVividness=1 -> pure blue, 0 -> blue tinted by the texture.
             float3 dryAlbedo = baseCol.rgb * _DryColor.rgb;
             float3 wetAlbedo = lerp(baseCol.rgb * _WetColor.rgb, _WetColor.rgb, _WetVividness);
-            o.Albedo = lerp(dryAlbedo, wetAlbedo, wetPatch);
+            // _WetPatchOpacity fades the whole patch toward the dry soil: 1 = solid patch, 0 = patch invisible.
+            o.Albedo = lerp(dryAlbedo, wetAlbedo, wetPatch * _WetPatchOpacity);
 
-            // ---- GROUNDWATER BAND: MULTIPLY (正片叠底) tint with soft edges ----
-            // Band between _WaterBottom and _WaterLevel (data-driven); soft edges via _WaterEdge.
-            float topEdge = saturate((_WaterLevel - yv) / _WaterEdge);
-            float botEdge = saturate((yv - _WaterBottom) / _WaterEdge);
-            float belowWater = topEdge * botEdge;
+            // ---- GROUNDWATER (saturated zone) tint ----
+            // Everything BELOW the water table is saturated, so fill from the profile bottom up to _WaterLevel
+            // (data-driven). Soft edge of width _WaterEdge at the water table. No bottom cutoff (that hid the
+            // band whenever the water table sat below the old _WaterBottom value).
+            float belowWater = saturate((_WaterLevel - yv) / max(_WaterEdge, 0.001));
             float waterMask  = belowWater * _WaterOpacity;
-            // Multiply blend darkens/tints the soil toward the water colour (like wet soil), instead of replacing it.
-            o.Albedo = lerp(o.Albedo, o.Albedo * _WaterColor.rgb, waterMask);
+            // Straight colour blend: fade the soil toward the water colour (no multiply).
+            o.Albedo = lerp(o.Albedo, _WaterColor.rgb, waterMask);
 
             o.Normal = UnpackNormal(tex2D(_NormalMap, IN.uv_BaseTex));
             o.Smoothness = lerp(lerp(_Smoothness, _Smoothness + 0.3, wetPatch), 0.6, belowWater);
