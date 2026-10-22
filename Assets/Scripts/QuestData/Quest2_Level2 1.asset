@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0001cc40633e2242a75f7015c8a9162, type: 3}
+  m_Name: Quest2_Level2 1
+  m_EditorClassIdentifier: 
+  title: "Quest 2 \xB7 Level 2"
+  lockZoomOut: 0
+  graphVariableMode: 11
+  lockedScenario: 0
+  lockedSpeedStep: -1
+  graphSelectable: 0
+  allowSideBySide: 0
+  allowDifferentCubes: 1
+  opening: Great job! Note here that chaparral can regrow substantially within a
+    decade or two if left undisturbed, but repeated fires, drought, or other climate
+    events can slow or restart regrowth trajectories. [add additional text to distinguish
+    between recovery to pre-fire baseline and recovery in a shorter time period to
+    help connect levels 1 and 2]
+  ending: 
+  defaultOptions: []
+  questions:
+  - prompt: Compare zone-to-zone (side by side North vs South) to hone in on the
+      message that they differ comparatively, after they have explored each of them
+      individually.
+    options: []
+    correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []
+    textInput: 1

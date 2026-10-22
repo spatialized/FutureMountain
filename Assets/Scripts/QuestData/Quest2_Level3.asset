@@ -14,10 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   title: "Quest 2 \xB7 Level 3"
   lockZoomOut: 0
-  graphPrecipOnly: 0
-  graphVegVariables: 0
+  graphVariableMode: 11
   lockedScenario: -1
-  lockedGraphVariable: 11
   allowSideBySide: 1
   allowDifferentCubes: 0
   opening: 'Let us take a look at how different climate scenarios affect recovery.

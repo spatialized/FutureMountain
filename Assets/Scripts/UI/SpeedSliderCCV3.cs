@@ -33,4 +33,18 @@ public class SpeedSliderCCV3 : MonoBehaviour
         if (gameController != null)
             gameController.HandleTimeSliderInput(daysPerStep[i]);   // set timeStep
     }
+
+    // Quest: force a speed step and disable the slider so the player can't change it.
+    public void LockToStep(int step)
+    {
+        step = Mathf.Clamp(step, 0, daysPerStep.Length - 1);
+        if (slider != null) { slider.SetValueWithoutNotify(step); slider.interactable = false; }
+        ApplyStep(step);
+    }
+
+    // Quest: re-enable the slider (free speed).
+    public void Unlock()
+    {
+        if (slider != null) slider.interactable = true;
+    }
 }

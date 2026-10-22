@@ -4498,6 +4498,26 @@ public class CubeController : MonoBehaviour
         return row != null && row.fire > 0f;
     }
 
+    // Central Coast (data-driven fires): scan this cube's loaded data for ignition ONSETS, where the fire
+    // column rises from <=0 to >0. Returns the 0-based sim time indices (frames) of those onsets. Only CC V3
+    // calls this; BigCreek keeps its hardcoded ShouldBurnFireOnDate, so BigCreek behaviour is unchanged.
+    public List<int> GetFireOnsetFrames()
+    {
+        var frames = new List<int>();
+        if (cubeData == null || cubeData.Count == 0) return frames;
+        int maxKey = 0;
+        foreach (int k in cubeData.Keys) if (k > maxKey) maxKey = k;
+        float prev = 0f;
+        for (int key = 1; key <= maxKey; key++)   // cubeData keyed by dateIdx (1-based); iterate in order
+        {
+            if (!cubeData.TryGetValue(key, out CubeData row)) continue;
+            float f = row.fire;
+            if (f > 0f && prev <= 0f) frames.Add(key - 1);   // dateIdx -> 0-based time index
+            prev = f;
+        }
+        return frames;
+    }
+
     #region Animation
 
     /// <summary>

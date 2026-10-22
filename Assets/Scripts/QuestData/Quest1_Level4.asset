@@ -14,92 +14,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: "Quest 1 \xB7 Level 4"
   lockZoomOut: 0
-  graphPrecipOnly: 0
-  graphVegVariables: 1
+  graphVariableMode: -2
   lockedScenario: -1
-  lockedGraphVariable: -1
+  lockedSpeedStep: -1
+  graphSelectable: 0
   allowSideBySide: 1
   allowDifferentCubes: 0
-  opening: Looking at climate can only do so much to explain ecosystem processes
-    and wildfire risk. Another important factor to consider is vegetation, and how
-    that couples with climate in different locations to create differences in vegetation
-    cover, vegetation behavior, and vegetation response to fire.
-  ending: 
+  opening: Precipitation matters so much for fire because plants use water, and when
+    things get really dry they run out of water. Using water is evapotranspiration,
+    which matters in the summer because when plants run out of water they become
+    more dry.
+  ending: "Congragulations! You have completed Quest 1. Press \u201Cnext\u201D to
+    proceed to Quest 2."
   defaultOptions:
-  - North
-  - South
-  - High
-  - Low
-  - Riparian
+  - 
   questions:
-  - prompt: "This zone has the largest year-to-year variation in plant\u2019s primary
-      productivity (or energy generation), above ground biomass, respiration, and
-      transpiration. It is characterized by an average elevation within the watershed."
-    options:
-    - North
-    - South
-    - High
-    - Low
-    - Riparian
+  - prompt: 'Look at these cubes. Which one is running out of water in the summer
+      first? '
+    options: []
     correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []
-  - prompt: "This zone has the lowest amount of above ground biomass, and is considered
-      the least productive in terms of net primary productivity due to the fact that
-      this zone is mostly composed of grass. This zone receives more solar radiation
-      as it receives the most direct sunlight of all of the zones. More sunlight
-      and radiation can lead to increased temperatures, increased evaporation, and
-      less water available in the soil for plants\u3002"
-    options:
-    - North
-    - South
-    - High
-    - Low
-    - Riparian
-    correctIndex: 1
+    textInput: 0
+  - prompt: Which month do they run out of water in?
+    options: []
+    correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []
-  - prompt: This zone is one where the plants have access to water from a stream.
-      This zone is the only zone with coast live oaks. Coast live oaks average 10-15
-      meters in height, compared to chaparral where for mature shrubs, the average
-      height is 2-4 meters. Water is not a limiting factor in this zone, leading
-      to increased biomass and potentially taller plants.
-    options:
-    - North
-    - South
-    - High
-    - Low
-    - Riparian
-    correctIndex: 4
-    graphSelect: 0
-    correctYearsByScenario: []
-  - prompt: "This zone has, on average, a lower above ground biomass for the chaparral
-      shrubs. In this zone rainfall does not determine how much access the vegetation
-      has to water, as water naturally travels \u201Cdown slope\u201D to lower elevation
-      patches like this one. It can also be categorized as the least \u201Cthirsty\u201D
-      for its low transpiration levels."
-    options:
-    - North
-    - South
-    - High
-    - Low
-    - Riparian
-    correctIndex: 3
-    graphSelect: 0
-    correctYearsByScenario: []
-  - prompt: ' This zone has the most above ground biomass in comparison to the other
-      zones, and consistent vegetation height as no fire or other disturbances occur
-      at this elevation level in any of our simulations. The amount of access the
-      vegetation has to water is very dependent on the amount of rainfall this zone
-      accumulates; however, it does accumulate the most rainfall out of all the zones.
-      More moisture is available at this level, so plants are not constrained by
-      water for engaging in evaporation and transpiration.'
-    options:
-    - North
-    - South
-    - High
-    - Low
-    - Riparian
-    correctIndex: 2
-    graphSelect: 0
-    correctYearsByScenario: []
+    textInput: 0

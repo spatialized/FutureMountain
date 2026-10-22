@@ -879,6 +879,10 @@ public class TimelineControl : MonoBehaviour, IPointerClickHandler, IPointerEnte
         uiTimelineLabelTextField.text = newText;
     }
 
+    // CC V3 override updates the year-slider fire ticks when the active scenario's fire years change.
+    // BigCreek keeps the base no-op (its bar timeline colours fire years via highlightFireYears + SetColorForYear).
+    public virtual void SetFireYears(List<int> years) { }
+
     public virtual void ShowMessages()
     {
         messageIconsLayoutGroupEven.SetActive(true);

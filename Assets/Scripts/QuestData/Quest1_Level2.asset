@@ -14,9 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: "Quest 1 \xB7 Level 2"
   lockZoomOut: 1
-  graphPrecipOnly: 0
+  graphVariableMode: -1
+  lockedScenario: -1
+  lockedSpeedStep: -1
+  graphSelectable: 0
   allowSideBySide: 0
-  allowDifferentCubes: 1
+  allowDifferentCubes: 0
   opening: "Maybe add a message: climate scenarios are important when modeling ecosystems
     because \u2026 this gives context but also a little introduction as this level
     currently does not have one. Explore the different climate variables in the quest
@@ -42,6 +45,7 @@ MonoBehaviour:
     correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 0
   - prompt: "\u201CRSClim: This climate scenario utilizes collected weather data
       from Mission Creek in Santa Barbara County, California for a historical period
       of time. This scenario is wetter and more humid than the other three, with
@@ -53,6 +57,7 @@ MonoBehaviour:
     correctIndex: 1
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 0
   - prompt: "\u201CHadGEM: This climate scenario, based on results from a Global
       Climate Model (GCM), generates a time series of climate inputs based on assumptions
       that California will experience warm and dry weather. [something about relative
@@ -64,6 +69,7 @@ MonoBehaviour:
     correctIndex: 2
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 0
   - prompt: 'Congratulations, you have correctly identified the climate scenarios
       - for a reminder here are the following scenarios: Historic Climate is RSClim,
       Hotter & Drier Model is HadGEM, Local Climate Model is WRF.
@@ -78,3 +84,4 @@ MonoBehaviour:
     correctIndex: 2
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 0

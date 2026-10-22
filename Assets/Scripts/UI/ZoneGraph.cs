@@ -56,6 +56,19 @@ public class ZoneGraph : MonoBehaviour
         pendingRefresh = true;
     }
 
+    // Quest (per level): toggle whether clicking the graph selects answers. The hover tooltip is added in
+    // Refresh() regardless, so hovering to read values still works even when selection is off.
+    public void SetSelectable(bool value)
+    {
+        selectable = value;
+        if (chart != null)
+        {
+            chart.forceOpenRaycastTarget = value;
+            if (value) chart.onSerieClick = OnSerieClicked;
+            else       chart.onSerieClick = null;
+        }
+    }
+
     // GameController calls this when the scenario dropdown changes.
     public void SetScenario(int scenarioIdx)
     {

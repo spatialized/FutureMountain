@@ -63,6 +63,7 @@ public class GameController : MonoBehaviour
     private HashSet<int> fireFrameSet;              // Fast membership check for fire frames
     private Dictionary<int, int> fireFrameIndexByTime; // Map timeIdx -> index in fireFrames
     private List<int> fireYears;                    // List of fire years
+    private Dictionary<int, List<int>> ccFireFramesByScenario = new Dictionary<int, List<int>>(); // CC V3: data-driven fire onset frames, cached per scenarioIdx
     private Vector3[] messageDates;                 // List of message dates
     private List<int> messageFrames;                // List of message indices of fires (CAW Installation Data)
     private List<int> messageYears;                 // List of message years
@@ -500,6 +501,9 @@ public class GameController : MonoBehaviour
         if (zoneGraph != null && graphedCube != null)
             StartCoroutine(RefreshGraphWhenLoaded(graphedCube));
 
+        // Data-driven fires: rebuild this scenario's fire frames + timeline red ticks once its data reloads.
+        StartCoroutine(RebuildCentralCoastFiresWhenLoaded(index));
+
         // Mode 1 active: both cubes use this (new) scenario -> refresh both graphs once their data reloads.
         if (differentCubesActive)
         {
@@ -536,6 +540,65 @@ public class GameController : MonoBehaviour
           if (zoneGraph != null && cube != null)
               zoneGraph.ShowCube(cube);   // re-read GetYearlySeries with the new scenario's data
       }
+
+    // CC V3 data-driven fires: wait for the zone cubes to finish loading, then derive this scenario's fire
+    // frames from their data. Called on initial load and on every scenario change.
+    private System.Collections.IEnumerator RebuildCentralCoastFiresWhenLoaded(int scenarioIdx)
+    {
+        float timeout = 30f;   // the app's data load can be slow; wait generously
+        while (timeout > 0f)
+        {
+            bool allLoaded = cubes != null;
+            if (cubes != null)
+                for (int i = 0; i < cubes.Length; i++)
+                    if (cubes[i] != null && !cubes[i].IsDataReloaded()) { allLoaded = false; break; }
+            if (allLoaded) break;
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
+        RebuildCentralCoastFires(scenarioIdx);
+    }
+
+    // Build the fire bookkeeping (fireFrames/fireDates/fireYears) for a CC V3 scenario from the UNION of the
+    // zone cubes' fire-column onsets. Per-scenario (so the timeline only shows this scenario's fires), cached,
+    // and gated to CC V3 so BigCreek's hardcoded SetupFires path is never touched.
+    private void RebuildCentralCoastFires(int scenarioIdx)
+    {
+        if (settings == null || settings.apiProfile != ScenarioApiProfile.CentralCoastV3) return;
+
+        List<int> frames;
+        if (!ccFireFramesByScenario.TryGetValue(scenarioIdx, out frames))
+        {
+            var set = new HashSet<int>();
+            if (cubes != null)
+                for (int i = 0; i < cubes.Length; i++)
+                    if (cubes[i] != null)
+                        foreach (int fr in cubes[i].GetFireOnsetFrames()) set.Add(fr);
+            frames = new List<int>(set);
+            frames.Sort();
+            ccFireFramesByScenario[scenarioIdx] = frames;
+        }
+
+        fireFrames = new List<int>();
+        fireFrameSet = new HashSet<int>();
+        fireFrameIndexByTime = new Dictionary<int, int>();
+        fireYears = new List<int>();
+        var dates = new List<Vector3>();
+        foreach (int frame in frames)
+        {
+            if (!IsValidTimeIdx(frame)) continue;
+            fireFrameIndexByTime[frame] = fireFrames.Count;
+            fireFrames.Add(frame);
+            fireFrameSet.Add(frame);
+            DateModel dm = (dataDates != null && frame >= 0 && frame < dataDates.Count) ? dataDates[frame] : null;
+            dates.Add(dm != null ? new Vector3(dm.month, dm.day, dm.year) : Vector3.zero);
+            if (dm != null) fireYears.Add(dm.year);
+        }
+        fireDates = dates.ToArray();
+
+        if (uiTimeline != null) { uiTimeline.highlightFireYears = true; uiTimeline.SetFireYears(fireYears); }
+        Debug.Log($"[CCFIRE] scenarioIdx={scenarioIdx} fireYears=[{string.Join(",", fireYears)}]");
+    }
 
       private System.Collections.IEnumerator RefreshSideGraphWhenLoaded(ZoneGraph graph, CubeController cube)
       {
@@ -1391,26 +1454,10 @@ public class GameController : MonoBehaviour
         if (settings != null && (settings.apiProfile == ScenarioApiProfile.CentralCoast
                         || settings.apiProfile == ScenarioApiProfile.CentralCoastV3))
         {
-            // Central Coast V3 fire onset dates (month, day, year) = UNION of the 3 scenarios' first fire days,
-            // derived from the data's `pspread` (->`fire`) column of the 9-26-2026 bundle. Ignition is still
-            // gated per-cube by ShouldBurnFireFromData (row.fire>0 at that frame), so each scenario only ignites
-            // on its own dates; the others are harmless no-ops. WRF: 1980/1991/2009, Hadley: 1988, RSClim: 1982/2014.
-            // NOTE: re-derive these if the RHESSys data is re-imported with different fire timing.
-            fireDates = new Vector3[]
-            {
-                new Vector3(11, 1, 1980),   // WRF (the "1981 fire" Quest 2 L1/L2 is built around)
-                new Vector3(1, 1, 1982),    // RSClim (High)
-                new Vector3(9, 1, 1987),    // RSClim (North/Low/Riparian)
-                new Vector3(8, 1, 1988),    // Hadley (Low/Riparian)
-                new Vector3(12, 1, 1989),   // RSClim (South)
-                new Vector3(10, 1, 1991),   // WRF
-                new Vector3(2, 1, 2002),    // Hadley (North/South/High)
-                new Vector3(3, 1, 2002),    // Hadley (Low/Riparian)
-                new Vector3(9, 1, 2003),    // Hadley (High)
-                new Vector3(9, 1, 2005),    // Hadley (North/South/Low)
-                new Vector3(12, 1, 2009),   // WRF (North)
-                new Vector3(11, 1, 2014),   // RSClim (High)
-            };
+            // Central Coast V3 fires are DATA-DRIVEN: RebuildCentralCoastFires() derives fireDates/fireFrames
+            // from the loaded fire column, per scenario, once the cubes load (see RebuildCentralCoastFiresWhenLoaded).
+            // Start empty here; the rebuild fills it. (BigCreek's hardcoded branch below is unchanged.)
+            fireDates = new Vector3[0];
         }
         else
         {
@@ -1989,6 +2036,10 @@ public class GameController : MonoBehaviour
 
         aggregateCubeController.StartSimulation(timeIdx, timeStep);
         aggregateCubeController.messageManager = messageManager;
+
+        // CC V3: once the zone cubes load, derive the initial scenario's fires from data (per-scenario red ticks).
+        if (settings != null && settings.apiProfile == ScenarioApiProfile.CentralCoastV3)
+            StartCoroutine(RebuildCentralCoastFiresWhenLoaded(warmingIdx));
 
         gameStarted = true;
     }

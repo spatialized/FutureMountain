@@ -19,6 +19,8 @@ public class QuestLevelController : MonoBehaviour
     public Button nextButton;
     public ZoneGraph graph;            // optional; null in FreePlay/BigCreek mode
     public GameObject graphVariableDropdown;   // the data-variable picker; hidden on precip-only levels (L1)
+    public SpeedSliderCCV3 speedSlider;        // CC V3 speed slider; locked per level via lockedSpeedStep
+    public TMP_InputField answerInput;         // short-answer text box; shown for textInput questions
     public RectTransform questPanel;   // outermost panel (has Content Size Fitter); force-rebuilt when text/answers change
 
     [Header("Answer layout")]
@@ -48,6 +50,17 @@ public class QuestLevelController : MonoBehaviour
     };
     static readonly string[] VegLabels = { "Biomass", "Productivity (NPP)", "GPP", "Respiration", "Transpiration", "Height" };
 
+    // Climate dropdown (graphVariableMode == -1): option order maps 1:1 to these variables.
+    static readonly CubeController.ZoneGraphVariable[] ClimateVars = {
+        CubeController.ZoneGraphVariable.Precip,
+        CubeController.ZoneGraphVariable.Wind,
+        CubeController.ZoneGraphVariable.Temperature,
+        CubeController.ZoneGraphVariable.Humidity,
+        CubeController.ZoneGraphVariable.Evaporation,
+        CubeController.ZoneGraphVariable.TMin,
+    };
+    static readonly string[] ClimateLabels = { "Precipitation", "Wind", "Temperature", "Humidity", "Evaporation", "Min Temp" };
+
     void Start()
     {
         levelIdx = 0;
@@ -67,38 +80,39 @@ public class QuestLevelController : MonoBehaviour
         }
         if (graph != null) graph.SetSuppressed(true);
 
-        // Per-level graph variable control:
-        //  precipOnly (Q1 L1)        -> lock to Precip, hide the dropdown
-        //  lockedGraphVariable >= 0  -> lock to that variable, hide the dropdown (Q2 L1=Biomass, L2=Height)
-        //  graphVegVariables (Q1 L3) -> fill the dropdown with the vegetation set, show it
-        //  otherwise                 -> default climate dropdown, show it
-        bool precipOnly = (level != null && level.graphPrecipOnly);
-        bool lockedVar  = (level != null && level.lockedGraphVariable >= 0);
-        bool vegVars    = (level != null && level.graphVegVariables && !lockedVar && !precipOnly);
-        if (graphVariableDropdown != null) graphVariableDropdown.SetActive(!precipOnly && !lockedVar);
-        if (graph != null) graph.variableOptions = vegVars ? VegVars : null;
+        // Per-level graph variable control (single field graphVariableMode):
+        //   >= 0 -> LOCK to that ZoneGraphVariable, hide the dropdown
+        //   -2   -> free VEGETATION dropdown
+        //   -1   -> free CLIMATE dropdown (default)
+        int mode = (level != null) ? level.graphVariableMode : -1;
+        bool locked = mode >= 0;
+        if (graphVariableDropdown != null) graphVariableDropdown.SetActive(!locked);
 
-        if (precipOnly && graph != null)
-            graph.SetVariable(CubeController.ZoneGraphVariable.Precip);
-        else if (lockedVar && graph != null)
-            graph.SetVariable((CubeController.ZoneGraphVariable)level.lockedGraphVariable);
-        else if (vegVars)
+        if (locked)
         {
+            if (graph != null) { graph.variableOptions = null; graph.SetVariable((CubeController.ZoneGraphVariable)mode); }
+        }
+        else
+        {
+            var vars   = (mode == -2) ? VegVars   : ClimateVars;
+            var labels = (mode == -2) ? VegLabels : ClimateLabels;
+            if (graph != null) graph.variableOptions = vars;
             if (graphVariableDropdown != null)
             {
                 var dd = graphVariableDropdown.GetComponent<TMP_Dropdown>();
                 if (dd != null)
                 {
                     dd.ClearOptions();
-                    dd.AddOptions(new System.Collections.Generic.List<string>(VegLabels));
+                    dd.AddOptions(new System.Collections.Generic.List<string>(labels));
                     dd.SetValueWithoutNotify(0);
                 }
             }
-            if (graph != null) graph.SetVariable(VegVars[0]);
+            if (graph != null) graph.SetVariable(vars[0]);
         }
 
         foreach (var b in answerButtons) if (b != null) b.gameObject.SetActive(false);
         if (answerGrid != null) answerGrid.gameObject.SetActive(false);   // hide panel during opening
+        if (answerInput != null) answerInput.gameObject.SetActive(false);
         if (graph != null) graph.gameObject.SetActive(false);
         RebuildPanelLayout();
         if (nextButton != null) nextButton.interactable = true;   // Next usable to leave the opening
@@ -129,6 +143,16 @@ public class QuestLevelController : MonoBehaviour
                 GameController.Instance.scenarioDropdown.interactable = true;
             }
         }
+
+        // Quest: lock the speed slider to a step (or leave it free).
+        if (speedSlider != null)
+        {
+            if (level != null && level.lockedSpeedStep >= 0) speedSlider.LockToStep(level.lockedSpeedStep);
+            else speedSlider.Unlock();
+        }
+
+        // Quest: can the player click the graph to pick answers? (hover tooltip stays on regardless)
+        if (graph != null) graph.SetSelectable(level != null && level.graphSelectable);
     }
     public void ShowQuestion(int i)
     {
@@ -136,6 +160,7 @@ public class QuestLevelController : MonoBehaviour
         correctlyAnswered = false;
         var q = level.questions[i];
         questionText.text = q.prompt;
+        if (answerInput != null) answerInput.gameObject.SetActive(false);   // hidden unless this is a text-input question
 
         if (q.graphSelect)
         {
@@ -145,6 +170,15 @@ public class QuestLevelController : MonoBehaviour
                 if (nextButton != null) nextButton.interactable = true;
                 RebuildPanelLayout();
                 return;
+        }
+        if (q.textInput)   // short-answer: show the text box, no option buttons
+        {
+            foreach (var b in answerButtons) if (b != null) b.gameObject.SetActive(false);
+            if (answerGrid != null) answerGrid.gameObject.SetActive(false);
+            if (answerInput != null) { answerInput.gameObject.SetActive(true); answerInput.text = ""; }
+            if (nextButton != null) nextButton.interactable = true;   // non-empty is checked on Next
+            RebuildPanelLayout();
+            return;
         }
         if (answerGrid != null) answerGrid.gameObject.SetActive(true);   // multiple-choice: show answer panel
         if (nextButton != null) nextButton.gameObject.SetActive(true);
@@ -250,8 +284,14 @@ public class QuestLevelController : MonoBehaviour
             if (!correctlyAnswered)
             {
                 var q = level.questions[idx];
-                if (q.graphSelect) CheckGraphAnswer();
-                return;
+                if (q.graphSelect) { CheckGraphAnswer(); return; }
+                if (q.textInput)
+                {
+                    if (answerInput == null || string.IsNullOrWhiteSpace(answerInput.text)) return;   // need a non-empty answer
+                    correctlyAnswered = true;   // accept any non-empty answer for now (grading decided after the meeting)
+                    // fall through to advance to the next question
+                }
+                else return;   // multiple-choice: must click the correct option first
             }
 
             if (idx + 1 < level.questions.Count) ShowQuestion(idx + 1);
@@ -271,6 +311,7 @@ public class QuestLevelController : MonoBehaviour
         }
         foreach (var b in answerButtons) if (b != null) b.gameObject.SetActive(false);
         if (answerGrid != null) answerGrid.gameObject.SetActive(false);
+        if (answerInput != null) answerInput.gameObject.SetActive(false);
         if (graph != null) { graph.SetSuppressed(true); graph.gameObject.SetActive(false); }
         if (nextButton != null) nextButton.interactable = true;
         RebuildPanelLayout();

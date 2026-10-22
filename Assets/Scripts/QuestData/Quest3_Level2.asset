@@ -14,10 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: "Quest 4 \xB7 Level 2"
   lockZoomOut: 0
-  graphPrecipOnly: 0
-  graphVegVariables: 0
+  graphVariableMode: -1
   lockedScenario: -1
-  lockedGraphVariable: -1
   allowSideBySide: 0
   allowDifferentCubes: 0
   opening: 

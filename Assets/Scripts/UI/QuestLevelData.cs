@@ -15,6 +15,8 @@ public class QuestQuestion
 
     public bool graphSelect = false;                    // Level 1: answered by selecting years on the graph
     public List<ScenarioYears> correctYearsByScenario;  // index 0=WRF, 1=HADGEM, 2=CNRM
+
+    public bool textInput = false;                      // answered by typing in a text box (no auto-grading yet; non-empty advances)
 }
 
 [CreateAssetMenu(fileName = "QuestLevel", menuName = "Quest/Quest Level")]
@@ -22,10 +24,14 @@ public class QuestLevelData : ScriptableObject
 {
     public string title;
     public bool lockZoomOut = false;   // Level 1: keep the player on the aggregate cube
-    public bool graphPrecipOnly = false;   // Level 1: lock the graph to precipitation + hide the variable dropdown
-    public bool graphVegVariables = false; // Level 3: dropdown shows the vegetation set (Biomass/NPP/GPP/Respiration/Transpiration/Height)
+    // Graph variable control (one field):
+    //   -1  = free, CLIMATE dropdown (Precip/Wind/Temperature/Humidity/Evaporation/TMin)
+    //   -2  = free, VEGETATION dropdown (Biomass/NPP/GPP/Respiration/Transpiration/Height)
+    //   >=0 = LOCK the graph to that ZoneGraphVariable (cast from int) and hide the dropdown
+    public int graphVariableMode = -1;
     public int lockedScenario = -1;        // Quest2: force this scenario (0=WRF,1=HadGEM,2=RSClim) + disable the scenario dropdown; -1 = free
-    public int lockedGraphVariable = -1;   // Quest2: lock the graph to one ZoneGraphVariable (cast from int) + hide dropdown; -1 = not locked
+    public int lockedSpeedStep = -1;       // Quest: lock the speed slider to a step (0=Daily,1=Weekly,2=Monthly,3=Yearly) + disable it; -1 = free
+    public bool graphSelectable = false;   // Quest: can the player click the graph to pick answers (hover tooltip stays on either way)
     public bool allowSideBySide = true;   // mode 2: same cube in different scenarios (CC V3)
     public bool allowDifferentCubes = true;   // mode 1: different cubes in the same scenario (CC V3)
     [TextArea] public string opening;

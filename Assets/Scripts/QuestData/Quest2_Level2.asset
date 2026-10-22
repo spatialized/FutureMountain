@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: "Quest 2 \xB7 Level 2"
   lockZoomOut: 0
-  graphPrecipOnly: 0
-  graphVegVariables: 0
+  graphVariableMode: 11
   lockedScenario: 0
-  lockedGraphVariable: 11
+  lockedSpeedStep: -1
+  graphSelectable: 0
   allowSideBySide: 0
   allowDifferentCubes: 1
   opening: Now that you have seen how fire disturbs each zone, let us look at how
@@ -37,12 +37,14 @@ MonoBehaviour:
     correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 1
   - prompt: Which zone recovers most completely toward the pre-fire baseline? While
       answering, think about why that may be.
     options: []
     correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 1
   - prompt: Compare zone-to-zone (side by side North vs South) to hone in on the
       message that they differ comparatively, after they have explored each of them
       individually.
@@ -50,3 +52,4 @@ MonoBehaviour:
     correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 0

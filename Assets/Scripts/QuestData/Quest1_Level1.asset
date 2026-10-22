@@ -14,20 +14,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: "Quest 1 \xB7 Level 1"
   lockZoomOut: 1
-  graphPrecipOnly: 1
+  graphVariableMode: 0
+  lockedScenario: -1
+  lockedSpeedStep: -1
+  graphSelectable: 1
   allowSideBySide: 0
+  allowDifferentCubes: 0
   opening: 'Characterize climate characteristics in each of the climate scenarios
     by selecting the appropriate precipitation, min/max temperature, wind, and relative
     humidity value for the listed prompts. You will then repeat this process across
-    the three climate scenarios. Using the quest panel, alternate between each of the
-    3 climate scenarios and complete the following tasks/questions:'
-  ending: 'You have successfully demonstrated your ability to navigate through different
-    climate scenarios & variables. Next, explore level two, where you will learn more
-    about different climate scenarios!'
+    the three climate scenarios. Using the quest panel, alternate between each of
+    the 3 climate scenarios and complete the following tasks/questions:'
+  ending: You have successfully demonstrated your ability to navigate through different
+    climate scenarios & variables. Next, explore level two, where you will learn
+    more about different climate scenarios!
   defaultOptions: []
   questions:
-  - prompt: 'Rainfall determines whether a year is dry or wet. Using the precipitation
-      graph, select what years you would think are a wet year?'
+  - prompt: Rainfall determines whether a year is dry or wet. Using the precipitation
+      graph, select what years you would think are a wet year?
     options: []
     correctIndex: 0
     graphSelect: 1
@@ -35,6 +39,7 @@ MonoBehaviour:
     - years: 030000001300000016000000
     - years: 050000000e000000130000002200000027000000
     - years: 020000000700000011000000130000001d000000
+    textInput: 0
   - prompt: Using the precipitation graph, now select what you would think is a dry
       year?
     options: []
@@ -44,6 +49,7 @@ MonoBehaviour:
     - years: 01000000070000000d0000001a0000001f00000027000000
     - years: 06000000150000001b0000001e0000001f00000026000000
     - years: 0100000004000000170000001f00000026000000
+    textInput: 0
   - prompt: 'A drought is categorized as 2+ years of dryness. Based on what you chose
       to be a "dry year", when would you expect there to be a drought? (hint: ensure
       you are clicking on at least two years)'
@@ -54,3 +60,4 @@ MonoBehaviour:
     - years: 07000000080000002700000028000000
     - years: 1e0000001f00000020000000
     - years: 0d0000000e0000002500000026000000
+    textInput: 0

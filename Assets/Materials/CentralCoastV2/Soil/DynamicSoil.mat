@@ -139,7 +139,7 @@ Material:
     - _CameraFadingEnabled: 0
     - _CameraFarFadeDistance: 2
     - _CameraNearFadeDistance: 1
-    - _CapillaryHeight: 1.13
+    - _CapillaryHeight: 0.6
     - _CapillaryStrength: 0.6
     - _Contrast: 1
     - _ContrastDry: 1.018
@@ -153,12 +153,12 @@ Material:
     - _DistortionEnabled: 0
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0
-    - _DotSize: 0.076
+    - _DotSize: 0.1
     - _DstBlend: 0
     - _EmissionEnabled: 0
     - _FlipbookMode: 0
     - _GlossMapScale: 0.76
-    - _Glossiness: 0.565
+    - _Glossiness: 0.5314286
     - _GlossyReflections: 0
     - _GroundwaterBandWidth: 4.12
     - _HorizontalTiling: 1.2
@@ -170,7 +170,7 @@ Material:
     - _Metallic3: 0
     - _Mode: 0
     - _Moisture: 0.237
-    - _NoiseAmount: 0.8
+    - _NoiseAmount: 1
     - _NoiseScale: 15
     - _NormalStrength: 1
     - _Occlusion: 7.5
@@ -180,8 +180,8 @@ Material:
     - _ProfileDepth: 10
     - _RootDepth: 5
     - _RootFadeWidth: 0.5
-    - _RootMoisture: 0.5
-    - _RootZoneDepth: 0.36666667
+    - _RootMoisture: 0.4285714
+    - _RootZoneDepth: 0.35333335
     - _Shininess: 0.823
     - _Smoothness: 0
     - _Smoothness0: 1
@@ -205,15 +205,16 @@ Material:
     - _WaterBottom: 0.384
     - _WaterEdge: 0.177
     - _WaterEdgeSoftness: 0.15
-    - _WaterLevel: 0.37333336
+    - _WaterLevel: 0.36666667
     - _WaterOpacity: 0.46
     - _WaterSmoothnessBoost: 0.35
     - _WaterStrength: 0.75
     - _WaterTableY: -58
     - _WetColorStrength: 0.65
     - _WetContrast: 4
+    - _WetPatchOpacity: 0.3
     - _WetSmoothnessBoost: 0.15
-    - _WetVividness: 0.85
+    - _WetVividness: 0.6
     - _ZWrite: 1
     m_Colors:
     - _CameraFadeParams: {r: 0, g: Infinity, b: 0, a: 0}
@@ -227,7 +228,7 @@ Material:
     - _TreeInstanceColor: {r: 1, g: 1, b: 1, a: 1}
     - _TreeInstanceScale: {r: 1, g: 1, b: 1, a: 1}
     - _WaterColor: {r: 0.14901961, g: 0.44717568, b: 0.60784316, a: 1}
-    - _WetColor: {r: 0.08828763, g: 0.5683971, b: 0.8039216, a: 0.8352941}
+    - _WetColor: {r: 0.038180865, g: 0.3939751, b: 0.6226415, a: 0.8352941}
   m_BuildTextureStacks: []
 --- !u!1002 &2100001
 EditorExtensionImpl:

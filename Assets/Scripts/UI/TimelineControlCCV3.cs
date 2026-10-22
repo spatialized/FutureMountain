@@ -106,6 +106,13 @@ public class TimelineControlCCV3 : TimelineControl
         if (dateText != null) dateText.text = newText;   // GameController feeds the current date here each frame
     }
 
+    // Update the fire years (per active scenario) and recolour the ticks. Cheap: rebuilds the ~43 ticks.
+    public override void SetFireYears(List<int> years)
+    {
+        fireYearsCCV3 = years;
+        if (resolution > 0) BuildTicks(resolution);
+    }
+
     // --- neutralize the legacy visual methods GameController still calls ---
     public override void ShowMessages() { }
     public override void HideMessages() { }
@@ -140,8 +147,9 @@ public class TimelineControlCCV3 : TimelineControl
             go.SetActive(true);
             RectTransform rt = go.GetComponent<RectTransform>();
 
-            // The slider shows year 1 (1977) at the TOP and the last year at the bottom, so place tick i=0 at the
-            // top (anchorY 1) and increase downward. (anchorY 0 = bottom in Unity, hence the 1 - ... flip.)
+            // The slider shows year 1 (1977) at the TOP and the last year at the bottom, so place tick i=0 near the
+            // top and increase downward. tickInset pulls both ends inward to match the handle's real travel range
+            // (the handle can't reach the very edges because of its own size).
             float t = (count == 1) ? 0.5f : 1f - (float)i / (count - 1);
             rt.anchorMin = new Vector2(0.5f, t);
             rt.anchorMax = new Vector2(0.5f, t);

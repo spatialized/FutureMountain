@@ -14,10 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   title: "Quest 2 \xB7 Level 1"
   lockZoomOut: 0
-  graphPrecipOnly: 0
-  graphVegVariables: 0
+  graphVariableMode: 12
   lockedScenario: 0
-  lockedGraphVariable: 12
+  lockedSpeedStep: 0
   allowSideBySide: 0
   allowDifferentCubes: 0
   opening: 'Welcome to Quest 2, which is all about vegetation recovery and what factors

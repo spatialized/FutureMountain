@@ -14,10 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: "Quest 3 \xB7 Level 1"
   lockZoomOut: 0
-  graphPrecipOnly: 0
-  graphVegVariables: 0
+  graphVariableMode: -1
   lockedScenario: -1
-  lockedGraphVariable: -1
   allowSideBySide: 1
   allowDifferentCubes: 1
   opening: "Welcome to Quest 3! Up until this point, you\u2019ve analyzed climate

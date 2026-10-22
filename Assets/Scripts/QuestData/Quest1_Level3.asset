@@ -14,9 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: "Quest 1 \xB7 Level 3"
   lockZoomOut: 0
-  graphPrecipOnly: 0
-  graphVegVariables: 1
-  allowSideBySide: 1
+  graphVariableMode: -2
+  lockedScenario: -1
+  lockedSpeedStep: -1
+  graphSelectable: 0
+  allowSideBySide: 0
   allowDifferentCubes: 0
   opening: Looking at climate can only do so much to explain ecosystem processes
     and wildfire risk. Another important factor to consider is vegetation, and how
@@ -42,6 +44,7 @@ MonoBehaviour:
     correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 0
   - prompt: "This zone has the lowest amount of above ground biomass, and is considered
       the least productive in terms of net primary productivity due to the fact that
       this zone is mostly composed of grass. This zone receives more solar radiation
@@ -57,6 +60,7 @@ MonoBehaviour:
     correctIndex: 1
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 0
   - prompt: This zone is one where the plants have access to water from a stream.
       This zone is the only zone with coast live oaks. Coast live oaks average 10-15
       meters in height, compared to chaparral where for mature shrubs, the average
@@ -71,6 +75,7 @@ MonoBehaviour:
     correctIndex: 4
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 0
   - prompt: "This zone has, on average, a lower above ground biomass for the chaparral
       shrubs. In this zone rainfall does not determine how much access the vegetation
       has to water, as water naturally travels \u201Cdown slope\u201D to lower elevation
@@ -85,6 +90,7 @@ MonoBehaviour:
     correctIndex: 3
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 0
   - prompt: ' This zone has the most above ground biomass in comparison to the other
       zones, and consistent vegetation height as no fire or other disturbances occur
       at this elevation level in any of our simulations. The amount of access the
@@ -101,3 +107,4 @@ MonoBehaviour:
     correctIndex: 2
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 0
