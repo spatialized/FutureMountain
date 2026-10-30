@@ -16,6 +16,8 @@ MonoBehaviour:
   lockZoomOut: 0
   graphVariableMode: -1
   lockedScenario: -1
+  lockedSpeedStep: -1
+  graphSelectable: 0
   allowSideBySide: 1
   allowDifferentCubes: 1
   opening: "Welcome to Quest 3! Up until this point, you\u2019ve analyzed climate
@@ -28,4 +30,11 @@ MonoBehaviour:
     from least visibly affected to most visibly affected."
   ending: 
   defaultOptions: []
-  questions: []
+  questions:
+  - prompt: 1
+    options:
+    - 1
+    correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []
+    textInput: 0

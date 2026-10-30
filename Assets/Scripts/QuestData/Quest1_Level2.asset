@@ -32,12 +32,15 @@ MonoBehaviour:
     smaller spatial resolution than the other climate scenarios."
   defaultOptions: []
   questions:
-  - prompt: "Match the following scenario description with the climate scenarios
-      you saw previously:\n\u201CWRF: This climate scenario utilizes model results
-      from the Weather Research Forecasting and Model, which allows scientists to
-      parametrize different atmospheric models to better optimize for local climate
-      conditions and features. This scenario is significantly drier with less rain
-      and more windy days.\u201D"
+  - prompt: 'Match the following scenario description with the climate scenarios
+      you saw previously:
+
+      WRF: This climate scenario utilizes model results
+      from the Weather Research Forecasting and Model. Compared to other models,
+      WRF better accounts for local climate details informationdetailsinformation.
+      It considers how topographic features such as canyons, and ocean-land interactions
+      can influence how regional-global weather patterns will impact the local climate.
+      This scenario is significantly drier with less rain and more windy days.'
     options:
     - Local Climate Model
     - Hotter & Drier Model
@@ -46,10 +49,11 @@ MonoBehaviour:
     graphSelect: 0
     correctYearsByScenario: []
     textInput: 0
-  - prompt: "\u201CRSClim: This climate scenario utilizes collected weather data
-      from Mission Creek in Santa Barbara County, California for a historical period
-      of time. This scenario is wetter and more humid than the other three, with
-      warmer temperatures.\u201D \r\r\n"
+  - prompt: 'RSClim: This climate scenario is based on actual weather data from Mission
+      Creek in Santa Barbara County, California. Because it requires actual measurements
+      of variables like precipitation, it can only be used to represent climate in
+      the past few decades. This scenario is wetter and more humid than the other
+      three, with warmer temperatures.'
     options:
     - Local Climate Model
     - Hotter & Drier Model
@@ -58,10 +62,11 @@ MonoBehaviour:
     graphSelect: 0
     correctYearsByScenario: []
     textInput: 0
-  - prompt: "\u201CHadGEM: This climate scenario, based on results from a Global
-      Climate Model (GCM), generates a time series of climate inputs based on assumptions
-      that California will experience warm and dry weather. [something about relative
-      humidity and temperature/wind depending on relevance]\u201D "
+  - prompt: "HadGEM: This climate scenario, based on results from a Global Climate
+      Model (GCM), - a model used by scientists to project how California\u2019s
+      climate as a whole may evolve. Its assumptions about human behavior and regional
+      climate patterns suggest that warm and dry weather may happen more often. [something
+      about relative humidity and temperature/wind depending on relevance]"
     options:
     - Local Climate Model
     - Hotter & Drier Model

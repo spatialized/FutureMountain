@@ -170,7 +170,16 @@ public class SimulationSettings : MonoBehaviour
 
     [Header("Time")]
     public float TreeGrowthSpeedFactor = 0.00033f;       // Growth speed factor
-    public float TreeDeathSpeed = 0.1f;                  // Death speed 
+    // Central Coast only: multiplier applied to tree growth speed for trees that regrow AFTER a death
+    // (post-fire saplings). <1 slows recovery so the burned stand visibly grows back over sim-years
+    // instead of snapping to full height in one step. 1 = no slowdown. Initial planting and BigCreek
+    // are unaffected (gated in TreeController.GrowTree).
+    public float CentralCoastRegrowthSpeedScale = 0.17f;
+    // Central Coast only: visible starting size of a post-fire sapling, as a fraction of its full-grown
+    // height (0.1 = a tenth of full). Seeded once the data height target is known so the sapling appears
+    // as a small tree and grows up, instead of starting invisible at scale 0.
+    public float CentralCoastRegrowthStartFraction = 0.1f;
+    public float TreeDeathSpeed = 0.1f;                  // Death speed
     public float DeadTreeShrinkFactor = 0.066f;          // Percent to shrink dead tree litter by each frame
 
     /* Side-by-Side Mode Settings*/

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   title: "Quest 2 \xB7 Level 2"
   lockZoomOut: 0
-  graphVariableMode: 11
+  graphVariableMode: -1
   lockedScenario: 0
   lockedSpeedStep: -1
   graphSelectable: 0
@@ -33,7 +33,12 @@ MonoBehaviour:
   questions:
   - prompt: Which zone shows the most limited height recovery? While answering, think
       about why that may be.
-    options: []
+    options:
+    - North
+    - South
+    - High
+    - Low
+    - Riparian
     correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []
@@ -53,3 +58,11 @@ MonoBehaviour:
     graphSelect: 0
     correctYearsByScenario: []
     textInput: 0
+  - prompt: Compare zone-to-zone (side by side North vs South) to hone in on the
+      message that they differ comparatively, after they have explored each of them
+      individually.
+    options: []
+    correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []
+    textInput: 1

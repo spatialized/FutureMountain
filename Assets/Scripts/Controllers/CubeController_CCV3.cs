@@ -302,6 +302,7 @@ public class CubeController_CCV3 : CubeController
             int idx = fir.speciesIdx;
             if (idx < 0 || idx >= patchSlotBySpecies.Length) continue;
             float h;
+            float aggMaxH = -1f;   // aggregate: cap height at the species' full configured height; -1 (zone cubes) = no cap
             if (isAggregate)
               {
                 // Each species has a base height (oak 10m, chaparral 2.75m); scale them all by the data's
@@ -312,6 +313,7 @@ public class CubeController_CCV3 : CubeController
                     ? vegetation.species[idx].fullHeightMeters : 0f;
                 float avgNow = GetHeightOver(timeIdx, false);   // aggregate's single height (patch1 data)
                 h = (avgNow > 0f) ? baseH * (avgNow / AggregateMeanHeightBase) : baseH;
+                aggMaxH = baseH;   // data heightOver can exceed the base mean -> cap so trees don't overshoot the cube
               }
             else
             {
@@ -325,7 +327,7 @@ public class CubeController_CCV3 : CubeController
                     fir.SetFullHeightMeters(h, hMin, hMax);   // clamp per-tree jitter to this patch's height range
                 }
                 else
-                    fir.SetFullHeightMeters(h);
+                    fir.SetFullHeightMeters(h, 0f, aggMaxH);   // cap at the species' full height
             }
             if (fir.leafDensity != null)
                   fir.leafDensity.SetDensity(GetLeafFraction(timeIdx, patchSlotBySpecies[idx] == 2));

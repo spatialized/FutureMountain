@@ -36,9 +36,9 @@ MonoBehaviour:
     correctIndex: 0
     graphSelect: 1
     correctYearsByScenario:
-    - years: 030000001300000016000000
-    - years: 050000000e000000130000002200000027000000
-    - years: 020000000700000011000000130000001d000000
+    - years: 02000000
+    - years: 02000000
+    - years: 02000000
     textInput: 0
   - prompt: Using the precipitation graph, now select what you would think is a dry
       year?

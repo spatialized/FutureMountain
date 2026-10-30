@@ -128,6 +128,7 @@ public class ZoneGraph : MonoBehaviour
     {
         if (chart == null || cube == null || suppressed) return;
         gameObject.SetActive(true);
+        Debug.Log("[GRAPHCUBE] ZoneGraph.Refresh plotting cube=" + cube.name + " variable=" + variable);
 
         chart.RemoveData();
 

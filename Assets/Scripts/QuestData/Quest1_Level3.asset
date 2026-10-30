@@ -32,6 +32,17 @@ MonoBehaviour:
   - Low
   - Riparian
   questions:
+  - prompt: "Within FM there are 5 patches: high elevation, low elevation, north-facing
+      patch, south-facing patch, and a riparian patch. Tap on each to explore some
+      of the following characteristics while keeping note of:\r\nBiomass accumulation
+      \r\nVegetation height \r\nProductivity (Net Primary Productivity) \r\nVegetation
+      water access \r\nRain accumulation \r\nTypes of vegetation and structures \r\n\r\nClick
+      on the ? when ready to answer questions in order to proceed\r"
+    options: []
+    correctIndex: 0
+    graphSelect: 0
+    correctYearsByScenario: []
+    textInput: 0
   - prompt: "This zone has the largest year-to-year variation in plant\u2019s primary
       productivity (or energy generation), above ground biomass, respiration, and
       transpiration. It is characterized by an average elevation within the watershed."

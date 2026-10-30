@@ -27,11 +27,20 @@ MonoBehaviour:
   ending: "Congragulations! You have completed Quest 1. Press \u201Cnext\u201D to
     proceed to Quest 2."
   defaultOptions:
-  - 
+  - North
+  - South
+  - Hight
+  - Low
+  - Riparian
   questions:
   - prompt: 'Look at these cubes. Which one is running out of water in the summer
       first? '
-    options: []
+    options:
+    - North
+    - South
+    - High
+    - Low
+    - Riparian
     correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []

@@ -880,16 +880,14 @@ public class CubeController : MonoBehaviour
         }
     }
 
-    // WATER YEAR for a cubeData key (1-based dateIdx). The RHESSys data is water-year aligned
-    // (runs Oct–Sep); the quest answer key groups rainfall by water year, so the graph must too, or
-    // wet/dry years won't match. US convention: Oct–Dec belong to the NEXT calendar year's water year
-    // (labeled by the ending year). dataDates is 0-based, aligned to the 0-based sim time index.
+    // CALENDAR YEAR for a cubeData key (1-based dateIdx). dataDates is 0-based, aligned to the 0-based sim
+    // time index, so year = dataDates[dateIdx - 1].year.
     private static int ZoneYearForDateIdx(int dateIdx)
     {
         var dates = (GameController.Instance != null) ? GameController.Instance.dataDates : null;
         int i = dateIdx - 1;
         if (dates != null && i >= 0 && i < dates.Count)
-            return (dates[i].month >= 10) ? dates[i].year + 1 : dates[i].year;
+            return dates[i].year;
         return int.MinValue;   // unknown
     }
 
@@ -935,9 +933,9 @@ public class CubeController : MonoBehaviour
         foreach (var y in c2.Keys) years.Add(y);
         if (years.Count == 0) return result;
 
-        // Rainfall is an annual TOTAL (sum of daily mm); intensive variables (temperature, wind, humidity)
-        // are yearly MEANS. This matches how the quest key defines a wet/dry year.
-        bool useSum = (variable == ZoneGraphVariable.Precip);
+        // Calendar-year grouping: ALL variables (including precip) use the yearly MEAN for now.
+        // (Pending the final decision after the meeting — precip was previously an annual TOTAL under water-year.)
+        bool useSum = false;
 
         foreach (int year in years)
         {
@@ -1010,14 +1008,18 @@ public class CubeController : MonoBehaviour
             if (idx < 0 || idx >= firsToKillBySpecies.Length) continue;
 
             int share = Mathf.RoundToInt(deaths * sp.percentInPatch / 100f);
+            int aliveBefore = GetAliveTrees(idx).Count;   // DIAG
             // Kill immediately, not via the per-frame drain: during a fire the veg update (and thus the
             // drain) is suppressed (UpdateVegetation only runs when !terrainBurning), so a queued
             // fire-date death would never drain. ind_died is explicit data — apply it in full right now.
             firsToKillBySpecies[idx] += share;
+            int killed = 0;   // DIAG
             while (firsToKillBySpecies[idx] > 0)
             {
                 if (!KillAFir(false, idx)) break;   // kills one (animated) + decrements; clears queue if none left
+                killed++;   // DIAG
             }
+            Debug.Log($"[DEATH2] {name} idx={idx} percentInPatch={sp.percentInPatch} share={share} aliveBefore={aliveBefore} killed={killed}");   // DIAG
             if (share > 0 && lastDeathTimeIdxBySpecies != null && idx < lastDeathTimeIdxBySpecies.Length)
                   lastDeathTimeIdxBySpecies[idx] = timeIdx;   // mark death this step so refill waits until next day
         }

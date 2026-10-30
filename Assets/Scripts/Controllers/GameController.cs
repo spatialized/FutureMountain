@@ -243,6 +243,8 @@ public class GameController : MonoBehaviour
     private GameObject storyModeToggleObject;                 // Story mode toggle button
     private GameObject sideBySideModeToggleObject;            // Mode 2 toggle: same cube in different scenarios
     private GameObject differentCubesModeToggleObject;       // Mode 1 toggle: different cubes in the same scenario
+    private bool cameraWantsModeToggles = false;    // camera state: true at the zone overview, false when zoomed into a cube
+    private bool differentCubesModeAllowed = false; // current level allows the different-cubes mode
     private GameObject exitSideBySideButtonObject;            // Exit Side-by-Side Mode button object
     private GameObject startButtonObject;                     // Start button object
     private GameObject pauseButtonObject;                     // End button object
@@ -3163,7 +3165,11 @@ public class GameController : MonoBehaviour
 
     public void SetSideByToggleActive(bool state)
     {
+        cameraWantsModeToggles = state;
         sideBySideModeToggleObject.SetActive(state);
+        // The different-cubes toggle follows the SAME camera states as side-by-side, but only appears on levels that use it.
+        if (differentCubesModeToggleObject != null)
+            differentCubesModeToggleObject.SetActive(state && differentCubesModeAllowed);
     }
 
     public void SetSideBySideAllowed(bool allowed)
@@ -3176,10 +3182,11 @@ public class GameController : MonoBehaviour
 
     public void SetDifferentCubesAllowed(bool allowed)
     {
+        differentCubesModeAllowed = allowed;
         if (differentCubesModeToggleObject == null) return;
         if (!IsCentralCoastV3()) return;   // BigCreek: never touch the toggle
-        var tgl = differentCubesModeToggleObject.GetComponent<UnityEngine.UI.Toggle>();
-        if (tgl != null) tgl.interactable = allowed;   // grey when the level forbids the different-cubes mode
+        // Show only at the zone overview (camera) AND when this level uses the mode; hidden otherwise.
+        differentCubesModeToggleObject.SetActive(cameraWantsModeToggles && allowed);
     }
 
     // The two mode toggles are mutually exclusive (no ToggleGroup object): turning one on turns the other
@@ -3361,6 +3368,7 @@ public class GameController : MonoBehaviour
         else
             graphedCube = null;
 
+        Debug.Log("[GRAPHCUBE] OnZoomedIntoCube cubeIdx=" + cubeIdx + " -> graphedCube=" + (graphedCube != null ? graphedCube.name : "null"));
         if (graphedCube != null) zoneGraph.ShowCube(graphedCube);
         else                     zoneGraph.HideGraph();
     }

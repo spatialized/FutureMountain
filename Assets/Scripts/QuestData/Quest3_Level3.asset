@@ -16,6 +16,8 @@ MonoBehaviour:
   lockZoomOut: 0
   graphVariableMode: -1
   lockedScenario: -1
+  lockedSpeedStep: -1
+  graphSelectable: 0
   allowSideBySide: 0
   allowDifferentCubes: 0
   opening: 
@@ -24,12 +26,16 @@ MonoBehaviour:
   questions:
   - prompt: 'Identifying differences in fire during each of the climate buckets (wet,
       drought, dry) '
-    options: []
+    options:
+    - 1
     correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 0
   - prompt: Identifying fire vulnerability or risk based on climate
-    options: []
+    options:
+    - 1
     correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 0

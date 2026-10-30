@@ -87,6 +87,11 @@ public abstract class TreeController : MonoBehaviour
     protected float treeHeightScale;                  // Current tree height scale
     protected float treeFullHeightScale;              // Tree height scale at fully grown state
 
+    // Central Coast only: true when this tree was grown via the non-immediate path (Grow(false)), i.e. a
+    // post-fire refill that starts at scale 0. GrowTree then uses the slower CentralCoastRegrowthSpeedScale
+    // so recovery is visible. Initial planting uses Grow(true) and leaves this false (normal speed).
+    protected bool slowRegrowth = false;
+
     protected float treeWidthScale;                  // Current tree width scale
     protected float treeFullWidthScale;              // Tree width scale at fully grown state
     public float alphaCutoff;                        // Leaf shader alpha cutoff (Used for visualizing leaf carbon)   -- Unused
@@ -140,6 +145,10 @@ public abstract class TreeController : MonoBehaviour
 
         alive = true;
         dying = false;
+
+        // Non-immediate grow = a refill from scale 0 (post-fire recovery). Mark it so GrowTree can slow
+        // its growth on Central Coast; immediate grow = initial planting, which keeps normal speed.
+        slowRegrowth = !immediate;
 
         if (immediate)
         {
@@ -236,6 +245,23 @@ public abstract class TreeController : MonoBehaviour
       {
         float newHeightScale, newWidthScale;
         float step = settings.TreeGrowthSpeedFactor * timeStep;
+
+        // Central Coast only: slow down post-fire regrowth so a burned stand grows back visibly over
+        // sim-years instead of snapping to full height. BigCreek (and CC initial planting, which uses
+        // the immediate path) keep the original speed.
+        if (slowRegrowth && settings.apiProfile == ScenarioApiProfile.CentralCoastV3)
+        {
+            step *= settings.CentralCoastRegrowthSpeedScale;
+
+            // Seed the sapling's visible starting size once its data height target is known. The refill
+            // path starts at treeHeightScale 0 (invisible); the first time we have a real full-height
+            // target, pop it to a small fraction of full so it appears as a little tree, then grow up.
+            if (treeHeightScale <= 0f && treeFullHeightScale > 0f)
+            {
+                float seedH = settings.CentralCoastRegrowthStartFraction * treeFullHeightScale;
+                SetTreeScale(seedH, GetWidthScaleFromHeightScale(seedH, settings.TreeWidthVariability), false);
+            }
+        }
 
         // Move gradually toward treeFullHeightScale in BOTH directions. BigCreek's target is fixed and the
         // tree never overshoots it, so only the grow branch runs there (unchanged). Central Coast drives

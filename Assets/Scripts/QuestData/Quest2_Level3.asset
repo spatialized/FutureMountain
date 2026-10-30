@@ -11,25 +11,27 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a0001cc40633e2242a75f7015c8a9162, type: 3}
   m_Name: Quest2_Level3
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   title: "Quest 2 \xB7 Level 3"
   lockZoomOut: 0
-  graphVariableMode: 11
+  graphVariableMode: -1
   lockedScenario: -1
+  lockedSpeedStep: -1
+  graphSelectable: 0
   allowSideBySide: 1
   allowDifferentCubes: 0
-  opening: 'Let us take a look at how different climate scenarios affect recovery.
+  opening: Let us take a look at how different climate scenarios affect recovery.
     We established what a drought was in quest 1, but how might prolonged periods
     of dryness affect recovery? Take a look at the North and the South as they both
     experience a fire during the beginning of a drought. Pay attention to the recovery
     (the speed at which it takes to return to a normal baseline). Then, repeat the
-    exercise across the different climate scenarios.'
-  ending:
+    exercise across the different climate scenarios.
+  ending: 
   defaultOptions: []
   questions:
-  - prompt: 'Based on what you noticed in terms of recovery and plant trajectories
+  - prompt: Based on what you noticed in terms of recovery and plant trajectories
       after fire, what is different when plants are recovering after a drought period
-      in different climate scenarios?'
+      in different climate scenarios?
     options:
     - Recovery is slower and harder in the drier scenarios
     - Recovery is faster in the drier scenarios
@@ -38,7 +40,8 @@ MonoBehaviour:
     correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []
-  - prompt: 'What most helps plants re-establish and recover faster after a fire?'
+    textInput: 0
+  - prompt: What most helps plants re-establish and recover faster after a fire?
     options:
     - More available water and deeper rooting depth
     - Less rainfall and shallower roots
@@ -47,3 +50,4 @@ MonoBehaviour:
     correctIndex: 0
     graphSelect: 0
     correctYearsByScenario: []
+    textInput: 0

@@ -473,3 +473,124 @@ To let the subclass reach the state these seams need, a handful of base members 
 1. **Delete** the dormant `useCentralCoastPatches` field (serialized bool on B–F; Unity drops the value silently).
 2. **Physically relocate** the Central Coast method *bodies* still sitting in `CubeController.cs` (e.g. `UpdateVegetationCentralCoast`, `UpdatePatchOverstory`, `UpdateCentralCoastGrass`, `GetOverstoryCarbonP2`, `SetCentralCoastVegetationToDieFromFire`, `QueuePatchFireDeaths`, `GrowPatchOverstory`, per-species helpers) into `CubeController_CCV3.cs`, so the base *file* becomes pure BigCreek. The clustering body has already been moved as the first example.
 3. Then implement the **symmetric patch redesign**: make patch1/patch2 fully equal — each with its own `memberID` (replacing the hardcoded `patchID+1`), species, area percent, and dead prefab — with cube hydrology as the area-weighted blend of the two members.
+
+---
+---
+
+# Part 5 — Performance: scenario-switch load time (2026-10-28) / 性能:切换 scenario 的加载耗时
+**Branch:** `staging-central-coast-data-api-updates-V3`
+
+> Problem raised for the Unity sync: **switching the climate scenario (WRF / HadGEM / RSClim) is slow** — a visible stall before the new scenario renders. This part documents the exact load path, where the time goes, and the ranked options to fix it, so the discussion is grounded in code, not impressions.
+> 中文:会议要提的问题——切 scenario 时有明显卡顿。这一部分把加载链路、耗时点、以及按性价比排的解决方案都对到代码,讨论时有据可依。
+
+## 28. What one scenario switch actually does / 一次切换到底做了什么
+
+```
+OnScenarioChanged(index)                                   GameController.cs:477
+  │  (CentralCoastV3 guard; sets warmingIdx = scenarioIdx)
+  ├─ aggregate cube : SetWarmingIdx + UpdateDataFromWeb     GameController.cs:490-494
+  ├─ 5 zone cubes   : SetWarmingIdx + UpdateDataFromWeb     GameController.cs:495-502
+  │        each zone cube → UpdateDataFromWeb               CubeController.cs:2666
+  │            ├─ RequestCubeData(patch1)                   CubeController.cs:2675
+  │            └─ RequestExtraPatchData → RequestCubeData(patch2)   CubeController.cs:2677
+  ├─ RebuildCentralCoastFiresWhenLoaded(index)              GameController.cs:507
+  ├─ RefreshGraphWhenLoaded(graphedCube)                    GameController.cs:504
+  └─ PreloadSideCubes()                                     GameController.cs:516
+
+  per request:  WebManager.GetRequest → UnityWebRequest.Get (full download)   WebManager.cs:191
+  per response: FinishUpdateDataFromWeb → parse ×2 + ranges + dict + regrow   CubeController.cs:2726
+```
+
+**Cost of one switch / 一次切换的成本:** up to **11 full-series HTTP requests** (1 aggregate + 5 zones × 2 patch members), each returning the entire **~15,340 daily rows × 41 columns** for that patch+scenario, each parsed and regrown **on the main thread**. Side-by-side mode adds the preload pass.
+（最多 11 个全量请求,每个拉整条 ~15,340 天 × 41 列,全部在主线程解析 + 重长植被;side-by-side 再加一轮预载。）
+
+## 29. Where the time goes / 耗时点(瓶颈 → 代码)
+
+| # | Bottleneck | Code | Note / 中文 |
+|---|-----------|------|------|
+| **B1** | **No cache** — every switch re-downloads everything, even a scenario already viewed | `WebManager.RequestCubeData` :86 / `GetRequest` :191 | only fire frames are cached (`ccFireFramesByScenario`), not the cube data / 只缓存了火年帧,数据本身没缓存 |
+| **B2** | Each request pulls the **whole time series** (no date-range trim) | API `cubedata/{patch}/{scenario}` | 43 years × daily × 41 cols → large payload |
+| **B3** | **~11 requests** fired per switch | GameController.cs:495-502 + `RequestExtraPatchData` | aggregate 1 + 5 zones × 2 members |
+| **B4** | Same JSON **parsed 2–3×** per member, each with a full string concat | `FinishUpdateDataFromWeb` :2728 **and** :2730 (P1 twice); P2 at :2756 | `"{\"rows\":" + json + "}"` allocates the whole payload again each parse |
+| **B5** | After parsing, **2 more full passes** (min/max) + dict build + **vegetation regrow**, all **main-thread** | `FindParameterRanges` :4910, `LoadData` :2711, `GrowFromLoadedData` :1894 | this is the direct source of the frame stall / 卡帧直接来源 |
+
+## 30. Options to fix, ranked by payoff / 解决方案(按性价比)
+
+| Rank | Change | Scope | Touches BigCreek? API? |
+|------|--------|-------|------------------------|
+| **1** | **Cache loaded scenario data** in memory (key = `patchID + scenarioIdx`); a switch back to a seen scenario is instant, zero network | `UpdateDataFromWeb` / `FinishUpdateDataFromWeb` | Unity only; BigCreek untouched (guarded); no API change |
+| **2** | **Collapse the duplicate parse** (B4): parse once, share the array between `dataRows` and `cubeData`; drop the string concat | `FinishUpdateDataFromWeb` | Unity only; zero-risk local change |
+| **3** | **Silently preload all 3 scenarios** in the background after scene load | `GameController` + cube loader | Unity only |
+| **4** | **Move parse + dict + range off the main thread** (`Task.Run`), return to main thread only for `GrowFromLoadedData` | `FinishUpdateDataFromWeb` | Unity only; removes the stall (B5) |
+| **5** | **API side**: server-side cache per scenario / return only the columns Unity uses / enable gzip | Web API | API change — needs David |
+
+> Recommendation for the meeting / 会议建议: **do #1 and #2 first** — both are Unity-only, don't touch BigCreek or the API, and together remove most of the felt latency (instant re-switch + half the parse cost). #3–#5 are follow-ups if more is needed.
+> 中文:先做 1 和 2——纯 Unity 端、不动 BigCreek、不动 API,合起来就能把大部分卡顿消掉(重复切换秒开 + 解析减半)。3–5 作为后续。
+
+## 31. Open questions for the Unity team / 需要和 Unity 团队确认
+
+1. **Is a client-side scenario cache acceptable?** Data is static per scenario (never changes at runtime), so caching is safe — confirm there's no requirement to always re-fetch. / 客户端缓存 scenario 数据可以吗?数据运行期不变,缓存是安全的。
+2. **Memory budget** — caching all 3 scenarios × 6 cubes holds ~33 full series in RAM. Acceptable on the target hardware? / 缓存三个 scenario 的内存占用能接受吗?
+3. **API ownership** — if we want server-side caching / column trimming / gzip (option #5), who owns that change and on what timeline? / API 端优化谁来做、什么时间?
+4. **Is the full 43-year series needed up front**, or could the API serve a window around the current year and stream the rest? / 一开始是否真需要整条 43 年,还是可以先给当前年附近的窗口、其余后台补?
+
+---
+---
+
+# Part 6 — Unity for Humanity consulting session prep (2026-10-28) / Unity 顾问会准备
+**Branch:** `staging-central-coast-data-api-updates-V3`
+
+> This part turns the "Summary of Alpha Version" questions into a discussion plan for the **external Unity for Humanity consultants**. They do **not** know our codebase, so the goal is: give context fast, bring concrete numbers, and ask *"what would you do"* — not expect them to fix our code. It also answers **what to actually show them**.
+> 中文:这一部分把 alpha 版问题整理成和 Unity 外部顾问讨论的计划。对方不了解我们的代码,所以重点是——快速给背景、带具体数字、问"你们会怎么做",而不是指望他们改代码;最后给出"到底该展示什么"。
+
+## 32. How to run the session / 怎么开这个会
+
+**Open with the hard constraints (the "must not break" list)** so every piece of advice is scoped to reality:
+1. Inherited from **Big Creek**: **Built-in Render Pipeline + Unity 2022.3 LTS**.
+2. **Must stay backward-compatible with Big Creek** — optimizations are either Central-Coast-only or safe for both.
+3. **Two builds: Windows Desktop + WebGL**; Web should keep as much of Desktop's content/quality as possible.
+4. **Fully data-driven** every step (vegetation amount/height, carbon, water, ET, photosynthesis, weather).
+5. Local DB + REST API now, remote server later.
+
+**Session mechanics / 会议机制:**
+- **Send materials ahead**: this doc + a **2-min build demo video** + the key numbers, so they arrive prepared.
+- **Every performance point carries a number** — without numbers they can only answer in generalities.
+- Ask in two modes: **open** ("what's the best practice for X") and **decision** ("should we do X — yes/no").
+- **Let them rank**: "given our constraints and small team, which 2–3 things would you do first by payoff?"
+- **One note-taker**, record each item's **conclusion + owner + follow-up links**.
+- **Order:** warm up on concrete Challenges a/b → then the strategic **render-pipeline decision** (it gates a lot) → finish with Gaussian Splatting (quick).
+
+## 33. Topic-by-topic discussion plan / 逐条讨论计划
+
+| # | Topic | How to frame it / 怎么框 | Specific asks / 具体问 | Want out of it / 想拿到 |
+|---|-------|--------------------------|------------------------|--------------------------|
+| **a** | **Init slow** (600+ instances) | ~600 vegetation GameObjects created at once (aggregate 200 + 5 zones × 80); each = species prefab + root prefab + ET particle system; recreated on scenario switch | Pooling? GPU instancing / `DrawMeshInstanced`? Async **spread-over-frames** instantiation? Addressables? Is per-instance particle system the cost — pool/GPU particles? ECS worth it under Built-in + BigCreek compat, or overkill? | A WebGL-friendly instance-management architecture that doesn't break BigCreek |
+| **b** | **Vegetation rendering** (leaf cards / LOD / growth) | Oak canopy = leaf cards; LOD generator thinned the canopy on zoom-out; growth/death = whole-model uniform scaling | Keep canopy density while cutting overdraw/tris (impostors? atlasing? alpha-to-coverage? baked canopy mesh)? Is WebGL overdraw from transparent leaf cards the real killer? Is uniform scaling actually free of geometry cost (cost is draw calls/overdraw)? Cheaper, more natural growth via shader vertex displacement? | A "density-preserving + cheap" canopy approach + confirmation that scaling ≠ tri/vert conflict |
+| **c** | **Environmental effects** (more coming) | Now: alpha-cutoff + color mapping (leaf carbon, soil moisture), particles (fire, ET). Planned: ground litter, fire splatmaps, rain/moisture/temp particles+shaders | How to add many data-driven effects on a budget (esp. Web)? Which are cheap vs expensive on WebGL (particles vs shader vs splatmap)? Use our central `EffectManager` for effect LOD / distance culling / toggles? Global shader params vs per-material? | A scalable effect-budget / management strategy, not single-effect recipes |
+| **A-a** | **Render pipeline / version** ★ main one | Built-in RP + 2022.3; weighing **URP** and/or **Unity 6**, and **WebGPU** for Web quality | Under BigCreek compat, realistic **cost + risk** of URP migration? Can we run **CC on URP while BigCreek stays Built-in** — feasible? Does Unity 6 pay for itself here? Is **WebGPU in Unity 6 production-ready** for Web yet? | A **go/no-go** + if go, a **phased path** + BigCreek risk assessment |
+| **A-b** | **3D Gaussian Splatting** | Idea: 3DGS for the **basin background** (and maybe aggregate cube); team has no experience | How hard to integrate 3DGS into a data-driven Built-in/URP + WebGL app? **Web-viable** (file size, decode cost)? Tooling maturity (e.g. Aras P.'s Unity GS package)? How does it coexist with dynamic foreground vegetation? | "Worth a prototype, or park it" decision |
+
+## 34. What to show them — ranked / 该展示什么(按价值排序)
+
+> For a **rendering + performance** consult, a **live profiling session beats source code**. Show in this order; code is tertiary and only to explain *architecture decisions* they'd advise on.
+> 中文:渲染+性能咨询,**现场跑 Profiler 比看源码有用得多**。按下面顺序展示,代码排最后,只用来解释"我们为什么这么设计"。
+
+**1. A running build + the profiler numbers (most important).** Open the **Stats** overlay, **Frame Debugger**, and **Profiler** on a live scene, and on the **WebGL build** if possible.
+   - Show: **draw calls / batches / tris / verts**, frame time at scene-load vs runtime, where spikes land (instantiation vs rendering).
+   - This is what lets a rendering expert diagnose. Capture these numbers *before* the meeting too, in case the demo machine struggles.
+
+**2. One tree GameObject in the Inspector — the per-instance anatomy.** This makes challenges **a** and **b** concrete without any code.
+   - The component tree: meshes + **LODGroup** / our **`DensityLODGroup`** (`Assets/Scripts/Controllers/DensityLODGroup.cs`), the **leaf-card canopy material + shader**, and the **ET particle system**.
+   - Point out: ~600 of these exist at once, each carrying a particle system.
+
+**3. A few code spots that embody the decisions (tertiary).** Only to answer "how do you currently do X":
+
+| Question they'll ask | Show this | File : line |
+|----------------------|-----------|-------------|
+| How do you create/manage the instances? | `GrowFromLoadedData` (one-shot build) + `GrowAFir` (instantiate one tree) | `CubeController.cs:1894`, `:3152` |
+| How do growth & death work? (the scaling concern) | `GrowTree` → `UpdateTreeLODsScale` (LOD child meshes scaled, not the parent) | `TreeController.cs:244`, `:677` |
+| How do effects get driven by data? | `EffectManager` config + ET wind / emission | `Assets/Scripts/Controllers/EffectManager.cs` |
+| Why is scenario switching slow? (ties to Part 5) | `OnScenarioChanged` + the duplicate parse in `FinishUpdateDataFromWeb` | `GameController.cs:477`, `CubeController.cs:2728`/`:2730` |
+
+> **Do not** walk them through files top-to-bottom — they don't know the codebase and it burns the session. Lead with the **demo + profiler**, use the prefab to make cost tangible, and open a code file only when a specific question lands on one of the rows above.
+> 中文:别逐行讲代码——对方不熟代码,会很浪费时间。先 demo+Profiler,再用 prefab 让"成本"看得见,只有当某个问题正好落到上表某一行时,才打开对应的代码文件。
