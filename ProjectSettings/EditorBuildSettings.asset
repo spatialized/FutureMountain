@@ -5,7 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/BigCreekV1/BigCreekV1.unity
     guid: a2184b444162242f58be7ba20b64b6e4
+  - enabled: 1
+    path: Assets/Scenes/CentralCoastV3/CentralCoastV3.unity
+    guid: f70f3053815254f4b8e803870e771acf
   m_configObjects: {}

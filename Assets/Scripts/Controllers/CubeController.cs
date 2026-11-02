@@ -73,6 +73,9 @@ public class CubeController : MonoBehaviour
     public List<GameObject> rootsPrefabs;        // Root prefabs (least grown to full-grown) 
     private GameObject rainToGWPrefab;           // Prefab for particle system of rain seeping into ground
     private WaterToGWController precipToGWController;
+    
+    [Header("Rainfall")]
+    private RainfallController rainFallController;
 
     /* Animation */
     [Header("Animation")]
@@ -245,6 +248,8 @@ public class CubeController : MonoBehaviour
     private float SnowAmountMax = -100000f;         // Snow amount min.
     private float snowValueMin = 0f;                // Min. snow value in SnowManager
     private float snowValueMax = 1.4f;              // Max. snow value in SnowManager
+
+    public float RainAmount { get; set; } = 0f;     // CC: precipitation (row.rain) this step, drives falling rain
 
     /* Water */
     public float WaterAccess { get; set; }         // Vegetation access to water in (surface) soil
@@ -1107,6 +1112,11 @@ public class CubeController : MonoBehaviour
         rainToGWPrefab.SetActive(false);
         precipToGWController = rainToGWPrefab.GetComponent<WaterToGWController>();
         Assert.IsNotNull(precipToGWController);
+
+        // CC: optional falling-rain particle (mirrors RainToGW). Null when the cube has no Rainfall_Prefab (e.g. BigCreek).
+        Transform rainFallTf = transform.Find("Rain_CCV3");
+          if (rainFallTf != null)
+            rainFallController = rainFallTf.GetComponentInChildren<RainfallController>();
 
         //cubeLabel = transform.Find("CubeLabel").gameObject;              // Get (cube) base object
         bool ccv3 = settings != null && settings.apiProfile == ScenarioApiProfile.CentralCoastV3;
@@ -2177,6 +2187,9 @@ public class CubeController : MonoBehaviour
 
         if ((settings == null || settings.SnowEnabled) && snowValue > 0)
             UpdatePrecipToGW(snowValue);
+        
+        if (settings != null && settings.apiProfile == ScenarioApiProfile.CentralCoastV3)
+              UpdateRainfall(RainAmount);
     }
 
     /// <summary>
@@ -2190,6 +2203,18 @@ public class CubeController : MonoBehaviour
                 rainToGWPrefab.SetActive(true);
         }
         precipToGWController.UpdatePrecipitation(snowValue);
+    }
+
+    /// <summary>
+    /// Central Coast: drive the falling-rain particle system from this step's precipitation (row.rain).
+    /// No-op on cubes without a Rainfall_Prefab (e.g. BigCreek), so it is CC-only by presence.
+    /// </summary>
+    public void UpdateRainfall(float rainValue)
+    {
+         Debug.Log($"{name} UpdateRainfall  controllerNull={rainFallController == null}");
+        if (rainFallController == null) return;
+        rainFallController.SetRain(rainValue * settings.CentralCoastRainVizScale);
+        
     }
 
     /// <summary>
@@ -2800,6 +2825,7 @@ public class CubeController : MonoBehaviour
             if (dataType == CubeDataType.Veg1)
             {
                 SnowAmount = row.snow;
+                RainAmount = row.rain;
                 DepthToGW = row.depthToGW;
                 WaterAccess = row.vegAccessWater;
                 StreamHeight = StreamflowFromRow(row);
@@ -2813,6 +2839,7 @@ public class CubeController : MonoBehaviour
             else if (dataType == CubeDataType.Veg2)
             {
                 SnowAmount = row.snow;
+                RainAmount = row.rain;
                 DepthToGW = row.depthToGW;
                 WaterAccess = row.vegAccessWater;
                 StreamHeight = StreamflowFromRow(row);
@@ -2832,6 +2859,7 @@ public class CubeController : MonoBehaviour
             else if (dataType == CubeDataType.Agg)
             {
                 SnowAmount = row.snow;
+                RainAmount = row.rain;
                 DepthToGW = row.depthToGW;
                 WaterAccess = row.vegAccessWater;
                 StreamHeight = StreamflowFromRow(row);

@@ -10,11 +10,11 @@ Material:
   m_Name: DynamicSoil_Agg
   m_Shader: {fileID: 4800000, guid: 70ade20db37e347448c71e7c486f2155, type: 3}
   m_Parent: {fileID: 2100000, guid: fd48a60197aefcc4b9a3715e4e4556df, type: 2}
-  m_ModifiedSerializedProperties: 0
+  m_ModifiedSerializedProperties: 4
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}

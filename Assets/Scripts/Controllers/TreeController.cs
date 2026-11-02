@@ -303,7 +303,7 @@ public abstract class TreeController : MonoBehaviour
         if (maxMeters > 0f) jittered = Mathf.Clamp(jittered, minMeters, maxMeters);
         treeFullHeightScale = jittered / prefabH;
         treeFullWidthScale  = treeFullHeightScale;   // uniform scaling (keep prefab proportions)
-        //Debug.Log($"[HGT] {name} heightOver={meters:F2}m  prefabH={prefabH:F2}m  scale={treeFullHeightScale:F2}");
+        Debug.Log($"[HGT] {name} heightOver={meters:F2}m  prefabH={prefabH:F2}m  scale={treeFullHeightScale:F2}");
     }
 
     // Central Coast: root SIZE from data root depth (metres). Display depth ≈ rootsHeightScale × deepest

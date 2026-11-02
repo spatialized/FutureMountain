@@ -179,6 +179,9 @@ public class SimulationSettings : MonoBehaviour
     // height (0.1 = a tenth of full). Seeded once the data height target is known so the sapling appears
     // as a small tree and grows up, instead of starting invisible at scale 0.
     public float CentralCoastRegrowthStartFraction = 0.1f;
+    // Central Coast only: scales precip (row.rain) into the falling-rain particle emission range.
+    // Tune in Inspector while watching the effect; higher = heavier rain for the same data.
+    public float CentralCoastRainVizScale = 1f;
     public float TreeDeathSpeed = 0.1f;                  // Death speed
     public float DeadTreeShrinkFactor = 0.066f;          // Percent to shrink dead tree litter by each frame
 
