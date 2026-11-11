@@ -251,6 +251,7 @@ public class FirController : TreeController
         GrowTree();
         if (isFrontTree)
             GrowRoots();
+            
     }
 
     /// <summary>

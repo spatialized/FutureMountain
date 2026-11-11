@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "FutureMountain.sln"
+    "dotnet.defaultSolution": "FutureMountain.slnx"
 }

@@ -697,6 +697,22 @@ public abstract class TreeController : MonoBehaviour
         float newHeightScale = treeHeightScale / hFactor;               // Adjust LODs scale to match full-grown height scale range
         float newWidthScale = treeWidthScale / wFactor;                 // Adjust LODs scale to match full-grown width scale range
 
+        // TEMP diagnostic (Central Coast only): catch the post-fire giant. Logs the scaling inputs whenever the
+        // LOD scale about to be applied is oversized or non-finite. NaN/Inf slip past the < 0.0001 and > 12
+        // guards (NaN comparisons are always false), so they are reported explicitly here. Gated to CC so
+        // BigCreek's console stays clean. Remove once the giant-vegetation bug is fixed.
+        if (settings != null && settings.apiProfile == ScenarioApiProfile.CentralCoastV3 &&
+            (float.IsNaN(newHeightScale) || float.IsInfinity(newHeightScale) || newHeightScale > 2.5f))
+        {
+            Debug.LogWarning($"[GIANT] {name} newH={newHeightScale} newW={newWidthScale} " +
+                            $"treeHeightScale={treeHeightScale} treeWidthScale={treeWidthScale} " +
+                            $"hFactor={hFactor} wFactor={wFactor} treePrefabIdx={treePrefabIdx} " +
+                            $"treeFullHeightScale={treeFullHeightScale} fullHeight={fullHeight} fullWidth={fullWidth}" +
+                            $"prefabHeights=[{string.Join(",", treePrefabHeights)}] " +
+                            $"prefabWidths=[{string.Join(",", treePrefabWidths)}] " +
+                            $"alive={alive} dying={dying} slowRegrowth={slowRegrowth}");
+        }
+
         SetTreeLODsScale(newHeightScale, newWidthScale);               // Set scale of LODs
 
         //GameObject lod0 = curLODGroup.transform.GetChild(0).gameObject as GameObject;

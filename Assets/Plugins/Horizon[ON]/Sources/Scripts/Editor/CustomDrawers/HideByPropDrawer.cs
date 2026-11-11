@@ -89,28 +89,28 @@ namespace Horizon {
 
 			if (checkVisible (editor, label, ref inactiveFlag)) {
 				EditorGUI.BeginDisabledGroup(inactiveFlag);
-				switch (prop.type) {
-					case MaterialProperty.PropType.Range: // float ranges
+				switch (prop.propertyType) {
+					case UnityEngine.Rendering.ShaderPropertyType.Range: // float ranges
 					{
 						editor.RangeProperty(position, prop, label);
 						break;
 					}
-					case MaterialProperty.PropType.Float: // floats
+					case UnityEngine.Rendering.ShaderPropertyType.Float: // floats
 					{
 						editor.FloatProperty(position, prop, label);
 						break;
 					}
-					case MaterialProperty.PropType.Color: // colors
+					case UnityEngine.Rendering.ShaderPropertyType.Color: // colors
 					{
 						editor.ColorProperty(position, prop, label);
 						break;
 					}
-					case MaterialProperty.PropType.Texture: // textures
+					case UnityEngine.Rendering.ShaderPropertyType.Texture: // textures
 					{
 						editor.TextureProperty(position, prop, label, texTileOffset);
 						break;
 					}
-					case MaterialProperty.PropType.Vector: // vectors
+					case UnityEngine.Rendering.ShaderPropertyType.Vector: // vectors
 					{
 						position.x+=12;
 						position.width-=12;

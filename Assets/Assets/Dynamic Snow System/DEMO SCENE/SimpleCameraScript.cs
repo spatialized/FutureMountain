@@ -34,18 +34,18 @@ public class SimpleCameraScript : MonoBehaviour
     //micah_3d: added so camera will be able to collide with world objects if users chooses
     public bool isColliding = true;
     //physic material added to keep camera from spinning out of control if it hits a corner or multiple colliders at the same time.  
-    PhysicMaterial myMaterial;
+    PhysicsMaterial myMaterial;
 
     void Start()
     {
         if (isColliding == true)
         {
-            myMaterial = new PhysicMaterial("ZeroFriction");
+            myMaterial = new PhysicsMaterial("ZeroFriction");
             myMaterial.dynamicFriction = 0f;
             myMaterial.staticFriction = 0f;
             myMaterial.bounciness = 0f;
-            myMaterial.frictionCombine = PhysicMaterialCombine.Multiply;
-            myMaterial.bounceCombine = PhysicMaterialCombine.Average
+            myMaterial.frictionCombine = PhysicsMaterialCombine.Multiply;
+            myMaterial.bounceCombine = PhysicsMaterialCombine.Average
 ;
             gameObject.AddComponent<CapsuleCollider>();
             gameObject.GetComponent<CapsuleCollider>().radius = 1f;
