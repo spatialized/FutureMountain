@@ -2,20 +2,34 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: Horizon[ON] Object
   m_Shader: {fileID: 4800000, guid: 46a2a7156e150694eaaf7b78c74ff117, type: 3}
-  m_ShaderKeywords: _DETAIL_ON _DIRECTSPEC_ON _EMISSIVENESS_ON _IBLDIFF_UNITYSH _IBLSPEC_ON
-    _LAYERCOUNT_THREE _NORMALMAPS_ON _OVERLAYFOG_ON _SNOW_ON _WATER_OFF
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _DETAIL_ON
+  - _DIRECTSPEC_ON
+  - _EMISSIVENESS_ON
+  - _IBLSPEC_ON
+  - _LAYERCOUNT_THREE
+  - _NORMALMAPS_ON
+  - _OVERLAYFOG_ON
+  - _SNOW_ON
+  - _WATER_OFF
+  m_InvalidKeywords:
+  - _IBLDIFF_UNITYSH
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -79,12 +93,13 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AmbientIBL: 1
     - _BaseDetailIntensity: 1
     - _BaseEmission: 0
     - _BaseGloss: 0
-    - _BlendDetailIntensity1: 0.26
+    - _BlendDetailIntensity1: 1
     - _BlendDetailIntensity2: 0.4
     - _BlendDetailIntensity3: 0.5
     - _BlendEmission1: 0
@@ -125,11 +140,11 @@ Material:
     - _SnowAmount: 1
     - _SnowHeight: 500
     - _SnowHeightTransition: 1500
-    - _SnowOutputColorBrightness2Coverage: 0.73
-    - _SnowSlopeDamp: 4
+    - _SnowOutputColorBrightness2Coverage: 0.75
+    - _SnowSlopeDamp: 2.68
     - _SpecIBLMulti: 0.85
     - _Water: 0
-    - _WaterBlend: 0
+    - _WaterBlend: 1
     - _WaterWaveSpeed: 1.5
     - _WaterWaves: 0.36
     - dummy_ambient: 0
@@ -150,7 +165,7 @@ Material:
     - _Anchor: {r: 0, g: 0, b: 0, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0.99999994, g: 0.8966896, b: 0.46499994, a: 0.172}
-    - _MapScaleOffset: {r: 200, g: 200, b: 9102, a: 9662}
+    - _MapScaleOffset: {r: 1236, g: 1236, b: 9102, a: 9662}
     - _OverlayFogColorAfromAmbient: {r: 1, g: 1, b: 1, a: 0.934}
     - _SnowColor: {r: 0.8927335, g: 0.9191266, b: 0.9411765, a: 0}
     - _SnowSpecGloss: {r: 0, g: 0, b: 0, a: 0}
@@ -165,3 +180,5 @@ Material:
     - _TintSaturationBlend3: {r: 0.5803922, g: 0.5803922, b: 0.5803922, a: 0.5019608}
     - _WaterColorAColorBlend: {r: 0, g: 0.193, b: 0.16105516, a: 0.878}
     - _WaterSpecGloss: {r: 0.097, g: 0.07796526, b: 0.063341, a: 0.972549}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

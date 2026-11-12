@@ -2,22 +2,42 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: Horizon[ON] TransitionTerrain
   m_Shader: {fileID: 4800000, guid: f347daa2401a10347a6e45d3b7c693be, type: 3}
-  m_ShaderKeywords: DIRECTSPEC_ON IBLSPEC_OFF NORMALMAPS_ON WATER_OFF _BLENDGLOSS2_ON
-    _CLIFFDETAIL_NORMALS _CLIFFDETAIL_ON _DETAIL_ON _DIRECTSPEC_ON _EMISSIVENESS_ON
-    _IBLDIFF_UNITYSH _IBLSPEC_ON _LAYERCOUNT_FOUR _LOCALVSGLOBALSPACE_ON _NORMALMAPS_ON
-    _OVERLAYFOG_ON _SNOW_ON _WATER_ON
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _DETAIL_ON
+  - _DIRECTSPEC_ON
+  - _EMISSIVENESS_ON
+  - _IBLSPEC_ON
+  - _LAYERCOUNT_THREE
+  - _NORMALMAPS_ON
+  - _OVERLAYFOG_ON
+  - _SNOW_ON
+  - _WATER_OFF
+  m_InvalidKeywords:
+  - DIRECTSPEC_ON
+  - IBLSPEC_OFF
+  - NORMALMAPS_ON
+  - WATER_OFF
+  - _BLENDGLOSS2_ON
+  - _CLIFFDETAIL_NORMALS
+  - _CLIFFDETAIL_ON
+  - _IBLDIFF_UNITYSH
+  - _LOCALVSGLOBALSPACE_ON
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -193,6 +213,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AdvIBLProps: 1
     - _AmbientIBL: 1
@@ -241,7 +262,7 @@ Material:
     - _IBLSpecGlossMIP: 0
     - _IBLSpecRoughMIP: 5
     - _IBL_HDR: 1
-    - _LayerCount: 3
+    - _LayerCount: 2
     - _LitvsUnlit: 0
     - _LocalSpace: 0
     - _LocalSpaceGlobalSpace: 1
@@ -255,7 +276,7 @@ Material:
     - _Noralmaps: 0
     - _Normalmaps: 1
     - _OverlayFog: 1
-    - _OverlayFogAmount: 0
+    - _OverlayFogAmount: 0.29
     - _OverlayFogAmountFromReflCubemap: 0
     - _OverlayFogAmountLowSun: 1
     - _OverlayFogAmountScattering: 3.375
@@ -270,8 +291,8 @@ Material:
     - _Parallax: 900
     - _ReduceByVertexAlpha: 0
     - _Scale: 500
-    - _ScaleHeight: 0.47
-    - _ScaleInner: 1.1125
+    - _ScaleHeight: 0.38
+    - _ScaleInner: 0.3875
     - _ScaleOuter: 0
     - _ScaleRadius: 9000
     - _ScaleTransition: 62.02
@@ -285,7 +306,7 @@ Material:
     - _SnowSlopeDamp: 2.68
     - _SpecIBLMulti: 0.85
     - _Tiling: 500
-    - _Water: 1
+    - _Water: 0
     - _WaterAnimationSpeed: 1
     - _WaterBlend: 1
     - _WaterColorAmount: 0.6785714
@@ -325,7 +346,7 @@ Material:
     - _Anchor: {r: 0, g: 0, b: 0, a: 1}
     - _Color: {r: 0.7, g: 0.7, b: 0.7, a: 1}
     - _EmissionColor: {r: 0.99999994, g: 0.8966896, b: 0.46499994, a: 0.172}
-    - _MapScaleOffset: {r: 12364, g: 12364, b: 9102, a: 9662}
+    - _MapScaleOffset: {r: 1236, g: 1236, b: 9102, a: 9662}
     - _Offset: {r: 0, g: 2000, b: 0, a: 2}
     - _OverlayFogColorAfromAmbient: {r: 1, g: 1, b: 1, a: 0.934}
     - _OverlayFogColorAfromAmbientLowSun: {r: 0.97794116, g: 0.45946372, b: 0.09347964,
@@ -349,3 +370,5 @@ Material:
     - _WaterSpecGloss: {r: 0.097, g: 0.07796526, b: 0.063341, a: 0.972549}
     - _WaterSpecularityAGloss: {r: 0.6911805, g: 0.6911805, b: 0.6911805, a: 0.67058825}
     - _tint: {r: 0.5808823, g: 0.5355193, b: 0.48691607, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

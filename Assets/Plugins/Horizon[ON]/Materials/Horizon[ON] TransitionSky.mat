@@ -2,23 +2,42 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Horizon[ON] TransitionSky
   m_Shader: {fileID: 4800000, guid: ab1e72597aacd5348887d56fcfc27d65, type: 3}
-  m_ShaderKeywords: DIRECTSPEC_ON IBLSPEC_OFF NORMALMAPS_ON WATER_OFF _BLENDGLOSS2_ON
-    _CLIFFDETAIL_NORMALS _CLIFFDETAIL_ON _DETAIL_OFF _DIRECTSPEC_ON _EMISSIVENESS_ON
-    _IBLDIFF_UNITYSH _IBLSPEC_ON _LAYERCOUNT_FOUR _LOCALVSGLOBALSPACE_ON _NORMALMAPS_ON
-    _OVERLAYFOG_ON _SNOW_ON _WATER_OFF
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _DETAIL_OFF
+  - _DIRECTSPEC_ON
+  - _EMISSIVENESS_ON
+  - _IBLSPEC_ON
+  - _LAYERCOUNT_FOUR
+  - _NORMALMAPS_ON
+  - _OVERLAYFOG_ON
+  - _SNOW_ON
+  - _WATER_OFF
+  m_InvalidKeywords:
+  - DIRECTSPEC_ON
+  - IBLSPEC_OFF
+  - NORMALMAPS_ON
+  - WATER_OFF
+  - _BLENDGLOSS2_ON
+  - _CLIFFDETAIL_NORMALS
+  - _CLIFFDETAIL_ON
+  - _IBLDIFF_UNITYSH
+  - _LOCALVSGLOBALSPACE_ON
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: 2501
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -194,6 +213,7 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _AdvIBLProps: 1
     - _AmbientIBL: 1
@@ -350,3 +370,5 @@ Material:
     - _WaterSpecGloss: {r: 0.097, g: 0.07796526, b: 0.063341, a: 0.972549}
     - _WaterSpecularityAGloss: {r: 0.6911805, g: 0.6911805, b: 0.6911805, a: 0.67058825}
     - _tint: {r: 0.5808823, g: 0.5355193, b: 0.48691607, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
