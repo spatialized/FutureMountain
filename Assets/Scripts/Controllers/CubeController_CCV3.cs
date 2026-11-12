@@ -319,6 +319,13 @@ public class CubeController_CCV3 : CubeController
             {
                 h = GetHeightOver(timeIdx, patchSlotBySpecies[idx] == 2);   // zone cubes: unchanged
             }
+
+            // Central Coast: hand the species' declared display size to the controller so SetFullHeightMeters scales
+            // against it instead of the measured mesh (lets art shrink/enlarge a species independent of its model).
+            float declaredH = (vegetation != null && vegetation.species != null && idx < vegetation.species.Count)
+                ? vegetation.species[idx].displaySizeMeters : 0f;
+            fir.SetDeclaredSizeMeters(declaredH);
+            
             if (h > 0f)
             {
                 if (!isAggregate)

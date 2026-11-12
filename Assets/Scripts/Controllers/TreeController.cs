@@ -87,6 +87,11 @@ public abstract class TreeController : MonoBehaviour
     protected float treeHeightScale;                  // Current tree height scale
     protected float treeFullHeightScale;              // Tree height scale at fully grown state
 
+    // Central Coast: when > 0, used as the scale-1 reference height in SetFullHeightMeters INSTEAD of the
+    // measured prefab bounds, so art can tune how big a species renders relative to its data height.
+    // < 0 (default) = use the measured prefab height (BigCreek behaviour, unchanged).
+    protected float declaredSizeMeters = -1f;
+
     // Central Coast only: true when this tree was grown via the non-immediate path (Grow(false)), i.e. a
     // post-fire refill that starts at scale 0. GrowTree then uses the slower CentralCoastRegrowthSpeedScale
     // so recovery is visible. Initial planting uses Grow(true) and leaves this false (normal speed).
@@ -288,6 +293,9 @@ public abstract class TreeController : MonoBehaviour
         SetTreeScale(newHeightScale, newWidthScale, false);          // Set scale and update LODs
     }
 
+    // Central Coast: set the scale-1 reference height (m) used by SetFullHeightMeters. <= 0 reverts to measured.
+   public void SetDeclaredSizeMeters(float meters) { declaredSizeMeters = meters > 0f ? meters : -1f; }
+
     /// <summary>
     /// Central Coast: set the tree's full-grown height to an absolute value in metres (from data heightOver),
     /// overriding the random treeFullHeightScale. GrowTree then grows/shrinks toward it; width scales uniformly.
@@ -295,7 +303,7 @@ public abstract class TreeController : MonoBehaviour
     public void SetFullHeightMeters(float meters, float minMeters = -1f, float maxMeters = -1f)
     {
         if (treePrefabHeights == null || treePrefabHeights.Length == 0) return;
-        float prefabH = treePrefabHeights[treePrefabHeights.Length - 1];
+        float prefabH = (declaredSizeMeters > 0f) ? declaredSizeMeters : treePrefabHeights[treePrefabHeights.Length - 1];
         if (prefabH <= 0f || meters <= 0f) return;
         float jittered = meters * heightJitter;
         // Keep the per-tree jitter inside the data's height range so no tree is taller than the tallest the

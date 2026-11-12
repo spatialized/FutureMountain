@@ -174,7 +174,7 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 0
     - _LightIntensity: 1
-    - _Metallic: -13.728478
+    - _Metallic: 0.33
     - _Metallic0: 0
     - _Metallic1: 0
     - _Metallic2: 0
@@ -232,6 +232,7 @@ Material:
     - _WaveControl1: {r: 1, g: 0.01, b: 0.001, a: 0}
     - _horizonColor: {r: 0.172, g: 0.463, b: 0.435, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!1002 &2100001
 EditorExtensionImpl:
   serializedVersion: 6

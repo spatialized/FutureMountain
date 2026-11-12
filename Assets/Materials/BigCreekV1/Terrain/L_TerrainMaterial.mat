@@ -163,3 +163,4 @@ Material:
     - _SnowCoverMix_1: {r: 0.23, g: 0.23, b: 0, a: 0}
     - _SnowCoverMix_2: {r: 0.53, g: 0.53, b: 0, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

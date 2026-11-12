@@ -6280,7 +6280,9 @@ public class CubeController : MonoBehaviour
         public GameObject rootPrefab;               // Root model for this species (CC per-species). Leave empty to use the cube's shared rootsPrefabs.
         [Range(0f, 100f)] public float percentInPatch = 100f; //// Share of this patch's overstory stems (community mix). Split N_stems across species.
         [System.NonSerialized] public int runtimeSpeciesIdx = -1;   // flat treeList index assigned in PrepareVegetationList (per-patch, no name collision)
-        public float fullHeightMeters = 0f;   // Aggregate cube: fixed full-grown height (m) for this species (oak ~10, chaparral ~2.75). 0 = follow data heightOver.
+        public float fullHeightMeters = 0f;   // Only for aggregate cube: fixed full-grown height (m) for this species (oak ~10, chaparral ~2.75). 0 = follow data heightOver.
+
+        public float displaySizeMeters = 0f; // CCV3 only to declared scale-1 reference height(m) used instead of the measured mesh bounds when converting data height. 0= use measured mesh
     }
     // [System.Serializable]
     // public class PatchDisplayInfo
