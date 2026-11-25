@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 58bb10a17f48e74408e4a3b582cf40fe
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  preprocessorOverride: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Spline System/Shaders/BrushGenerator.shader
+  uploadId: 957846

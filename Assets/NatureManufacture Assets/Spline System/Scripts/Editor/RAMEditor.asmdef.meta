@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 126aa3849528cce419d84ea59d6597c1
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Spline System/Scripts/Editor/RAMEditor.asmdef
+  uploadId: 957846

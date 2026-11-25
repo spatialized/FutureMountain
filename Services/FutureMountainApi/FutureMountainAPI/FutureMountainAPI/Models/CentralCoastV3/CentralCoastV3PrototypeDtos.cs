@@ -103,8 +103,12 @@ namespace FutureMountainAPI.Models.CentralCoastV3
                   windSpeed = row.windSpeed,
                   windDirection = row.windDirection,
 
-                  burn = row.burn,
-                  fire = row.fire,
+                  // Unify: zone rows store fire in `burn`, aggregate rows in `pctWS_burned`. Expose one `burn`.
+                  burn = row.burn != 0f ? row.burn : row.pctWS_burned,
+                  // Zone rows carry fire (= pspread) in `fire`. Aggregate rows have no pspread, so derive a
+                  // fire flag from the watershed burn (pctWS_burned >= 1 -> fire present) so the aggregate
+                  // alone can drive fire onsets without needing the zone cubes loaded.
+                  fire = row.fire != 0f ? row.fire : (row.pctWS_burned >= 1f ? 1f : 0f),
 
                   ind_died = row.ind_died,
                   fcover = row.fcover

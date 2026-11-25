@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 9e507eb05ab22af418a7a4981bc25393
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Spline System/Shaders/NoiseShader.shader
+  uploadId: 957846

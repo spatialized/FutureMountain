@@ -1,0 +1,229 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: M_Caustic_Decal_Directional
+  m_Shader: {fileID: 4800000, guid: eeaaa5b9aa7391341951c75cc9082c79, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _USE_DISTORTION
+  m_InvalidKeywords:
+  - _MATERIAL_AFFECTS_ALBEDO
+  - _USE_CAUSTIC
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses:
+  - DecalMeshForwardEmissive
+  - DecalProjectorForwardEmissive
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseColorMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Caustic:
+        m_Texture: {fileID: 2800000, guid: b5bdfd116cb9180408b434006f5e1f0a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Color:
+        m_Texture: {fileID: 2800000, guid: 18dcc4b2f25262e4185cd1a114b7929b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Distortion_Mask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Distortion_Texture:
+        m_Texture: {fileID: 2800000, guid: 6df491a236b9aee48968ea353abc5857, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Droplets:
+        m_Texture: {fileID: 2800000, guid: db459c8359ce22e4c9370505c19189de, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissiveColorMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Mask:
+        m_Texture: {fileID: 2800000, guid: ee6ae895eab51b044af4e3610bb2676a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MaskMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal:
+        m_Texture: {fileID: 2800000, guid: e4425ffe21f4733469ff0c709cafd491, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RAMWaterLevelTex:
+        m_Texture: {fileID: 2800000, guid: fdc41fd586aab4c46a2e1d8eba5cf46f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_2590ba23ce044ff0a8a240d2f0297d50_Texture_1_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_5e08aff324ea42e49314180377f44d6c_Texture_1_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_6442f6f1657c4ada98317851b6d2ba10_Texture_1_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2D_e9acce095c874666993060a01a875248_Texture_1_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpiralBlurCustomFunctionCustomFunction_1a8f5730f4b2425aa252e141aacca6ba_Tex_6_Texture2D:
+        m_Texture: {fileID: 2800000, guid: e3d24661c1e055f45a7560c033dbb837, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Under_Water_Distortion_Texture:
+        m_Texture: {fileID: 2800000, guid: 408eb67a9ba183a4db505e9a956e2e32, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _AO: 1
+    - _AORemapMax: 1
+    - _AORemapMin: 0
+    - _AffectAO: 0
+    - _AffectAlbedo: 1
+    - _AffectEmission: 0
+    - _AffectMetal: 1
+    - _AffectNormal: 1
+    - _AffectSmoothness: 1
+    - _CAUSTIC_DISTANCE_BLEND: 0
+    - _Caustic_Blend: 1
+    - _Caustic_Distance_Exp: 2.54
+    - _Caustic_Distance_Multiply: 20
+    - _Caustic_Falloff: 3
+    - _Caustic_Intensivity: 7.07
+    - _Caustic_Speed: 0.03
+    - _Caustic_Tiling: 1
+    - _Caustic_Triplanar_Hardness: 1
+    - _DecalAngleFadeSupported: 1
+    - _DecalBlend: 0.5
+    - _DecalColorMask0: 15
+    - _DecalColorMask1: 0
+    - _DecalColorMask2: 0
+    - _DecalColorMask3: 0
+    - _DecalMaskMapBlueScale: 1
+    - _DecalMeshBiasType: 0
+    - _DecalMeshDepthBias: 0
+    - _DecalMeshViewBias: 0
+    - _DecalStencilRef: 16
+    - _DecalStencilWriteMask: 16
+    - _Deep_Fog_Exp: 2.7
+    - _Deep_Fog_Multiply: 84
+    - _DistortionTilingX: 1
+    - _Distortion_Power: 0.05
+    - _Distortion_Tiling: 1
+    - _DrawOrder: 0
+    - _DropletLine: 0
+    - _DropletLineBlendPower: 0.1
+    - _Dropplet_Speed: 0.2
+    - _EmissiveExposureWeight: 1
+    - _EmissiveIntensity: 1
+    - _EmissiveIntensityUnit: 0
+    - _Float: 0
+    - _Fog_Exp: 1.3
+    - _Fog_Multiply: 9
+    - _MaskBlendSrc: 1
+    - _Metallic: 0
+    - _MetallicRemapMax: 1
+    - _MetallicRemapMin: 0
+    - _NormalBlendSrc: 0
+    - _RAM_Water_Level: 0.49
+    - _Simple_Fog: 0
+    - _Smoothness: 0.5
+    - _SmoothnessRemapMax: 1
+    - _SmoothnessRemapMin: 0
+    - _TilesPerMeter: 1
+    - _TransparentDynamicUpdateDecals: 1
+    - _USE_CAUSTIC: 1
+    - _USE_DISTORTION: 1
+    - _USE_DROPLETS: 0
+    - _USE_WATER_LINE_BLUR: 0
+    - _UVDistortIntensity: 0.0084
+    - _UnderWater_Distortion_Tiling: 0.1
+    - _Underwater_Blur: 0.2
+    - _Underwater_Distortion_Power: 0.62
+    - _Unity_Identify_HDRP_Decal: 1
+    - _UseEmissiveIntensity: 0
+    - _Water_Line_Blur_Size: 0.01
+    - _Water_Line_Size_Blur_Hardness: 1
+    - _Water_Line_Size_Blur_Strenght: 2
+    - _Water_Position_offset: 0
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Caustic_Color: {r: 0.8705506, g: 0.8705506, b: 0.8705506, a: 1}
+    - _Deep_Color: {r: 0, g: 0.07718696, b: 0.1698113, a: 0}
+    - _Distortion_Speed: {r: -0.089, g: 0.071, b: 0, a: 0}
+    - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissiveColorHDR: {r: 0, g: 0, b: 0, a: 1}
+    - _EmissiveColorLDR: {r: 0, g: 0, b: 0, a: 1}
+    - _Godrays_Color: {r: 0, g: 0.7461715, b: 1, a: 0}
+    - _Shallow_Color: {r: 0, g: 0.7461715, b: 1, a: 0}
+    - _Underwater_Distortion_Speed: {r: 0.07, g: 0.07, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
+--- !u!114 &1252302982728186763
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
+  version: 10
+--- !u!114 &6704298185832672386
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da692e001514ec24dbc4cca1949ff7e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Editor::UnityEditor.Rendering.HighDefinition.AssetVersion
+  version: 13
+  hdPluginSubTargetMaterialVersions:
+    m_Keys: []
+    m_Values: 

@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 72c0a629836daf4429369a33e0b14e3e
+timeCreated: 1519639167
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Additional Tools/Debug/Debug Shaders/Debug
+    Vertex Colors.shader
+  uploadId: 957846

@@ -97,6 +97,10 @@ public abstract class TreeController : MonoBehaviour
     // so recovery is visible. Initial planting uses Grow(true) and leaves this false (normal speed).
     protected bool slowRegrowth = false;
 
+    // Central Coast aggregate: minimum starting size (fraction of full height) for initially planted trees.
+    // 0 = original behaviour (random 0..full). Set by FirController.InitializeFir.
+    protected float minStartGrowthFraction = 0f;
+
     protected float treeWidthScale;                  // Current tree width scale
     protected float treeFullWidthScale;              // Tree width scale at fully grown state
     public float alphaCutoff;                        // Leaf shader alpha cutoff (Used for visualizing leaf carbon)   -- Unused
@@ -492,7 +496,8 @@ public abstract class TreeController : MonoBehaviour
         if (startAtZero)
             newTreeHeightScale = 0f;
         else
-            newTreeHeightScale = UnityEngine.Random.Range(0f, treeFullHeightScale);
+            // newTreeHeightScale = UnityEngine.Random.Range(0f, treeFullHeightScale);
+            newTreeHeightScale = UnityEngine.Random.Range(minStartGrowthFraction * treeFullHeightScale, treeFullHeightScale);
 
         float newTreeWidthScale = GetWidthScaleFromHeightScale(newTreeHeightScale, settings.TreeWidthVariability);
         float curHeight = newTreeHeightScale * GetFullTreeHeight();

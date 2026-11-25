@@ -253,3 +253,11 @@ The following packages were updated:
   com.unity.xr.legacyinputhelpers from version 2.1.12 to 2.1.13
 The following packages were removed:
   com.unity.textmeshpro@3.0.7
+
+=== Wed Nov 18 13:30:58 2026
+
+Packages were changed.
+Update Mode: mergeDefaultDependencies
+
+The following packages were added:
+  com.unity.mathematics@1.3.3

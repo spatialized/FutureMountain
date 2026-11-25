@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: d341076ac27f7b845afa721db6ae6080
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - sourceMeshFilter: {instanceID: 0}
+  - cameraLod: {instanceID: 0}
+  - computeShader: {fileID: 7200000, guid: 26af9019315b7564b842de8dc7bc0046, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Spline System/Scripts/LodManager/GPULodManager.cs
+  uploadId: 957846

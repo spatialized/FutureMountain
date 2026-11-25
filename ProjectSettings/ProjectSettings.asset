@@ -501,6 +501,9 @@ PlayerSettings:
   - m_BuildTarget: WebGL
     m_StaticBatching: 1
     m_DynamicBatching: 1
+  - m_BuildTarget: Standalone
+    m_StaticBatching: 1
+    m_DynamicBatching: 0
   m_BuildTargetShaderSettings: []
   m_BuildTargetGraphicsJobs:
   - m_BuildTarget: MacStandaloneSupport
@@ -873,7 +876,7 @@ PlayerSettings:
     QNX: UNITY_POST_PROCESSING_STACK_V2;DOTWEEN;DOTWEEN_UITOOLKIT;DOTWEEN_EPO
     Server: PROBUILDER_EXPERIMENTAL_FEATURES
     Stadia: UNITY_POST_PROCESSING_STACK_V2;DOTWEEN;DOTWEEN_UITOOLKIT;DOTWEEN_EPO
-    Standalone: CROSS_PLATFORM_INPUT;CTS_PRESENT;TOUCH_REACT;VEGETATION_STUDIO;UNITY_POST_PROCESSING_STACK_V2;GPU_INSTANCER;LOCAL_VERSION;PROBUILDER_EXPERIMENTAL_FEATURES;DOTWEEN;DOTWEEN_UITOOLKIT;DOTWEEN_EPO
+    Standalone: CROSS_PLATFORM_INPUT;CTS_PRESENT;TOUCH_REACT;UNITY_POST_PROCESSING_STACK_V2;GPU_INSTANCER;LOCAL_VERSION;PROBUILDER_EXPERIMENTAL_FEATURES;DOTWEEN;DOTWEEN_UITOOLKIT;DOTWEEN_EPO;SENTIS_ANALYTICS_ENABLED;APP_UI_EDITOR_ONLY;URP_COMPATIBILITY_MODE
     VisionOS: UNITY_POST_PROCESSING_STACK_V2;DOTWEEN;DOTWEEN_UITOOLKIT;DOTWEEN_EPO
     WebGL: UNITY_POST_PROCESSING_STACK_V2;GPU_INSTANCER;WEB_VERSION;PROBUILDER_EXPERIMENTAL_FEATURES;DOTWEEN;DOTWEEN_UITOOLKIT;DOTWEEN_EPO
     Windows Store Apps: MOBILE_INPUT;UNITY_POST_PROCESSING_STACK_V2;PROBUILDER_EXPERIMENTAL_FEATURES;DOTWEEN;DOTWEEN_UITOOLKIT;DOTWEEN_EPO
@@ -908,7 +911,7 @@ PlayerSettings:
   useDeterministicCompilation: 1
   additionalIl2CppArgs: 
   scriptingRuntimeVersion: 1
-  gcIncremental: 0
+  gcIncremental: 1
   gcWBarrierValidation: 0
   apiCompatibilityLevelPerPlatform: {}
   editorAssembliesCompatibilityLevel: 1
@@ -971,7 +974,8 @@ PlayerSettings:
   XboxOneOverrideIdentityName: 
   XboxOneOverrideIdentityPublisher: 
   vrEditorSettings: {}
-  cloudServicesEnabled: {}
+  cloudServicesEnabled:
+    Unity Ads: 0
   luminIcon:
     m_Name: 
     m_ModelFolderPath: 
@@ -993,11 +997,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 0
   windowsGamepadBackendHint: 0
-  cloudProjectId: 09aec3bf-31e7-4ef9-aa83-3cf3c6b4a061
+  cloudProjectId: 64ce3d64-73e1-4df6-9a8d-b15e63b222d9
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Tree Spawning Demo
-  organizationId: david-gordon-57be8254-7464-43ed-8b12-f0b7d5e4edc7
+  projectName: Future Mountain
+  organizationId: xgao01
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 1
   hmiLoadingImage: {fileID: 0}

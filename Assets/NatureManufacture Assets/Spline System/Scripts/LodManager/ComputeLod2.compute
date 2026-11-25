@@ -1,0 +1,233 @@
+#pragma kernel Main
+
+
+//Position, Normal, Tangent, Color, TexCoord0, TexCoord3
+struct SourceVertex
+{
+    float3 positionOS;
+    float3 normal;
+    float4 tangent;
+    float4 color;
+    float4 uv;
+    float4 uv3;
+};
+
+//Position, Normal, Tangent, Color, TexCoord0, TexCoord3
+struct DrawVertex
+{
+    float3 position;
+    float3 normal;
+    float4 tangent;
+    float4 color;
+    float4 uv;
+    float4 uv3;
+};
+
+struct DrawTriangle
+{
+    DrawVertex vertices[3];
+};
+
+
+struct StackItem
+{
+    DrawVertex a, b, c;
+    int lodIndex;
+};
+
+
+StructuredBuffer<SourceVertex> _SourceVertices;
+StructuredBuffer<int> _SourceTriangles;
+AppendStructuredBuffer<DrawTriangle> _DrawTriangles;
+
+int _NumSourceTriangles;
+float4x4 _LocalToWorld;
+float4 _CameraPosition;
+float4 _LODDistance;
+
+float2 GetCenter(float2 a, float2 b)
+{
+    return (a + b) / 2.0;
+}
+
+float3 GetCenter(float3 a, float3 b)
+{
+    return (a + b) / 2.0;
+}
+
+float4 GetCenter(float4 a, float4 b)
+{
+    return (a + b) / 2.0;
+}
+
+float4 GetNewUV(float4 a, float4 b)
+{
+    float4 newUv = (a + b) * 0.5f;
+
+    if (a.z * b.z + a.w * b.w > 0) return newUv;
+
+    newUv.z = a.z;
+    newUv.w = a.w;
+    
+    return newUv;
+}
+
+
+DrawVertex CreaterOutput(SourceVertex v)
+{
+    DrawVertex o;
+    o.position = v.positionOS;
+    o.normal = v.normal;
+    o.color = v.color;
+    o.uv = v.uv;
+    o.uv3 = v.uv3;
+    o.tangent = v.tangent;
+
+    return o;
+}
+
+void SetupAndOutputTriangle(DrawVertex a, DrawVertex b, DrawVertex c)
+{
+    DrawTriangle tri;
+    tri.vertices[0] = a;
+    tri.vertices[1] = b;
+    tri.vertices[2] = c;
+
+    
+
+    _DrawTriangles.Append(tri);
+}
+
+DrawVertex GetNewVertex(DrawVertex vertexA, DrawVertex vertexB)
+{
+    DrawVertex center;
+
+    center.normal = GetCenter(vertexA.normal, vertexB.normal);
+    center.position = GetCenter(vertexA.position, vertexB.position);
+    center.uv = GetNewUV(vertexA.uv, vertexB.uv);
+    center.uv3 = GetCenter(vertexA.uv3, vertexB.uv3);
+    center.tangent = GetCenter(vertexA.tangent, vertexB.tangent);
+    center.color = GetCenter(vertexA.color, vertexB.color);
+
+    return center;
+}
+
+bool SplitTriangle(DrawVertex a, DrawVertex b, DrawVertex c, float lodDistance)
+{
+    bool i1In = distance(a.position, _CameraPosition.xyz) > lodDistance;
+    bool i2In = distance(b.position, _CameraPosition.xyz) > lodDistance;
+    bool i3In = distance(c.position, _CameraPosition.xyz) > lodDistance;
+
+
+    if (!i1In && !i2In && i3In)
+    {
+        DrawVertex centerAB = GetNewVertex(a, b);
+
+        SetupAndOutputTriangle(a, centerAB, c);
+        SetupAndOutputTriangle(centerAB, b, c);
+
+        return true;
+    }
+
+
+    if (i1In && !i2In && !i3In)
+    {
+        DrawVertex centerBC = GetNewVertex(b, c);
+
+        SetupAndOutputTriangle(a, centerBC, c);
+        SetupAndOutputTriangle(a, b, centerBC);
+
+        return true;
+    }
+
+
+    if (!i1In && i2In && !i3In)
+    {
+        DrawVertex centerAC = GetNewVertex(a, c);
+
+        SetupAndOutputTriangle(centerAC, b, c);
+        SetupAndOutputTriangle(a, b, centerAC);
+
+        return true;
+    }
+
+
+    if (i1In || i2In)
+    {
+        SetupAndOutputTriangle(a, b, c);
+        return true;
+    }
+    return false;
+}
+
+
+void SplitAndRecurse(DrawVertex a, DrawVertex b, DrawVertex c, int lodIndex)
+{
+    StackItem stack[17];
+    int stackIndex = 0;
+
+    StackItem item;
+    item.a = a;
+    item.b = b;
+    item.c = c;
+    item.lodIndex = lodIndex;
+    stack[stackIndex] = item;
+    stackIndex++;
+
+    while (stackIndex > 0)
+    {
+        stackIndex--;
+        item = stack[stackIndex];
+
+        if (item.lodIndex >= length(_LODDistance) + 1 || SplitTriangle(item.a, item.b, item.c,
+                                                                       _LODDistance[item.lodIndex]))
+            continue;
+
+        DrawVertex centerAB = GetNewVertex(item.a, item.b);
+        DrawVertex centerBC = GetNewVertex(item.b, item.c);
+        DrawVertex centerCA = GetNewVertex(item.c, item.a);
+
+        StackItem newItem;
+        newItem.a = item.a;
+        newItem.b = centerAB;
+        newItem.c = centerCA;
+        newItem.lodIndex = item.lodIndex + 1;
+        stack[stackIndex] = newItem;
+        stackIndex++;
+
+        newItem.a = centerAB;
+        newItem.b = item.b;
+        newItem.c = centerBC;
+        stack[stackIndex] = newItem;
+        stackIndex++;
+
+        newItem.a = centerBC;
+        newItem.b = item.c;
+        newItem.c = centerCA;
+        stack[stackIndex] = newItem;
+        stackIndex++;
+
+        newItem.a = centerAB;
+        newItem.b = centerBC;
+        newItem.c = centerCA;
+        stack[stackIndex] = newItem;
+        stackIndex++;
+    }
+}
+
+
+[numthreads(128, 1, 1)]
+void Main(uint3 id : SV_DispatchThreadID)
+{
+    if ((int)id.x >= _NumSourceTriangles)
+        return;
+
+    int triStart = id.x * 3;
+
+    DrawVertex a = CreaterOutput(_SourceVertices[_SourceTriangles[triStart]]);
+    DrawVertex b = CreaterOutput(_SourceVertices[_SourceTriangles[triStart + 1]]);
+    DrawVertex c = CreaterOutput(_SourceVertices[_SourceTriangles[triStart + 2]]);
+
+    SplitAndRecurse(a, b, c, 0);
+   
+}

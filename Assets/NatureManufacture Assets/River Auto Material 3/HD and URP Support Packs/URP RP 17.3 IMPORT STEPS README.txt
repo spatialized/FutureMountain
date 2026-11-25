@@ -1,0 +1,21 @@
+BEFORE YOU START:
+- you need Unity 6.3+
+- you need URP SRP pipeline 17.3 if you use higher please import a higher support pack.
+
+Step 1      
+        - Import the VFX graph (visual graph) if you want to use particles, you can find it in the package manager, its unity system.
+        - Turn on few options if they are turned off in "PC_Renderer", or other profile that you use:
+	       * "Opaque Texture" this will fix water it need that option for proper distortion
+	       * "Depth Texture" this will fix water it need that option to render at all in play mode.
+	- Optionaly use 1k or 2k shadow resolution. We used 2k.
+	- Turn on HDR if it is turned off
+ 	- at scene you have few lights and many reflection probes in deferred render scene works much faster
+
+Step 2
+Add decal support if you want to use our decals on shoreline.
+Go to "PC_Renderer" or version of that file that you use:
+  Add Renderer Feature --> Decal --> Max Draw distance200-300
+        
+Step 3
+Look at each aspect of the pack, visit demo scene:
+"URP RAM 3 Demo"

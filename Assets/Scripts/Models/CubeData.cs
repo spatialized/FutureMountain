@@ -58,6 +58,9 @@ namespace Assets.Scripts.Models
         public float rootCUnder;
 
         // add for Central Coast V3
+        // NOTE: the V3 importer maps RHESSys columns onto these two generic names, so actually:
+        //   burn = pctWS_burned (percent of watershed burned); fire = pspread. (CentralCoastV3Importer.cs:127-128)
+        // The API DTO serializes only `burn`/`fire` (no pctWS_burned key), so read row.burn / row.fire.
         public float burn;
         public float fire;
         public float gppOver;

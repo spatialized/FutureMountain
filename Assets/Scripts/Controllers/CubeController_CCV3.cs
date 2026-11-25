@@ -69,12 +69,27 @@ public class CubeController_CCV3 : CubeController
         UpdateVegetationFromData();
     }
 
+    // protected override void GrowFromLoadedData()
+    // {
+    //     // Suppress the early FinishStarting-load grow (wrong positions); only grow once StartSimulation has
+    //     // run. That covers data that arrives after StartSimulation and later scenario-change reloads too.
+    //     if (ccStartupGrowReady)
+    //         UpdateVegetationFromData();
+    // }
+
     protected override void GrowFromLoadedData()
     {
-        // Suppress the early FinishStarting-load grow (wrong positions); only grow once StartSimulation has
-        // run. That covers data that arrives after StartSimulation and later scenario-change reloads too.
-        if (ccStartupGrowReady)
-            UpdateVegetationFromData();
+        if (dataOnlyLoad) return;          // preload: data only, don't grow (same as the base)
+        if (!ccStartupGrowReady) return;   // suppress the early FinishStarting-load grow (wrong positions)
+
+        // Mid-play reload (e.g. scenario change) while the stand already exists: keep the trees and let
+        // them retarget to the new data, instead of ResetCube + regrow (froze the frame, wiped every tree).
+        if (GetAliveTrees().Count > 0)
+        {
+            RefreshFromDataKeepVegetation();
+            return;
+        }
+        UpdateVegetationFromData();        // empty cube (first grow / side cube) -> full grow
     }
 
     // Streamflow (mapped into StreamHeight) at which the channel is exactly bankfull. Per-cube in the
@@ -140,21 +155,43 @@ public class CubeController_CCV3 : CubeController
     // ----- Stage 5: no trailing burn after the fire stops -----
     // When the cube's fire goes out, kill any tree still burning right away, so the fire leaving the
     // cube and the trees dying happen together instead of the tree burning on for its own duration.
+    // protected override void OnFireExtinguished()
+    // {
+    //     // Iterate a copy of the full fir list (not just alive trees): a tree ignited by fire may
+    //     // already be mid-death (dying) or have had its chain disabled by a later SetTreesToBurn, so
+    //     // checking only alive + enabled left one or two still burning. Kill anything still dying or
+    //     // burning outright so nothing keeps burning after the fire is out.
+    //     foreach (FirController fir in new List<FirController>(firs))
+    //     {
+    //         if (fir == null)
+    //             continue;
+
+    //         bool burning = fir.fireNodeChain != null &&
+    //                        (fir.fireNodeChain.enabled || fir.fireNodeChain.ToBeDestroyed());
+    //         if (fir.IsDying() || burning)
+    //             fir.Kill(true);
+    //     }
+    // }
+
     protected override void OnFireExtinguished()
     {
-        // Iterate a copy of the full fir list (not just alive trees): a tree ignited by fire may
-        // already be mid-death (dying) or have had its chain disabled by a later SetTreesToBurn, so
-        // checking only alive + enabled left one or two still burning. Kill anything still dying or
-        // burning outright so nothing keeps burning after the fire is out.
+        // Central Coast: deaths come only from ind_died. When the fire goes out, finish the trees that
+        // ind_died already started killing (IsDying) so they end with the fire; every other tree just has
+        // its fire put out. fireNodeChain.enabled is NOT a "burning" signal here -- it is true on every
+        // tree prefab by default, so using it killed the whole stand at once.
         foreach (FirController fir in new List<FirController>(firs))
         {
             if (fir == null)
                 continue;
 
-            bool burning = fir.fireNodeChain != null &&
-                           (fir.fireNodeChain.enabled || fir.fireNodeChain.ToBeDestroyed());
-            if (fir.IsDying() || burning)
+            if (fir.IsDying())
+            {
                 fir.Kill(true);
+            }
+            else if (fir.fireNodeChain != null && fir.fireNodeChain.ToBeDestroyed())
+            {
+                fir.fireNodeChain.ClearToBeDestroyed();   // fire out: don't let FirController kill it next tick
+            }
         }
     }
 
@@ -176,7 +213,8 @@ public class CubeController_CCV3 : CubeController
         // (patchID -1), so it re-fetches its OWN rows: patch2 (chaparral) then draws from the same
         // aggregate data as patch1 (oak), and the failed patchID+1 (=0) request is avoided.
         int p2PatchId = isAggregate ? patchID : patchID + 1;
-        WebManager.Instance.RequestCubeData(p2PatchId, warmingIdx, this.FinishUpdateDataFromWebP2);
+        // WebManager.Instance.RequestCubeData(p2PatchId, warmingIdx, this.FinishUpdateDataFromWebP2);
+        WebManager.Instance.RequestCubeRows(p2PatchId, warmingIdx, this.FinishUpdateDataFromWebP2);
     }
 
     protected override bool ReadyToGrowFromData()
@@ -312,7 +350,8 @@ public class CubeController_CCV3 : CubeController
                 float baseH = (vegetation != null && vegetation.species != null && idx < vegetation.species.Count)
                     ? vegetation.species[idx].fullHeightMeters : 0f;
                 float avgNow = GetHeightOver(timeIdx, false);   // aggregate's single height (patch1 data)
-                h = (avgNow > 0f) ? baseH * (avgNow / AggregateMeanHeightBase) : baseH;
+                // h = (avgNow > 0f) ? baseH * (avgNow / AggregateMeanHeightBase) : baseH;
+                 h = baseH;   // no whole-cube shrink on fire; trees only die via ind_died, like a zone
                 aggMaxH = baseH;   // data heightOver can exceed the base mean -> cap so trees don't overshoot the cube
               }
             else

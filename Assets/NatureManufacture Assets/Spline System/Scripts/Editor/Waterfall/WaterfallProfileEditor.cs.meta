@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 532cee5f59cbb8f4b85b716c0c0f2feb
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Spline System/Scripts/Editor/Waterfall/WaterfallProfileEditor.cs
+  uploadId: 957846

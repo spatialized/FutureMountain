@@ -1,0 +1,36 @@
+Import 17.3 HD RP support pack for unity 6.3 with HD RP 17.3 and all higher HD RP versions
+
+
+!!!! IMPORTANT !!!! Open "Project settings" ->"Gaphics"-> "HDRP global settings" ->  "Diffusion Profile Assets"
+and drag and drop our SSS settings diffusion profiles for water and particles into the Diffusion profile list:
+
+- "NM_SSSSettings_Water_RAM3" 
+
+!!!! IMPORTANT !!!! Open "Project settings" ->"Gaphics"-> "Pipline Specific Settings" ->  "Diffusion Profile List"
+and drag and drop our SSS settings diffusion profiles for water into Diffusion profile list:
+
+It's because we use translucency on water.  You could also do it by "fix" button at material
+
+Shaders support SSR  if you turn option SSR at transparent you will get nice effect on water surface.
+
+Find the "HD RP RAM 3 Demo Tesseled" scene and open it.
+
+IMPORTANT:
+If water is a bit to heavy in render replace it via non tesseled material.
+If you don't want to use tesselation change materials to offset variants. They are the same just without tesselation.
+You could change the shader or drag and drop offset material with same name.
+Make note that tesselation shaders doesn't support rtx at unity hd rp yet, use offset shaders/materials
+
+IMPORTANT:
+If you notice in the console error:
+No more space in Reflection Probe Atlas. To solve this issue, increase the size of the Reflection Probe Atlas in the HDRP settings.
+UnityEngine.GUIUtility:ProcessEvent (int,intptr,bool&)
+Just change reflection atlas size at hd rp settings into 4kx8k or higher.
+Go to: Edit--> Project Settings --> find "Reflection 2D Atlas Size" --> set it to 8x8k or lower if it would not throw any error on 4x8k for example.
+
+
+IMPORTANT2:
+If you notice in the console warning:
+Maximum reflection probes on screen reached. To fix this error, increase the 'Maximum Cube Reflection Probes on Screen' property in the HDRP asset.
+UnityEngine.GUIUtility:ProcessEvent (int,intptr,bool&)
+Go to: Edit--> Project Settings --> find "Maximum Cube Reflection Probes on Screen" --> set it to 64

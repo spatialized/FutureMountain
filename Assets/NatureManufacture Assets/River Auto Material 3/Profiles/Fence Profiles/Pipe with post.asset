@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e71cab1c61c75824ea55d9837f802751, type: 3}
+  m_Name: Pipe with post
+  m_EditorClassIdentifier: 
+  gameObject: {fileID: 0}
+  triangleDensity: 44
+  distanceMultiplier: 1
+  additionalDistance: 0
+  bendMeshes: 1
+  firstSpan:
+    gameObject: {fileID: 0}
+    probability: 1
+    forward: 0
+    up: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleOffset: {x: 1, y: 1, z: 1}
+    useMeshFilterBounds: 1
+    mirror: 0
+  lastSpan:
+    gameObject: {fileID: 0}
+    probability: 1
+    forward: 0
+    up: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleOffset: {x: 1, y: 1, z: 1}
+    useMeshFilterBounds: 1
+    mirror: 0
+  posts: []
+  postRandomType: 0
+  spans:
+  - gameObject: {fileID: 3824630106734056274, guid: 9041b1830e6ca094c861dd4964f667b6, type: 3}
+    probability: 1
+    forward: 0
+    up: 1
+    positionOffset: {x: 0, y: 0, z: 0}
+    rotationOffset: {x: 0, y: 0, z: 0}
+    scaleOffset: {x: 1, y: 1, z: 1}
+    useMeshFilterBounds: 1
+    mirror: 0
+  spanRandomType: 0
+  scaleMesh: 1
+  holdUp: 0
+  randomSeed: 1
+  seed: 617168572

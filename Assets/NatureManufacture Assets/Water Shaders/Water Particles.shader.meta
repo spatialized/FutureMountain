@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 67fd57f591ea3554494173cb2f22ef07
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Water Shaders/Water Particles.shader
+  uploadId: 957846

@@ -9,6 +9,7 @@ using System;
 /// </summary>
 public class FirController : TreeController
 {
+    private static int lastKillLogFrame = -1;   // TEMP: kill diagnostics (remove after)
     /* General */
     public bool destroyed = false;
     /* Death animation (Central Coast) — off by default so BigCreek firs keep their original behaviour */
@@ -57,6 +58,10 @@ public class FirController : TreeController
     /// <param name="newCubeSWCorner"></param>
     public void InitializeFir(Terrain cubeTerrain, bool isAggregate, bool newIsFrontTree, float newTreeCarbonFactor, float newRootsCarbonFactor, Vector3 newCubeNECorner, Vector3 newCubeSWCorner)
     {
+        // Central Coast aggregate only: initially planted trees start at >= 80% of their full size.
+        // BigCreek also has an aggregate cube, so gate on the CC profile to leave it unchanged.
+        bool ccAggregate = isAggregate && settings != null && settings.apiProfile == ScenarioApiProfile.CentralCoastV3;
+        minStartGrowthFraction = ccAggregate ? 0.8f : 0f;
         /* Initialize Objects */
         treeCarbonFactor = newTreeCarbonFactor;
         rootsCarbonFactor = newRootsCarbonFactor;
@@ -310,6 +315,16 @@ public class FirController : TreeController
     public void Kill(bool immediate)
     {
         //Debug.Log(name + ".Kill()... alive? " + alive + " immediate:" + immediate);
+        // TEMP: log the first aggregate-tree kill of each frame with its caller (remove after)
+          if (Time.frameCount != lastKillLogFrame)
+          {
+              CubeController cc = GetComponentInParent<CubeController>();
+              if (cc != null && cc.isAggregate)
+              {
+                  lastKillLogFrame = Time.frameCount;
+                  Debug.Log($"[KILL] {cc.name} {name} alive={IsAlive()} frame={Time.frameCount}\n{System.Environment.StackTrace}");
+              }
+          }
 
         if (IsAlive())
         {

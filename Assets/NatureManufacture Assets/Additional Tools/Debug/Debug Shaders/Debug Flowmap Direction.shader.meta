@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: aa51d85c6375ff540ac1a8cf1d06eecd
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures:
+  - _Direction: {fileID: 2800000, guid: 06c9b2c2eb784bf42b636375cbffeb59, type: 3}
+  - _Direction_Stop: {fileID: 2800000, guid: e50c60491d693a84cac9951d1dbf2747, type: 3}
+  - unity_Lightmaps: {instanceID: 0}
+  - unity_LightmapsInd: {instanceID: 0}
+  - unity_ShadowMasks: {instanceID: 0}
+  nonModifiableTextures:
+  - _TexelSize_57755b34c5a74f3985dd7a4eae03b858_Texture_1_Texture2D: {instanceID: 0}
+  - _TexelSize_18bb9f416e386f87bee91aa46804bc56_Texture_1_Texture2D: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Additional Tools/Debug/Debug Shaders/Debug
+    Flowmap Direction.shader
+  uploadId: 957846

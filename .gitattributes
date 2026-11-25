@@ -1,2 +1,2 @@
 .psd filter=lfs diff=lfs merge=lfs -text
-*.txt filter=lfs diff=lfs merge=lfs -text
+Assets/NatureManufacture[[:space:]]Assets/River[[:space:]]Auto[[:space:]]Material[[:space:]]3/Decals/T_Decal_Wet_N.png filter=lfs diff=lfs merge=lfs -text

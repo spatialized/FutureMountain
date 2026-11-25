@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 3466441b34503764d8911dfdd0f6fe70
+timeCreated: 1487036983
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Spline System/Scripts/Triangulation/TriangleDotNet/Triangle/Meshing/Algorithm/SweepLine.cs
+  uploadId: 957846

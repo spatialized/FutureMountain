@@ -125,3 +125,8 @@ Assets/Models/GTV_quercus_agrifolia_coast_live_oak_mid_a.fbx
 # Temporary files and logs
 Recordings/
 RHESSYs_Data_Importer/Data/
+
+# RAM 3 oversized demo scenes
+/Assets/River Auto Material/Demo/RAM 3 Demo.unity
+/Assets/River Auto Material/Demo/URP RAM 3 Demo.unity
+/Assets/River Auto Material/Demo/RAM 3 Demo Tesseled.unity

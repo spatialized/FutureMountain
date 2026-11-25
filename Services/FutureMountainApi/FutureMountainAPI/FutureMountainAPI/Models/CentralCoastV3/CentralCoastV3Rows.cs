@@ -68,6 +68,9 @@ namespace FutureMountainAPI.Models.CentralCoastV3
         //fire
         public float burn { get; set; }
         public float fire { get; set; }
+        // Aggregate rows carry fire severity in pctWS_burned; zone rows carry it in `burn`.
+        // Read this existing DB column so the DTO can expose a single unified `burn`.
+        public float pctWS_burned { get; set; }
 
         // Newer RHESSys columns (8-3-2026 bundle onward); 0 for older imports.
         public float ind_died { get; set; }   // individuals that died this step

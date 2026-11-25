@@ -49,7 +49,9 @@ Material:
         m_Scale: {x: 1, y: 0.5}
         m_Offset: {x: 0, y: 0.5}
     m_Ints: []
-    m_Floats: []
-    m_Colors: []
+    m_Floats:
+    - _WetPatchOpacity: 40
+    m_Colors:
+    - _Tilling: {r: 2.54, g: 0.92, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

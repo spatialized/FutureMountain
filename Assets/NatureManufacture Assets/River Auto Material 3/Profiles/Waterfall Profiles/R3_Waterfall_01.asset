@@ -1,0 +1,132 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a506becaa504a4f873aaf37e427057c, type: 3}
+  m_Name: R3_Waterfall_01
+  m_EditorClassIdentifier: 
+  gameObject: {fileID: 0}
+  triangleDensity: 13
+  waterfallMaterial: {fileID: 2100000, guid: 76e6f1179c1089043944260508dd9952, type: 2}
+  simulationTime: 2.5
+  timeStep: 0.05
+  baseStrength: 9
+  uvScale: {x: 0.1, y: 0.03}
+  restitutionCoeff: 0.1
+  restitutionAnglelerp: 0.333
+  raycastMask:
+    serializedVersion: 2
+    m_Bits: 39
+  blurVelocityStrength: 2
+  blurVelocityIterations: 2
+  blurVelocitySize: 2
+  blurPositionStrength: 2
+  blurPositionIterations: 2
+  blurPositionSize: 2
+  maxWaterfallDistance: 16.5
+  minPointDistance: 0.5
+  terrainOffset:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.05
+      value: 0.3
+      inSlope: 0.9803126
+      outSlope: 0.9803126
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.28091428
+    - serializedVersion: 3
+      time: 0.5
+      value: 1
+      inSlope: -0.0017726796
+      outSlope: -0.0017726796
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.965
+      value: 0.3
+      inSlope: -0.88966
+      outSlope: -0.88966
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.21331047
+      outWeight: 0.3833159
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  alphaByDistance:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.027127003
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.9642417
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  floatSpeed: 3.3
+  clipUnderTerrain: 0
+  offset: 0
+  yOffset: 0.05
+  angleOffset: 11

@@ -1,0 +1,19 @@
+{
+    "name": "RAMEditor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:2035512de29620a4cae72e2bad67e7a8",
+        "GUID:fb58d5396d4f85044a40c7548929c37d"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

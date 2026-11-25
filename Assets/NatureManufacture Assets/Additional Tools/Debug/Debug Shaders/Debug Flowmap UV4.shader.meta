@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 6ffa45d71023eb948ab27428365546aa
+timeCreated: 1519824558
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Additional Tools/Debug/Debug Shaders/Debug
+    Flowmap UV4.shader
+  uploadId: 957846

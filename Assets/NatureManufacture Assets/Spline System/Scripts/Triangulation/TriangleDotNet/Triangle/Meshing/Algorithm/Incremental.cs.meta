@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: ad49a93f48d7d004593c1bd5b1d7708f
+timeCreated: 1487036984
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Spline System/Scripts/Triangulation/TriangleDotNet/Triangle/Meshing/Algorithm/Incremental.cs
+  uploadId: 957846

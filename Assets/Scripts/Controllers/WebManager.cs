@@ -59,6 +59,26 @@ public class WebManager : MonoBehaviour
         settings = FindObjectOfType<SimulationSettings>();
     }
 
+    // Session chae of cube data JSON, keyed by (scenario prefix, patchID, warmingIdx)
+    // Cube time-series is read-only for the session so a hit is always valid.
+    // Keyed by the scenario prefix so Central Coast and BigCreek never share entries
+    private readonly Dictionary<string, string> cubeDataCache = new Dictionary<string, string>();
+    private static bool debugCache = true; //TEMP: logs hits/misses; set false once verified
+
+    private string CubeDataCacheKey(int patchId, int warmingIdx)
+    {
+        string prefix = (settings != null) ? settings.ScenarioApiPrefix : "";
+        return $"{prefix}_{patchId}_{warmingIdx}";
+    }
+
+    // Deliver a chached payload one frame later, so callers see the same async ordering as a real fetch
+    private IEnumerator DeliverCached(string payload, Action<string> callback)
+    {
+        yield return null; // wait one frame
+        if (callback != null)
+            callback(payload);
+    }
+
     private string BuildUri(string endpoint, params object[] segments)
     {
         if (settings == null)
@@ -83,14 +103,76 @@ public class WebManager : MonoBehaviour
     //}
 
     // Gets all data rows for given Patch Id and Warming Idx
+    // public Coroutine RequestCubeData(int patchIdx, int warmingIdx, Action<string> callback)
+    // {
+    //     string uri = BuildUri(apiPathCubes, patchIdx, warmingIdx);
+
+    //     if(debug)
+    //         Debug.Log("RequestCubeData()... uri:  " + uri);
+
+    //     return this.StartCoroutine(this.GetRequest(uri, callback));
+    // }
+
     public Coroutine RequestCubeData(int patchIdx, int warmingIdx, Action<string> callback)
     {
+        string key = CubeDataCacheKey(patchIdx, warmingIdx);
+
+        if (cubeDataCache.TryGetValue(key, out string cached))
+        {
+            if (debugCache)
+                Debug.Log($"RequestCubeData()... CACHE HIT key: {key},");
+
+            return this.StartCoroutine(DeliverCached(cached, callback));
+        }
+        
+        if (debugCache)
+            Debug.Log($"RequestCubeData()... CACHE MISS key: {key},");
+
         string uri = BuildUri(apiPathCubes, patchIdx, warmingIdx);
 
-        if(debug)
-            Debug.Log("RequestCubeData()... uri:  " + uri);
+        // Wrap the callback so a successgul response is chached before the caller sees it.
+        return this.StartCoroutine(GetRequest(uri, payload =>
+        {
+            cubeDataCache[key] = payload; // Store in cache
+            if (callback != null)
+                callback(payload);
+        }));
+    }
 
-        return this.StartCoroutine(this.GetRequest(uri, callback));
+    // Session cache of PARSED cube rows, keyed like the JSON cache. Rows are read-only after load, so
+    // every cube that needs the same (patch, scenario) shares one array and the JSON is parsed once.
+    private readonly Dictionary<string, Assets.Scripts.Models.CubeData[]> cubeRowsCache =
+        new Dictionary<string, Assets.Scripts.Models.CubeData[]>();
+
+    public Coroutine RequestCubeRows(int patchIdx, int warmingIdx, Action<Assets.Scripts.Models.CubeData[]> callback)
+    {
+        string key =  CubeDataCacheKey(patchIdx, warmingIdx);
+
+        if (cubeRowsCache.TryGetValue(key, out Assets.Scripts.Models.CubeData[] cached))
+        {
+            if (debugCache) Debug.Log("RequestCubeRows()... CACHE HIT  key:" + key);
+            return this.StartCoroutine(DeliverCachedRows(cached, callback));
+        }
+
+        if (debugCache) Debug.Log("RequestCubeRows()... CACHE MISS -> fetch  key:" + key);
+        string uri = BuildUri(apiPathCubes, patchIdx, warmingIdx);
+
+        return this.StartCoroutine(this.GetRequest(uri, json =>
+        {
+            // The API returns a bare JSON array; JsonUtility needs it wrapped in an object.
+            Assets.Scripts.Models.CubeData[] rows =
+                JsonUtility.FromJson<Assets.Scripts.Models.CubeDataModelList>("{\"rows\":" + json + "}").rows;
+            cubeRowsCache[key] = rows;
+            if (callback != null) callback(rows);
+        }));
+    }
+
+    // Deliver cached rows one frame later, so callers see the same async ordering as a real fetch.
+    private IEnumerator DeliverCachedRows(Assets.Scripts.Models.CubeData[] rows,
+Action<Assets.Scripts.Models.CubeData[]> callback)
+    {
+        yield return null;
+        if (callback != null) callback(rows);
     }
 
 

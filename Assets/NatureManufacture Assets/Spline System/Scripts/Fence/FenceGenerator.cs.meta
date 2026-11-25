@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 2fa8fbbf469f03946bd290acc9ce5acd
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {fileID: 2800000, guid: dcfe35693d91d754c918df7fc26d7d01, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Spline System/Scripts/Fence/FenceGenerator.cs
+  uploadId: 957846

@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 0e6fc1d90e6a44d4897ac67de37fed80
+timeCreated: 1517994064
+licenseType: Store
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Spline System/Scripts/Editor/VertexPainter/VertexPainterWindow.cs
+  uploadId: 957846

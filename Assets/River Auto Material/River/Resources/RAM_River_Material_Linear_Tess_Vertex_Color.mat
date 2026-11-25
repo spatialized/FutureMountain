@@ -2,19 +2,32 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_Name: RAM_River_Material_Linear_Tess_Vertex_Color
-  m_Shader: {fileID: 4800000, guid: f4e630c029fc8574b9cd499a0c163b58, type: 3}
-  m_ShaderKeywords: 
+  m_Shader: {fileID: 4800000, guid: ec8317f7143c0374c8e89057a7d548bf, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _SPECULAR_SETUP
+  - _SURFACE_TYPE_TRANSPARENT
+  - _USE_CAUSTIC
+  - _USE_DISTORTION
+  - _USE_TRANSLUCENCY
+  - _USE_VERTEX_OFFSET
+  m_InvalidKeywords: []
   m_LightmapFlags: 1
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
+  stringTagMap:
+    RenderType: Transparent
+  disabledShaderPasses:
+  - SHADOWCASTER
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -30,12 +43,20 @@ Material:
         m_Texture: {fileID: 2800000, guid: 9f1d5e83b0b47104684e6a5b22948a21, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Big_Cascade_Foam_Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Cascade:
         m_Texture: {fileID: 2800000, guid: c68566ea293cd18429979fc9e8eb51c3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 1, y: 0}
     - _CascadeNormal:
         m_Texture: {fileID: 2800000, guid: 53b00ac4b7ee2fb4681d46ce396bde98, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Caustic:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DummyTex:
@@ -58,12 +79,24 @@ Material:
         m_Texture: {fileID: 2800000, guid: fd8b85b15dfe0ad4cbbc5613a12722c6, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Side_Foam_Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _Skybox:
         m_Texture: {fileID: 8900000, guid: 56a68e301a0ff55469ae441c0112d256, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SlowCascade:
         m_Texture: {fileID: 2800000, guid: 2f347103d0fd8084f9e979cf611d6fa1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SlowWaterNormal:
+        m_Texture: {fileID: 2800000, guid: 53b00ac4b7ee2fb4681d46ce396bde98, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SlowWaterTesselation:
+        m_Texture: {fileID: 2800000, guid: 9f1d5e83b0b47104684e6a5b22948a21, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SmallCascade:
@@ -76,6 +109,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     - _SmallCascadeWaterTess:
         m_Texture: {fileID: 2800000, guid: 9f1d5e83b0b47104684e6a5b22948a21, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Small_Cascade_Foam_Normal:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _TextureSample0:
@@ -118,19 +155,50 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
+    - Big_Cascade_Foam_Falloff: 2.86
+    - MacroWaveTessScale: 0.05
     - _AOPower: 1
+    - _AlphaClip: 0
+    - _AlphaToMask: 0
+    - _BackfaceAlpha: 1
+    - _Backface_Background_Brightness: 0.05
+    - _Backface_Distortion: 1
     - _BigCascadeAngle: 7
     - _BigCascadeAngleFalloff: 2.3
     - _BigCascadeFalloff: 80
+    - _BigCascadeFlowUVRefreshSpeed: 0.4
     - _BigCascadeFoamFalloff: 0.84
+    - _BigCascadeNoiseMultiply: 20
+    - _BigCascadeNoisePower: 10
     - _BigCascadeNormalInfluence: 0
     - _BigCascadeNormalScale: 2
     - _BigCascadeSmoothness: 0
     - _BigCascadeSpecular: 0.84
     - _BigCascadeSpeed: 4
+    - _BigCascadeTranslucencyMultiply: 0.69
+    - _BigCascadeTransparency: 0.005
     - _BigCascadeWaterNormalScale: 0.9
     - _BigCascadeWaterTessScale: 0.2
+    - _Big_Cascade_Foam_Height_Mask: 1.5
+    - _Big_Cascade_Foam_Normal_Scale: 0.6
+    - _Big_Cascade_Foam_Specular: 0.19
+    - _Big_Cascade_Noise_Flow_UV_Refresh_Speed: 0.15
+    - _Blend: 0
+    - _BlendModePreserveSpecular: 0
     - _CascadeFalloff: 0.84
     - _CascadeFalloffSlow: 5.86
     - _CascadeMetalic: 0
@@ -144,11 +212,28 @@ Material:
     - _CascadeWaterNormalScale: 0.9
     - _CascadeWaterTessScale: 0.06
     - _CascadesNoisePower: 2.71
+    - _CastShadows: 0
+    - _Caustic_Blend: 0.044
+    - _Caustic_Falloff: 3.33
+    - _Caustic_Intensivity: 7.07
+    - _Caustic_Speed: 0.4
+    - _Caustic_Tiling: 0.05
     - _ChromaticAberration: 0.1
+    - _CleanFalloffMultiply: 1.29
+    - _CleanFalloffPower: 0.38
+    - _Clean_Water_Background_Brightness: 0.9
+    - _Cull: 0
     - _Cutoff: 0.5
     - _Depth: 0.98
     - _DepthFalloff: -13
     - _Distortion: 0.03
+    - _DstBlend: 10
+    - _DstBlendAlpha: 10
+    - _EdgeFalloffMultiply: 5.19
+    - _EdgeFalloffPower: 0.74
+    - _FarNormalBlendStartDistance: 20
+    - _FarNormalBlendThreshold: 10
+    - _FarNormalPower: 0.5
     - _FastCascadeAngle: 90
     - _FastCascadeFalloff: 80
     - _FastCascadeNormalInfluence: 0
@@ -167,46 +252,89 @@ Material:
     - _FoamSpecular: 0
     - _FoamSpeed: 0.3
     - _FoamTiling: 2
+    - _FoamWaveHardness: 2.91
+    - _FoamWaveMultiply: 6.17
+    - _FoamWavePower: 4.39
     - _Foamfalloff: -4
+    - _GlobalTiling: 1
+    - _MacroWaveNormalScale: 0.15
     - _MaskClipValue: 0.5
+    - _MicroWaveNormalScale: 0.15
+    - _NMFoamSmoothness: 0
+    - _NMWaterSmoothness: 0.9
+    - _NMWaterSmoothness_1: 1
     - _NormalScale: 0.5
     - _Occlusion: 0.48
+    - _QueueControl: 0
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
     - _Reflection: 0.66
     - _ReflectionPower: 0.083
     - _ShalowDepth: 0.7
     - _ShalowFalloff: -1.2
+    - _ShalowFalloffMultiply: 1.043
+    - _ShalowFalloffPower: 3.9
+    - _Shore_Translucency_Multiply: 0.3
+    - _Shore_Translucency_Power: 1.6
+    - _Side_Foam_Flow_UV_Refresh_Speed: 0.15
+    - _Side_Foam_Normal_Scale: 0.3
+    - _Side_Foam_Specular: 0.19
     - _SlowCascadeAngle: 0.001
     - _SlowCascadeFalloff: 80
     - _SlowCascadeFoamFalloff: 5.86
     - _SlowCascadeSpeed: 0.15
+    - _SlowNormalScale: 0.3
     - _SlowWaterSpeed: 0.5
+    - _SlowWaterTessScale: 0.05
+    - _SlowWaterTranslucencyMultiply: 1
     - _SmallCascadeAngle: 0.3
     - _SmallCascadeAngleFalloff: 0.5
     - _SmallCascadeFalloff: 80
+    - _SmallCascadeFlowUVRefreshSpeed: 0.15
     - _SmallCascadeFoamFalloff: 1.95
+    - _SmallCascadeNoiseMultiply: 28.7
+    - _SmallCascadeNoisePower: 8.4
     - _SmallCascadeNormalInfluence: 20
     - _SmallCascadeNormalScale: 1
     - _SmallCascadeSmoothness: 0
     - _SmallCascadeSpecular: 0.8
     - _SmallCascadeSpeed: 4
+    - _SmallCascadeTranslucencyMultiply: 1
     - _SmallCascadeWaterNormalScale: 0.69
     - _SmallCascadeWaterTessScale: 0.08
+    - _Small_Cascade_Foam_Height_Mask: 1.5
+    - _Small_Cascade_Foam_Normal_Scale: 0.5
+    - _Small_Cascade_Foam_Specular: 0.19
+    - _Small_Cascade_Noise_Flow_UV_Refresh_Speed: 0.15
     - _Smoothness: 0.9
     - _Specular: 0.1
+    - _SrcBlend: 5
+    - _SrcBlendAlpha: 1
+    - _Surface: 1
     - _TessMax: 11
     - _TessMin: 0
     - _TessPhongStrength: 0.5
     - _TessValue: 25
     - _ToggleSwitch1: 0
+    - _Translucency_Global_Power: 10
+    - _Translucency_Global_Waves_Power: 0.1
+    - _Translucency_Thickness: 2.4
+    - _USE_CAUSTIC: 1
+    - _USE_DISTORTION: 1
+    - _USE_TRANSLUCENCY: 1
+    - _USE_VERTEX_OFFSET: 1
     - _UVDirectionV1U0: 1
     - _UVVDirection1UDirection0: 0
     - _Udirection: 0
     - _Vdirection: 0
+    - _WaterAlphaMultiply: 0.66
+    - _WaterAlphaPower: 1.39
     - _WaterDeepTranslucencyPower: 0.1
     - _WaterDepth: 0.143
     - _WaterFallOfBorder: 9.32
     - _WaterFalloff: 0.143
     - _WaterFalloffBorder: 8.46
+    - _WaterFlowUVRefresSpeed: 0.15
     - _WaterMetalic: 0.081
     - _WaterNormalScale: 0.5
     - _WaterShalowDepth: 3.85
@@ -214,28 +342,56 @@ Material:
     - _WaterShalowTranslucencyPower: 0
     - _WaterSmoothness: 0.85
     - _WaterSpecular: 0.1
+    - _WaterSpecularThreshold: 0.39
     - _WaterSpeed: 0.5
     - _WaterTessScale: 0.06
     - _WaterTiling: 100
     - _WaterTranslucencyPower: 0.55
+    - _Water_Specular_Close: 0.19
+    - _Water_Specular_Far: 0.255
+    - _WaveTranslucencyFallOffDistance: 30
+    - _WaveTranslucencyHardness: 0.7
+    - _WaveTranslucencyMultiply: 0.16
+    - _WaveTranslucencyPower: 1.64
+    - _WorkflowMode: 0
+    - _ZTest: 4
+    - _ZWrite: 1
+    - _ZWriteControl: 1
     - __dirty: 0
     - _test: 0.35
     m_Colors:
     - _BigCascadeColor: {r: 20, g: 20, b: 20, a: 0}
     - _BigCascadeMainSpeed: {r: 0, g: 0.24, b: 0, a: 0}
     - _BigCascadeMixSpeed: {r: 0.02, g: 0.28, b: 0, a: 0}
+    - _BigCascadeTiling: {r: 1, g: 1, b: 0, a: 0}
+    - _Big_Cascade_Noise_Speed: {r: 1, g: 1, b: 0, a: 0}
+    - _Big_Cascade_Noise_Tiling: {r: 1, g: 1, b: 0, a: 0}
+    - _Big_Foam_Cascade_Tiling: {r: 20, g: 20, b: 0, a: 0}
     - _CascadeColor: {r: 20, g: 20, b: 20, a: 0}
+    - _Caustic_Color: {r: 1, g: 1, b: 1, a: 1}
     - _Color0: {r: 0, g: 0.6749488, b: 0.8088235, a: 0}
     - _Color1: {r: 0, g: 0.048731543, b: 0.22794023, a: 0}
     - _DeepColor: {r: 0.05708845, g: 0.095184885, b: 0.23528743, a: 0}
     - _FoamColor: {r: 20, g: 20, b: 20, a: 0}
     - _FoamSpeed: {r: -0.001, g: 0.018, b: 0, a: 0}
+    - _MacroWaveTiling: {r: 0.05, g: 0.05, b: 0, a: 0}
+    - _MicroWaveTiling: {r: 0.5, g: 0.5, b: 0, a: 0}
     - _NoiseSpeed: {r: -0.2, g: -0.5, b: 0, a: 0}
+    - _NoiseTiling: {r: 2, g: 2, b: 0, a: 0}
     - _ShalowColor: {r: 0.5060554, g: 0.6617647, b: 0.61666334, a: 0}
+    - _Side_Foam_Tiling: {r: 8, g: 8, b: 0, a: 0}
     - _SlowCascadeColor: {r: 20, g: 20, b: 20, a: 0}
+    - _SlowWaterMixSpeed: {r: 0.15, g: -0.15, b: 0, a: 0}
+    - _SlowWaterSpeed: {r: 0.3, g: 0.3, b: 0, a: 0}
+    - _SlowWaterTiling: {r: 1, g: 1, b: 0, a: 0}
     - _SmallCascadeColor: {r: 20, g: 20, b: 20, a: 0}
     - _SmallCascadeMainSpeed: {r: 0, g: 0.16, b: 0, a: 0}
     - _SmallCascadeMixSpeed: {r: 0.02, g: 0.07, b: 0, a: 0}
+    - _SmallCascadeTiling: {r: 2, g: 2, b: 0, a: 0}
+    - _Small_Cascade_Foam_Tiling: {r: 20, g: 20, b: 0, a: 0}
     - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Translucency_Color: {r: 0, g: 0, b: 0, a: 0}
     - _WaterMainSpeed: {r: 0.01, g: 0, b: 0, a: 0}
     - _WaterMixSpeed: {r: -0.007, g: 0.05, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

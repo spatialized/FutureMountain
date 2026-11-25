@@ -545,17 +545,31 @@ public class GameController : MonoBehaviour
 
     // CC V3 data-driven fires: wait for the zone cubes to finish loading, then derive this scenario's fire
     // frames from their data. Called on initial load and on every scenario change.
+    // private System.Collections.IEnumerator RebuildCentralCoastFiresWhenLoaded(int scenarioIdx)
+    // {
+    //     float timeout = 30f;   // the app's data load can be slow; wait generously
+    //     while (timeout > 0f)
+    //     {
+    //         bool allLoaded = cubes != null;
+    //         if (cubes != null)
+    //             for (int i = 0; i < cubes.Length; i++)
+    //                 if (cubes[i] != null && !cubes[i].IsDataReloaded()) { allLoaded = false; break; }
+    //         if (allLoaded) break;
+    //         timeout -= Time.deltaTime;
+    //         yield return null;
+    //     }
+    //     RebuildCentralCoastFires(scenarioIdx);
+    // }
+
     private System.Collections.IEnumerator RebuildCentralCoastFiresWhenLoaded(int scenarioIdx)
     {
         float timeout = 30f;   // the app's data load can be slow; wait generously
         while (timeout > 0f)
         {
-            bool allLoaded = cubes != null;
-            if (cubes != null)
-                for (int i = 0; i < cubes.Length; i++)
-                    if (cubes[i] != null && !cubes[i].IsDataReloaded()) { allLoaded = false; break; }
-            if (allLoaded) break;
-            timeout -= Time.deltaTime;
+            //Firesnow come from the agg cube; only it needs to be loaded for L1Q1 to be ready
+            if(aggregateCubeController != null && aggregateCubeController.IsDataReloaded())
+                break;
+            timeout -= Time.deltaTime;   // keep the 30s timeout fallback
             yield return null;
         }
         RebuildCentralCoastFires(scenarioIdx);
@@ -572,10 +586,12 @@ public class GameController : MonoBehaviour
         if (!ccFireFramesByScenario.TryGetValue(scenarioIdx, out frames))
         {
             var set = new HashSet<int>();
-            if (cubes != null)
-                for (int i = 0; i < cubes.Length; i++)
-                    if (cubes[i] != null)
-                        foreach (int fr in cubes[i].GetFireOnsetFrames()) set.Add(fr);
+            // if (cubes != null)
+            //     for (int i = 0; i < cubes.Length; i++)
+            //         if (cubes[i] != null)
+            //             foreach (int fr in cubes[i].GetFireOnsetFrames()) set.Add(fr);
+            if (aggregateCubeController != null)
+                foreach (int fr in aggregateCubeController.GetFireOnsetFrames()) set.Add(fr);
             frames = new List<int>(set);
             frames.Sort();
             ccFireFramesByScenario[scenarioIdx] = frames;
@@ -1306,7 +1322,12 @@ public class GameController : MonoBehaviour
         else
             HideStatistics();
 
-        PreloadSideCubes();   // warm side cubes with the compare scenario's data (no growth) for instant side-by-side graphs
+        // Side cubes are no longer preloaded at startup: they are only needed when the user enters
+        // side-by-side mode, which happens much later. EnterSideBySide loads a side cube on demand when
+        // it isn't preloaded (CubeController's preloaded-check -> UpdateDataFromWeb fallback), and
+        // ExitSideBySideMode re-preloads so repeat entries stay instant. This removes the ~12 compare-
+        // scenario requests from the opening critical path. (Was: PreloadSideCubes();)
+        // PreloadSideCubes();
 
         yield return new WaitForSeconds(5f);            // Testing fix for Continue button unclickable bug
 

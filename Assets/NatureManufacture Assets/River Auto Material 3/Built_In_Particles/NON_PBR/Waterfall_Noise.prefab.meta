@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 4caa7f2cd187a5b46a5620732e76449d
+timeCreated: 1513950452
+licenseType: Store
+NativeFormatImporter:
+  mainObjectFileID: 100100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/River Auto Material 3/Built_In_Particles/NON_PBR/Waterfall_Noise.prefab
+  uploadId: 957846

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d9aa9671d3da19e4ca1c4e4d5230397d
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/River Auto Material/Demo/RAM 3 Demo Tesseled/ProbeVolumeData-Default.CellOptionalData.bytes
+  uploadId: 957846

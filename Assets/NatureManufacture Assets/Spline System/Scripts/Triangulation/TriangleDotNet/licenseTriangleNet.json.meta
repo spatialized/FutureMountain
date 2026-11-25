@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 70954bdc81c82a947ac75199492a3078
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Spline System/Scripts/Triangulation/TriangleDotNet/licenseTriangleNet.json
+  uploadId: 957846

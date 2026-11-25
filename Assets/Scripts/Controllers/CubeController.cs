@@ -994,6 +994,22 @@ public class CubeController : MonoBehaviour
               p2 += GetIndDied(cubeDataP2, k);            // patch2 = second member
           }
 
+        // Aggregate cube
+
+        if (isAggregate)
+        {
+            float total = p1;
+            int n1 = (patch1 != null ) ? patch1.nStems : 0;
+            int n2 = (patch2 != null) ? patch2.nStems : 0;
+            int nTot = n1 + n2;
+            if (nTot > 0)
+            {
+                p1 = total * n1 / nTot;
+                p2 = total * n2 / nTot;
+            }
+
+        }
+
           QueueIndDiedForPatch(patch1, p1);
           QueueIndDiedForPatch(patch2, p2);
       }
@@ -1879,6 +1895,10 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void UpdateVegetationFromData()
     {
+        // TEMP: find who resets the aggregate (remove after)
+        if (isAggregate)
+            Debug.Log($"[RESET] {name} UpdateVegetationFromData timeIdx={timeIdx}\n{System.Environment.StackTrace}");
+
         if (!simulationOn)
             return;
 
@@ -1896,6 +1916,16 @@ public class CubeController : MonoBehaviour
         UpdateCurrentData(timeIdx);         // Added 12/23/24
         GrowInitialVegetation();
         initialGrowthDone = true;   // so the other startup path won't reset+regrow (the flash)
+    }
+
+    // Central Coast: switch to newly loaded data WITHOUT destroying the existing stand (mid-play scenario
+    // reload). Resync the ind_died cursor to "now" so the new scenario's past deaths aren't flushed onto
+    // the existing trees in one go. Not called by BigCreek.
+    protected void RefreshFromDataKeepVegetation()
+    {
+        lastDeathTimeIdx = timeIdx;
+        UpdateCurrentData(timeIdx);
+        initialGrowthDone = true;
     }
 
     // Grow after a web load's data lands. Base grows immediately; CubeController_CCV3 overrides this to
@@ -2697,7 +2727,8 @@ public class CubeController : MonoBehaviour
             initialGrowthDone = false;   // fresh load -> allow exactly one initial grow again
             hoMaxP1 = -1f; hoMaxP2 = -1f;   // invalidate cached heightOver range -> recomputed on next use
             Debug.Log(name + ".UpdateDataFromWeb()... patchID:"+ patchID+" warmingIdx: " + warmingIdx);
-            WebManager.Instance.RequestCubeData(patchID, warmingIdx, this.FinishUpdateDataFromWeb);
+            // WebManager.Instance.RequestCubeData(patchID, warmingIdx, this.FinishUpdateDataFromWeb);
+            WebManager.Instance.RequestCubeRows(patchID, warmingIdx, this.FinishUpdateDataFromWeb);
 
             RequestExtraPatchData(warmingIdx);   // Central Coast loads its second patch member here; base does nothing
         }
@@ -2748,17 +2779,30 @@ public class CubeController : MonoBehaviour
     /// Finish cube data update data from web 
     /// </summary>
     /// <param name="jsonString">Cube data JSON string returned by API</param>
-    private void FinishUpdateDataFromWeb(string jsonString) 
-    {
-        UpdateDataRowsFromJSON(jsonString);     // Update data for parameter range finding
-        FindParameterRanges();
-        UpdateDataFromJSON(jsonString);         // Sets cubeData
-        p1Loaded = true;
+    // private void FinishUpdateDataFromWeb(string jsonString) 
+    // {
+    //     UpdateDataRowsFromJSON(jsonString);     // Update data for parameter range finding
+    //     FindParameterRanges();
+    //     UpdateDataFromJSON(jsonString);         // Sets cubeData
+    //     p1Loaded = true;
 
-        // Grow only when all needed members are loaded (so we never reset later).
-        if (ReadyToGrowFromData())
-            GrowFromLoadedData();
-    }
+    //     // Grow only when all needed members are loaded (so we never reset later).
+    //     if (ReadyToGrowFromData())
+    //         GrowFromLoadedData();
+    // }
+
+    private void FinishUpdateDataFromWeb(CubeData[] rows)
+      {
+          dataRows = rows;                 // for parameter range finding
+          FindParameterRanges();
+          cubeData = LoadData(rows);       // sets cubeData
+          hoMaxP1 = -1f;                   // new patch1 data just landed -> recompute the heightOver range from THIS scenario
+          p1Loaded = true;
+
+          // Grow only when all needed members are loaded (so we never reset later).
+          if (ReadyToGrowFromData())
+              GrowFromLoadedData();
+      }
 
     /// <summary>
     /// Central Coast override: request the cube's second patch member (patchID + 1). Base loads a
@@ -2776,10 +2820,11 @@ public class CubeController : MonoBehaviour
     }
 
     // Loads the second patch member's data, then re-grows so patch2 uses its own carbon.
-    protected void FinishUpdateDataFromWebP2(string jsonString)
+    protected void FinishUpdateDataFromWebP2(CubeData[] rows)
     {
-        CubeDataModelList rowsObj = JsonUtility.FromJson<CubeDataModelList>("{\"rows\":" + jsonString + "}");
-        cubeDataP2 = LoadData(rowsObj.rows);
+        // CubeDataModelList rowsObj = JsonUtility.FromJson<CubeDataModelList>("{\"rows\":" + jsonString + "}");
+        // cubeDataP2 = LoadData(rowsObj.rows);
+        cubeDataP2 = LoadData(rows);
         hoMaxP2 = -1f;   // new patch2 data just landed -> recompute its heightOver range from THIS scenario
         p2Loaded = true;
 
@@ -4771,6 +4816,11 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void ResetCube()
     {
+         // TEMP: catch who destroys all trees (remove after)
+        if (isAggregate)
+            Debug.Log($"[RESET2] {name} ResetCube timeIdx={timeIdx}\n{System.Environment.StackTrace}");
+
+       
         ResetTerrainSplatmap();
 
         KillAllTrees(true);

@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 382ac9c05c18cc74f8fb32f1978989e3
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Water Shaders/Water Swamp Mobile.shader
+  uploadId: 957846

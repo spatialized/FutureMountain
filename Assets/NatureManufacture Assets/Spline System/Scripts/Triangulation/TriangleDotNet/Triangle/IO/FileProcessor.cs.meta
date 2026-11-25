@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: bd2bf02f8df7b0f4ca0b79d41256c169
+timeCreated: 1487036984
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Spline System/Scripts/Triangulation/TriangleDotNet/Triangle/IO/FileProcessor.cs
+  uploadId: 957846

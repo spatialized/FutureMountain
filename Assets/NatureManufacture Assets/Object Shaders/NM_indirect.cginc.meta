@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 5b01e3d9186192744b1a3d97021bf2a2
+timeCreated: 1526370176
+licenseType: Store
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Object Shaders/NM_indirect.cginc
+  uploadId: 957846

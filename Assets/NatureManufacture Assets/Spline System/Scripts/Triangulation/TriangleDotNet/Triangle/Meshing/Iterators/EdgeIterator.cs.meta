@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: cff7679ecfdfffb449ec1788e6de34dc
+timeCreated: 1487036984
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Spline System/Scripts/Triangulation/TriangleDotNet/Triangle/Meshing/Iterators/EdgeIterator.cs
+  uploadId: 957846

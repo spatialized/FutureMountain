@@ -1,0 +1,22 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="True">
+    <ui:VisualElement name="vsPosition" style="flex-wrap: nowrap; opacity: 1; flex-grow: 0; flex-shrink: 1; flex-direction: row; flex-basis: auto; width: auto; padding-top: 6px; min-width: auto;">
+        <uie:Vector4Field name="PositionV4" binding-path="position" style="flex-shrink: 0; flex-grow: 1; display: flex; min-width: 300px;" />
+        <ui:Button text="A" display-tooltip-when-elided="true" name="btnAdd" style="margin-left: 1px; margin-right: 1px; padding-left: 3px; padding-right: 3px;" />
+        <ui:Button text="R" display-tooltip-when-elided="true" name="btnRemove" style="padding-left: 3px; padding-right: 3px; margin-left: 1px; margin-right: 3px;" />
+    </ui:VisualElement>
+    <ui:VisualElement name="vsRotation" style="flex-direction: row;">
+        <uie:PropertyField name="propRotation" style="flex-grow: 1; flex-shrink: 0; display: flex;" />
+        <ui:Button text="Clear Rotation" display-tooltip-when-elided="true" name="btnClearRotation" style="margin-left: 1px; margin-right: 3px;" />
+    </ui:VisualElement>
+    <ui:Toggle label="Snap to terrain" name="tgSnapToTerrain" style="margin-top: 3px;" />
+    <uie:CurveField label="Mesh curve" name="curMeshCurve" />
+    <ui:Slider picking-mode="Ignore" label="Triangles Density U" value="1" high-value="32" name="slDensityU" low-value="1" />
+    <ui:Slider picking-mode="Ignore" label="Triangles Density V" value="1" high-value="32" name="slDensityV" low-value="1" />
+    <ui:VisualElement name="vsSplitSpline" style="height: auto; padding-top: 8px;">
+        <ui:Label text="Split spline into 2 splines:" display-tooltip-when-elided="true" style="margin-left: 3px; margin-right: 3px;" />
+        <ui:VisualElement style="flex-direction: row; height: 20px;">
+            <ui:Button text="Split spline" display-tooltip-when-elided="true" name="btnSplitSpline" style="flex-grow: 1; padding-left: 1px; padding-right: 1px; margin-left: 3px; margin-right: 1px;" />
+            <ui:Button text="Split spline into two" display-tooltip-when-elided="true" name="btnSplitSplineTwo" style="flex-grow: 1; margin-left: 1px; padding-right: 1px; padding-left: 1px; margin-right: 3px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

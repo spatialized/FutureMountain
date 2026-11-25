@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: c215ea87f44a29d48aa8b2c52f502f34
+timeCreated: 1516017070
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 287456
+  packageName: R.A.M 3 - River Auto Material 3
+  packageVersion: 1.4.5
+  assetPath: Assets/NatureManufacture Assets/Spline System/Scripts/Editor/Lake/LakePolygonProfileEditor.cs
+  uploadId: 957846

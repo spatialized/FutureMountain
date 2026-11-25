@@ -1,0 +1,759 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7578887721467035494
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da692e001514ec24dbc4cca1949ff7e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 13
+  hdPluginSubTargetMaterialVersions:
+    m_Keys: []
+    m_Values: 
+--- !u!114 &-5575761558584105513
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa486462e6be1764e89c788ba30e61f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_DiffusionProfileReferences:
+  - {fileID: 11400000, guid: 0253175d6c5603f4cab9dafe05c0fb47, type: 2}
+  m_MaterialReferences: []
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: M_R3_Sea_Lake_Windy_Tesseled
+  m_Shader: {fileID: 4800000, guid: ac4625a03c6f6c841bcee19b5e13363e, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _USE_CAUSTIC
+  - _UVVDIRECTION1UDIRECTION0_ON
+  m_InvalidKeywords:
+  - _BLENDMODE_ALPHA
+  - _DISABLE_DECALS
+  - _ENABLE_FOG_ON_TRANSPARENT
+  - _MATERIAL_FEATURE_TRANSMISSION
+  - _SPECULAR_SETUP
+  - _SURFACE_TYPE_TRANSPARENT
+  - _TESSELLATION_PHONG
+  - _TRANSPARENT_WRITES_MOTION_VEC
+  m_LightmapFlags: 1
+  m_EnableInstancingVariants: 1
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3000
+  stringTagMap:
+    MotionVector: User
+    RenderType: Transparent
+  disabledShaderPasses:
+  - TransparentDepthPostpass
+  - TransparentBackface
+  - RayTracingPrepass
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - BigCascadeWaterTess:
+        m_Texture: {fileID: 2800000, guid: 1ce13a71fe2afd746b7fe0fcfca08591, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BigCascade:
+        m_Texture: {fileID: 2800000, guid: 62eeec30a68f2d14996a082e3939b7c8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BigCascadeNormal:
+        m_Texture: {fileID: 2800000, guid: 323d1bf6999942d4785aaed026eb2f23, type: 3}
+        m_Scale: {x: 1, y: 3}
+        m_Offset: {x: 0, y: 0}
+    - _BigCascadeWaterTess:
+        m_Texture: {fileID: 2800000, guid: 1ce13a71fe2afd746b7fe0fcfca08591, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Cascade:
+        m_Texture: {fileID: 2800000, guid: c68566ea293cd18429979fc9e8eb51c3, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 1, y: 0}
+    - _CascadeNormal:
+        m_Texture: {fileID: 2800000, guid: 53b00ac4b7ee2fb4681d46ce396bde98, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Caustic:
+        m_Texture: {fileID: 2800000, guid: b5bdfd116cb9180408b434006f5e1f0a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Caustic_c5315adf9f1e4b40af37a848ccd8038c_Texture2D_3182790919_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 3288f3c220f50b544a28c3be87ddff1c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DummyTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Foam:
+        m_Texture: {fileID: 2800000, guid: 27771a8ca49e7c54eb3d05576df8ace3, type: 3}
+        m_Scale: {x: 5, y: 5}
+        m_Offset: {x: 0, y: 0}
+    - _Gerstner_Wave_Noise:
+        m_Texture: {fileID: 2800000, guid: cdec882b86a6f9b46b4c79d6a9891f1c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Gestner_Wave_Noise:
+        m_Texture: {fileID: 2800000, guid: cdec882b86a6f9b46b4c79d6a9891f1c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MicroWaveNormal:
+        m_Texture: {fileID: 2800000, guid: 53b00ac4b7ee2fb4681d46ce396bde98, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MicrowaveNormal:
+        m_Texture: {fileID: 2800000, guid: ae4fa60dcb7bfe04ca2fc6245e8263ce, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Noise:
+        m_Texture: {fileID: 2800000, guid: cdec882b86a6f9b46b4c79d6a9891f1c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Normal:
+        m_Texture: {fileID: 2800000, guid: fb6566c21f717904f83743a5a76dd0b0, type: 3}
+        m_Scale: {x: 20, y: 20}
+        m_Offset: {x: 0, y: 0}
+    - _Normal2:
+        m_Texture: {fileID: 2800000, guid: fd8b85b15dfe0ad4cbbc5613a12722c6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SampleTexture2DLOD_477be41a2d869a8f8adf9d9278714191_Texture_1_Texture2D:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Sea_Foam_Texture:
+        m_Texture: {fileID: 2800000, guid: 260202455969102428741c7c01226a7d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Sea_Foam_Texture_Normal:
+        m_Texture: {fileID: 2800000, guid: e97ecb43cc4cc774fa97e781f938cb50, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Side_Foam_Crest_Wave_Mask_Power_1:
+        m_Texture: {fileID: 2800000, guid: 5d15a98fc0e7b4b4cb50bf0fd6279ee3, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Side_Foam_Mask_Normal:
+        m_Texture: {fileID: 2800000, guid: 91154fcfb23a1fb41a7f4073c0fd0a5a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Skybox:
+        m_Texture: {fileID: 8900000, guid: 56a68e301a0ff55469ae441c0112d256, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SlowCascade:
+        m_Texture: {fileID: 2800000, guid: 2f347103d0fd8084f9e979cf611d6fa1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SlowWaterNormal:
+        m_Texture: {fileID: 2800000, guid: 53b00ac4b7ee2fb4681d46ce396bde98, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SlowWaterTesselation:
+        m_Texture: {fileID: 2800000, guid: 9f1d5e83b0b47104684e6a5b22948a21, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SmallCascade:
+        m_Texture: {fileID: 2800000, guid: 2f347103d0fd8084f9e979cf611d6fa1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SmallCascadeNormal:
+        m_Texture: {fileID: 2800000, guid: 53b00ac4b7ee2fb4681d46ce396bde98, type: 3}
+        m_Scale: {x: 2, y: 2}
+        m_Offset: {x: 0, y: 0}
+    - _SmallCascadeWaterTess:
+        m_Texture: {fileID: 2800000, guid: 9f1d5e83b0b47104684e6a5b22948a21, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture2DAsset_6d0f2a9c9a224426bafac24f9f01fe3a_Out_0_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 2ec31922adde0804aa388b99b8d834f5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TextureSample0:
+        m_Texture: {fileID: 2800000, guid: fd8b85b15dfe0ad4cbbc5613a12722c6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TextureSample1:
+        m_Texture: {fileID: 2800000, guid: e28dc97a9541e3642a48c0e3886688c5, type: 3}
+        m_Scale: {x: 10, y: 10}
+        m_Offset: {x: 0, y: 0}
+    - _Triplanar_92bdff3a021c46748e1a77bf4e78bd0b_Texture_1_Texture2D:
+        m_Texture: {fileID: 2800000, guid: 2ec31922adde0804aa388b99b8d834f5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _WaterCascadeTesselation:
+        m_Texture: {fileID: 2800000, guid: 43cd82d77572cc74188065122245d3bd, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _WaterNormal:
+        m_Texture: {fileID: 2800000, guid: 53b00ac4b7ee2fb4681d46ce396bde98, type: 3}
+        m_Scale: {x: 2, y: 2}
+        m_Offset: {x: 0, y: 0}
+    - _WaterNormal1:
+        m_Texture: {fileID: 2800000, guid: 53b00ac4b7ee2fb4681d46ce396bde98, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _WaterNormall:
+        m_Texture: {fileID: 2800000, guid: 53b00ac4b7ee2fb4681d46ce396bde98, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _WaterTess:
+        m_Texture: {fileID: 2800000, guid: 43cd82d77572cc74188065122245d3bd, type: 3}
+        m_Scale: {x: 0.7, y: 0.7}
+        m_Offset: {x: 0, y: 0}
+    - _WaterTessCascade:
+        m_Texture: {fileID: 2800000, guid: c68566ea293cd18429979fc9e8eb51c3, type: 3}
+        m_Scale: {x: 0.7, y: 0.7}
+        m_Offset: {x: 0, y: 0}
+    - _WaterTesselation:
+        m_Texture: {fileID: 2800000, guid: 9f1d5e83b0b47104684e6a5b22948a21, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Wave_Noise:
+        m_Texture: {fileID: 2800000, guid: cdec882b86a6f9b46b4c79d6a9891f1c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Waves_Noise:
+        m_Texture: {fileID: 2800000, guid: 5d2bf8350e9dc974786b03da7e9f2d7d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _test_water_N:
+        m_Texture: {fileID: 2800000, guid: 53b00ac4b7ee2fb4681d46ce396bde98, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord4:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - Big_Cascade_Foam_Falloff: 2.86
+    - MacroWaveTessScale: 0.1
+    - Sea_Waves_Foam_Mask_Hardness: 0.95
+    - Sea_Waves_Foam_Mask_Multiply: 20
+    - Sea_Waves_Foam_Mask_Power: 4.9
+    - _AOPower: 1
+    - _AddPrecomputedVelocity: 0
+    - _AlphaCutoffEnable: 0
+    - _AlphaDstBlend: 10
+    - _AlphaSrcBlend: 1
+    - _AlphaToMask: 0
+    - _AlphaToMaskInspectorValue: 0
+    - _Angle_offset: 1
+    - _Angle_offset_Big_Wave_Gerstner: 1
+    - _Angle_offset_Gerstner: 1
+    - _Angle_offset_Shore: 1
+    - _Angle_offset_Shore_Gerstner: 1
+    - _Angle_offset_Shore_Polar: 1
+    - _Angle_offset_Shore_gerstner: 1
+    - _BackfaceAlpha: 0.85
+    - _Background_Brightness: 0.9
+    - _Background_Exposure: 1000
+    - _BigCascadeAngle: 90
+    - _BigCascadeAngleFalloff: 5.5
+    - _BigCascadeFalloff: 80
+    - _BigCascadeFlowUVRefreshSpeed: 0.4
+    - _BigCascadeFoamFalloff: 1.88
+    - _BigCascadeNoiseMultiply: 40
+    - _BigCascadeNoisePower: 3.18
+    - _BigCascadeNormalInfluence: 0
+    - _BigCascadeNormalScale: 0.7
+    - _BigCascadeSmoothness: 0
+    - _BigCascadeSpecular: 0.84
+    - _BigCascadeSpeed: 4
+    - _BigCascadeTranslucencyMultiply: 0.69
+    - _BigCascadeTransparency: 0.002
+    - _BigCascadeWaterNormalScale: 0.9
+    - _BigCascadeWaterTessScale: 99
+    - _Big_Front_Waves_Translucency_Multiply: 30
+    - _Big_Front_Waves_Translucency_Power: 0.7
+    - _Big_Gerstner_Angle_Offset: 0
+    - _Big_Gerstner_Falloff_Multiply: 1
+    - _Big_Gerstner_Noise_Multiply: 1.36
+    - _Big_Gerstner_Noise_Power: 0.708
+    - _Big_Gestner_Falloff_Power: 1
+    - _Big_Gestner_Waves_chaos: 0.4
+    - _Big_Waves_Translucency_Multiply: 0.1
+    - _Big_Waves_Translucency_Offset: 0.469
+    - _Big_Waves_Translucency_Power: 2.03
+    - _BlendMode: 0
+    - _Breaking_Cosinus_Multiply: 1
+    - _Breaking_sinus_Multiply: 0
+    - _CascadeFalloff: 0.84
+    - _CascadeFalloffSlow: 5.86
+    - _CascadeMetalic: 0
+    - _CascadeNormalInfluence: 20
+    - _CascadePower: 0.96
+    - _CascadeSharpness: 100
+    - _CascadeSmoothness: 0.1
+    - _CascadeSpecular: 0
+    - _CascadeSpeed: 0.6
+    - _CascadeTiling: 8
+    - _CascadeWaterNormalScale: 0.9
+    - _CascadeWaterTessScale: 0.06
+    - _CascadesNoisePower: 2.71
+    - _Caustic_Blend: 0.047
+    - _Caustic_Falloff: 3.33
+    - _Caustic_Intensivity: 7.07
+    - _Caustic_Power: 2.1
+    - _Caustic_Range: 1
+    - _Caustic_Refresh_Speed: 0.2
+    - _Caustic_Refresh_Speed_Flowmap_Version: 0.2
+    - _Caustic_Speed: 1
+    - _Caustic_Strenght: 3.33
+    - _Caustic_Tiling: 0.05
+    - _Caustic_Triplanar_Hardness: 3
+    - _ChromaticAberration: 0.1
+    - _CleanFalloffMultiply: 2.6
+    - _CleanFalloffPower: 0.3
+    - _Clean_Background_Exposure: 0.452
+    - _Clean_Water_Background_Brightness: 0.9
+    - _ClearWaterFalloff: 1.15
+    - _ConservativeDepthOffsetEnable: 0
+    - _CullMode: 2
+    - _CullModeForward: 2
+    - _Cutoff: 0.5
+    - _Depth: 0.98
+    - _DepthFalloff: -13
+    - _DepthOffsetEnable: 0
+    - _DiffusionProfileHash: 2.8146002
+    - _Distortion: 0.3
+    - _DoubleSidedEnable: 0
+    - _DoubleSidedGIMode: 0
+    - _DoubleSidedNormalMode: 0
+    - _DstBlend: 10
+    - _EdgeFalloffMultiply: 1.24
+    - _EdgeFalloffPower: 0.53
+    - _EdgeLength: 24
+    - _EnableBlendModePreserveSpecularLighting: 0
+    - _EnableFogOnTransparent: 1
+    - _ExcludeFromTUAndAA: 0
+    - _FarNormalBlendStartDistance: 100
+    - _FarNormalBlendThreshold: 0.68
+    - _FarNormalPower: 1
+    - _FastCascadeAngle: 90
+    - _FastCascadeFalloff: 80
+    - _FastCascadeNormalInfluence: 0
+    - _Float: 4.29
+    - _Float0: 0.0192
+    - _Float1: 0
+    - _Float10: 33.1
+    - _Float3: 0.9
+    - _Float7: -11.22
+    - _Float_1: 0
+    - _Foam: 1.79
+    - _FoamCascade: 15
+    - _FoamDepth: 0.9
+    - _FoamFalloff: -85.8
+    - _FoamMetalic: 0
+    - _FoamPower: 4
+    - _FoamSmoothness: 0
+    - _FoamSpecular: 0
+    - _FoamSpeed: 0.3
+    - _FoamTiling: 2
+    - _FoamWaveHardness: 0.96
+    - _FoamWaveMultiply: 10
+    - _FoamWavePower: 2
+    - _Foam_Flow_UV_Refresh_Speed: 0.15
+    - _Foam_Gerstner_Speed_Power: 1
+    - _Foam_Mask_Power: 2
+    - _Foam_Specular: 0
+    - _Foam_Translucency_1: 1
+    - _Foam_Translucency_Hardness: 30
+    - _Foamfalloff: -4
+    - _Gerstner_Big_Waves_chaos: 0.448
+    - _Gerstner_Flow_UV_Refresh_Speed: 0.33
+    - _Gerstner_Foam_Influence_Power: 1.07
+    - _Gerstner_Side_Foam_Influence_Depth: 3.37
+    - _Gerstner_Side_Foam_Influence_Multiply: 26.61
+    - _Gerstner_Side_Foam_Influence_Offset: 0.05
+    - _Gerstner_Side_Foam_Influence_Power: 2.14
+    - _Gerstner_Small_Waves_chaos: 1
+    - _Gerstner_Wave_Noise_Mutiply: 1.57
+    - _Gerstner_Wave_Noise_Power: 2.65
+    - _Gerstner_Wave_Side_Falloff_Multiply: 1
+    - _Gerstner_Wave_Side_Falloff_Power: 1
+    - _GlobalTiling: 1
+    - _GlossyReflections: 1
+    - _Intensivity: 7.07
+    - _MacroWaveNormalScale: 0.05
+    - _MaskClipValue: 0.5
+    - _MaterialID: 5
+    - _MaterialTypeMask: 32
+    - _MicroWaveNormalScale: 0.05
+    - _Mul: 1
+    - _NMAOPower: 1
+    - _NMDistortion: 0.1
+    - _NMFoamSmoothness: 0
+    - _NMWaterSmoothness: 0.9
+    - _NM_SSSSettings_Water_RAM: 3.35746
+    - _Noise_Flow_UV_Refresh_Speed: 1
+    - _NormalScale: 0.3
+    - _Occlusion: 0.48
+    - _Ocean_Gerstner_Angle_Offset: 0.8
+    - _Offset_V: 0
+    - _OpaqueCullMode: 2
+    - _Perlin: -3.23
+    - _Perlin_Mul: 3.13
+    - _Perlin_Tiling: 1.09
+    - _Polar_Angle_Offset: 0.8
+    - _Polar_Gerstner_Shore_Waves_Multiply: 7.72
+    - _Polar_Gerstner_Swash_Size: 0.8
+    - _Polar_Silent_Area: 1
+    - _Polar_Silent_Area_Angle: 77
+    - _Polar_Silent_Area_Angle_Hardness: 1
+    - _Polar_Silent_Area_Hardness: 1
+    - _Polar_Wave_Silent_Area_Angle: 77
+    - _Polar_Wave_Silent_Area_Angle_Hardness: 1
+    - _Polar_Wave_Swash_Size: 1
+    - _Pow: 5
+    - _Range: 1
+    - _RayTracing: 0
+    - _ReceivesSSR: 1
+    - _ReceivesSSRTransparent: 1
+    - _Reflection: 0.66
+    - _ReflectionPower: 0.083
+    - _RefractionModel: 0
+    - _RenderQueueType: 4
+    - _RequireSplitLighting: 0
+    - _Sea_Foam_Texture_Falloff: 1.5
+    - _Sea_Foam_Texture_Normal_Scale: 1
+    - _Sea_Gersner_Waves_Foam_Mask_Offset: 0.48
+    - _Sea_Gersner_Waves_Foam_Multiply: 0.13
+    - _Sea_Gersner_Waves_Foam_Power: 4.49
+    - _Sea_Gersner_Waves_Side_Foam_Multiply: 1
+    - _Sea_Gersner_Waves_Side_Foam_Offset: 0
+    - _Sea_Gersner_Waves_Side_Foam_Power: -10.44
+    - _Sea_Gerstner_Noise_Multiply: 1.36
+    - _Sea_Gerstner_Noise_Power: 0.708
+    - _Sea_Gerstner_Swash_Size: 0.8
+    - _Sea_Gestner_Waves_chaos: 0.4
+    - _Sea_Wave_Noise_Multiply: 1.19
+    - _Sea_Wave_Noise_Power: 0.396
+    - _Sea_Wave_Swash_Size: 1
+    - _Sea_Waves_Chaos: 0.4
+    - _Sea_Waves_Foam_Mask_Multiply: 0.56
+    - _Sea_Waves_Foam_Mask_Offset: 0.3
+    - _Sea_Waves_Foam_Mask_Power: 1.78
+    - _Sea_Waves_Foam_Multiply: 1.54
+    - _Sea_Waves_Foam_Power: 4.49
+    - _ShalowDepth: 0.7
+    - _ShalowFalloff: -1.14
+    - _ShalowFalloffMultiply: 0.6
+    - _ShalowFalloffPower: 1.66
+    - _Shore_Translucency_Multiply: 0.1
+    - _Shore_Translucency_Power: 1
+    - _Side_Back_Foam_Gerstner_Waves_Multiply: 1
+    - _Side_Back_Foam_Gerstner_Waves_Offset: 0.1
+    - _Side_Foam_Crest_Mask_Multiply: 0.25
+    - _Side_Foam_Crest_Mask_Offset: 0.7
+    - _Side_Foam_Crest_Wave_Mask_Power: 9.46
+    - _Side_Foam_Depth: 0.08
+    - _Side_Foam_Depth_Falloff: 0.68
+    - _Side_Foam_Depth_Multiply: 0.121
+    - _Side_Foam_Depth_Offset: 1
+    - _Side_Foam_Falloff: 12.1
+    - _Side_Foam_Flow_UV_Refresh_Speed: 0.1
+    - _Side_Foam_Front_Mask_Power_Reduction: -2.18
+    - _Side_Foam_Front_Mask_Power_Reduction_Multiply: 1.22
+    - _Side_Foam_Front_Mask_Power_Reduction_Offset: -1.1
+    - _Side_Foam_Gerstner_Speed_Power: 1
+    - _Side_Foam_Gerstner_Waves_Multiply: 1
+    - _Side_Foam_Gerstner_Waves_Offset: -0.13
+    - _Side_Foam_Gerstner_Waves_Power: 3.46
+    - _Side_Foam_Mask_Normal_Scale: 1
+    - _Side_Foam_Mask_Power: 3.3
+    - _Side_Foam_Perlin_Multiply: 0.29
+    - _Side_Foam_Perlin_Power: 0.08
+    - _Side_Foam_Perlin_Tiling: 0.3333333
+    - _Side_Foam_Wave_Backs_Multiply: 0
+    - _Side_Foam_Wave_Backs_Offset: 0
+    - _Side_Foam_Waves_Multiply: 0
+    - _Side_Foam_Waves_Offset: 0
+    - _Side_Foam_Waves_Power: 6
+    - _Side_Front_Foam_Gerstner_Waves_Multiply: 1
+    - _Side_Front_Foam_Gerstner_Waves_Offset: 0
+    - _Side_Front_Foam_Gerstner_Waves_Power: 1
+    - _Side_Gerstner_Waves_Foam_Influence_Multiply: 20
+    - _Side_Gerstner_Waves_Foam_Influence_Offset: 0.05
+    - _Side_Waves_Foam_Influence_Multiply: 20
+    - _Silent_Area_Blend: 1
+    - _Silent_Area_Gerstner: 1
+    - _Silent_Area_Polar: 0.01
+    - _SlowCascadeAngle: 0.001
+    - _SlowCascadeFalloff: 80
+    - _SlowCascadeFoamFalloff: 5.86
+    - _SlowCascadeSpeed: 0.15
+    - _SlowNormalScale: 0.1125
+    - _SlowWaterSpeed: 0.5
+    - _SlowWaterTessScale: 0.4
+    - _SlowWaterTranslucencyMultiply: 1.25
+    - _SmallCascadeAngle: 7.5
+    - _SmallCascadeAngleFalloff: 1.6
+    - _SmallCascadeFalloff: 80
+    - _SmallCascadeFlowUVRefreshSpeed: 0.15
+    - _SmallCascadeFoamFalloff: 4.11
+    - _SmallCascadeNoiseMultiply: 20
+    - _SmallCascadeNoisePower: 7.4
+    - _SmallCascadeNormalInfluence: 20
+    - _SmallCascadeNormalScale: 0.4
+    - _SmallCascadeSmoothness: 0
+    - _SmallCascadeSpecular: 0.8
+    - _SmallCascadeSpeed: 4
+    - _SmallCascadeTranslucencyMultiply: 1.76
+    - _SmallCascadeWaterNormalScale: 0.69
+    - _SmallCascadeWaterTessScale: 99
+    - _Small_Angle_Offset: 0.8
+    - _Small_Gerstner_Noise_Multiply: 1.7
+    - _Small_Gerstner_Noise_Power: 1
+    - _Small_Gerstner_Shore_Height_Multiply: 3
+    - _Small_Gerstner_Shore_Waves_Height_Multiply: 3
+    - _Small_Gerstner_Shore_Waves_Multiply: 3
+    - _Small_Gerstner_Silent_Area_Angle: 200
+    - _Small_Gerstner_Silent_Area_Angle_Hardness: 2
+    - _Small_Gerstner_Swash_Size: 0.8
+    - _Small_Gerstner_Waves_Chaos: 0.4
+    - _Small_Gerstner_Waves_chaos: 0.528
+    - _Small_Silent_Area: 1
+    - _Small_Silent_Area_Angle: 200
+    - _Small_Silent_Area_Angle_Hardness: 2
+    - _Small_Silent_Area_Hardness: 1
+    - _Small_Wave_Noise_Multiply: 1.68
+    - _Small_Wave_Noise_Mutiply: 1.68
+    - _Small_Wave_Noise_Power: 1
+    - _Small_Wave_Shore_Height_Multiply: 3
+    - _Small_Wave_Silent_Area_Angle: 200
+    - _Small_Wave_Silent_Area_Angle_Hardness: 2
+    - _Small_Wave_Swash_Size: 0.4
+    - _Small_Wave_Wave_Noise_Power: 1.18
+    - _Small_Waves_Chaos: 0.4
+    - _Smoothness: 0.9
+    - _Specular: 0.1
+    - _SpecularHighlights: 1
+    - _SrcBlend: 5
+    - _StencilRef: 0
+    - _StencilRefDepth: 8
+    - _StencilRefDistortionVec: 4
+    - _StencilRefGBuffer: 10
+    - _StencilRefMV: 40
+    - _StencilWriteMask: 6
+    - _StencilWriteMaskDepth: 9
+    - _StencilWriteMaskDistortionVec: 4
+    - _StencilWriteMaskGBuffer: 15
+    - _StencilWriteMaskMV: 41
+    - _SupportDecals: 0
+    - _SurfaceType: 1
+    - _TessMax: 15
+    - _TessMaxDisp: 11
+    - _TessMin: 0
+    - _TessPhongStrength: 0.5
+    - _TessValue: 10
+    - _Tesselation_Factor: 8
+    - _TessellationBackFaceCullEpsilon: -1
+    - _TessellationFactorMaxDistance: 50
+    - _TessellationFactorMinDistance: 20
+    - _TessellationFactorTriangleSize: 100
+    - _TessellationMaxDisplacement: 1
+    - _TessellationMode: 1
+    - _TessellationShapeFactor: 0.75
+    - _Time_Offset: 0
+    - _ToggleSwitch1: 0
+    - _Translucency_Direct_Sun_Power: 1
+    - _Translucency_Global_Power: 0.4
+    - _Translucency_Sun_Power: 85
+    - _TransmissionEnable: 1
+    - _TransparentBackfaceEnable: 0
+    - _TransparentCullMode: 2
+    - _TransparentDepthPostpassEnable: 0
+    - _TransparentDepthPrepassEnable: 0
+    - _TransparentSortPriority: 0
+    - _TransparentWritingMotionVec: 1
+    - _TransparentZWrite: 1
+    - _UVDirectionV1U0: 1
+    - _UVVDirection1UDirection0: 1
+    - _Udirection: 0
+    - _UseShadowThreshold: 0
+    - _Use_Caustic: 1
+    - _Vdirection: 0
+    - _WaterAlphaMultiply: 0.15
+    - _WaterAlphaPower: 1
+    - _WaterDeepTranslucencyPower: 0.1
+    - _WaterDepth: 0.421
+    - _WaterFallOfBorder: 9.32
+    - _WaterFalloff: 0.143
+    - _WaterFalloffBorder: 8.46
+    - _WaterFlowUVRefresSpeed: 0.2
+    - _WaterMetalic: 0.081
+    - _WaterNormalScale: 0.5
+    - _WaterShalowDepth: 3.85
+    - _WaterShalowFalloff: -3.43
+    - _WaterShalowTranslucencyPower: 0
+    - _WaterSmoothness: 0.9
+    - _WaterSpecular: 0.165
+    - _WaterSpecularClose: 0.19
+    - _WaterSpecularFar: 0.255
+    - _WaterSpecularThreshold: 0.15
+    - _WaterSpeed: 0.5
+    - _WaterTessScale: 0.6
+    - _WaterTiling: 100
+    - _WaterTranslucencyPower: 0.55
+    - _Water_Flow_UV_Refresh_Speed_1: 0.15
+    - _Water_Normal_Flatten_Multiply: 0.2
+    - _Water_Slope_Inluence_2: 2000
+    - _Water_Slope_Power: 2
+    - _Water_Specular_Close: 0.01
+    - _Water_Specular_Far: 0.255
+    - _WaveTranslucencyFallOffDistance: 140
+    - _WaveTranslucencyHardness: 1.89
+    - _WaveTranslucencyMultiply: 0.01
+    - _WaveTranslucencyPower: 2.69
+    - _Wave_breaking_depth: 0.2
+    - _Waver_Noise_Power: 1.88
+    - _Wind_Speed: 0.01
+    - _ZTestDepthEqualForOpaque: 4
+    - _ZTestGBuffer: 4
+    - _ZTestTransparent: 4
+    - _ZWrite: 1
+    - __dirty: 0
+    - _ao: 1
+    - _offset: -0.4
+    - _test: 0.35
+    m_Colors:
+    - WindMicroWaveTiling: {r: 0.1, g: 0.1, b: 0, a: 0}
+    - _BigCascadeColor: {r: 20, g: 20, b: 20, a: 0}
+    - _BigCascadeMainSpeed: {r: 0.1, g: 0.1, b: 0, a: 0}
+    - _BigCascadeMixSpeed: {r: 0.01, g: 0.04, b: 0, a: 0}
+    - _BigCascadeTiling: {r: 5, g: 4, b: 0, a: 0}
+    - _Big_Gerstner_Noise_Tiling: {r: 0.19, g: 0.53, b: 0, a: 0}
+    - _Big_Wave_Gerstner_Direction_1_X_Y_Z_stepness_W_scale: {r: 0, g: 0, b: 0.07, a: 27}
+    - _Big_Wave_Gerstner_Direction_1_X_Y_direction_Z_stepness_W_scale: {r: 0, g: 30, b: 0.4, a: 37}
+    - _Big_Wave_Gerstner_Direction_2_X_Y_Z_stepness_W_scale: {r: 0, g: 0, b: 0.1, a: 30}
+    - _Big_Wave_Gerstner_Direction_2_X_Y_direction_Z_stepness_W_scale: {r: 0, g: -30, b: 0.4, a: 40}
+    - _CascadeColor: {r: 20, g: 20, b: 20, a: 0}
+    - _Caustic_Color: {r: 1, g: 1, b: 1, a: 0.007843138}
+    - _Color: {r: 0.16981131, g: 0.16981131, b: 0.16981131, a: 0}
+    - _Color0: {r: 0, g: 0.6749488, b: 0.8088235, a: 0}
+    - _Color1: {r: 0, g: 0.048731543, b: 0.22794023, a: 0}
+    - _Crest_Side_Foam_Speed: {r: 0.4, g: 0.3, b: 0, a: 0}
+    - _DeepColor: {r: 0.004049484, g: 0.012163146, b: 0.06603769, a: 0}
+    - _DiffusionProfileAsset: {r: -3.217784e+18, g: -3.299812e+22, b: -1.6216384e+24, a: 6.6224394e+13}
+    - _DoubleSidedConstants: {r: -1, g: -1, b: -1, a: 0}
+    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _FoamColor: {r: 100, g: 100, b: 100, a: 0}
+    - _FoamSpeed: {r: 0.6, g: 0.6, b: 0, a: 0}
+    - _FoamTiling: {r: 4, g: 4, b: 0, a: 0}
+    - _Foam_Color: {r: 294.06674, g: 0, b: 0, a: 0}
+    - _Foam_Slope_Speed_Influence: {r: 99, g: 99, b: 0, a: 0}
+    - _Gersner_Slope_Speed_Influence: {r: 1, g: 1, b: 0, a: 0}
+    - _GerstnerDirection_1: {r: 0.5, g: 0.1, b: 0, a: 10}
+    - _GerstnerDirection_1_X_Y_Z_height_W_scale: {r: 1, g: 1, b: 0.25, a: 200}
+    - _GerstnerDirection_2: {r: 0, g: 30, b: 30, a: 13}
+    - _GerstnerDirection_2_X_Y_Z_height_W_scale: {r: 1, g: 0.6, b: 0.15, a: 50}
+    - _GerstnerDirection_3: {r: 0, g: -30, b: 0, a: 16}
+    - _GerstnerDirection_3_X_Y_Z_height_W_scale: {r: 1, g: 1.3, b: 0.15, a: 50}
+    - _GerstnerDirection_4: {r: 0.3, g: 0.1, b: 40, a: 13.5}
+    - _GerstnerDirection_5: {r: 0.4, g: 0.07, b: -40, a: 11.5}
+    - _Gerstner_1: {r: 0.06, g: 0.05, b: 20, a: 6.5}
+    - _Gerstner_2: {r: 0.05625, g: 0.05, b: -20, a: 8}
+    - _Gerstner_Wave_Noise_Speed: {r: 5, g: 3, b: 0, a: 0}
+    - _Gerstner_Wave_Noise_Tiling: {r: 0.15, g: 0.42, b: 0, a: 0}
+    - _MacroWaveTiling: {r: 0.02, g: 0.02, b: 0, a: 0}
+    - _MicroWaveNRMTiling: {r: 20, g: 20, b: 0, a: 0}
+    - _MicroWaveTiling: {r: 0.1, g: 0.1, b: 0, a: 0}
+    - _NM_SSSSettings_Water_RAM_Asset: {r: 6.815038e+17, g: -4.162254e+31, b: -1.4536819e+38, a: 128896.04}
+    - _NoiseSpeed: {r: 99, g: 99, b: 0, a: 0}
+    - _NoiseTiling: {r: 6, g: 6, b: 0, a: 0}
+    - _Ocean_Gerstner_Start_X_Flatten_Point_Y: {r: 9999, g: 5, b: 0, a: 0}
+    - _Polar_Gerstner_Range_X_Break_Point_Y: {r: 1, g: 0.3, b: 0, a: 0}
+    - _Polar_Gerstner_Range_X_Break_Point_Y_Shore_Multiply_Z: {r: 5, g: 0.1, b: 2, a: 0}
+    - _Polar_Gerstner_Shore_Bump_X_Border_Y: {r: 4, g: 0.1, b: 0, a: 0}
+    - _Polar_Gerstner_Shore_Bump_X_Break_Flaten_Y: {r: 4, g: 1, b: 0, a: 0}
+    - _Polar_Gerstner_Start_X_Break_Point_Y: {r: 3, g: 0.2, b: 0, a: 0}
+    - _Polar_Gerstner_Start_X_Flatten_Point_Y: {r: 7, g: 0.4, b: 0, a: 0}
+    - _Polar_Wave_Depth_Start_X_Flatten_Point_Y: {r: 7, g: 0.4, b: 0, a: 0}
+    - _R_Multiply_G_Add_B_power: {r: 0, g: 0, b: 2.87, a: 0}
+    - _SeaFoamColor: {r: 1, g: 1, b: 1, a: 0}
+    - _Sea_Foam_Slope_Influence: {r: 1, g: 1, b: 0, a: 0}
+    - _Sea_Foam_Tiling: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - _Sea_Gerstner_Flatten_Depth_Start_X_End_Y: {r: 7, g: 5, b: 0, a: 0}
+    - _Sea_Gerstner_Noise_Tiling: {r: 0.19, g: 0.53, b: 0, a: 0}
+    - _Sea_Gerstner_Start_X_Flatten_Point_Y: {r: 7, g: 5, b: 0, a: 0}
+    - _Sea_Wave_Depth_Flatten_Start_X_End_Y: {r: 7, g: 5, b: 0, a: 0}
+    - _Sea_Wave_Noise_Tiling: {r: 1.18, g: 1.78, b: 0, a: 0}
+    - _ShalowColor: {r: 0.34509805, g: 0.44704273, b: 0.47058824, a: 0}
+    - _Shode_Foam_Line_Depth_min_max_RG_Value_Mask_BA: {r: 0, g: 0, b: 0, a: 0}
+    - _Shore_Foam_Line_Depth_min_max_RG_Value_Mask_BA: {r: -0.25, g: 2.26, b: 0, a: 1}
+    - _Side_Foam_Color: {r: 1.55, g: 1.55, b: 1.55, a: 0}
+    - _Side_Foam_Crest_Color: {r: 5, g: 5, b: 5, a: 0}
+    - _Side_Foam_Crest_Wave_Tiling: {r: 10, g: 20, b: 0, a: 0}
+    - _Side_Foam_Slope_Speed_Influence: {r: 0.5, g: 0.5, b: 0, a: 0}
+    - _Side_Foam_Speed: {r: 1, g: 1, b: 0, a: 0}
+    - _Side_Foam_Tiling: {r: 20, g: 20, b: 0, a: 0}
+    - _Slope_Speed_Influence: {r: 0.1, g: 0.1, b: 0, a: 0}
+    - _SlowCascadeColor: {r: 20, g: 20, b: 20, a: 0}
+    - _SlowWaterMixSpeed: {r: 0.3, g: -0.5, b: 0, a: 0}
+    - _SlowWaterSpeed: {r: 0.33, g: 0.33, b: 0, a: 0}
+    - _SlowWaterTiling: {r: 2, g: 2, b: 0, a: 0}
+    - _SmallCascadeColor: {r: 20, g: 20, b: 20, a: 0}
+    - _SmallCascadeMainSpeed: {r: 0.3, g: 0.3, b: 0, a: 0}
+    - _SmallCascadeMixSpeed: {r: 0.002, g: 0.02, b: 0, a: 0}
+    - _SmallCascadeTiling: {r: 6, g: 6, b: 0, a: 0}
+    - _Small_Gerstner_Noise_Tiling: {r: 0.33, g: 0.8, b: 0, a: 0}
+    - _Small_Gerstner_Shore_Start_X_Flatten_Point_Y: {r: 6, g: 1.4, b: 0, a: 0}
+    - _Small_Gerstner_Start_X_Flatten_Point_Y: {r: 10, g: 5, b: 0, a: 0}
+    - _Small_Shore_Gerstner_Start_X_Flatten_Point_Y: {r: 6, g: 1.4, b: 0, a: 0}
+    - _Small_Wave_Noise_Tiling: {r: 0.54, g: 1.06, b: 0, a: 0}
+    - _Small_Wave_Shore_Depth_Start_X_Flatten_Point_Y: {r: 6, g: 1.4, b: 0, a: 0}
+    - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Vector2: {r: 0, g: 0.07, b: 0, a: 0}
+    - _Vector2_1: {r: 1.09, g: 0, b: 0, a: 0}
+    - _Vector3: {r: 1, g: 1, b: 1, a: 0}
+    - _Vector3_1: {r: 0, g: 0, b: 0, a: 0}
+    - _Vector4: {r: 6.63, g: -4.3, b: -0.42, a: 4}
+    - _WaterMainSpeed: {r: 0.2, g: 0.2, b: 0, a: 0}
+    - _WaterMixSpeed: {r: 0.002, g: 0.002, b: 0, a: 0}
+    - _Water_Slope_Inluence: {r: 0.5, g: 1.7, b: 0, a: 0}
+    - _Wave_Noise_Speed: {r: 3, g: 3, b: 0, a: 0}
+    - _Wave_Noise_Tiling: {r: 2, g: 2, b: 0, a: 0}
+    - _Waves_Offset: {r: 0, g: 0, b: 0, a: 0}
+    - _Waves_Remap_for_breaking_waves_RG_IN_BA_OUT: {r: 0, g: 0, b: 0, a: 0}
+    - _Waves_Top_Offset: {r: 0, g: 0, b: 0, a: 0}
+    - _cAUSTIC_cOLOR: {r: 0.9716981, g: 0.0229174, b: 0.0229174, a: 0}
+    - _polar_Vector2_2: {r: 0.3, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
