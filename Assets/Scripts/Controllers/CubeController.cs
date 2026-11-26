@@ -4587,8 +4587,15 @@ public class CubeController : MonoBehaviour
     }
     #endregion
 
+    // Fire size for a data-driven fire. Base = always Big, i.e. the original full fire (BigCreek unchanged);
+    // CubeController_CCV3 classifies by the data's burn value.
+    public enum FireSeverity { None, Small, Big }
+    public virtual FireSeverity GetFireSeverity(int fireTimeIdx) => FireSeverity.Big;
+
+    // Small fire: no-op in the base class (only Central Coast has small fires).
+    public virtual void IgniteSmallFire(int fireTimeIdx) { }
     // centralCoastV3 data-driven fire. If fire > 0, then burn.
-        public bool ShouldBurnFireFromData(int timeIdx)
+    public bool ShouldBurnFireFromData(int timeIdx)
     {
         CubeData row = GetDataRow(timeIdx + 1);
         return row != null && row.fire > 0f;

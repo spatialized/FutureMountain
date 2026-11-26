@@ -151,6 +151,64 @@ public class CubeController_CCV3 : CubeController
         return scarStrength * Mathf.Clamp01(1f - t);
     }
 
+     // ----- Fire severity (big / small) -----
+    [Header("Fire severity")]
+    public float minFireBurn = 1f;             // below this burn value there is no visible fire
+    public float zoneBigFireBurn = 20f;        // zone: burn >= this is a big fire
+    public float aggregateBigFireBurn = 30f;   // aggregate: burn (pctWS_burned) >= this is a big fire
+    public int severityLookaheadSteps = 60;    // how far ahead to scan for the end of this fire
+
+    [Header("Small fire")]
+    public GameObject smallFirePrefab;         // Fire_Unlit_Small
+    public int smallFireCount = 8;             // flames scattered over the terrain
+    public float smallFireSeconds = 4f;        // how long the small flames stay
+    private float smallFireEndTime = -1f;
+
+    // Classify the fire starting after fireTimeIdx by the largest burn value while it lasts.
+    public override FireSeverity GetFireSeverity(int fireTimeIdx)
+    {
+        float maxBurn = 0f;
+        bool anyFire = false;
+        for (int i = 1; i <= severityLookaheadSteps; i++)
+        {
+            CubeData row = GetDataRow(fireTimeIdx + i);
+            if (row == null) break;
+            bool burning = isAggregate ? row.burn >= minFireBurn : row.fire > 0f;
+            if (!burning) break;                      // this fire has ended
+            anyFire = true;
+            maxBurn = Mathf.Max(maxBurn, row.burn);
+        }
+
+        if (!anyFire || maxBurn < minFireBurn) return FireSeverity.None;
+        float bigThreshold = isAggregate ? aggregateBigFireBurn : zoneBigFireBurn;
+        return maxBurn >= bigThreshold ? FireSeverity.Big : FireSeverity.Small;
+    }
+
+    // Small fire: scatter a few small flames over this cube's terrain for a few seconds.
+    // No fire grid, no tree ignition (deaths still follow ind_died), terrain scar comes from the shader.
+    public override void IgniteSmallFire(int fireTimeIdx)
+    {
+        if (smallFirePrefab == null || terrain == null) return;
+        if (!terrain.gameObject.activeInHierarchy) return;   // cube hidden
+        if (Time.time < smallFireEndTime) return;           // already showing one
+
+        smallFireEndTime = Time.time + smallFireSeconds;
+        Vector3 origin = terrain.GetPosition();
+        Vector3 size = terrain.terrainData.size;
+
+        for (int i = 0; i < smallFireCount; i++)
+        {
+            Vector3 p = origin + new Vector3(Random.Range(0.15f, 0.85f) * size.x, 0f,
+                                            Random.Range(0.15f, 0.85f) * size.z);
+            p.y = terrain.SampleHeight(p) + origin.y;
+            GameObject flame = Instantiate(smallFirePrefab, p, Quaternion.identity, terrain.transform);
+            // Fire cell prefabs switch their particles off on enable; ignite them like the fire grid does.
+            SERI_FireVisualManager visual = flame.GetComponentInChildren<SERI_FireVisualManager>();
+            if (visual != null) visual.SetIgnitionState();
+            Destroy(flame, smallFireSeconds);
+        }
+    }
+
     //TEMP test hook: push the Inspector values to the terrain every frame so we can tweak them in play mode.
     void LateUpdate()
     {

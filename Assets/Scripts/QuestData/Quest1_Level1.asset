@@ -20,16 +20,28 @@ MonoBehaviour:
   graphSelectable: 1
   allowSideBySide: 0
   allowDifferentCubes: 0
-  opening: 'Characterize climate characteristics in each of the climate scenarios
-    by selecting the appropriate precipitation, min/max temperature, wind, and relative
-    humidity value for the listed prompts. You will then repeat this process across
-    the three climate scenarios. Using the quest panel, alternate between each of
-    the 3 climate scenarios and complete the following tasks/questions:'
+  opening: 'Welcome to Future Mountain Quest Learning. Take a few minutes and explore.
+    Press begin quest when ready.
+
+
+    This scroll contains relevant information,
+    it will have a list of ongoing terms that may be useful during your journey through
+    Future Mountain. Please open before looking at Level 1.'
   ending: You have successfully demonstrated your ability to navigate through different
     climate scenarios & variables. Next, explore level two, where you will learn
     more about different climate scenarios!
   defaultOptions: []
   questions:
+  - prompt: "Explore climate characteristics in each of the climate scenarios by
+      selecting the appropriate precipitation, min/max temperature, wind, and relative
+      humidity value for the listed prompts. You will then repeat this process across
+      the three climate scenarios.\u201D\r\n\r\nUsing the quest panel, alternate
+      between each of the 3 climate scenarios and complete the following tasks/questions:"
+    options: []
+    correctIndex: 0
+    graphSelect: 1
+    correctYearsByScenario: []
+    textInput: 0
   - prompt: Rainfall determines whether a year is dry or wet. Using the precipitation
       graph, select what years you would think are a wet year?
     options: []

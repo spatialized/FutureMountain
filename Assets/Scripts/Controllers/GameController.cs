@@ -2308,10 +2308,11 @@ public class GameController : MonoBehaviour
                             //if (cube.ShouldBurnFireOnDate(date))                // Only burn cube if in (manual) list of cubes to burn for fire
                             if (CubeShouldBurn(cube, date, fireTimeIdx))
                             {
-                                cube.IgniteTerrain(fireTimeIdx, false);
+                                IgniteCubeFire(cube, fireTimeIdx);
 
                                 if (sideCube.simulationOn)
-                                    sideCube.IgniteTerrain(fireTimeIdx, false);
+                                    // sideCube.IgniteTerrain(fireTimeIdx, false);
+                                    IgniteCubeFire(sideCube, fireTimeIdx);
                             }
                         }
                     }
@@ -2337,10 +2338,12 @@ public class GameController : MonoBehaviour
                             //if (cube.ShouldBurnFireOnDate(date))                // Only burn cube if in (manual) list of cubes to burn for fire
                             if (CubeShouldBurn(cube, date, fireTimeIdx))
                             {
-                                cube.IgniteTerrain(fireTimeIdx, false);
+                                // cube.IgniteTerrain(fireTimeIdx, false);
+                                IgniteCubeFire(cube, fireTimeIdx);
 
                                 if (sideCube.simulationOn)
-                                    sideCube.IgniteTerrain(fireTimeIdx, false);
+                                    // sideCube.IgniteTerrain(fireTimeIdx, false);
+                                    IgniteCubeFire(sideCube, fireTimeIdx);
                             }
                         }
                     }
@@ -2350,9 +2353,11 @@ public class GameController : MonoBehaviour
             //if (aggregateCubeController.ShouldBurnFireOnDate(date))
             if (CubeShouldBurn(aggregateCubeController, date, fireTimeIdx))
             {
-                aggregateCubeController.IgniteTerrain(fireTimeIdx, false);                         // Start fire in aggregate cube
+                // aggregateCubeController.IgniteTerrain(fireTimeIdx, false);                         // Start fire in aggregate cube
+                IgniteCubeFire(aggregateCubeController, fireTimeIdx);
                 if(aggregateSideCubeController.simulationOn)
-                    aggregateSideCubeController.IgniteTerrain(fireTimeIdx, false);                     // Start fire in aggregate side cube
+                    // aggregateSideCubeController.IgniteTerrain(fireTimeIdx, false);                     // Start fire in aggregate side cube
+                    IgniteCubeFire(aggregateSideCubeController, fireTimeIdx);
             }
         }
 
@@ -4323,6 +4328,25 @@ public class GameController : MonoBehaviour
         landscapeController.SetSnowVisibility(false);
     }
     #endregion
+    
+    // Ignite one cube from data. Central Coast V3 splits fires into big (full fire) and small (small flames
+    // only); every other profile keeps the original full IgniteTerrain.
+    private void IgniteCubeFire(CubeController cube, int fireTimeIdx)
+    {
+        if (!IsCentralCoastV3())
+        {
+            cube.IgniteTerrain(fireTimeIdx, false);
+            return;
+        }
+
+        CubeController.FireSeverity severity = cube.GetFireSeverity(fireTimeIdx);
+        Debug.Log($"[FIRE] {cube.name} t={fireTimeIdx} severity={severity}");   // TEMP
+        if (severity == CubeController.FireSeverity.Big)
+            cube.IgniteTerrain(fireTimeIdx, false);
+        else if (severity == CubeController.FireSeverity.Small)
+            cube.IgniteSmallFire(fireTimeIdx);
+        // None: the data's burn is below the fire threshold, so nothing visible
+    }
 
     // profile-based burn. CentralCoast - real data, Big Creek as it is.
     private bool CubeShouldBurn(CubeController cube, Vector3 date, int fireTimeIdx)
