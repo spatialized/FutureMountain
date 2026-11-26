@@ -104,9 +104,13 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BurnAmount: 8.88
-    - _BurnNoiseScale: 1.01
+    - _BurnAmount: -0.55
+    - _BurnNoiseScale: 5.93
+    - _CoverEdge: 2.07
     - _EnableInstancedPerPixelNormal: 1
+    - _GrassCover: 5.9
+    - _LitterCover: 0
+    - _LitterScale: -0.64
     - _Metallic0: 0
     - _Metallic1: 0
     - _Metallic2: 0

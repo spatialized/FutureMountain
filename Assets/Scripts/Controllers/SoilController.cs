@@ -241,8 +241,8 @@ public class SoilController : MonoBehaviour {
           // positioned (9.5 m in a 20 m profile = middle, not the surface) and still tracks the data. Per-cube
           // range-normalization was wrong here: it pushed 20803's barely-varying 9.4 m water table to the top.
             float waterLevel01 = Mathf.Clamp01(1f - depthToGW / Mathf.Max(soilProfileDepthMeters, 0.01f));
-            if (name.Contains("Soil") && transform.root.name.Contains("CubeA"))   // TEMP: one cube only, to keep the log small
-            Debug.Log($"[WATER] {transform.root.name} depthToGW={depthToGW:F2}m  waterLevel01={waterLevel01:F3}");
+            // if (name.Contains("Soil") && transform.root.name.Contains("CubeA"))   // TEMP: one cube only, to keep the log small
+            // Debug.Log($"[WATER] {transform.root.name} depthToGW={depthToGW:F2}m  waterLevel01={waterLevel01:F3}");
 
             // Root-zone depth as a fraction of the profile. The moisture patches in the shader are confined to
             // this upper band, so deeper roots => patches reach deeper. Clamped to a visible minimum.

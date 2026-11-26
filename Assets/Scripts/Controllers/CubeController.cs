@@ -347,6 +347,9 @@ public class CubeController : MonoBehaviour
     public float Litter { get; set; }               // Litter amount
     private float LitterMin = 100000f;              // Litter min. from data
     private float LitterMax = -100000f;             // Litter max. from data
+    // Read-only data ranges for subclasses (Central Coast terrain cover normalization). No behaviour change.
+    protected float LitterDataMax => LitterMax;
+    protected float LeafCarbonUnderDataMax => LeafCarbonUnderMax;
 
     public float NetPhotosynthesis { get; set; }    // Net photosynthesis for all trees + plants  (X)
     private float NetPhotosynthesisMin = 100000f;
@@ -2284,7 +2287,8 @@ public class CubeController : MonoBehaviour
 
     public void SetToBurnt()
     {
-        terrain.terrainData.SetAlphamaps(0, 0, burntSplatmap);      // Set burnt terrain splatmap
+        if(UseSplatmapFire)
+            terrain.terrainData.SetAlphamaps(0, 0, burntSplatmap);      // Set burnt terrain splatmap
 
         fireRegrowthStartTimeIdx = timeIdx;                         // Time idx when last fire ended
         terrainBurning = false;
@@ -2998,7 +3002,7 @@ public class CubeController : MonoBehaviour
     /// </summary>
     /// <param name="timeIdx"></param>
     /// <returns></returns>
-    CubeData GetDataRow(int timeIdx)
+    protected CubeData GetDataRow(int timeIdx)
     {
         if (cubeData == null || cubeData.Count == 0)
         {
@@ -4746,7 +4750,7 @@ public class CubeController : MonoBehaviour
             ResetTerrainSplatmap();
             lastBurnEndedTime = Time.time;
         }
-        else
+        else if(UseSplatmapFire)
         {
             if (debugFire)
                 Debug.Log(name + "... Updating fire transition... fireRegrowthStartTimeIdx:" + fireRegrowthStartTimeIdx + " pos:" + pos + " time:" + Time.time);
@@ -4770,9 +4774,13 @@ public class CubeController : MonoBehaviour
     /// <summary>
     /// Resets terrain splatmap.
     /// </summary>
+    // Whether fire visuals rewrite the terrain splatmap (BigCreek). Central Coast overrides this to false and
+    // shows burn scars through its terrain shader instead.
+    protected virtual bool UseSplatmapFire => true;
     public void ResetTerrainSplatmap()
     {
-        terrain.terrainData.SetAlphamaps(0, 0, unburntSplatmap);
+        if(UseSplatmapFire)
+            terrain.terrainData.SetAlphamaps(0, 0, unburntSplatmap);
         terrainBurnt = false;
     }
 

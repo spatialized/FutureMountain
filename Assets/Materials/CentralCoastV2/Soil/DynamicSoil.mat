@@ -145,6 +145,7 @@ Material:
     - _AOStrength: 1
     - _AlphaClip: 0
     - _AlphaToMask: 0
+    - _BaseFlowSpeed: 0.03
     - _BaseLight: 0.47
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
@@ -176,6 +177,7 @@ Material:
     - _DstBlendAlpha: 0
     - _EmissionEnabled: 0
     - _FlipbookMode: 0
+    - _FlowOffset: 1
     - _GlossMapScale: 0.76
     - _Glossiness: 0.5314286
     - _GlossyReflections: 0
@@ -189,6 +191,7 @@ Material:
     - _Metallic3: 0
     - _Mode: 0
     - _Moisture: 0.237
+    - _MoistureFactor: 0.5
     - _NoiseAmount: 1
     - _NoiseScale: 13.96
     - _NormalStrength: 1
@@ -199,6 +202,8 @@ Material:
     - _ProfileDepth: 10
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _RainFall: 0
+    - _RainMultiplier: 0
     - _ReceiveShadows: 1
     - _RootDepth: 5
     - _RootFadeWidth: 0.5

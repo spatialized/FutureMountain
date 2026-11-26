@@ -46,6 +46,116 @@ public class CubeController_CCV3 : CubeController
     protected override void UpdateVegetationCore()
     {
         UpdateVegetationCentralCoast();         // Trees balanced per patch; grass stands in for the understory
+        UpdateTerrainCoverFromData();
+    }
+
+    // ----- Terrain cover shader (GroundBurn.shadergraph) -----
+    // Per-cube values go through the terrain's own splat property block, so every CC cube can share one
+    // material while showing its own grass / litter / burn. BigCreek terrains never get this block.
+    [Header("Central Coast terrain cover")]
+    public bool terrainCoverTest = false;
+    [Range(0f, 1f)] public float GrassCover = 0.5f;
+    [Range(0f, 1f)] public float LitterCover = 0.2f;
+    [Range(0f, 1f)] public float BurnAmount = 0.5f;
+
+    [Header("Terrain cover (data)")]
+    public float grassCoverGain = 1f;    // >1 makes grass reach full cover sooner
+    public float litterCoverGain = 1f;   // >1 makes litter reach full cover sooner
+    [Header("Terrain cover (current values, read-only)")]
+    public float currentGrassCover;    // shown for debugging; written every step
+    public float currentLitterCover;
+    public float currentBurnScar;
+
+    [Header("Terrain burn scar")]
+    public float bigFireScar = 0.8f;        // scar strength right after a big fire
+    public float smallFireScar = 0.15f;   // scar strength after a small fire
+    public float scarFadeSteps = 365f;    // steps for the scar to fade out after the fire ends
+
+    private float scarStrength = 0f;      // strength of the most recent fire's scar
+    private int scarStartIdx = -1;        // last step that fire was active (fade starts after it)
+
+    // CC shows burn scars through the terrain shader, not by rewriting the splatmap.
+    protected override bool UseSplatmapFire => false;
+
+    private MaterialPropertyBlock terrainCoverBlock;
+    private static readonly int GrassCoverId = Shader.PropertyToID("_GrassCover");
+    private static readonly int LitterCoverId = Shader.PropertyToID("_LitterCover");
+    private static readonly int BurnAmountId = Shader.PropertyToID("_BurnAmount");
+
+    // Push this cube's cover values to its terrain material.
+    protected void ApplyTerrainCover(float grass, float litter, float burn)
+    {
+        if (terrain == null) return;
+        if(terrainCoverBlock == null)
+            terrainCoverBlock = new MaterialPropertyBlock();
+
+        terrain.GetSplatMaterialPropertyBlock(terrainCoverBlock);
+        terrainCoverBlock.SetFloat(GrassCoverId, Mathf.Clamp01(grass));
+        terrainCoverBlock.SetFloat(LitterCoverId, Mathf.Clamp01(litter));
+        terrainCoverBlock.SetFloat(BurnAmountId, Mathf.Clamp01(burn));
+        terrain.SetSplatMaterialPropertyBlock(terrainCoverBlock);
+    }
+
+    // Map this step's data to 0..1 cover values (normalized by this cube's own data range) plus the burn scar.
+    private void UpdateTerrainCoverFromData()
+    {
+         if (name == "CubeF" && timeIdx % 50 == 0)   // TEMP: aggregate only, every 50 steps
+          {
+              CubeData dbg = GetDataRow(timeIdx);
+              Debug.Log($"[COVER-A] t={timeIdx} test={terrainCoverTest} leafCU={LeafCarbonUnder:F3}/{LeafCarbonUnderDataMax:F3} " +
+                        $"litter={Litter:F3}/{LitterDataMax:F3} burn={(dbg != null ? dbg.burn : -1):F1} fire={(dbg != null ? dbg.fire : -1):F1}");
+          }
+        if (terrainCoverTest) return;   // Inspector sliders win while testing
+
+        float grassMax  = LeafCarbonUnderDataMax;
+        float litterMax = LitterDataMax;
+
+        float grass  = (grassMax  > 0f) ? LeafCarbonUnder / grassMax * grassCoverGain   : 0f;
+        float litter = (litterMax > 0f) ? Litter          / litterMax * litterCoverGain : 0f;
+
+        // Burn scar: refresh while a fire is active, then let it fade.
+        if (timeIdx < scarStartIdx) { scarStartIdx = -1; scarStrength = 0f; }   // time jumped back: clear old scar
+
+        CubeData row = GetDataRow(timeIdx);
+        if (row != null)
+        {
+            float scar = FireScarFromRow(row);
+            if (scar > 0f && scar >= CurrentBurnScar())
+            {
+                scarStrength = scar;
+                scarStartIdx = timeIdx;
+            }
+        }
+
+        ApplyTerrainCover(grass, litter, CurrentBurnScar());
+    }
+
+    // Scar strength implied by one data row (0 = no fire). Thresholds follow the agreed severity rules:
+    // zone: fire > 0, burn >= 20 big / >= 1 small; aggregate: burn (pctWS_burned) >= 30 big / >= 1 small.
+    private float FireScarFromRow(CubeData row)
+    {
+        bool burning = isAggregate ? row.burn >= 1f : row.fire > 0f;
+        if (!burning) return 0f;
+
+        float bigThreshold = isAggregate ? 30f : 20f;
+        if (row.burn >= bigThreshold) return bigFireScar;
+        if (row.burn >= 1f) return smallFireScar;
+        return 0f;
+    }
+
+    // Current scar (0..1): full while burning, then fades linearly over scarFadeSteps.
+    private float CurrentBurnScar()
+    {
+        if (scarStartIdx < 0) return 0f;
+        float t = (timeIdx - scarStartIdx) / Mathf.Max(scarFadeSteps, 1f);
+        return scarStrength * Mathf.Clamp01(1f - t);
+    }
+
+    //TEMP test hook: push the Inspector values to the terrain every frame so we can tweak them in play mode.
+    void LateUpdate()
+    {
+        if (terrainCoverTest)
+            ApplyTerrainCover(GrassCover, LitterCover, BurnAmount);
     }
 
      // ----- single-load seam: no second web fetch at StartSimulation -----
