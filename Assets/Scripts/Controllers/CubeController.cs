@@ -12,6 +12,7 @@ using Random = UnityEngine.Random;
 using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
+using Unity.Profiling;
 
 /// <summary>
 /// Cube controller.
@@ -361,6 +362,11 @@ public class CubeController : MonoBehaviour
     private float treeCarbonFactor;                 // Scaling of tree height to vegetation amount (to compare with stem+leaf carbon in data)
     private float rootsCarbonFactor;                // Scaling of root height to roots amount to compare with root carbon in data   -- SHOULD ACCOUNT FOR WIDTH!
     private float shrubCarbonFactor;                // Scaling of shrub height to vegetation amount (to compare with stem+leaf carbon in data)
+
+    // Profiler markers for diagnosing data-load hitches (temporary).
+    static readonly ProfilerMarker pmFindRanges   = new ProfilerMarker("CC.FindParameterRanges");
+    static readonly ProfilerMarker pmLoadData     = new ProfilerMarker("CC.LoadData");
+    static readonly ProfilerMarker pmGrowFromData = new ProfilerMarker("CC.GrowFromLoadedData");
 
     #endregion
 
@@ -2241,7 +2247,8 @@ public class CubeController : MonoBehaviour
     /// </summary>
     public void UpdateRainfall(float rainValue)
     {
-         Debug.Log($"{name} UpdateRainfall  controllerNull={rainFallController == null}");
+        if (soilController != null) soilController.SetRainFlow(rainValue);   // CC: rain speeds up the soil moisture flow
+        // Debug.Log($"{name} UpdateRainfall  controllerNull={rainFallController == null}");
         if (rainFallController == null) return;
         rainFallController.SetRain(rainValue * settings.CentralCoastRainVizScale);
         
@@ -2793,15 +2800,25 @@ public class CubeController : MonoBehaviour
 
     private void FinishUpdateDataFromWeb(CubeData[] rows)
       {
-          dataRows = rows;                 // for parameter range finding
-          FindParameterRanges();
-          cubeData = LoadData(rows);       // sets cubeData
-          hoMaxP1 = -1f;                   // new patch1 data just landed -> recompute the heightOver range from THIS scenario
-          p1Loaded = true;
+        //   dataRows = rows;                 // for parameter range finding
+        //   FindParameterRanges();
+        //   cubeData = LoadData(rows);       // sets cubeData
+        //   hoMaxP1 = -1f;                   // new patch1 data just landed -> recompute the heightOver range from THIS scenario
+        //   p1Loaded = true;
 
-          // Grow only when all needed members are loaded (so we never reset later).
-          if (ReadyToGrowFromData())
-              GrowFromLoadedData();
+        //   // Grow only when all needed members are loaded (so we never reset later).
+        //   if (ReadyToGrowFromData())
+        //       GrowFromLoadedData();
+
+         dataRows = rows;                 // for parameter range finding
+        using (pmFindRanges.Auto()) { FindParameterRanges(); }
+        using (pmLoadData.Auto())   { cubeData = LoadData(rows); }   // sets cubeData
+        hoMaxP1 = -1f;                   // new patch1 data just landed -> recompute the heightOver range from THIS scenario
+        p1Loaded = true;
+
+        // Grow only when all needed members are loaded (so we never reset later).
+        if (ReadyToGrowFromData())
+            using (pmGrowFromData.Auto()) { GrowFromLoadedData(); }
       }
 
     /// <summary>

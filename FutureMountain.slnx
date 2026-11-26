@@ -1,11 +1,13 @@
 ﻿<Solution>
   <Project Path="Assembly-CSharp-Editor.csproj" />
-  <Project Path="RAM.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="RAM.csproj" />
   <Project Path="Assembly-CSharp-firstpass.csproj" />
   <Project Path="TriangleDotNet.csproj" />
+  <Project Path="Unity.RenderPipelines.Core.Samples.Runtime.csproj" />
   <Project Path="RAMEditor.csproj" />
   <Project Path="Assembly-CSharp-Editor-firstpass.csproj" />
   <Project Path="Underwater.csproj" />
+  <Project Path="Unity.RenderPipelines.Core.Samples.Editor.csproj" />
   <Project Path="RHESSYs_Data_Importer/RHESSYs_Data_Importer/RHESSYs_Data_Importer.csproj" />
 </Solution>

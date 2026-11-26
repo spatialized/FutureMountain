@@ -91,7 +91,7 @@ namespace RHESSYs_Data_Importer.Models.CentralCoastV3
         // Fire data
         public float burn { get; set; }
         public float fire { get; set; }
-
+        
         // Newer RHESSys columns (present from the 8-3-2026 bundle onward).
         // Older bundles lack these headers, so GetFloat resolves them to 0.
         public float ind_died { get; set; }   // individuals that died this step

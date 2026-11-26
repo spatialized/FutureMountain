@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 using static CubeController;
+using Unity.Profiling;
 
 /// <summary>
 /// Class for managing Unity web requests
@@ -113,6 +114,9 @@ public class WebManager : MonoBehaviour
     //     return this.StartCoroutine(this.GetRequest(uri, callback));
     // }
 
+    // Profiler marker for the cube-row JSON parse (temporary, for diagnosing load hitches).
+    static readonly ProfilerMarker pmParseCubeRows = new ProfilerMarker("CC.ParseCubeRows");
+
     public Coroutine RequestCubeData(int patchIdx, int warmingIdx, Action<string> callback)
     {
         string key = CubeDataCacheKey(patchIdx, warmingIdx);
@@ -160,8 +164,14 @@ public class WebManager : MonoBehaviour
         return this.StartCoroutine(this.GetRequest(uri, json =>
         {
             // The API returns a bare JSON array; JsonUtility needs it wrapped in an object.
-            Assets.Scripts.Models.CubeData[] rows =
-                JsonUtility.FromJson<Assets.Scripts.Models.CubeDataModelList>("{\"rows\":" + json + "}").rows;
+            // Assets.Scripts.Models.CubeData[] rows =
+            //     JsonUtility.FromJson<Assets.Scripts.Models.CubeDataModelList>("{\"rows\":" + json + "}").rows;
+
+            Assets.Scripts.Models.CubeData[] rows;
+            using (pmParseCubeRows.Auto())
+            {
+                rows = JsonUtility.FromJson<Assets.Scripts.Models.CubeDataModelList>("{\"rows\":" + json + "}").rows;
+            }
             cubeRowsCache[key] = rows;
             if (callback != null) callback(rows);
         }));

@@ -50,7 +50,16 @@ Material:
         m_Offset: {x: 0, y: 0.5}
     m_Ints: []
     m_Floats:
-    - _WetPatchOpacity: 40
+    - _BaseFlowSpeed: 0.02
+    - _DotSize: 0.3
+    - _MoistureFactor: 2
+    - _NoiseAmount: 10
+    - _NoiseScale: 10
+    - _PatchJitter: 10
+    - _Smoothness: 3
+    - _WaterEdge: 0.15
+    - _WetPatchOpacity: 20
+    - _WetVivideness: 0.1
     m_Colors:
     - _Tilling: {r: 2.54, g: 0.92, b: 0, a: 0}
   m_BuildTextureStacks: []

@@ -57,6 +57,15 @@ public class SoilController : MonoBehaviour {
     public float maxShallowSoilShininess = 0.9f;    // Max. soil shininess
     public float minShallowSoilShininess = 0.33f;   // Min. soil shininess
 
+    [Header("Central Coast moisture flow")]
+    public float baseFlowSpeed = 0.02f;      // UV units per second when it is not raining
+    public float rainFlowBoost = 0.15f;      // extra UV/sec added at full rain
+    public float rainForMaxFlow = 20f;       // rain amount that counts as "full rain" (same units as row.rain)
+
+    private float flowOffset = 0f;           // accumulated offset sent to _FlowOffset
+    private float currentRain = 0f;          // latest rain value from the cube's data
+    private bool flowActive = false;         // only Central Coast cubes call SetRainFlow, so BigCreek stays untouched
+
     /// <summary>
     /// Start this instance.
     /// </summary>
@@ -143,6 +152,34 @@ public class SoilController : MonoBehaviour {
         gwWetColor.a = gwDry.w;
     }
 
+   // Central Coast: called every simulation step with this step's rain, enabling the moisture flow.
+    public void SetRainFlow(float rain)
+    {
+        currentRain = Mathf.Max(0f, rain);
+        flowActive = true;
+    }
+
+    // Accumulate the flow offset so a speed change only speeds the motion up (no jump in the pattern).
+    void Update()
+    {
+        if (!flowActive || moistureMaterials == null) return;
+
+        float rain01 = Mathf.Clamp01(currentRain / Mathf.Max(rainForMaxFlow, 0.0001f));
+        float speed = baseFlowSpeed + rainFlowBoost * rain01;
+        flowOffset = Mathf.Repeat(flowOffset + speed * Time.deltaTime, 1000f);   // keep the value small for float precision
+
+        foreach (Material m in moistureMaterials)
+            m.SetFloat("_FlowOffset", flowOffset);
+    }
+
+    // // Central Coast: pass this step's rain to the moisture shader (_RainFall). The graph turns it into flow speed.
+    // public void SetRainFall(float rain)
+    // {
+    //     if (moistureMaterials == null) return;
+    //     foreach (Material m in moistureMaterials)
+    //         m.SetFloat("_RainFall", rain);
+    // }
+
     /// <summary>
     /// Updates the simulation state.
     /// </summary>
@@ -204,6 +241,8 @@ public class SoilController : MonoBehaviour {
           // positioned (9.5 m in a 20 m profile = middle, not the surface) and still tracks the data. Per-cube
           // range-normalization was wrong here: it pushed 20803's barely-varying 9.4 m water table to the top.
             float waterLevel01 = Mathf.Clamp01(1f - depthToGW / Mathf.Max(soilProfileDepthMeters, 0.01f));
+            if (name.Contains("Soil") && transform.root.name.Contains("CubeA"))   // TEMP: one cube only, to keep the log small
+            Debug.Log($"[WATER] {transform.root.name} depthToGW={depthToGW:F2}m  waterLevel01={waterLevel01:F3}");
 
             // Root-zone depth as a fraction of the profile. The moisture patches in the shader are confined to
             // this upper band, so deeper roots => patches reach deeper. Clamped to a visible minimum.
